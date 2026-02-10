@@ -4,7 +4,6 @@ from auth import mock_user_for_request
 from boxtribute_server.business_logic.statistics.crud import (
     number_of_boxes_moved_between,
 )
-from boxtribute_server.db import db
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
 from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.location import Location
@@ -13,12 +12,12 @@ from utils import assert_forbidden_request, assert_successful_request
 
 
 def test_query_beneficiary_demographics(
-    read_only_client, tags, default_beneficiary, another_male_beneficiary
+    client, tags, default_beneficiary, another_male_beneficiary
 ):
     query = """query { beneficiaryDemographics(baseId: 1) {
         facts { gender age createdOn deletedOn count tagIds }
         dimensions { tag { id name color } } } }"""
-    response = assert_successful_request(read_only_client, query, endpoint="graphql")
+    response = assert_successful_request(client, query, endpoint="graphql")
     age = compute_age(default_beneficiary["date_of_birth"])
     assert response["facts"] == [
         {
@@ -71,7 +70,7 @@ def test_query_beneficiary_demographics(
 
 
 def test_query_created_boxes(
-    read_only_client, base1_undeleted_products, product_categories, tags
+    client, base1_undeleted_products, product_categories, tags
 ):
     query = """query { createdBoxes(baseId: 1) {
         facts {
@@ -82,92 +81,102 @@ def test_query_created_boxes(
             category { id name }
             tag { id }
     } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     # Sanity check
     nr_created_boxes = Box.select().join(Location).where(Location.base == 1).count()
     assert nr_created_boxes == sum(f["boxesCount"] for f in data["facts"])
-    assert data == {
-        "facts": [
-            {
-                "boxesCount": 1,
-                "itemsCount": 5,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 1,
-                "tagIds": [2, 3],
-            },
-            {
-                "boxesCount": 2,
-                "itemsCount": 20,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 1,
-                "tagIds": [3],
-            },
-            {
-                "boxesCount": 7,
-                "itemsCount": 70,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 1,
-                "tagIds": [],
-            },
-            {
-                "boxesCount": 1,
-                "itemsCount": 12,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 3,
-                "tagIds": [],
-            },
-            {
-                "boxesCount": 2,
-                "itemsCount": 22,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 12,
-                "gender": "Boy",
-                "productId": 5,
-                "tagIds": [],
-            },
-            {
-                "boxesCount": 1,
-                "itemsCount": 10,
-                "createdOn": "2020-11-27T00:00:00",
-                "categoryId": 1,
-                "gender": "Women",
-                "productId": 8,
-                "tagIds": [],
-            },
-        ],
-        "dimensions": {
-            "product": [
-                {
-                    "id": p["id"],
-                    "name": p["name"],
-                    "gender": ProductGender(p["gender"]).name,
-                }
-                # last product is not present in any box
-                for p in base1_undeleted_products[:-1]
-            ],
-            "category": [
-                {"id": c["id"], "name": c["name"]}
-                for c in sorted(product_categories, key=lambda c: c["id"])
-            ],
-            "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
+    expected_facts = [
+        {
+            "boxesCount": 1,
+            "itemsCount": 5,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 1,
+            "tagIds": [2, 3],
         },
+        {
+            "boxesCount": 2,
+            "itemsCount": 20,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 1,
+            "tagIds": [3],
+        },
+        {
+            "boxesCount": 7,
+            "itemsCount": 70,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 1,
+            "tagIds": [],
+        },
+        {
+            "boxesCount": 1,
+            "itemsCount": 12,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 3,
+            "tagIds": [],
+        },
+        {
+            "boxesCount": 2,
+            "itemsCount": 22,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 12,
+            "gender": "Boy",
+            "productId": 5,
+            "tagIds": [],
+        },
+        {
+            "boxesCount": 1,
+            "itemsCount": 10,
+            "createdOn": "2020-11-27T00:00:00",
+            "categoryId": 1,
+            "gender": "Women",
+            "productId": 8,
+            "tagIds": [],
+        },
+    ]
+    assert len(data["facts"]) == len(expected_facts)
+
+    def _fact_sort_key(fact):
+        return (
+            fact["createdOn"],
+            fact["categoryId"],
+            fact["productId"],
+            fact["gender"],
+            tuple(fact["tagIds"]),
+            fact["boxesCount"],
+            fact["itemsCount"],
+        )
+
+    assert sorted(data["facts"], key=_fact_sort_key) == sorted(
+        expected_facts, key=_fact_sort_key
+    )
+    assert data["dimensions"] == {
+        "product": [
+            {
+                "id": p["id"],
+                "name": p["name"],
+                "gender": ProductGender(p["gender"]).name,
+            }
+            # last product is not present in any box
+            for p in base1_undeleted_products[:-1]
+        ],
+        "category": [
+            {"id": c["id"], "name": c["name"]}
+            for c in sorted(product_categories, key=lambda c: c["id"])
+        ],
+        "tag": [{"id": t["id"]} for t in [tags[1], tags[2]]],
     }
-    # We used the DB implicitly through peewee's Box.select(), and have to manually
-    # close the connection, otherwise the next test running will face 'Connection
-    # already opened' errors
-    db.close_db(None)
 
 
 def test_query_top_products(
-    read_only_client,
+    client,
     default_product,
     products,
     default_transaction,
@@ -180,7 +189,7 @@ def test_query_top_products(
     query = """query { topProductsCheckedOut(baseId: 1) {
         facts { checkedOutOn productId categoryId rank itemsCount }
         dimensions { product { id name } } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     assert data == {
         "facts": [
             {
@@ -215,7 +224,7 @@ def test_query_top_products(
     query = """query { topProductsDonated(baseId: 1) {
         facts { createdOn donatedOn sizeId productId categoryId rank itemsCount }
         dimensions { product { id name } size { id name } } } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     assert data == {
         "facts": [
             {
@@ -260,7 +269,7 @@ def test_query_top_products(
 
 
 def test_query_moved_boxes(
-    read_only_client,
+    client,
     default_location,
     default_base,
     another_base,
@@ -274,7 +283,7 @@ def test_query_moved_boxes(
         }
         dimensions { target { id name type } }
         } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     location_name = default_location["name"]
     base_name = another_base["name"]
     org_name = another_organisation["name"]
@@ -410,16 +419,15 @@ def test_query_moved_boxes(
         "organisation_name": default_organisation["name"],
         "number": total_boxes_count,
     }
-    db.close_db(None)
 
 
-def test_query_stock_overview(read_only_client, default_product, default_location):
+def test_query_stock_overview(client, default_product, default_location):
     query = """query { stockOverview(baseId: 1) {
         facts { categoryId productName gender sizeId locationId boxState tagIds
             absoluteMeasureValue dimensionId itemsCount boxesCount }
         dimensions { location { id name } dimension { id name } }
     } }"""
-    data = assert_successful_request(read_only_client, query, endpoint="graphql")
+    data = assert_successful_request(client, query, endpoint="graphql")
     product_name = default_product["name"].strip().lower()
     assert data["dimensions"] == {
         "location": [{"id": default_location["id"], "name": default_location["name"]}],
@@ -585,12 +593,12 @@ def test_query_stock_overview(read_only_client, default_product, default_locatio
     ]
 
 
-def test_authorization(read_only_client, mocker):
+def test_authorization(client, mocker):
     # Test case 11.1.4
     # Current user is from base 1 of organisation 1.
     # Hence the user is not allowed to access base 2 from organisation 1
     query = "query { createdBoxes(baseId: 2) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # Test case 11.1.2
     # An accepted agreement exists between orgs 1 and 2 for bases 1+2 and 3.
@@ -601,14 +609,14 @@ def test_authorization(read_only_client, mocker):
         "query { movedBoxes(baseId: 3) { facts { categoryId } } }",
         "query { stockOverview(baseId: 3) { facts { categoryId } } }",
     ]:
-        assert_successful_request(read_only_client, query)
+        assert_successful_request(client, query)
     # Test case 11.1.3
     # ...but not beneficiary-related data
     for query in [
         "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
         "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
     ]:
-        assert_forbidden_request(read_only_client, query)
+        assert_forbidden_request(client, query)
 
     # Test case 11.1.4
     # There's no agreement that involves base 1 and base 4
@@ -621,31 +629,31 @@ def test_authorization(read_only_client, mocker):
         "query { movedBoxes(baseId: 4) { facts { categoryId } } }",
         "query { stockOverview(baseId: 4) { facts { categoryId } } }",
     ]:
-        assert_forbidden_request(read_only_client, query)
+        assert_forbidden_request(client, query)
 
     # Test case 11.1.5
     # Base 99 does not exist
     query = "query { createdBoxes(baseId: 99) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # Test case 11.1.6
     # User lacks 'product_category:read' permission
     mock_user_for_request(mocker, permissions=[])
     query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # User lacks 'stock:read' permission
     mock_user_for_request(mocker, permissions=["product_category:read"])
     query = "query { createdBoxes(baseId: 1) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     query = "query { createdBoxes(baseId: 3) { facts { productId } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
     # User lacks 'beneficiary:read' permission
     mock_user_for_request(mocker, permissions=["tag_relation:read"])
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
-    assert_forbidden_request(read_only_client, query)
+    assert_forbidden_request(client, query)
 
 
 def test_statistics_after_create_box_from_box(

@@ -1,5 +1,4 @@
 import pytest
-from boxtribute_server.db import db
 from boxtribute_server.models.definitions.standard_product import StandardProduct
 
 from .product_category import data as all_product_category_data
@@ -102,6 +101,6 @@ def standard_products():
 def create():
     # Avoid self-referential foreign-key constraint failures due to hen-egg issues when
     # adding data with superceded_by_product/preceded_by_product set
-    db.database.execute_sql("SET FOREIGN_KEY_CHECKS=0;")
+    StandardProduct._meta.database.execute_sql("SET FOREIGN_KEY_CHECKS=0;")
     StandardProduct.insert_many(data()).execute()
-    db.database.execute_sql("SET FOREIGN_KEY_CHECKS=1;")
+    StandardProduct._meta.database.execute_sql("SET FOREIGN_KEY_CHECKS=1;")

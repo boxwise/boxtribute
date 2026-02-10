@@ -77,7 +77,7 @@ def test_shareable_link_mutations(client, default_base, mocker):
 
 
 def test_shareable_link_queries(
-    read_only_client,
+    client,
     shareable_link,
     stock_overview_link,
     tagged_stock_overview_link,
@@ -109,7 +109,7 @@ def test_shareable_link_queries(
                         }}
                     }}
                 }} }} }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     data = response.pop("data")
     assert response == {
         "code": code,
@@ -143,7 +143,7 @@ def test_shareable_link_queries(
                         }}
                     }}
                 }} }} }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     data = response.pop("data")
     assert response == {"code": code}
     assert len(data) == 1
@@ -154,14 +154,14 @@ def test_shareable_link_queries(
     query = f"""query {{ resolveLink(code: "{code}") {{
                     ...on ExpiredLinkError {{ validUntil }}
                 }} }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     assert response == {"validUntil": expired_link["valid_until"].isoformat()}
 
     code = "unknown"
     query = f"""query {{ resolveLink(code: "{code}") {{
                     ...on UnknownLinkError {{ code }}
                 }} }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     assert response == {"code": code}
 
     code = tagged_stock_overview_link["code"]
@@ -173,7 +173,7 @@ def test_shareable_link_queries(
                         }}
                     }}
                 }} }} }}"""
-    response = assert_successful_request(read_only_client, query, endpoint="public")
+    response = assert_successful_request(client, query, endpoint="public")
     data = response.pop("data")
     assert data[0]["stockOverviewFacts"] == [
         {"tagIds": [2, 3]},
