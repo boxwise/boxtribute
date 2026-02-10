@@ -6,7 +6,7 @@ from datetime import date
 from unittest.mock import patch
 
 import pytest
-from auth0.exceptions import Auth0Error
+from auth0.authentication.exceptions import Auth0Error
 from boxtribute_server.cli.main import main as cli_main
 from boxtribute_server.db import db
 from boxtribute_server.models.definitions.base import Base

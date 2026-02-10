@@ -1,6 +1,6 @@
-from auth0 import Auth0Error
 from auth0.authentication import GetToken
-from auth0.management import Auth0
+from auth0.authentication.exceptions import Auth0Error
+from auth0.management import ManagementClient
 
 from ..exceptions import ServiceError
 from .utils import setup_logger
@@ -16,30 +16,34 @@ class ServiceBase:
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
         users = []
         try:
-            # Pagination setup
-            page = 0
+            # Pagination setup - v5 uses SyncPager
             per_page = 50
-            rest = None
-            while True:
-                response = self._interface.users.list(
-                    q=query,
-                    fields=fields,
-                    page=page,
-                    per_page=per_page,
-                )
-                LOGGER.info(
-                    f"Fetched page {page + 1} of user data of total {response['total']}"
-                    " users."
-                )
-                if rest is None:
-                    rest = response["total"]
-                users.extend(response["users"])
-
-                # Pagination logic: go to next page; stop if nothing left
-                page += 1
-                rest -= per_page
-                if rest < 1:
-                    break
+            page_num = 0
+            
+            # Get first page
+            pager = self._interface.users.list(
+                q=query,
+                fields=fields,
+                page=page_num,
+                per_page=per_page,
+            )
+            
+            # Log total users from the response
+            total = pager.response.total if pager.response and pager.response.total else 0
+            LOGGER.info(
+                f"Fetched page {page_num + 1} of user data of total {total} users."
+            )
+            
+            # Iterate through all pages
+            for page in pager.iter_pages():
+                if page.items:
+                    # Convert Pydantic models to dicts for backward compatibility
+                    users.extend([user.model_dump() for user in page.items])
+                    page_num += 1
+                    if page.has_next:
+                        LOGGER.info(
+                            f"Fetched page {page_num + 1} of user data of total {total} users."
+                        )
         except Auth0Error as e:
             raise ServiceError(code=e.status_code, message=e.message)
         return users
@@ -52,7 +56,7 @@ class ServiceBase:
         LOGGER.info("Fetching Auth0 Management API token...")
         getter = GetToken(domain, client_id, client_secret=secret)
         token = getter.client_credentials(f"https://{domain}/api/v2/")["access_token"]
-        interface = Auth0(domain, token)
+        interface = ManagementClient(domain=domain, token=token)
         return cls(interface)
 
 
@@ -88,14 +92,23 @@ class Auth0Service(ServiceBase):
     def get_single_base_user_role_ids(self, base_id):
         try:
             prefix = f"base_{base_id}_"
-            response = self._interface.roles.list(per_page=100, name_filter=prefix)
+            pager = self._interface.roles.list(per_page=100, name_filter=prefix)
+            
+            # Get roles from the pager
+            roles = []
+            if pager.items:
+                roles = [role.model_dump() for role in pager.items]
+            
             # For a prefix like 'base_1_', the API also returns roles with prefixes
             # 'base_10_', 'base_11_', etc. which need to be filtered out
             role_ids = sorted(
-                r["id"] for r in response["roles"] if r["name"].startswith(prefix)
+                r["id"] for r in roles if r["name"].startswith(prefix)
             )
+            
+            # Get total from response
+            total = pager.response.total if pager.response and pager.response.total else len(roles)
             LOGGER.info(
-                f"Extracted {len(role_ids)} from total of {response['total']} roles "
+                f"Extracted {len(role_ids)} from total of {total} roles "
                 f"matching the base prefix '{prefix}'."
             )
         except Auth0Error as e:
