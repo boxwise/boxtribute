@@ -24,10 +24,19 @@ from boxtribute_server.models.definitions.user import User
 
 
 # Mock pager helper for auth0-python v5
+class MockItem:
+    """Mock Pydantic model that returns the data dict via model_dump()."""
+    def __init__(self, data):
+        self._data = data
+    
+    def model_dump(self):
+        return self._data
+
+
 class MockPager:
     """Mock SyncPager for testing auth0-python v5 API."""
     def __init__(self, items, total=None):
-        self.items = [MagicMock(model_dump=lambda item=item: item) for item in items]
+        self.items = [MockItem(item) for item in items]
         self.has_next = False
         self.get_next = None
         self.response = MagicMock(total=total if total is not None else len(items))

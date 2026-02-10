@@ -18,32 +18,28 @@ class ServiceBase:
         try:
             # Pagination setup - v5 uses SyncPager
             per_page = 50
-            page_num = 0
             
             # Get first page
             pager = self._interface.users.list(
                 q=query,
                 fields=fields,
-                page=page_num,
+                page=0,
                 per_page=per_page,
             )
             
-            # Log total users from the response
+            # Get total from the response
             total = pager.response.total if pager.response and pager.response.total else 0
-            LOGGER.info(
-                f"Fetched page {page_num + 1} of user data of total {total} users."
-            )
             
             # Iterate through all pages
+            page_num = 0
             for page in pager.iter_pages():
+                page_num += 1
+                LOGGER.info(
+                    f"Fetched page {page_num} of user data of total {total} users."
+                )
                 if page.items:
                     # Convert Pydantic models to dicts for backward compatibility
                     users.extend([user.model_dump() for user in page.items])
-                    page_num += 1
-                    if page.has_next:
-                        LOGGER.info(
-                            f"Fetched page {page_num + 1} of user data of total {total} users."
-                        )
         except Auth0Error as e:
             raise ServiceError(code=e.status_code, message=e.message)
         return users
