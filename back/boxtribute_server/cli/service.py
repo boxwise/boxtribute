@@ -18,7 +18,7 @@ class ServiceBase:
         try:
             # Pagination setup - v5 uses SyncPager
             per_page = 50
-            
+
             # Get first page
             pager = self._interface.users.list(
                 q=query,
@@ -26,10 +26,12 @@ class ServiceBase:
                 page=0,
                 per_page=per_page,
             )
-            
+
             # Get total from the response
-            total = pager.response.total if pager.response and pager.response.total else 0
-            
+            total = (
+                pager.response.total if pager.response and pager.response.total else 0
+            )
+
             # Iterate through all pages
             page_num = 0
             for page in pager.iter_pages():
@@ -89,20 +91,22 @@ class Auth0Service(ServiceBase):
         try:
             prefix = f"base_{base_id}_"
             pager = self._interface.roles.list(per_page=100, name_filter=prefix)
-            
+
             # Get roles from the pager
             roles = []
             if pager.items:
                 roles = [role.model_dump() for role in pager.items]
-            
+
             # For a prefix like 'base_1_', the API also returns roles with prefixes
             # 'base_10_', 'base_11_', etc. which need to be filtered out
-            role_ids = sorted(
-                r["id"] for r in roles if r["name"].startswith(prefix)
-            )
-            
+            role_ids = sorted(r["id"] for r in roles if r["name"].startswith(prefix))
+
             # Get total from response
-            total = pager.response.total if pager.response and pager.response.total else len(roles)
+            total = (
+                pager.response.total
+                if pager.response and pager.response.total
+                else len(roles)
+            )
             LOGGER.info(
                 f"Extracted {len(role_ids)} from total of {total} roles "
                 f"matching the base prefix '{prefix}'."
