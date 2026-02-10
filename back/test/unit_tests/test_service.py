@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from auth0 import Auth0Error
+from auth0.authentication.exceptions import Auth0Error
 from boxtribute_server.cli.service import Auth0Service
 
 

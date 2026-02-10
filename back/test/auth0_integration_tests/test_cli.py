@@ -6,7 +6,7 @@ from datetime import date
 from unittest.mock import patch
 
 import pytest
-from auth0.exceptions import Auth0Error
+from auth0.authentication.exceptions import Auth0Error
 from boxtribute_server.cli.main import main as cli_main
 from boxtribute_server.db import db
 from boxtribute_server.models.definitions.base import Base
@@ -57,7 +57,7 @@ def auth0_roles(auth0_management_api_client):
     ]
     roles = {}
     for role_data in roles_data:
-        response = interface.roles.create(role_data)
+        response = interface.roles.create(**role_data).model_dump()
         roles[role_data["name"]] = response
         logger.info(f"Created role {response['id']}")
 
@@ -119,31 +119,31 @@ def auth0_users(auth0_management_api_client, auth0_roles):
         user_data["password"] = "Browser_tests"
         user_data["blocked"] = False
         try:
-            response = interface.users.create(user_data)
-            logger.info(f"Created user {response['user_id']}")
+            response = interface.users.create(**user_data)
+            logger.info(f"Created user {response.user_id}")
         except Auth0Error as e:
             if e.status_code != 409:
                 raise e
             logger.info(f"User {user_data['user_id']} already exists")
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["administrator" + test_role_name_suffix]["id"],
-        [user_id(0)],
+        users=[user_id(0)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
-        [user_id(0)],
+        users=[user_id(0)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
-        [user_id(1)],
+        users=[user_id(1)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_8_volunteer" + test_role_name_suffix]["id"],
-        [user_id(2), user_id(3)],
+        users=[user_id(2), user_id(3)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_9_volunteer" + test_role_name_suffix]["id"],
-        [user_id(4)],
+        users=[user_id(4)],
     )
 
     time.sleep(2 * WAIT)
