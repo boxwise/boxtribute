@@ -2,7 +2,7 @@ from utils import assert_successful_request
 
 
 def test_distribution_spot_query(
-    read_only_client,
+    client,
     distribution_spot,
     default_location,
     distro_spot5_distribution_events,
@@ -18,7 +18,7 @@ def test_distribution_spot_query(
                     distributionEvents {{ id }}
                 }}
             }}"""
-    spot = assert_successful_request(read_only_client, query)
+    spot = assert_successful_request(client, query)
     assert spot == {
         "id": test_id,
         "name": distribution_spot["name"],
@@ -32,11 +32,11 @@ def test_distribution_spot_query(
 
     test_id = str(default_location["id"])
     query = f"""query {{ distributionSpot(id: {test_id}) {{ id }} }}"""
-    spot = assert_successful_request(read_only_client, query)
+    spot = assert_successful_request(client, query)
     assert spot is None
 
 
-def test_distributions_spot_query(read_only_client, distribution_spot):
+def test_distributions_spot_query(client, distribution_spot):
     query = """query { distributionSpots { id } }"""
-    spots = assert_successful_request(read_only_client, query)
+    spots = assert_successful_request(client, query)
     assert spots == [{"id": str(distribution_spot["id"])}]

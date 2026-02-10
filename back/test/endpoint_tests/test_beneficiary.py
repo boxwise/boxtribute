@@ -54,7 +54,7 @@ def _generate_beneficiary_query(id):
 
 
 def test_beneficiary_query(
-    read_only_client,
+    client,
     default_beneficiary,
     relative_beneficiary,
     default_transaction,
@@ -63,7 +63,7 @@ def test_beneficiary_query(
 ):
     # Test case 9.1.4
     query = _generate_beneficiary_query(default_beneficiary["id"])
-    beneficiary = assert_successful_request(read_only_client, query)
+    beneficiary = assert_successful_request(client, query)
     assert beneficiary == {
         "firstName": default_beneficiary["first_name"],
         "lastName": default_beneficiary["last_name"],
@@ -110,7 +110,7 @@ def test_beneficiary_query(
                 gender
                 age
                 dateOfBirth }} }}"""
-    beneficiary = assert_successful_request(read_only_client, query)
+    beneficiary = assert_successful_request(client, query)
     assert beneficiary == {
         "gender": HumanGender.Diverse.name,
         "age": None,
@@ -580,13 +580,13 @@ def test_beneficiary_mutations(
     ],
 )
 def test_beneficiaries_paginated_query(
-    read_only_client, input, size, has_next_page, has_previous_page
+    client, input, size, has_next_page, has_previous_page
 ):
     query = f"""query {{ beneficiaries{input} {{
         elements {{ id }}
         pageInfo {{ hasNextPage hasPreviousPage }}
     }} }}"""
-    pages = assert_successful_request(read_only_client, query)
+    pages = assert_successful_request(client, query)
     assert len(pages["elements"]) == size
     assert pages["pageInfo"]["hasNextPage"] == has_next_page
     assert pages["pageInfo"]["hasPreviousPage"] == has_previous_page
@@ -624,7 +624,7 @@ def _format(parameter):
     ],
     ids=_format,
 )
-def test_beneficiaries_filtered_query(read_only_client, filters, number):
+def test_beneficiaries_filtered_query(client, filters, number):
     # Test case 9.1.3
     filter_input = ", ".join(f"{k}: {v}" for f in filters for k, v in f.items())
     query = f"""query {{ beneficiaries(filterInput: {{ {filter_input} }}) {{
@@ -634,7 +634,7 @@ def test_beneficiaries_filtered_query(read_only_client, filters, number):
                     isVolunteer
                     registered
                 }} }} }}"""
-    beneficiaries = assert_successful_request(read_only_client, query)["elements"]
+    beneficiaries = assert_successful_request(client, query)["elements"]
     assert len(beneficiaries) == number
 
     for f in filters:
