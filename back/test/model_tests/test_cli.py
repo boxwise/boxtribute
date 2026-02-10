@@ -586,16 +586,12 @@ def test_remove_base_access_without_usergroups(usergroup_tables):
 def test_remove_base_access_without_force(usergroup_tables):
     base_id = 1
     service = Service()
-    service._interface.users.list.return_value = {
-        "users": [
-            {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
-        ],
-        "total": 1,
-    }
-    service._interface.roles.list.return_value = {
-        "roles": [{"id": "rol_a", "name": "base_1_volunteer"}],
-        "total": 1,
-    }
+    service._interface.users.list.return_value = MockPager([
+        {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
+    ], total=1)
+    service._interface.roles.list.return_value = MockPager([
+        {"id": "rol_a", "name": "base_1_volunteer"}
+    ], total=1)
     deleted_users = User.select().where(User.deleted.is_null(False)).count()
     remove_base_access(base_id=base_id, service=service, force=False)
     assert deleted_users == User.select().where(User.deleted.is_null(False)).count()
