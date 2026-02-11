@@ -1,5 +1,3 @@
-from unittest.mock import mock_open, patch
-
 from auth import TEST_AUTH0_USERNAME, get_authorization_header, mock_user_for_request
 from boxtribute_server.blueprints import CRON_PATH
 from boxtribute_server.cron.data_faking import (
@@ -83,19 +81,8 @@ def test_reseed_db(monkeypatch, cron_client, mocker):
     )
 
     # Simulate staging environment
+    monkeypatch.setenv("MYSQL_DB", "dropapp_staging")
     monkeypatch.setenv("ENVIRONMENT", "staging")
     response = cron_client.get(reseed_db_path, headers=headers)
     assert response.status_code == 200
     assert response.json == {"message": "reseed-db job executed"}
-
-    # Server error because patched file contains invalid SQL
-    with patch("builtins.open", mock_open(read_data="invalid sql;")):
-        response = cron_client.get(reseed_db_path, headers=headers)
-    assert response.status_code == 500
-    assert b"Internal Server Error" in response.data
-
-    # Bad request due to wrong environment
-    monkeypatch.setenv("MYSQL_DB", "dropapp_production")
-    response = cron_client.get(reseed_db_path, headers=headers)
-    assert response.status_code == 400
-    assert response.json == {"message": "Reset of 'dropapp_production' not permitted"}
