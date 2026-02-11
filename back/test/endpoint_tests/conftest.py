@@ -1,9 +1,6 @@
 import pytest
 from auth import mock_user_for_request
 
-# Imports fixtures into tests
-from data import *  # noqa: F401,F403
-
 
 @pytest.fixture(scope="module", autouse=True)
 def auth_service(module_mocker):

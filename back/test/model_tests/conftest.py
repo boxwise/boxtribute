@@ -1,7 +1,4 @@
 import pytest
-
-# Imports fixtures into tests
-from data import *  # noqa: F401,F403
 from data import MODELS
 
 
