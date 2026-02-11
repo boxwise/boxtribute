@@ -14,7 +14,7 @@ from boxtribute_server.models.definitions.organisation import Organisation
 from boxtribute_server.models.definitions.user import User
 
 
-def test_parse_options():
+def test_create_db_interface():
     assert isinstance(
         _create_db_interface(
             password="dropapp_root",
