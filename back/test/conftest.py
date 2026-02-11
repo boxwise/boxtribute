@@ -63,13 +63,6 @@ def mysql_testing_database():
         yield database
 
 
-@pytest.fixture(scope="session")
-def mysql_cron_database():
-    """Session fixture providing a database interface for cron tests."""
-    with _create_database("cron") as database:
-        yield database
-
-
 @contextmanager
 def _create_app(database_interface, *blueprints):
     """On each invocation, create the Flask app and configure it to access the
@@ -132,10 +125,9 @@ def client(app, setup_testing_database):
 
 
 @pytest.fixture
-def cron_client(mysql_cron_database):
-    populate_database(mysql_cron_database)
-    with _create_app(mysql_cron_database, app_bp) as app:
-        app.debug = False  # for having the app handle errors as if in production
+def cron_client(app, setup_testing_database):
+    with setup_testing_database.bind_ctx(MODELS, False, False):
+        # Don't run in atomic transaction because the code creates tables
         yield app.test_client()
 
 
