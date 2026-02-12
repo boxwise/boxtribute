@@ -121,9 +121,3 @@ def client(app, setup_testing_database):
     with setup_testing_database.atomic() as txn:
         yield app.test_client()
         txn.rollback()
-
-
-@pytest.fixture
-def cron_client(app):
-    # Don't run in atomic transaction because the code creates tables
-    yield app.test_client()

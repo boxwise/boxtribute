@@ -16,7 +16,8 @@ reseed_db_path = f"{CRON_PATH}/reseed-db"
 headers = [("X-AppEngine-Cron", "true")]
 
 
-def test_reseed_db(monkeypatch, cron_client, mocker):
+def test_reseed_db(monkeypatch, app, mocker):
+    cron_client = app.test_client()
     cron_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         TEST_AUTH0_USERNAME
     )
