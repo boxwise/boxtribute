@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 from auth import get_authorization_header
+from boxtribute_server.models.definitions.user import User
 from utils import assert_successful_request
 
 
@@ -68,7 +69,25 @@ def test_queries(auth0_client, endpoint):
     assert response["totalCount"] == 162
 
 
-def test_mutations(auth0_client, mocker):
+@pytest.fixture
+def auth0_client_with_rollback(auth0_client, mocker):
+    # For testing mutations, we want to rollback the database changes to avoid polluting
+    # the pristine initial DB state for other tests, or for repeated test runs. This is
+    # achieved by wrapping the test into a transaction which is eventually rolled back.
+    # However we need to take care of the DatabaseManager.connect_db and close_db
+    # methods which are registered on the Flask app to run before and after every
+    # request: opening/closing a DB connection is not allowed within a transaction.
+    # Hence we patch the registered callback functions in the Flask app.
+    app = auth0_client.application
+    mocker.patch.object(app, "before_request_funcs", {})
+    mocker.patch.object(app, "teardown_request_funcs", {})
+    with User._meta.database.atomic() as transaction:
+        yield auth0_client
+        transaction.rollback()
+
+
+def test_mutations(auth0_client_with_rollback, mocker):
+    auth0_client = auth0_client_with_rollback
     # Pretend that the users have a sufficient beta-level to run the beneficiary
     # migrations
     mocker.patch(
@@ -183,9 +202,9 @@ def test_mutations(auth0_client, mocker):
                     partnerOrganisationId: 100000001,
                     initiatingOrganisationBaseIds: [100000000]
                     type: Bidirectional
-                }) { id type } }"""
+                }) { type } }"""
     response = assert_successful_request(auth0_client, mutation)
-    assert response == {"type": "Bidirectional", "id": "6"}
+    assert response == {"type": "Bidirectional"}
 
     mutation = """mutation { createCustomProduct(creationInput: {
                     name: "bags"
