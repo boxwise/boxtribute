@@ -23,6 +23,9 @@ class MockItem:
     def model_dump(self):
         return self._data
 
+    def __getattr__(self, name):
+        return self._data[name]
+
 
 class MockPager:
     """Mock SyncPager for testing auth0-python v5 API."""
@@ -35,6 +38,9 @@ class MockPager:
 
     def iter_pages(self):
         yield self
+
+    def __iter__(self):
+        yield from self.items
 
 
 def test_create_db_interface():
