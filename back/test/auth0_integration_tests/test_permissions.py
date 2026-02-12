@@ -215,7 +215,7 @@ def test_usergroup_cross_organisation_permissions(
         assert all(i not in granted_base_ids for i in expected_forbidden_base_ids)
 
 
-def test_god_user(dev_client):
+def test_god_user():
     username = "some.admin@boxtribute.org"
     domain = TEST_AUTH0_DOMAIN
     payload = decode_jwt(
@@ -228,14 +228,10 @@ def test_god_user(dev_client):
     assert user.is_god
 
 
-def test_check_beta_feature_access(dev_client):
-    dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
-        "dev_coordinator@boxaid.org"
-    )
-
+def test_check_beta_feature_access(auth0_client):
     mutation = "mutation { createQrCode { id } }"
-    assert_successful_request(dev_client, mutation)
+    assert_successful_request(auth0_client, mutation)
 
     mutation = "mutation { deleteTag(id: 1) { id } }"
-    response = assert_bad_request(dev_client, mutation, expect_errors=True)
+    response = assert_bad_request(auth0_client, mutation, expect_errors=True)
     assert response.json["errors"] == [{"message": "Insufficient beta-level"}]
