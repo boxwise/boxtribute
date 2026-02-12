@@ -12,7 +12,7 @@ from utils import (
 
 
 def test_transfer_agreement_query(
-    read_only_client,
+    client,
     default_transfer_agreement,
     completed_shipment,
     default_shipment,
@@ -43,7 +43,7 @@ def test_transfer_agreement_query(
                     shipments {{ id }}
                 }}
             }}"""
-    agreement = assert_successful_request(read_only_client, query)
+    agreement = assert_successful_request(client, query)
     assert agreement == {
         "id": agreement_id,
         "sourceOrganisation": {
@@ -82,14 +82,14 @@ def test_transfer_agreement_query(
                     sourceBases {{ id }}
                     targetBases {{ id }}
                 }} }}"""
-    agreement = assert_successful_request(read_only_client, query)
+    agreement = assert_successful_request(client, query)
     assert agreement == {"sourceBases": [{"id": "1"}], "targetBases": []}
 
     query = f"""query {{ transferAgreement(id: {agreement_id}) {{
                     sourceBases(filterInput: {{ includeDeleted: true }}) {{ id }}
                     targetBases(filterInput: {{ includeDeleted: true }}) {{ id }}
                 }} }}"""
-    agreement = assert_successful_request(read_only_client, query)
+    agreement = assert_successful_request(client, query)
     assert agreement == {"sourceBases": [{"id": "1"}], "targetBases": [{"id": "5"}]}
 
 
@@ -112,12 +112,10 @@ def state_names(value):
     ),
     ids=state_names,
 )
-def test_transfer_agreements_query(
-    read_only_client, filter_input, transfer_agreement_ids
-):
+def test_transfer_agreements_query(client, filter_input, transfer_agreement_ids):
     # Test cases 2.1.1, 2.1.2
     query = f"""query {{ transferAgreements{filter_input} {{ id }} }}"""
-    agreements = assert_successful_request(read_only_client, query)
+    agreements = assert_successful_request(client, query)
     assert agreements == [{"id": i} for i in transfer_agreement_ids]
 
 
@@ -319,7 +317,7 @@ def test_transfer_agreement_mutations(
 
 @pytest.mark.parametrize("action", ["accept", "reject", "cancel"])
 def test_transfer_agreement_mutations_invalid_state(
-    read_only_client, mocker, expired_transfer_agreement, action
+    client, mocker, expired_transfer_agreement, action
 ):
     # The client has to be permitted to perform the action in general
     mock_user_for_request(
@@ -331,41 +329,41 @@ def test_transfer_agreement_mutations_invalid_state(
     # Test cases 2.2.11, 2.2.12, 2.2.13
     agreement_id = expired_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 @pytest.mark.parametrize("action", ["accept", "reject"])
 def test_transfer_agreement_mutations_as_member_of_source_org(
-    read_only_client, reviewed_transfer_agreement, action
+    client, reviewed_transfer_agreement, action
 ):
     # Test cases 2.2.9a, 2.2.10a
     agreement_id = reviewed_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 @pytest.mark.parametrize("action", ["accept", "reject"])
 def test_transfer_agreement_mutations_as_member_of_receiving_org(
-    read_only_client, receiving_transfer_agreement, action
+    client, receiving_transfer_agreement, action
 ):
     # Test cases 2.2.9b, 2.2.10b
     agreement_id = receiving_transfer_agreement["id"]
     mutation = f"mutation {{ {action}TransferAgreement(id: {agreement_id}) {{ id }} }}"
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_transfer_agreement_mutations_cancel_as_member_of_neither_org(
-    read_only_client, mocker, default_transfer_agreement
+    client, mocker, default_transfer_agreement
 ):
     mock_user_for_request(mocker, organisation_id=1, user_id=2, base_ids=[2])
     # Test case 2.2.20
     agreement_id = default_transfer_agreement["id"]
     mutation = f"mutation {{ cancelTransferAgreement(id: {agreement_id}) {{ id }} }}"
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_transfer_agreement_mutations_identical_source_org_for_creation(
-    read_only_client,
+    client,
 ):
     # Test case 2.2.14
     mutation = """mutation { createTransferAgreement( creationInput: {
@@ -374,12 +372,12 @@ def test_transfer_agreement_mutations_identical_source_org_for_creation(
                     initiatingOrganisationBaseIds: [1]
                     type: SendingTo
                 } ) { id } }"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 @pytest.mark.parametrize("base_ids", [[3, 4], [1, 2]])
 def test_transfer_agreement_mutations_create_invalid_source_base(
-    read_only_client, mocker, base_ids
+    client, mocker, base_ids
 ):
     mock_user_for_request(mocker, base_ids=[1, 3])
     # Test cases 2.2.18, 2.2.19
@@ -390,10 +388,10 @@ def test_transfer_agreement_mutations_create_invalid_source_base(
                     partnerOrganisationBaseIds: [{base_ids[1]}]
                     type: Bidirectional
                 }} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
-def test_transfer_agreement_mutations_create_non_existent_target_org(read_only_client):
+def test_transfer_agreement_mutations_create_non_existent_target_org(client):
     # Test case 2.2.15
     creation_input = "initiatingOrganisationId: 1, partnerOrganisationId: 0"
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
@@ -401,11 +399,11 @@ def test_transfer_agreement_mutations_create_non_existent_target_org(read_only_c
                     initiatingOrganisationBaseIds: [1]
                     type: Bidirectional
                 }} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 @pytest.mark.parametrize("valid_until", ["2022-01-31"])
-def test_transfer_agreement_mutations_invalid_dates(read_only_client, valid_until):
+def test_transfer_agreement_mutations_invalid_dates(client, valid_until):
     # Test case 2.2.21
     mutation = f"""mutation {{ createTransferAgreement( creationInput: {{
                     initiatingOrganisationId: 1
@@ -415,4 +413,4 @@ def test_transfer_agreement_mutations_invalid_dates(read_only_client, valid_unti
                     validUntil: "{valid_until}",
                     type: Bidirectional
                 }} ) {{ id }} }}"""
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)

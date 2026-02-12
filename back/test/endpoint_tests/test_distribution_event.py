@@ -2,7 +2,7 @@ from utils import assert_successful_request
 
 
 def test_distribution_event_query(
-    read_only_client, default_distribution_event, packing_list_entry
+    client, default_distribution_event, packing_list_entry
 ):
     test_id = str(default_distribution_event["id"])
     query = f"""query {{ distributionEvent(id: {test_id}) {{
@@ -16,7 +16,7 @@ def test_distribution_event_query(
                 }}
             }}"""
 
-    distribution_event = assert_successful_request(read_only_client, query)
+    distribution_event = assert_successful_request(client, query)
     assert distribution_event == {
         "id": test_id,
         "name": default_distribution_event["name"],
