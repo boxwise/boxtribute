@@ -1,7 +1,7 @@
 import json
 import os
 import urllib.error
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 from auth import mock_user_for_request
@@ -105,3 +105,23 @@ def test_internal_stats(client, monkeypatch, mocker):
     response = client.get(internal_stats_path, headers=headers)
     assert response.status_code == 500
     assert response.json == {"message": "posted 0 stats, 7 failure(s)"}
+
+
+def test_reseed_db_in_staging(client, monkeypatch):
+    # Simulate staging environment
+    monkeypatch.setenv("ENVIRONMENT", "staging")
+    monkeypatch.setenv("MYSQL_DB", "dropapp_staging")
+
+    client.application.debug = False  # for having the app handle errors as if in prod
+    # Server error because patched file contains invalid SQL
+    with patch("builtins.open", mock_open(read_data="invalid sql;")):
+        response = client.get(reseed_db_path, headers=headers)
+    assert response.status_code == 500
+    assert b"Internal Server Error" in response.data
+
+
+def test_reseed_db_in_production(client, monkeypatch):
+    monkeypatch.setenv("MYSQL_DB", "dropapp_production")
+    response = client.get(reseed_db_path, headers=headers)
+    assert response.status_code == 400
+    assert response.json == {"message": "Reset of 'dropapp_production' not permitted"}
