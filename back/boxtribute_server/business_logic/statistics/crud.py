@@ -557,49 +557,49 @@ def create_shareable_link(
     )
 
 
-# Basic look-up to reduce number of expensive compute_moved_boxes() calls
-MOVED_BOXES_CACHE: dict[int, Any] = {}
-
-
-def number_of_boxes_moved_between(start, end):
-    """Compute number of moved boxes for all active bases in the given time span.
+def get_data_for_number_of_moved_boxes():
+    """Return moved-box facts and org/base metadata for all active bases.
+    The returned facts cover all-time moved-box events for the active bases;
+    aggregation (e.g. counting boxes per base and date range) is performed
+    by callers such as `number_of_boxes_moved_between`.
     Active bases are non-deleted or deleted within the last year.
     """
     one_year_ago = utcnow() - timedelta(days=365)
-    active_bases = (
-        Base.select(Base.id, Base.name, Organisation.id, Organisation.name)
+    active_bases = list(
+        Base.select(
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+        )
         .join(Organisation)
         .where(
             (Base.deleted_on.is_null()) | (Base.deleted_on >= one_year_ago),
             exclude_test_organisation(),
         )
+        .order_by(Base.id)
+        .dicts()
     )
 
+    base_ids = [base["base_id"] for base in active_bases]
+    result = compute_moved_boxes(*base_ids)
+    return result.facts, active_bases
+
+
+def number_of_boxes_moved_between(start, end, moved_boxes, org_base_info):
+    # Convert datetime to date for comparison since moved_on is a date
+    start = start.date()
+    end = end.date()
+    filtered_moved_boxes = [b for b in moved_boxes if start <= b["moved_on"] <= end]
+
+    # Pre-aggregate totals per base to avoid repeatedly scanning filtered_moved_boxes
+    base_totals = {}
+    for box in filtered_moved_boxes:
+        base_id = box["base_id"]
+        base_totals[base_id] = base_totals.get(base_id, 0) + box["boxes_count"]
     results = []
-    for base in active_bases:
-        moved_boxes_data = MOVED_BOXES_CACHE.get(base.id)
-        if moved_boxes_data is None:
-            moved_boxes_data = compute_moved_boxes(base.id)
-            MOVED_BOXES_CACHE[base.id] = moved_boxes_data
-
-        # Count boxes moved in the specified time span
-        # Convert datetime to date for comparison since moved_on is a date
-        start_date = start.date()
-        end_date = end.date()
-        total_boxes = sum(
-            fact["boxes_count"]
-            for fact in moved_boxes_data.facts
-            if start_date <= fact["moved_on"] <= end_date
-        )
-
-        results.append(
-            {
-                "organisation_id": base.organisation.id,
-                "organisation_name": base.organisation.name,
-                "base_id": base.id,
-                "base_name": base.name,
-                "number": total_boxes,
-            }
-        )
+    for row in org_base_info:
+        total_count = base_totals.get(row["base_id"], 0)
+        results.append(row | {"number": total_count})
 
     return results
