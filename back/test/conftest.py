@@ -89,17 +89,13 @@ def _create_app(database_interface, *blueprints):
         yield app
 
 
-def populate_database(database):
-    with database.bind_ctx(MODELS):
-        database.drop_tables(MODELS)
-        database.create_tables(MODELS)
-        setup_models()
-        database.close()
-
-
 @pytest.fixture(scope="session")
 def setup_testing_database(mysql_testing_database):
-    populate_database(mysql_testing_database)
+    with mysql_testing_database.bind_ctx(MODELS):
+        mysql_testing_database.drop_tables(MODELS)
+        mysql_testing_database.create_tables(MODELS)
+        setup_models()
+        mysql_testing_database.close()
     yield mysql_testing_database
 
 
