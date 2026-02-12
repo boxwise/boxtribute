@@ -13,7 +13,6 @@ from boxtribute_server.models.definitions.organisation import Organisation
 from boxtribute_server.models.definitions.user import User
 
 
-# Mock pager helper for auth0-python v5
 class MockItem:
     """Mock Pydantic model that returns the data dict via model_dump()."""
 
@@ -30,11 +29,9 @@ class MockItem:
 class MockPager:
     """Mock SyncPager for testing auth0-python v5 API."""
 
-    def __init__(self, items, total=None):
+    def __init__(self, items):
         self.items = [MockItem(item) for item in items]
-        self.has_next = False
-        self.get_next = None
-        self.response = MagicMock(total=total if total is not None else len(items))
+        self.response = MagicMock(total=len(items))
 
     def iter_pages(self):
         yield self
@@ -237,7 +234,7 @@ def test_remove_base_access_functions(usergroup_data):
     ]
     service = Service()
     interface = service._interface
-    interface.users.list.return_value = MockPager(users, total=len(users))
+    interface.users.list.return_value = MockPager(users)
     base_users = service.get_users_of_base(base_id)
     assert base_users == {"single_base": [users[1]], "multi_base": [users[0]]}
     interface.users.list.assert_called_once()
@@ -249,7 +246,7 @@ def test_remove_base_access_functions(usergroup_data):
             "description": "BoxAid - Base 1 (Lesvos) - Warehouse Coordinator",
         }
     ]
-    interface.roles.list.return_value = MockPager(roles, total=len(roles))
+    interface.roles.list.return_value = MockPager(roles)
     assert service.get_single_base_user_role_ids(base_id) == [roles[0]["id"]]
     interface.roles.list.assert_called_once_with(name_filter="base_1_", per_page=100)
 
@@ -300,7 +297,6 @@ def test_remove_base_access(usergroup_data):
             },
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|8", "name": "b"},
         ],
-        total=5,
     )
     interface.roles.list.return_value = MockPager(
         [
@@ -309,7 +305,6 @@ def test_remove_base_access(usergroup_data):
             {"id": "rol_b", "name": "base_1_library_volunteer"},
             {"id": "rol_s", "name": "base_1000_volunteer"},
         ],
-        total=4,
     )
 
     remove_base_access(base_id=base_id, service=service, force=True)
@@ -422,10 +417,9 @@ def test_remove_base_access_without_usergroups(usergroup_tables):
         [
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
         ],
-        total=1,
     )
     service._interface.roles.list.return_value = MockPager(
-        [{"id": "rol_a", "name": "base_1_volunteer"}], total=1
+        [{"id": "rol_a", "name": "base_1_volunteer"}]
     )
     remove_base_access(base_id=base_id, service=service, force=True)
     assert User.select(User.id, User._usergroup).dicts() == [
@@ -443,10 +437,9 @@ def test_remove_base_access_without_force(usergroup_tables):
         [
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
         ],
-        total=1,
     )
     service._interface.roles.list.return_value = MockPager(
-        [{"id": "rol_a", "name": "base_1_volunteer"}], total=1
+        [{"id": "rol_a", "name": "base_1_volunteer"}]
     )
     deleted_users = User.select().where(User.deleted.is_null(False)).count()
     remove_base_access(base_id=base_id, service=service, force=False)
