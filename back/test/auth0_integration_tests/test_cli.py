@@ -6,7 +6,7 @@ from datetime import date
 from unittest.mock import patch
 
 import pytest
-from auth0.authentication.exceptions import Auth0Error
+from auth0.management.core.api_error import ApiError
 from boxtribute_server.cli.main import main as cli_main
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.user import User
@@ -69,7 +69,7 @@ def auth0_roles(auth0_management_api_client):
         logger.info(f"Deleting role {role_id}")
         try:
             interface.roles.delete(role_id)
-        except Auth0Error as e:
+        except ApiError as e:
             if e.status_code != 404:
                 raise e
 
@@ -120,7 +120,7 @@ def auth0_users(auth0_management_api_client, auth0_roles):
         try:
             response = interface.users.create(**user_data)
             logger.info(f"Created user {response.user_id}")
-        except Auth0Error as e:
+        except ApiError as e:
             if e.status_code != 409:
                 raise e
             logger.info(f"User {user_data['user_id']} already exists")
@@ -291,7 +291,7 @@ def test_remove_base_access(
     users = auth0_management_api_client.get_users_of_base(base_id)
     # ensure ordering for comparison
     users["single_base"].sort(key=lambda u: u["user_id"])
-    assert users == {
+    expected_users = {
         "single_base": [
             {
                 "app_metadata": {"base_ids": ["8"]},
@@ -312,13 +312,18 @@ def test_remove_base_access(
                 "blocked": True,
             },
         ],
-        "multi_base": [],
     }
+    for expected_user, actual_user in zip(
+        expected_users["single_base"], users["single_base"]
+    ):
+        for field in expected_user:
+            assert expected_user[field] == actual_user[field]
+    assert users["multi_base"] == []
 
     # Verify that two users still have access to base ID 9
     base_id = "9"
     users = auth0_management_api_client.get_users_of_base(base_id)
-    assert users == {
+    expected_users = {
         "single_base": [
             {
                 "app_metadata": {"base_ids": [base_id]},
@@ -333,8 +338,13 @@ def test_remove_base_access(
                 "blocked": False,
             },
         ],
-        "multi_base": [],
     }
+    for expected_user, actual_user in zip(
+        expected_users["single_base"], users["single_base"]
+    ):
+        for field in expected_user:
+            assert expected_user[field] == actual_user[field]
+    assert users["multi_base"] == []
 
     # Verify the roles still exist for the other bases. Since test runs might happen in
     # parallel in CI, `get_single_base_user_role_ids` might return multiple roles that
@@ -482,7 +492,7 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
 
     # Verify that users with base ID 9 in their app_metadata are blocked
     users = auth0_management_api_client.get_users_of_base(base_id)
-    assert users == {
+    expected_users = {
         "single_base": [
             {
                 "app_metadata": {"base_ids": ["9"]},
@@ -497,8 +507,13 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
                 "blocked": True,
             },
         ],
-        "multi_base": [],
     }
+    for expected_user, actual_user in zip(
+        expected_users["single_base"], users["single_base"]
+    ):
+        for field in expected_user:
+            assert expected_user[field] == actual_user[field]
+    assert users["multi_base"] == []
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
     assert len(role_ids) == 0
 

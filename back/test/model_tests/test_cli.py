@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, call
 
 import peewee
 import pytest
-from auth0.authentication.exceptions import Auth0Error
+from auth0.management.errors.unauthorized_error import UnauthorizedError
 from boxtribute_server.cli.main import _create_db_interface
 from boxtribute_server.cli.remove_base_access import remove_base_access
 from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
@@ -378,11 +378,11 @@ def test_remove_base_access(usergroup_data):
 
     interface.users.list.assert_called_once()
     assert interface.users.update.call_args_list == [
-        (("auth0|4", {"app_metadata": {"base_ids": ["2"]}}),),
-        (("auth0|5", {"app_metadata": {"base_ids": ["2"]}}),),
-        (("auth0|1", {"blocked": True}),),
-        (("auth0|2", {"blocked": True}),),
-        (("auth0|8", {"blocked": True}),),
+        call(id="auth0|4", app_metadata={"base_ids": ["2"]}),
+        call(id="auth0|5", app_metadata={"base_ids": ["2"]}),
+        call(id="auth0|1", blocked=True),
+        call(id="auth0|2", blocked=True),
+        call(id="auth0|8", blocked=True),
     ]
     assert interface.roles.delete.call_args_list == [
         call("rol_b"),
@@ -402,7 +402,7 @@ def test_remove_base_access(usergroup_data):
     # Verify error handling
     code = 401
     message = "You shall not pass"
-    error = Auth0Error(code, "Unauthorized", message)
+    error = UnauthorizedError(message)
     interface.users.list.side_effect = error
     with pytest.raises(ServiceError) as exc_info:
         service.get_users_of_base(1)
