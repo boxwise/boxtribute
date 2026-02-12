@@ -29,37 +29,40 @@ from boxtribute_server.routes import api_bp, app_bp, shared_bp
 from data import *  # noqa: F401,F403
 from data import MODELS, setup_models
 
-MYSQL_CONNECTION_PARAMETERS = dict(
-    # Fixtures require MySQL server, host:port either
-    # - 127.0.0.1:32000 when testing without container on local machine
-    # - db:3306         when testing in container on local machine
-    # - 127.0.0.1:3306  when testing in CircleCI
-    host=os.getenv("MYSQL_HOST", "127.0.0.1"),
-    port=int(os.getenv("MYSQL_PORT", 32000)),
-    user="root",
-    password="dropapp_root",
-)
+
+@pytest.fixture(scope="session")
+def connection_parameters():
+    """Fixtures require MySQL server, host:port either
+    1. 127.0.0.1:32000 when testing with pytest on local machine
+    2. db:3306         when testing with pytest in webapp docker-compose service
+    3. 127.0.0.1:3306  when testing in CircleCI
+    For options 1 and 2, start the db docker-compose service.
+    """
+    return dict(
+        host=os.getenv("MYSQL_HOST", "127.0.0.1"),
+        port=int(os.getenv("MYSQL_PORT", 32000)),
+        user="root",
+        password="dropapp_root",
+    )
 
 
 @contextmanager
-def _create_database(database_name):
+def _create_database(database_name, params):
     """Create database with given name, and return interface to access it.
-    Requires running MySQL server (as Docker service `db`).
+    Requires running MySQL server (see connection_parameters docstring).
     """
-    with pymysql.connect(**MYSQL_CONNECTION_PARAMETERS) as connection:
+    with pymysql.connect(**params) as connection:
         with connection.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-    database = create_db_interface(
-        **MYSQL_CONNECTION_PARAMETERS, database=database_name
-    )
+    database = create_db_interface(**params, database=database_name)
     yield database
     database.execute_sql(f"DROP DATABASE IF EXISTS {database_name}")
 
 
 @pytest.fixture(scope="session")
-def testing_database():
+def testing_database(connection_parameters):
     """Create the testing database."""
-    with _create_database("testing") as database:
+    with _create_database("testing", connection_parameters) as database:
         yield database
 
 
@@ -127,17 +130,17 @@ def cron_client(app):
 
 
 @pytest.fixture
-def dev_app(monkeypatch):
+def dev_app(monkeypatch, connection_parameters):
     """Function fixture for any tests that include read-only operations on the
     `dropapp_dev` database. Use for testing the integration of the webapp (and the
     underlying ORM) with the format of the dropapp production database.
     The fixture creates a web app (exposing both the query and the full API), configured
     to connect to the `dropapp_dev` MySQL database.
     """
-    monkeypatch.setenv("MYSQL_HOST", MYSQL_CONNECTION_PARAMETERS["host"])
-    monkeypatch.setenv("MYSQL_PORT", str(MYSQL_CONNECTION_PARAMETERS["port"]))
-    monkeypatch.setenv("MYSQL_USER", MYSQL_CONNECTION_PARAMETERS["user"])
-    monkeypatch.setenv("MYSQL_PASSWORD", MYSQL_CONNECTION_PARAMETERS["password"])
+    monkeypatch.setenv("MYSQL_HOST", connection_parameters["host"])
+    monkeypatch.setenv("MYSQL_PORT", str(connection_parameters["port"]))
+    monkeypatch.setenv("MYSQL_USER", connection_parameters["user"])
+    monkeypatch.setenv("MYSQL_PASSWORD", connection_parameters["password"])
     monkeypatch.setenv("MYSQL_DB", "dropapp_dev")
     monkeypatch.setenv("MYSQL_SOCKET", "")
     monkeypatch.setenv("MYSQL_REPLICA_SOCKET", "")
