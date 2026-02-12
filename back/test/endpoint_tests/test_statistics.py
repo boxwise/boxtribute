@@ -2,6 +2,7 @@ from datetime import date, datetime
 
 from auth import mock_user_for_request
 from boxtribute_server.business_logic.statistics.crud import (
+    compute_moved_boxes,
     number_of_boxes_moved_between,
 )
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
@@ -408,6 +409,11 @@ def test_query_moved_boxes(
             ],
         },
     }
+
+    # Verify handling of missing base_ids as parameters
+    result = compute_moved_boxes()
+    assert result.facts == []
+    assert result.dimensions == {}
 
     total_boxes_count = sum(fact["boxesCount"] for fact in data["facts"])
     result = number_of_boxes_moved_between(datetime(2022, 12, 1), datetime.today())

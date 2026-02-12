@@ -12,7 +12,7 @@ WITH recursive ValidBoxes AS (
         ROUND(s.measure_value, 3 - FLOOR(LOG10(s.measure_value) + 1)) AS measure_value,
         s.product_id
     FROM stock s
-    JOIN locations l ON s.location_id = l.id AND l.camp_id = %s
+    JOIN locations l ON s.location_id = l.id AND l.camp_id IN %s
 ),
 BoxHistory AS (
     -- CTE to retrieve box history (only include changes in FK fields such as
@@ -364,7 +364,7 @@ JOIN
     shipment sh
 ON
     t.shipment_id = sh.id AND
-    sh.source_base_id = %s AND
+    sh.source_base_id IN %s AND
     sh.sent_on IS NOT NULL
 JOIN camps c ON c.id = sh.target_base_id
 JOIN organisations o on o.id = c.organisation_id
@@ -413,7 +413,7 @@ FROM (
     LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
     GROUP BY h.id, h.changedate, h.record_id, h.to_int, b.product_id, b.size_id, b.measure_value, b.display_unit_id, b.items
 ) t
-JOIN products p ON p.id = t.product_id AND p.camp_id = %s
+JOIN products p ON p.id = t.product_id AND p.camp_id IN %s
 JOIN box_state bs on bs.id = t.to_int
 LEFT OUTER JOIN units u ON u.id = t.display_unit_id
 GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, bs.label, absolute_measure_value, dimension_id, tag_ids

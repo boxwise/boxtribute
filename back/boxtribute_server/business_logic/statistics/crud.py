@@ -375,7 +375,7 @@ def compute_top_products_donated(base_id):
     return DataCube(facts=facts, dimensions=dimensions, type="TopProductsDonatedData")
 
 
-def compute_moved_boxes(base_id):
+def compute_moved_boxes(*base_ids):
     """Count all boxes that were
     1. shipped to other bases from given base as source
     2. moved between the box states InStock and Donated within the given base
@@ -393,23 +393,26 @@ def compute_moved_boxes(base_id):
     boxes didn't have states assigned, instead box state was dictated by the type of
     location the box was stored in
     """
-    _validate_existing_base(base_id)
+    if len(base_ids) == 0:
+        return DataCube(facts=[], dimensions={}, type="MovedBoxesData")
+    elif len(base_ids) == 1:
+        _validate_existing_base(base_ids[0])
     min_history_id = 1
     if in_production_environment() and not in_ci_environment():  # pragma: no cover
         # Earliest row ID in tables in 2023
         min_history_id = 1_324_559
 
     facts = execute_sql(
-        base_id,
+        base_ids,
         min_history_id,
         TargetType.BoxState.name,
         TargetType.BoxState.name,
         TargetType.OutgoingLocation.name,
         TargetType.OutgoingLocation.name,
         TargetType.Shipment.name,
-        base_id,
+        base_ids,
         TargetType.BoxState.name,
-        base_id,
+        base_ids,
         database=db.replica or db.database,
         query=MOVED_BOXES_QUERY,
     )
