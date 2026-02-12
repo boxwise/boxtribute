@@ -149,9 +149,3 @@ def dev_app(monkeypatch):
     db.database.close()
     db.replica.close()
     db.replica = None
-
-
-@pytest.fixture
-def dev_client(dev_app):
-    with dev_app.app_context():
-        yield dev_app.test_client()

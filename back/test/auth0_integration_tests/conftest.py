@@ -11,6 +11,12 @@ from boxtribute_server.cli import service
 
 
 @pytest.fixture
+def dev_client(dev_app):
+    with dev_app.app_context():
+        yield dev_app.test_client()
+
+
+@pytest.fixture
 def auth0_client(dev_client):
     """Modify client interacting with 'dropapp_dev' app.
     Fetch authz information from Auth0 and insert it into the header of client request.
