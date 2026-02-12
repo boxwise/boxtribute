@@ -113,7 +113,7 @@ ATHENS_BENEFICIARY_ID = "100000485"
     ],
 )
 def test_usergroup_cross_organisation_permissions(
-    dropapp_dev_client,
+    dev_client,
     username,
     opposite_organisation_id,
     expected_accessible_base_ids,
@@ -126,9 +126,7 @@ def test_usergroup_cross_organisation_permissions(
     mocker.patch(
         "boxtribute_server.graph_ql.execution.check_user_beta_level"
     ).return_value = True
-    dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
-        username
-    )
+    dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(username)
 
     # Verify that user does not have read permission to perform queries for fetching
     # other bases' beneficiaries
@@ -137,7 +135,7 @@ def test_usergroup_cross_organisation_permissions(
     query = f"""query {{ organisation(id: {opposite_organisation_id}) {{
                 id bases {{ id beneficiaries {{ totalCount }} }} }} }}"""
     response = assert_forbidden_request(
-        dropapp_dev_client,
+        dev_client,
         query,
         verify_response=False,
         error_count=len(expected_forbidden_base_ids),
@@ -161,7 +159,7 @@ def test_usergroup_cross_organisation_permissions(
         }
     for base_id in expected_forbidden_base_ids:
         query = f"query {{ base(id: {base_id}) {{ beneficiaries {{ totalCount }} }} }}"
-        assert_forbidden_request(dropapp_dev_client, query)
+        assert_forbidden_request(dev_client, query)
 
     # Verify that user does not have create permission to perform mutation for creating
     # beneficiary in inaccessible base
@@ -179,7 +177,7 @@ def test_usergroup_cross_organisation_permissions(
                 registered: true
             }}"""
         mutation = f"mutation {{ createBeneficiary({creation_input}) {{ id }} }}"
-        assert_forbidden_request(dropapp_dev_client, mutation)
+        assert_forbidden_request(dev_client, mutation)
 
     # Verify that user does not have edit permission to perform mutation for updating
     # beneficiary in inaccessible base
@@ -191,7 +189,7 @@ def test_usergroup_cross_organisation_permissions(
     }}
     """
     mutation = f"mutation {{ updateBeneficiary({update_input}) {{ id }} }}"
-    assert_forbidden_request(dropapp_dev_client, mutation)
+    assert_forbidden_request(dev_client, mutation)
 
     # Verify base-specific permissions for user.
     # - users have read-access only to beneficiaries within their bases
@@ -217,7 +215,7 @@ def test_usergroup_cross_organisation_permissions(
         assert all(i not in granted_base_ids for i in expected_forbidden_base_ids)
 
 
-def test_god_user(dropapp_dev_client):
+def test_god_user(dev_client):
     username = "some.admin@boxtribute.org"
     domain = TEST_AUTH0_DOMAIN
     payload = decode_jwt(
@@ -230,14 +228,14 @@ def test_god_user(dropapp_dev_client):
     assert user.is_god
 
 
-def test_check_beta_feature_access(dropapp_dev_client):
-    dropapp_dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
+def test_check_beta_feature_access(dev_client):
+    dev_client.environ_base["HTTP_AUTHORIZATION"] = get_authorization_header(
         "dev_coordinator@boxaid.org"
     )
 
     mutation = "mutation { createQrCode { id } }"
-    assert_successful_request(dropapp_dev_client, mutation)
+    assert_successful_request(dev_client, mutation)
 
     mutation = "mutation { deleteTag(id: 1) { id } }"
-    response = assert_bad_request(dropapp_dev_client, mutation, expect_errors=True)
+    response = assert_bad_request(dev_client, mutation, expect_errors=True)
     assert response.json["errors"] == [{"message": "Insufficient beta-level"}]

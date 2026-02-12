@@ -127,13 +127,12 @@ def cron_client(app):
 
 
 @pytest.fixture
-def mysql_dev_database(monkeypatch):
+def dev_app(monkeypatch):
     """Function fixture for any tests that include read-only operations on the
     `dropapp_dev` database. Use for testing the integration of the webapp (and the
     underlying ORM) with the format of the dropapp production database.
     The fixture creates a web app (exposing both the query and the full API), configured
-    to connect to the `dropapp_dev` MySQL database, and returns a client that simulates
-    sending requests to the app.
+    to connect to the `dropapp_dev` MySQL database.
     """
     monkeypatch.setenv("MYSQL_HOST", MYSQL_CONNECTION_PARAMETERS["host"])
     monkeypatch.setenv("MYSQL_PORT", str(MYSQL_CONNECTION_PARAMETERS["port"]))
@@ -153,6 +152,6 @@ def mysql_dev_database(monkeypatch):
 
 
 @pytest.fixture
-def dropapp_dev_client(mysql_dev_database):
-    with mysql_dev_database.app_context():
-        yield mysql_dev_database.test_client()
+def dev_client(dev_app):
+    with dev_app.app_context():
+        yield dev_app.test_client()
