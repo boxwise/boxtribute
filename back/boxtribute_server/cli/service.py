@@ -16,18 +16,13 @@ class ServiceBase:
         # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
         users = []
         try:
-            # Pagination setup - v5 uses SyncPager
             per_page = 50
-
-            # Get first page
             pager = self._interface.users.list(
                 q=query,
                 fields=fields,
                 page=0,
                 per_page=per_page,
             )
-
-            # Get total from the response
             total = (
                 pager.response.total if pager.response and pager.response.total else 0
             )
