@@ -11,6 +11,7 @@ import {
   TabPanels,
   Tabs,
   Tag,
+  TagLabel,
   Text,
   Flex,
   CloseButton,
@@ -83,8 +84,15 @@ export default function TabbedTagDropdown({
           </Tag>
         ))}
         {excludedTags.map((tag) => (
-          <Tag key={`exc-${tag.id}`} size="sm" bg={tag.color} color="white" borderRadius="full">
-            not:{tag.label}
+          <Tag
+            key={`exc-${tag.id}`}
+            size="sm"
+            variant="outline"
+            shadow={`inset 0 0 0px 2px ${tag.color}`}
+            color={tag.color}
+            borderRadius="full"
+          >
+            <TagLabel textDecoration="line-through">{tag.label}</TagLabel>
             <CloseButton
               size="sm"
               ml={1}
