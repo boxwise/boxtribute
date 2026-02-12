@@ -57,8 +57,8 @@ def _create_database(database_name):
 
 
 @pytest.fixture(scope="session")
-def mysql_testing_database():
-    """Session fixture providing a database interface for arbitrary operations."""
+def testing_database():
+    """Create the testing database."""
     with _create_database("testing") as database:
         yield database
 
@@ -90,14 +90,14 @@ def _create_app(database_interface, *blueprints):
 
 
 @pytest.fixture(scope="session")
-def setup_testing_database(mysql_testing_database):
+def setup_testing_database(testing_database):
     """Bind all data models to the testing database and populate it with test data."""
-    with mysql_testing_database.bind_ctx(MODELS, False, False):
-        mysql_testing_database.drop_tables(MODELS)
-        mysql_testing_database.create_tables(MODELS)
+    with testing_database.bind_ctx(MODELS, False, False):
+        testing_database.drop_tables(MODELS)
+        testing_database.create_tables(MODELS)
         setup_models()
-        mysql_testing_database.close()
-        yield mysql_testing_database
+        testing_database.close()
+        yield testing_database
 
 
 @pytest.fixture
