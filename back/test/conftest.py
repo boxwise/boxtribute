@@ -91,12 +91,13 @@ def _create_app(database_interface, *blueprints):
 
 @pytest.fixture(scope="session")
 def setup_testing_database(mysql_testing_database):
-    with mysql_testing_database.bind_ctx(MODELS):
+    """Bind all data models to the testing database and populate it with test data."""
+    with mysql_testing_database.bind_ctx(MODELS, False, False):
         mysql_testing_database.drop_tables(MODELS)
         mysql_testing_database.create_tables(MODELS)
         setup_models()
         mysql_testing_database.close()
-    yield mysql_testing_database
+        yield mysql_testing_database
 
 
 @pytest.fixture
@@ -114,17 +115,15 @@ def client(app, setup_testing_database):
     app client that simulates sending requests to the app.
     The client's authentication and authorization may be separately defined or patched.
     """
-    with setup_testing_database.bind_ctx(MODELS, False, False):
-        with setup_testing_database.atomic() as txn:
-            yield app.test_client()
-            txn.rollback()
+    with setup_testing_database.atomic() as txn:
+        yield app.test_client()
+        txn.rollback()
 
 
 @pytest.fixture
-def cron_client(app, setup_testing_database):
-    with setup_testing_database.bind_ctx(MODELS, False, False):
-        # Don't run in atomic transaction because the code creates tables
-        yield app.test_client()
+def cron_client(app):
+    # Don't run in atomic transaction because the code creates tables
+    yield app.test_client()
 
 
 @pytest.fixture
