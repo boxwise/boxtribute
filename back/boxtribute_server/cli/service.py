@@ -45,7 +45,7 @@ class ServiceBase:
         """Connect to Management API, following
         https://github.com/auth0/auth0-python/tree/master?tab=readme-ov-file#recommended-using-managementclient
         """
-        LOGGER.info("Fetching Auth0 Management API token...")
+        LOGGER.info("Initializing Auth0 Management API client...")
         interface = ManagementClient(
             domain=domain, client_id=client_id, client_secret=secret
         )
