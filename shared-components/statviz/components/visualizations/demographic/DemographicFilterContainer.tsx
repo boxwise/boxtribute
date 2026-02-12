@@ -8,6 +8,12 @@ import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
 import { tagFilterValuesVar } from "../../../state/filter";
 import {
+  tagFilterIncludedValuesVar,
+  tagFilterExcludedValuesVar,
+} from "../../../state/tagFilterDashboard";
+import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
+import { filterByTags } from "../../../utils/filterByTags";
+import {
   BeneficiaryDemographics,
   BeneficiaryDemographicsResult,
 } from "../../../../../graphql/types";
@@ -24,6 +30,13 @@ export default function DemographicFilterContainer({
   const tagFilterValues = useReactiveVar(tagFilterValuesVar);
   const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
 
+  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
+    includedValues,
+    excludedValues,
+  );
+
   // merge Beneficiary tags to Box and All tags
   useEffect(() => {
     const beneficiaryTagFilterValues = demographics?.dimensions!.tag!.map((e) =>
@@ -37,6 +50,9 @@ export default function DemographicFilterContainer({
       );
 
       tagFilterValuesVar(distinctTagFilterValues);
+      // Also populate the Dashboard tag filter values
+      tagFilterIncludedValuesVar(distinctTagFilterValues);
+      tagFilterExcludedValuesVar(distinctTagFilterValues);
     }
     // including tagFilterOptions in the dependencies can lead to infinite update loops
     // between CreatedBoxes updating the TagFilter and DemographicFilter updating the TagFilter
@@ -66,12 +82,22 @@ export default function DemographicFilterContainer({
       );
     }
 
+    let filtered = demographicFacts;
     if (filters.length > 0) {
       // @ts-expect-error
-      return tidy(demographicFacts, ...filters);
+      filtered = tidy(demographicFacts, ...filters);
     }
-    return demographicFacts;
-  }, [demographicFacts, filteredTags]);
+
+    // Apply Dashboard tag filter (included/excluded)
+    filtered = filterByTags(
+      filtered,
+      includedFilterValue,
+      excludedFilterValue,
+      (fact) => fact.tagIds,
+    );
+
+    return filtered;
+  }, [demographicFacts, filteredTags, includedFilterValue, excludedFilterValue]);
 
   const demographicCube = {
     ...demographics,

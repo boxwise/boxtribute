@@ -26,6 +26,12 @@ import {
   tagFilterValuesVar,
   categoryFilterValuesVar,
 } from "../../../state/filter";
+import {
+  tagFilterIncludedValuesVar,
+  tagFilterExcludedValuesVar,
+} from "../../../state/tagFilterDashboard";
+import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
+import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
 
 interface ICreatedBoxesFilterContainerProps {
@@ -58,6 +64,13 @@ export default function CreatedBoxesFilterContainer({
   const tagFilterValues = useReactiveVar(tagFilterValuesVar);
   const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
 
+  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
+    includedValues,
+    excludedValues,
+  );
+
   // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
   // Beneficiary and All Tags are merged inside the DemographicFilterContainer
   // and filter the product filter by filtered product genders
@@ -82,6 +95,9 @@ export default function CreatedBoxesFilterContainer({
       const distinctTagFilterValues = tidy([...tagFilterValues, ...boxTags], distinct(["id"]));
 
       tagFilterValuesVar(distinctTagFilterValues);
+      // Also populate the Dashboard tag filter values
+      tagFilterIncludedValuesVar(distinctTagFilterValues);
+      tagFilterExcludedValuesVar(distinctTagFilterValues);
     }
     // we only need to update products if the product gender selection is updated
     // including filterProducts would cause unnecessary rerenders
@@ -135,12 +151,30 @@ export default function CreatedBoxesFilterContainer({
       );
     }
 
+    let filtered = createdBoxesFacts;
     if (filters.length > 0) {
       // @ts-expect-error
-      return tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
+      filtered = tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
-    return createdBoxesFacts satisfies CreatedBoxesResult[];
-  }, [createdBoxesFacts, filterProductGenders, filterProducts, filterCategories, filteredTags]);
+
+    // Apply Dashboard tag filter (included/excluded)
+    filtered = filterByTags(
+      filtered,
+      includedFilterValue,
+      excludedFilterValue,
+      (fact) => fact.tagIds,
+    );
+
+    return filtered;
+  }, [
+    createdBoxesFacts,
+    filterProductGenders,
+    filterProducts,
+    filterCategories,
+    filteredTags,
+    includedFilterValue,
+    excludedFilterValue,
+  ]);
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,
