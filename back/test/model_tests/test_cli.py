@@ -7,7 +7,6 @@ from auth0 import Auth0Error
 from boxtribute_server.cli.main import _create_db_interface
 from boxtribute_server.cli.remove_base_access import remove_base_access
 from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
-from boxtribute_server.db import db
 from boxtribute_server.exceptions import ServiceError
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.organisation import Organisation
@@ -29,11 +28,12 @@ def test_create_db_interface():
 
 @pytest.fixture
 def usergroup_tables():
+    database = Base._meta.database
     # Set up three usergroups for base 1 (run by org 1 which also runs base 2)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
@@ -56,10 +56,10 @@ CREATE TABLE `cms_usergroups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_camps`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups_camps` (
   `camp_id` int(11) unsigned NOT NULL,
   `cms_usergroups_id` int(11) unsigned NOT NULL,
@@ -73,10 +73,10 @@ CREATE TABLE `cms_usergroups_camps` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_functions_camps`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_functions_camps` (
   `cms_functions_id` int(11) unsigned NOT NULL,
   `camps_id` int(11) unsigned NOT NULL,
@@ -87,10 +87,10 @@ CREATE TABLE `cms_functions_camps` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_roles`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups_roles` (
   `cms_usergroups_id` int(11) unsigned NOT NULL,
   `auth0_role_id` varchar(255) NOT NULL,
@@ -102,10 +102,10 @@ CREATE TABLE `cms_usergroups_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_functions`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups_functions` (
   `cms_functions_id` int(11) unsigned NOT NULL,
   `cms_usergroups_id` int(11) unsigned NOT NULL,
@@ -127,12 +127,13 @@ CREATE TABLE `cms_usergroups_functions` (
         "cms_functions_camps",
         "cms_usergroups",
     ]:
-        db.database.execute_sql(f"DROP TABLE {table};")
+        database.execute_sql(f"DROP TABLE {table};")
 
 
 @pytest.fixture
 def usergroup_data(usergroup_tables):
-    db.database.execute_sql("""\
+    database = Base._meta.database
+    database.execute_sql("""\
 INSERT INTO `cms_usergroups` VALUES
     (1,'Head of Operations',NULL,NULL,NULL,NULL,1,NULL),
     (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
@@ -143,7 +144,7 @@ INSERT INTO `cms_usergroups` VALUES
     (7,'Volunteer',NULL,NULL,NULL,NULL,1,NULL);
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 INSERT INTO `cms_usergroups_camps` VALUES
     (1,1),
     (1,2),
@@ -157,13 +158,13 @@ INSERT INTO `cms_usergroups_camps` VALUES
     (2,7);
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 INSERT INTO `cms_functions_camps` VALUES
     (1,1),
     (1,2);
 """)
 
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO `cms_usergroups_roles` VALUES
     (1,'rol_a','administrator'),
@@ -176,7 +177,7 @@ INSERT INTO `cms_usergroups_roles` VALUES
 """,
     )
 
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO `cms_usergroups_functions` VALUES
     (1,1),
@@ -297,7 +298,8 @@ def test_remove_base_access(usergroup_data):
     ]
 
     # Verify that cms_usergroups.deleted is set
-    cursor = db.database.execute_sql("SELECT id,deleted FROM cms_usergroups;")
+    database = Base._meta.database
+    cursor = database.execute_sql("SELECT id,deleted FROM cms_usergroups;")
     column_names = [x[0] for x in cursor.description]
     usergroups = [dict(zip(column_names, row)) for row in cursor.fetchall()]
     today = date.today().isoformat()
@@ -316,19 +318,19 @@ def test_remove_base_access(usergroup_data):
     ]
 
     # Verify that all entries related to base 1 are removed from cms_usergroups_camps
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT camp_id,cms_usergroups_id from cms_usergroups_camps;"
     )
     assert cursor.fetchall() == ((2, 1), (2, 6), (2, 7))
     # ...and from cms_functions_camps
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT camps_id,cms_functions_id from cms_functions_camps;"
     )
     assert cursor.fetchall() == ((2, 1),)
 
     # Verify that all entries related to non-admin usergroups are removed from
     # cms_usergroups_roles
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT cms_usergroups_id,auth0_role_name from cms_usergroups_roles;"
     )
     assert cursor.fetchall() == (
@@ -340,7 +342,7 @@ def test_remove_base_access(usergroup_data):
 
     # Verify that all entries related to non-admin usergroups are removed from
     # cms_usergroups_functions
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT cms_usergroups_id,cms_functions_id from cms_usergroups_functions;"
     )
     assert cursor.fetchall() == (

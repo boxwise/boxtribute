@@ -17,8 +17,10 @@ import argparse
 import getpass
 import logging
 
-from boxtribute_server.db import create_db_interface, db
-
+from ..db import create_db_interface
+from ..models.definitions import Model
+from ..models.definitions.base import Base
+from ..models.definitions.organisation import Organisation
 from .remove_base_access import LOGGER as RBA_LOGGER
 from .remove_base_access import remove_base_access
 from .service import LOGGER as SERVICE_LOGGER
@@ -90,9 +92,6 @@ def _connect_to_auth0(**connection_parameters):
 
 
 def _confirm_removal(*, force, base_id):
-    from ..models.definitions.base import Base
-    from ..models.definitions.organisation import Organisation
-
     # Validate that base exists
     base = (
         Base.select(Base.name, Organisation.name, Organisation.id)
@@ -144,14 +143,10 @@ def main(args=None):
         RBA_LOGGER.setLevel(logging.DEBUG)
         SERVICE_LOGGER.setLevel(logging.DEBUG)
 
-    # The following patches the `database` attribute of the DatabaseManager which is
-    # necessary for using the `Model` inheritance in all peewee model classes.
-    # NOTE: if importing model definitions in a sibling file, do so ONLY inside of the
-    # function that uses the model, otherwise the "database" patch is ineffective, and
-    # the "Cannot use uninitialized Proxy" error occurs.
-    db.database = _create_db_interface(
+    database = _create_db_interface(
         **{n: options.pop(n) for n in ["host", "port", "password", "database", "user"]}
     )
+    database.bind(Model.__subclasses__())
 
     command = options.pop("command")
     try:

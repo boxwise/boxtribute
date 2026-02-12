@@ -8,7 +8,6 @@ from unittest.mock import patch
 import pytest
 from auth0.exceptions import Auth0Error
 from boxtribute_server.cli.main import main as cli_main
-from boxtribute_server.db import db
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.user import User
 
@@ -158,12 +157,13 @@ def auth0_users(auth0_management_api_client, auth0_roles):
 
 @pytest.fixture
 def mysql_data(auth0_roles, auth0_users):
+    database = Base._meta.database
     # Set up test bases, users, and cms_usergroups* data in MySQL
     base8 = Base.create(id=8, name="Eighth Base", organisation=1, seq=1)
     base9 = Base.create(id=9, name="Ninth Base", organisation=1, seq=1)
 
     labels = tuple(r["description"] for r in auth0_roles.values())
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO cms_usergroups
     (id, label, organisation_id, userlevel, allow_borrow_adddelete)
@@ -177,7 +177,7 @@ VALUES
         labels,
     )
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 INSERT INTO cms_usergroups_camps
     (camp_id, cms_usergroups_id)
 VALUES
@@ -195,7 +195,7 @@ VALUES
     for role_name, role in auth0_roles.items():
         data.append(role["id"])
         data.append(role_name)
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO cms_usergroups_roles
     (auth0_role_id, auth0_role_name, cms_usergroups_id)
@@ -220,7 +220,7 @@ VALUES
         data.append(group)
     # Can't use User model here because the database does not accept NULL deleted dates
     # but peewee does not accept the work-around 0000 dates
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO cms_users
     (id, pass, naam, email, cms_usergroups_id, lastlogin, lastaction, deleted)
@@ -238,14 +238,14 @@ VALUES
 
     # Tear-down: delete everything created above
     user_ids = [int(u["user_id"]) for u in auth0_users]
-    db.database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
-    db.database.execute_sql(f"""\
+    database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
+    database.execute_sql(f"""\
 DELETE FROM cms_usergroups_roles
 WHERE auth0_role_name LIKE "%%{test_role_name_static_suffix}";""")
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DELETE FROM cms_usergroups_camps
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     base8.delete_instance()
     base9.delete_instance()
@@ -423,7 +423,8 @@ def test_remove_base_access(
     ]
 
     today = date.today().isoformat()
-    cursor = db.database.execute_sql("""\
+    database = Base._meta.database
+    cursor = database.execute_sql("""\
 SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data[0] == (99999990, None)
@@ -434,13 +435,13 @@ SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""
     assert data[3] == (99999993, None)
     assert data[4] == (99999994, None)
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == ((9, 99999990), (9, 99999993))
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
@@ -504,7 +505,7 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     base = Base.get_by_id(int(base_id))
     assert base.deleted_on.date() == date.today()
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data[0][0] == 99999990
@@ -513,13 +514,13 @@ SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""
     assert data[3][1].isoformat().startswith(today)
     assert data[4] == (99999994, None)
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == ()
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
