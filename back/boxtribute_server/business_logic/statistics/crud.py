@@ -34,7 +34,7 @@ from .sql import MOVED_BOXES_QUERY
 @dataclass(kw_only=True)
 class DataCube:
     facts: list[dict[str, Any]]
-    dimensions: list[dict[str, Any]]
+    dimensions: dict[str, list[dict[str, Any]]]
     type: str  # Identical to GraphQL DataCube implementation type
 
 
