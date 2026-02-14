@@ -29,6 +29,9 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
 import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
 import EditStandardProductView from "views/EditStandardProduct/EditStandardProductView";
+import { TagsView } from "views/Tags/TagsOverview/TagsView";
+import { CreateTagView } from "views/Tags/CreateTagView";
+import { UpdateTagView } from "views/Tags/UpdateTagView";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -333,6 +336,39 @@ function App() {
                 />
               </Route>
             </Route>
+          </Route>
+
+          <Route path="tags">
+            <Route
+              index
+              element={
+                <Protected
+                  component={<TagsView />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_tags"]}
+                />
+              }
+            />
+            <Route
+              path=":tagId"
+              element={
+                <Protected
+                  component={<UpdateTagView />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_tags"]}
+                />
+              }
+            />
+            <Route
+              path="create"
+              element={
+                <Protected
+                  component={<CreateTagView />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_tags"]}
+                />
+              }
+            />
           </Route>
         </Route>
       </Route>

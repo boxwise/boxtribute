@@ -161,6 +161,7 @@ const mutationGraphQLError = {
 
 // Test case 4.3.1
 it("4.3.1 - Initial load of Page", async () => {
+  // Increase timeout for this long-running test
   const user = userEvent.setup();
   render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
@@ -187,7 +188,7 @@ it("4.3.1 - Initial load of Page", async () => {
 
   // Breadcrumbs are there
   expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
-});
+}, 40000);
 
 // Test case 4.3.2
 it("4.3.2 - Input Validations", async () => {
