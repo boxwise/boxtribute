@@ -73,10 +73,10 @@ def test_decode_valid_jwt(monkeypatch, mocker):
     assert exc.status_code == 500
 
 
-def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):
+def test_request_jwt(dev_client, monkeypatch, mocker):
     monkeypatch.setenv("AUTH0_CLIENT_ID", os.environ["TEST_AUTH0_CLIENT_ID"])
     monkeypatch.setenv("AUTH0_CLIENT_SECRET", os.environ["TEST_AUTH0_CLIENT_SECRET"])
-    response = dropapp_dev_client.post(
+    response = dev_client.post(
         "/token",
         json={
             "username": TEST_AUTH0_USERNAME,
@@ -90,6 +90,6 @@ def test_request_jwt(dropapp_dev_client, monkeypatch, mocker):
     mocker.patch("urllib.request.urlopen").side_effect = urllib.error.URLError(
         reason=reason
     )
-    response = dropapp_dev_client.post("/token", json={"username": "u", "password": ""})
+    response = dev_client.post("/token", json={"username": "u", "password": ""})
     assert response.status_code == 400
     assert response.json["error"] == reason
