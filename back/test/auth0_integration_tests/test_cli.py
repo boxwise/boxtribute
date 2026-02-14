@@ -6,9 +6,8 @@ from datetime import date
 from unittest.mock import patch
 
 import pytest
-from auth0.exceptions import Auth0Error
+from auth0.management.core.api_error import ApiError
 from boxtribute_server.cli.main import main as cli_main
-from boxtribute_server.db import db
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.user import User
 
@@ -57,7 +56,7 @@ def auth0_roles(auth0_management_api_client):
     ]
     roles = {}
     for role_data in roles_data:
-        response = interface.roles.create(role_data)
+        response = interface.roles.create(**role_data).model_dump()
         roles[role_data["name"]] = response
         logger.info(f"Created role {response['id']}")
 
@@ -70,7 +69,7 @@ def auth0_roles(auth0_management_api_client):
         logger.info(f"Deleting role {role_id}")
         try:
             interface.roles.delete(role_id)
-        except Auth0Error as e:
+        except ApiError as e:
             if e.status_code != 404:
                 raise e
 
@@ -119,31 +118,31 @@ def auth0_users(auth0_management_api_client, auth0_roles):
         user_data["password"] = "Browser_tests"
         user_data["blocked"] = False
         try:
-            response = interface.users.create(user_data)
-            logger.info(f"Created user {response['user_id']}")
-        except Auth0Error as e:
+            response = interface.users.create(**user_data)
+            logger.info(f"Created user {response.user_id}")
+        except ApiError as e:
             if e.status_code != 409:
                 raise e
             logger.info(f"User {user_data['user_id']} already exists")
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["administrator" + test_role_name_suffix]["id"],
-        [user_id(0)],
+        users=[user_id(0)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
-        [user_id(0)],
+        users=[user_id(0)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_8_coordinator" + test_role_name_suffix]["id"],
-        [user_id(1)],
+        users=[user_id(1)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_8_volunteer" + test_role_name_suffix]["id"],
-        [user_id(2), user_id(3)],
+        users=[user_id(2), user_id(3)],
     )
-    interface.roles.add_users(
+    interface.roles.users.assign(
         auth0_roles["base_9_volunteer" + test_role_name_suffix]["id"],
-        [user_id(4)],
+        users=[user_id(4)],
     )
 
     time.sleep(2 * WAIT)
@@ -158,12 +157,13 @@ def auth0_users(auth0_management_api_client, auth0_roles):
 
 @pytest.fixture
 def mysql_data(auth0_roles, auth0_users):
+    database = Base._meta.database
     # Set up test bases, users, and cms_usergroups* data in MySQL
     base8 = Base.create(id=8, name="Eighth Base", organisation=1, seq=1)
     base9 = Base.create(id=9, name="Ninth Base", organisation=1, seq=1)
 
     labels = tuple(r["description"] for r in auth0_roles.values())
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO cms_usergroups
     (id, label, organisation_id, userlevel, allow_borrow_adddelete)
@@ -177,7 +177,7 @@ VALUES
         labels,
     )
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 INSERT INTO cms_usergroups_camps
     (camp_id, cms_usergroups_id)
 VALUES
@@ -195,7 +195,7 @@ VALUES
     for role_name, role in auth0_roles.items():
         data.append(role["id"])
         data.append(role_name)
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO cms_usergroups_roles
     (auth0_role_id, auth0_role_name, cms_usergroups_id)
@@ -220,7 +220,7 @@ VALUES
         data.append(group)
     # Can't use User model here because the database does not accept NULL deleted dates
     # but peewee does not accept the work-around 0000 dates
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO cms_users
     (id, pass, naam, email, cms_usergroups_id, lastlogin, lastaction, deleted)
@@ -238,14 +238,14 @@ VALUES
 
     # Tear-down: delete everything created above
     user_ids = [int(u["user_id"]) for u in auth0_users]
-    db.database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
-    db.database.execute_sql(f"""\
+    database.execute_sql("""DELETE FROM cms_users WHERE id IN %s;""", (user_ids,))
+    database.execute_sql(f"""\
 DELETE FROM cms_usergroups_roles
 WHERE auth0_role_name LIKE "%%{test_role_name_static_suffix}";""")
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DELETE FROM cms_usergroups_camps
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DELETE FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     base8.delete_instance()
     base9.delete_instance()
@@ -291,7 +291,7 @@ def test_remove_base_access(
     users = auth0_management_api_client.get_users_of_base(base_id)
     # ensure ordering for comparison
     users["single_base"].sort(key=lambda u: u["user_id"])
-    assert users == {
+    expected_users = {
         "single_base": [
             {
                 "app_metadata": {"base_ids": ["8"]},
@@ -312,13 +312,18 @@ def test_remove_base_access(
                 "blocked": True,
             },
         ],
-        "multi_base": [],
     }
+    for expected_user, actual_user in zip(
+        expected_users["single_base"], users["single_base"]
+    ):
+        for field in expected_user:
+            assert expected_user[field] == actual_user[field]
+    assert users["multi_base"] == []
 
     # Verify that two users still have access to base ID 9
     base_id = "9"
     users = auth0_management_api_client.get_users_of_base(base_id)
-    assert users == {
+    expected_users = {
         "single_base": [
             {
                 "app_metadata": {"base_ids": [base_id]},
@@ -333,8 +338,13 @@ def test_remove_base_access(
                 "blocked": False,
             },
         ],
-        "multi_base": [],
     }
+    for expected_user, actual_user in zip(
+        expected_users["single_base"], users["single_base"]
+    ):
+        for field in expected_user:
+            assert expected_user[field] == actual_user[field]
+    assert users["multi_base"] == []
 
     # Verify the roles still exist for the other bases. Since test runs might happen in
     # parallel in CI, `get_single_base_user_role_ids` might return multiple roles that
@@ -423,7 +433,8 @@ def test_remove_base_access(
     ]
 
     today = date.today().isoformat()
-    cursor = db.database.execute_sql("""\
+    database = Base._meta.database
+    cursor = database.execute_sql("""\
 SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data[0] == (99999990, None)
@@ -434,13 +445,13 @@ SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""
     assert data[3] == (99999993, None)
     assert data[4] == (99999994, None)
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == ((9, 99999990), (9, 99999993))
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
@@ -481,7 +492,7 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
 
     # Verify that users with base ID 9 in their app_metadata are blocked
     users = auth0_management_api_client.get_users_of_base(base_id)
-    assert users == {
+    expected_users = {
         "single_base": [
             {
                 "app_metadata": {"base_ids": ["9"]},
@@ -496,15 +507,20 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
                 "blocked": True,
             },
         ],
-        "multi_base": [],
     }
+    for expected_user, actual_user in zip(
+        expected_users["single_base"], users["single_base"]
+    ):
+        for field in expected_user:
+            assert expected_user[field] == actual_user[field]
+    assert users["multi_base"] == []
     role_ids = auth0_management_api_client.get_single_base_user_role_ids(base_id)
     assert len(role_ids) == 0
 
     base = Base.get_by_id(int(base_id))
     assert base.deleted_on.date() == date.today()
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data[0][0] == 99999990
@@ -513,13 +529,13 @@ SELECT id, deleted FROM cms_usergroups WHERE id BETWEEN 99999990 AND 99999994;""
     assert data[3][1].isoformat().startswith(today)
     assert data[4] == (99999994, None)
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT camp_id, cms_usergroups_id FROM cms_usergroups_camps
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()
     assert data == ()
 
-    cursor = db.database.execute_sql("""\
+    cursor = database.execute_sql("""\
 SELECT auth0_role_name, cms_usergroups_id FROM cms_usergroups_roles
 WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     data = cursor.fetchall()

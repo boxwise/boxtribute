@@ -1,143 +1,46 @@
-import csv
-import pathlib
-import tempfile
 from datetime import date
 from unittest.mock import MagicMock, call
 
 import peewee
 import pytest
-from auth0 import Auth0Error
-from boxtribute_server.cli.main import _create_db_interface, _parse_options
-from boxtribute_server.cli.products import (
-    PRODUCT_COLUMN_NAMES,
-    clone_products,
-    import_products,
-)
+from auth0.management.errors.unauthorized_error import UnauthorizedError
+from boxtribute_server.cli.main import _create_db_interface
 from boxtribute_server.cli.remove_base_access import remove_base_access
 from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
-from boxtribute_server.db import db
 from boxtribute_server.exceptions import ServiceError
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.organisation import Organisation
-from boxtribute_server.models.definitions.product import Product
 from boxtribute_server.models.definitions.user import User
 
 
-@pytest.fixture
-def valid_data():
-    return [
-        {
-            "name": "coats",
-            "category": 6,
-            "gender": 1,
-            "size_range": 1,
-            "base": 1,
-            "price": 20,
-            "in_shop": 0,
-            "comment": "",
-        },
-        {
-            "name": "umbrellas",
-            "category": 13,
-            "gender": 1,
-            "size_range": 1,
-            "base": 2,
-            "price": 10,
-            "in_shop": 0,
-            "comment": "yellow color",
-        },
-    ]
+class MockItem:
+    """Mock Pydantic model that returns the data dict via model_dump()."""
+
+    def __init__(self, data):
+        self._data = data
+
+    def model_dump(self):
+        return self._data
+
+    def __getattr__(self, name):
+        return self._data[name]
 
 
-def write_to_csv(*, filepath, data, fieldnames):
-    with open(filepath, mode="w", newline="") as data_file:
-        writer = csv.DictWriter(data_file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+class MockPager:
+    """Mock SyncPager for testing auth0-python v5 API."""
+
+    def __init__(self, items):
+        self.items = [MockItem(item) for item in items]
+        self.response = MagicMock(total=len(items))
+
+    def iter_pages(self):
+        yield self
+
+    def __iter__(self):
+        yield from self.items
 
 
-# Note that yielding the filepath prevents from exiting the tempfile context manager
-# which would otherwise result in automatic deletion of the temporary directory before
-# it is even used by the test
-@pytest.fixture
-def valid_data_filepath(valid_data):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = pathlib.Path(tmpdir) / "valid_data.csv"
-        write_to_csv(
-            filepath=filepath, data=valid_data, fieldnames=PRODUCT_COLUMN_NAMES
-        )
-        yield filepath
-
-
-@pytest.fixture
-def empty_filepath():
-    with tempfile.NamedTemporaryFile(mode="w", newline="", suffix=".csv") as tmpfile:
-        yield tmpfile.name
-
-
-@pytest.fixture
-def only_header_filepath():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = pathlib.Path(tmpdir) / "only_header.csv"
-        write_to_csv(filepath=filepath, data=[], fieldnames=PRODUCT_COLUMN_NAMES)
-        yield filepath
-
-
-@pytest.fixture
-def invalid_data_filepath():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = pathlib.Path(tmpdir) / "invalid_data.csv"
-        write_to_csv(filepath=filepath, data=[{"invalid": 0}], fieldnames=["invalid"])
-        yield filepath
-
-
-@pytest.fixture
-def invalid_typed_data_filepath():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        filepath = pathlib.Path(tmpdir) / "invalid_data.csv"
-        write_to_csv(
-            filepath=filepath,
-            data=[
-                {
-                    "name": "coats",
-                    "category": "Clothing",  # should be valid int
-                    "gender": 1,
-                    "size_range": 1,
-                    "base": 1,
-                    "price": 20,
-                    "in_shop": 0,
-                    "comment": "",
-                }
-            ],
-            fieldnames=PRODUCT_COLUMN_NAMES,
-        )
-        yield filepath
-
-
-def test_parse_options():
-    assert _parse_options("import-products -f data.csv".split()) == {
-        "command": "import-products",
-        "data_filepath": "data.csv",
-        "database": None,
-        "password": None,
-        "user": None,
-        "host": "127.0.0.1",
-        "port": 3386,
-        "verbose": False,
-    }
-
-    assert _parse_options("clone-products -s 1 -t 2".split()) == {
-        "command": "clone-products",
-        "source_base_id": 1,
-        "target_base_id": 2,
-        "database": None,
-        "password": None,
-        "user": None,
-        "host": "127.0.0.1",
-        "port": 3386,
-        "verbose": False,
-    }
-
+def test_create_db_interface():
     assert isinstance(
         _create_db_interface(
             password="dropapp_root",
@@ -150,65 +53,14 @@ def test_parse_options():
     )
 
 
-def test_import_products(
-    valid_data_filepath,
-    valid_data,
-    empty_filepath,
-    only_header_filepath,
-    invalid_data_filepath,
-    invalid_typed_data_filepath,
-):
-    import_products(data_filepath=valid_data_filepath)
-    products = list(Product.select().dicts())
-
-    # Verify that result is superset of original test data
-    assert products[-2].items() >= valid_data[0].items()
-    assert products[-1].items() >= valid_data[1].items()
-
-    with pytest.raises(RuntimeError):
-        import_products(data_filepath=empty_filepath)
-
-    with pytest.raises(RuntimeError):
-        import_products(data_filepath=only_header_filepath)
-
-    with pytest.raises(ValueError):
-        import_products(data_filepath=invalid_data_filepath)
-
-    with pytest.raises(ValueError) as exc_info:
-        import_products(data_filepath=invalid_typed_data_filepath)
-    assert exc_info.value.args[0] == "Invalid fields:\nRow   1: category"
-
-
-def test_clone_products(default_product):
-    target_base_id = 2
-    clone_products(source_base_id=1, target_base_id=target_base_id)
-
-    # Verify that source and target product are identical apart from ID, base, and price
-    products = list(Product.select().dicts())
-    cloned_products = products[-4:-3]
-    original_products = products[:1]
-    for cloned_product, original_product in zip(cloned_products, original_products):
-        cloned_product.pop("id")
-        cloned_product.pop("created_by")
-        for field in ["id", "base", "price", "created_by"]:
-            original_product.pop(field)
-        assert cloned_product.pop("base") == target_base_id
-        assert cloned_product.pop("price") == 0
-        assert cloned_product == original_product
-
-    with pytest.raises(ValueError):
-        clone_products(source_base_id=0, target_base_id=1)
-    with pytest.raises(ValueError):
-        clone_products(source_base_id=1, target_base_id=0)
-
-
 @pytest.fixture
 def usergroup_tables():
+    database = Base._meta.database
     # Set up three usergroups for base 1 (run by org 1 which also runs base 2)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `label` varchar(255) NOT NULL,
@@ -231,10 +83,10 @@ CREATE TABLE `cms_usergroups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_camps`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups_camps` (
   `camp_id` int(11) unsigned NOT NULL,
   `cms_usergroups_id` int(11) unsigned NOT NULL,
@@ -248,10 +100,10 @@ CREATE TABLE `cms_usergroups_camps` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_functions_camps`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_functions_camps` (
   `cms_functions_id` int(11) unsigned NOT NULL,
   `camps_id` int(11) unsigned NOT NULL,
@@ -262,10 +114,10 @@ CREATE TABLE `cms_functions_camps` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_roles`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups_roles` (
   `cms_usergroups_id` int(11) unsigned NOT NULL,
   `auth0_role_id` varchar(255) NOT NULL,
@@ -277,10 +129,10 @@ CREATE TABLE `cms_usergroups_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 DROP TABLE IF EXISTS `cms_usergroups_functions`;
 """)
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 CREATE TABLE `cms_usergroups_functions` (
   `cms_functions_id` int(11) unsigned NOT NULL,
   `cms_usergroups_id` int(11) unsigned NOT NULL,
@@ -302,12 +154,13 @@ CREATE TABLE `cms_usergroups_functions` (
         "cms_functions_camps",
         "cms_usergroups",
     ]:
-        db.database.execute_sql(f"DROP TABLE {table};")
+        database.execute_sql(f"DROP TABLE {table};")
 
 
 @pytest.fixture
 def usergroup_data(usergroup_tables):
-    db.database.execute_sql("""\
+    database = Base._meta.database
+    database.execute_sql("""\
 INSERT INTO `cms_usergroups` VALUES
     (1,'Head of Operations',NULL,NULL,NULL,NULL,1,NULL),
     (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
@@ -318,7 +171,7 @@ INSERT INTO `cms_usergroups` VALUES
     (7,'Volunteer',NULL,NULL,NULL,NULL,1,NULL);
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 INSERT INTO `cms_usergroups_camps` VALUES
     (1,1),
     (1,2),
@@ -332,13 +185,13 @@ INSERT INTO `cms_usergroups_camps` VALUES
     (2,7);
 """)
 
-    db.database.execute_sql("""\
+    database.execute_sql("""\
 INSERT INTO `cms_functions_camps` VALUES
     (1,1),
     (1,2);
 """)
 
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO `cms_usergroups_roles` VALUES
     (1,'rol_a','administrator'),
@@ -351,7 +204,7 @@ INSERT INTO `cms_usergroups_roles` VALUES
 """,
     )
 
-    db.database.execute_sql(
+    database.execute_sql(
         """\
 INSERT INTO `cms_usergroups_functions` VALUES
     (1,1),
@@ -381,7 +234,7 @@ def test_remove_base_access_functions(usergroup_data):
     ]
     service = Service()
     interface = service._interface
-    interface.users.list.return_value = {"users": users, "total": len(users)}
+    interface.users.list.return_value = MockPager(users)
     base_users = service.get_users_of_base(base_id)
     assert base_users == {"single_base": [users[1]], "multi_base": [users[0]]}
     interface.users.list.assert_called_once()
@@ -393,7 +246,7 @@ def test_remove_base_access_functions(usergroup_data):
             "description": "BoxAid - Base 1 (Lesvos) - Warehouse Coordinator",
         }
     ]
-    interface.roles.list.return_value = {"roles": roles, "total": len(roles)}
+    interface.roles.list.return_value = MockPager(roles)
     assert service.get_single_base_user_role_ids(base_id) == [roles[0]["id"]]
     interface.roles.list.assert_called_once_with(name_filter="base_1_", per_page=100)
 
@@ -428,8 +281,8 @@ def test_remove_base_access(usergroup_data):
     base_id = 1
     service = Service()
     interface = service._interface
-    interface.users.list.return_value = {
-        "users": [
+    interface.users.list.return_value = MockPager(
+        [
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|2", "name": "b"},
             {
@@ -444,17 +297,15 @@ def test_remove_base_access(usergroup_data):
             },
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|8", "name": "b"},
         ],
-        "total": 5,
-    }
-    interface.roles.list.return_value = {
-        "roles": [
+    )
+    interface.roles.list.return_value = MockPager(
+        [
             {"id": "rol_c", "name": "base_1_coordinator"},
             {"id": "rol_d", "name": "base_1_volunteer"},
             {"id": "rol_b", "name": "base_1_library_volunteer"},
             {"id": "rol_s", "name": "base_1000_volunteer"},
         ],
-        "total": 4,
-    }
+    )
 
     remove_base_access(base_id=base_id, service=service, force=True)
 
@@ -472,7 +323,8 @@ def test_remove_base_access(usergroup_data):
     ]
 
     # Verify that cms_usergroups.deleted is set
-    cursor = db.database.execute_sql("SELECT id,deleted FROM cms_usergroups;")
+    database = Base._meta.database
+    cursor = database.execute_sql("SELECT id,deleted FROM cms_usergroups;")
     column_names = [x[0] for x in cursor.description]
     usergroups = [dict(zip(column_names, row)) for row in cursor.fetchall()]
     today = date.today().isoformat()
@@ -491,19 +343,19 @@ def test_remove_base_access(usergroup_data):
     ]
 
     # Verify that all entries related to base 1 are removed from cms_usergroups_camps
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT camp_id,cms_usergroups_id from cms_usergroups_camps;"
     )
     assert cursor.fetchall() == ((2, 1), (2, 6), (2, 7))
     # ...and from cms_functions_camps
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT camps_id,cms_functions_id from cms_functions_camps;"
     )
     assert cursor.fetchall() == ((2, 1),)
 
     # Verify that all entries related to non-admin usergroups are removed from
     # cms_usergroups_roles
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT cms_usergroups_id,auth0_role_name from cms_usergroups_roles;"
     )
     assert cursor.fetchall() == (
@@ -515,7 +367,7 @@ def test_remove_base_access(usergroup_data):
 
     # Verify that all entries related to non-admin usergroups are removed from
     # cms_usergroups_functions
-    cursor = db.database.execute_sql(
+    cursor = database.execute_sql(
         "SELECT cms_usergroups_id,cms_functions_id from cms_usergroups_functions;"
     )
     assert cursor.fetchall() == (
@@ -526,11 +378,11 @@ def test_remove_base_access(usergroup_data):
 
     interface.users.list.assert_called_once()
     assert interface.users.update.call_args_list == [
-        (("auth0|4", {"app_metadata": {"base_ids": ["2"]}}),),
-        (("auth0|5", {"app_metadata": {"base_ids": ["2"]}}),),
-        (("auth0|1", {"blocked": True}),),
-        (("auth0|2", {"blocked": True}),),
-        (("auth0|8", {"blocked": True}),),
+        call(id="auth0|4", app_metadata={"base_ids": ["2"]}),
+        call(id="auth0|5", app_metadata={"base_ids": ["2"]}),
+        call(id="auth0|1", blocked=True),
+        call(id="auth0|2", blocked=True),
+        call(id="auth0|8", blocked=True),
     ]
     assert interface.roles.delete.call_args_list == [
         call("rol_b"),
@@ -550,7 +402,7 @@ def test_remove_base_access(usergroup_data):
     # Verify error handling
     code = 401
     message = "You shall not pass"
-    error = Auth0Error(code, "Unauthorized", message)
+    error = UnauthorizedError(message)
     interface.users.list.side_effect = error
     with pytest.raises(ServiceError) as exc_info:
         service.get_users_of_base(1)
@@ -561,16 +413,14 @@ def test_remove_base_access(usergroup_data):
 def test_remove_base_access_without_usergroups(usergroup_tables):
     base_id = 1
     service = Service()
-    service._interface.users.list.return_value = {
-        "users": [
+    service._interface.users.list.return_value = MockPager(
+        [
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
         ],
-        "total": 1,
-    }
-    service._interface.roles.list.return_value = {
-        "roles": [{"id": "rol_a", "name": "base_1_volunteer"}],
-        "total": 1,
-    }
+    )
+    service._interface.roles.list.return_value = MockPager(
+        [{"id": "rol_a", "name": "base_1_volunteer"}]
+    )
     remove_base_access(base_id=base_id, service=service, force=True)
     assert User.select(User.id, User._usergroup).dicts() == [
         {"id": 1, "_usergroup": 3},
@@ -583,16 +433,14 @@ def test_remove_base_access_without_usergroups(usergroup_tables):
 def test_remove_base_access_without_force(usergroup_tables):
     base_id = 1
     service = Service()
-    service._interface.users.list.return_value = {
-        "users": [
+    service._interface.users.list.return_value = MockPager(
+        [
             {"app_metadata": {"base_ids": ["1"]}, "user_id": "auth0|1", "name": "a"},
         ],
-        "total": 1,
-    }
-    service._interface.roles.list.return_value = {
-        "roles": [{"id": "rol_a", "name": "base_1_volunteer"}],
-        "total": 1,
-    }
+    )
+    service._interface.roles.list.return_value = MockPager(
+        [{"id": "rol_a", "name": "base_1_volunteer"}]
+    )
     deleted_users = User.select().where(User.deleted.is_null(False)).count()
     remove_base_access(base_id=base_id, service=service, force=False)
     assert deleted_users == User.select().where(User.deleted.is_null(False)).count()

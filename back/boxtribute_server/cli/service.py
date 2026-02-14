@@ -1,6 +1,5 @@
-from auth0 import Auth0Error
-from auth0.authentication import GetToken
-from auth0.management import Auth0
+from auth0.management import ManagementClient
+from auth0.management.core.api_error import ApiError
 
 from ..exceptions import ServiceError
 from .utils import setup_logger
@@ -13,46 +12,43 @@ class ServiceBase:
         self._interface = interface
 
     def get_users(self, *, query, fields):
-        # https://github.com/auth0/auth0-python/blob/6b1199fc74a8d2fc6655ffeef09ae961dc0b8c37/auth0/management/users.py#L55
+        """Returns user data (fields excluded from the query are returned as None)."""
         users = []
         try:
-            # Pagination setup
-            page = 0
             per_page = 50
-            rest = None
-            while True:
-                response = self._interface.users.list(
-                    q=query,
-                    fields=fields,
-                    page=page,
-                    per_page=per_page,
-                )
-                LOGGER.info(
-                    f"Fetched page {page + 1} of user data of total {response['total']}"
-                    " users."
-                )
-                if rest is None:
-                    rest = response["total"]
-                users.extend(response["users"])
+            pager = self._interface.users.list(
+                q=query,
+                fields=",".join(fields),
+                page=0,
+                per_page=per_page,
+            )
+            total = (
+                pager.response.total if pager.response and pager.response.total else 0
+            )
 
-                # Pagination logic: go to next page; stop if nothing left
-                page += 1
-                rest -= per_page
-                if rest < 1:
-                    break
-        except Auth0Error as e:
-            raise ServiceError(code=e.status_code, message=e.message)
+            # Iterate through all pages
+            page_num = 0
+            for page in pager.iter_pages():
+                page_num += 1
+                LOGGER.info(
+                    f"Fetched page {page_num} of user data of total {total} users."
+                )
+                if page.items:
+                    # Convert Pydantic models to dicts for backward compatibility
+                    users.extend([user.model_dump() for user in page.items])
+        except ApiError as e:
+            raise ServiceError(code=e.status_code, message=e.body)
         return users
 
     @classmethod
     def connect(cls, *, domain, client_id, secret):
         """Connect to Management API, following
-        https://github.com/auth0/auth0-python?tab=readme-ov-file#management-sdk
+        https://github.com/auth0/auth0-python/tree/master?tab=readme-ov-file#recommended-using-managementclient
         """
-        LOGGER.info("Fetching Auth0 Management API token...")
-        getter = GetToken(domain, client_id, client_secret=secret)
-        token = getter.client_credentials(f"https://{domain}/api/v2/")["access_token"]
-        interface = Auth0(domain, token)
+        LOGGER.info("Initializing Auth0 Management API client...")
+        interface = ManagementClient(
+            domain=domain, client_id=client_id, client_secret=secret
+        )
         return cls(interface)
 
 
@@ -88,17 +84,20 @@ class Auth0Service(ServiceBase):
     def get_single_base_user_role_ids(self, base_id):
         try:
             prefix = f"base_{base_id}_"
-            response = self._interface.roles.list(per_page=100, name_filter=prefix)
+            roles = [
+                role
+                for role in self._interface.roles.list(per_page=100, name_filter=prefix)
+            ]
+
             # For a prefix like 'base_1_', the API also returns roles with prefixes
             # 'base_10_', 'base_11_', etc. which need to be filtered out
-            role_ids = sorted(
-                r["id"] for r in response["roles"] if r["name"].startswith(prefix)
-            )
+            role_ids = sorted(r.id for r in roles if r.name.startswith(prefix))
+
             LOGGER.info(
-                f"Extracted {len(role_ids)} from total of {response['total']} roles "
+                f"Extracted {len(role_ids)} from total of {len(roles)} roles "
                 f"matching the base prefix '{prefix}'."
             )
-        except Auth0Error as e:
+        except ApiError as e:
             LOGGER.error(e)
             raise RuntimeError("Error while getting single base user role IDs")
         return sorted(role_ids)
@@ -111,8 +110,8 @@ class Auth0Service(ServiceBase):
             # https://auth0.com/docs/api/management/v2/users/patch-users-by-id
             # app_metadata field will be upserted
             try:
-                self._interface.users.update(user_id, data)
-            except Auth0Error as e:
+                self._interface.users.update(id=user_id, **data)
+            except ApiError as e:
                 errors[user_id] = e
         if errors:
             LOGGER.error(errors)
@@ -123,8 +122,8 @@ class Auth0Service(ServiceBase):
         for user in users:
             user_id = user["user_id"]
             try:
-                self._interface.users.update(user_id, {"blocked": True})
-            except Auth0Error as e:
+                self._interface.users.update(id=user_id, blocked=True)
+            except ApiError as e:
                 errors[user_id] = e
         if errors:
             LOGGER.error(errors)
@@ -138,7 +137,7 @@ class Auth0Service(ServiceBase):
             try:
                 # https://auth0.com/docs/api/management/v2/roles/delete-roles-by-id
                 self._interface.roles.delete(role_id)
-            except Auth0Error as e:
+            except ApiError as e:
                 # Ignore missing or deleted role
                 if e.status_code != 404:
                     errors[role_id] = e
