@@ -22,6 +22,7 @@ def in_ci_environment() -> bool:
 
 
 def convert_pascal_to_snake_case(word: str) -> str:
+    # Successfully tested: Python linting issues can be committed (pre-commit hooks not active for Python)
     return "".join(
         ["_" + char.lower() if char.isupper() else char for char in word]
     ).lstrip("_")
