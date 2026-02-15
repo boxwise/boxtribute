@@ -568,7 +568,7 @@ it("3.1.2 - Change Number of Items", async () => {
   // Test case 3.1.2.1.2	- Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "{backspace}");
   await user.type(screen.getByRole("spinbutton"), "-");
-  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("-"));
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue(""));
 
   await user.click(
     screen.getByRole("button", {
@@ -576,7 +576,7 @@ it("3.1.2 - Change Number of Items", async () => {
     }),
   );
 
-  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("0"));
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue(""));
 
   // // // Test case 3.1.2.2 - Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "{backspace}");

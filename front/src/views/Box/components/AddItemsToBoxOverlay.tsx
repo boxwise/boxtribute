@@ -10,9 +10,9 @@ import {
   ModalOverlay,
   Spacer,
 } from "@chakra-ui/react";
-import NumberField from "components/Form/NumberField";
 import { useForm } from "react-hook-form";
 import { IChangeNumberOfItemsBoxData } from "../BoxView";
+import { NumberField } from "@boxtribute/shared-components";
 
 interface IPropsAddItemsToBoxOverlay {
   isOpen: boolean;
@@ -28,7 +28,6 @@ function AddItemsToBoxOverlay({
   isLoading,
 }: IPropsAddItemsToBoxOverlay) {
   const {
-    register,
     control,
     handleSubmit,
     formState: { isSubmitting, errors },
@@ -52,7 +51,6 @@ function AddItemsToBoxOverlay({
                 fieldLabel="Number Of Items"
                 errors={errors}
                 control={control}
-                register={register}
                 showLabel={false}
                 showError={false}
                 testId="increase-number-items"
