@@ -20,7 +20,7 @@
   "devDependencies": {
     "@types/react-big-calendar": "^1.16.3",
     "@types/react-table": "^7.7.20",
-    "msw": "^2.12.9",
+    "msw": "^2.12.10",
     "mutationobserver-shim": "^0.3.7",
     "vite-plugin-static-copy": "^3.2.0"
   },
