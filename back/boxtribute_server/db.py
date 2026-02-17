@@ -100,3 +100,18 @@ def create_db_interface(**mysql_kwargs):
     return MySQLDatabase(
         **mysql_kwargs, field_types={"AUTO": "INTEGER UNSIGNED AUTO_INCREMENT"}
     )
+
+
+def execute_sql(*params, use_replica=False, query):
+    """Utility function to execute a raw SQL query, returning the result rows as dicts.
+    By default, the primary database is selected. Any `params` are passed into peewee's
+    `execute_sql` method as values for query parameters.
+    """
+    database = db.replica if use_replica and db.replica is not None else db.database
+    cursor = database.execute_sql(query, params=params)
+    if cursor.description is None:
+        # For e.g. UPDATE statements no description is available
+        return
+    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
+    column_names = [x[0] for x in cursor.description]
+    return [dict(zip(column_names, row)) for row in cursor.fetchall()]

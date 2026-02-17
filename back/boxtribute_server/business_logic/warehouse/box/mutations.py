@@ -11,6 +11,7 @@ from ....authz import (
     authorized_bases_filter,
     handle_unauthorized,
 )
+from ....db import execute_sql
 from ....enums import TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
@@ -24,7 +25,6 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
-from ....models.utils import execute_sql
 from ....utils import in_development_environment, in_staging_environment
 from .crud import (
     WAREHOUSE_BOX_STATES,
