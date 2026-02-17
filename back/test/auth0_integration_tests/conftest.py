@@ -32,9 +32,7 @@ def dev_app(monkeypatch, connection_parameters):
     app = main(api_bp, app_bp, shared_bp)
     app.testing = True
     yield app
-    db.database.close()
-    db.replica.close()
-    db.replica = None
+    db.close_db(None)
 
 
 @pytest.fixture

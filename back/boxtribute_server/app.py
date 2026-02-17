@@ -16,27 +16,9 @@ def create_app():
     return Flask(__name__, static_folder=None)
 
 
-def configure_app(
-    app, *blueprints, database_interface=None, replica_socket=None, **mysql_kwargs
-):
-    """Register blueprints. Configure the app's database interface. `mysql_kwargs` are
-    forwarded. Make data models operate on the primary database.
-    """
+def register_blueprints(app, *blueprints):
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
-
-    app.config["DATABASE"] = database_interface or create_db_interface(**mysql_kwargs)
-
-    if replica_socket or mysql_kwargs:
-        # In deployed environment: replica_socket is set
-        # In integration tests: connect to same host/port as primary database
-        # In endpoint tests, no replica connection is used
-        mysql_kwargs["unix_socket"] = replica_socket
-        app.config["DATABASE_REPLICA"] = create_db_interface(**mysql_kwargs)
-
-    db.init_app(app)
-    # With a complete list of models no need to recursively bind dependencies
-    db.database.bind(Model.__subclasses__(), bind_refs=False, bind_backrefs=False)
 
 
 def main(*blueprints):
@@ -79,9 +61,10 @@ def main(*blueprints):
     )
 
     app = create_app()
-    configure_app(
-        app,
-        *blueprints,
+    register_blueprints(app, *blueprints)
+
+    # Establish DB connection(s) and initialize DatabaseManager
+    db_connection_parameters = dict(
         # always used
         user=os.environ["MYSQL_USER"],
         password=os.environ["MYSQL_PASSWORD"],
@@ -89,8 +72,23 @@ def main(*blueprints):
         # used for connecting to development / CI testing DB
         host=os.getenv("MYSQL_HOST"),
         port=int(os.getenv("MYSQL_PORT", 0)),
-        # used for connecting to Google Cloud from GAE
-        unix_socket=os.getenv("MYSQL_SOCKET"),
-        replica_socket=os.getenv("MYSQL_REPLICA_SOCKET"),
     )
+    # used for connecting to Google Cloud from GAE
+    database_socket = os.getenv("MYSQL_SOCKET")
+    replica_socket = os.getenv("MYSQL_REPLICA_SOCKET")
+
+    db.database = create_db_interface(
+        unix_socket=database_socket, **db_connection_parameters
+    )
+    # In deployed environment: replica_socket is set
+    # In integration tests: connect to same host/port as primary database
+    # In endpoint tests, no replica connection is used
+    db.replica = create_db_interface(
+        unix_socket=replica_socket, **db_connection_parameters
+    )
+
+    # Enable opening/closing DB connection before/after request
+    db._register_handlers(app)
+    # With a complete list of models no need to recursively bind dependencies
+    db.database.bind(Model.__subclasses__(), bind_refs=False, bind_backrefs=False)
     return app
