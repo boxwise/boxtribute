@@ -70,7 +70,6 @@ def testing_database(connection_parameters):
 def _create_app(database_interface, *blueprints):
     """On each invocation, create the Flask app and configure it to access the
     `database_interface`.
-    Create all tables and populate them.
 
     Adapted from
     https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton.
