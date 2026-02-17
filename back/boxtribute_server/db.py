@@ -25,13 +25,9 @@ class DatabaseManager(FlaskDB):
     the connect_db() method.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.replica = None
-
-    def init_app(self, app):
-        self.replica = app.config.get("DATABASE_REPLICA")  # expecting peewee.Database
-        super().init_app(app)
+        self.replica: MySQLDatabase | None = None
 
     def connect_db(self):
         # GraphQL queries are sent as POST requests. Don't open database connection on
