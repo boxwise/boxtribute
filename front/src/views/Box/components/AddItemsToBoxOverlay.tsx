@@ -30,12 +30,14 @@ function AddItemsToBoxOverlay({
   const {
     control,
     handleSubmit,
+    watch,
     formState: { isSubmitting, errors },
   } = useForm<IChangeNumberOfItemsBoxData>({
     defaultValues: {
       numberOfItems: 1,
     },
   });
+  const numberOfItems = watch("numberOfItems");
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -57,7 +59,13 @@ function AddItemsToBoxOverlay({
               />
               <Spacer />
 
-              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting || isLoading}>
+              <Button
+                px={6}
+                borderRadius="0"
+                type="submit"
+                isLoading={isSubmitting || isLoading}
+                isDisabled={!numberOfItems || numberOfItems <= 0}
+              >
                 Submit
               </Button>
             </Flex>
