@@ -84,6 +84,8 @@ def test_reseed_db(monkeypatch, auth0_client, mocker):
         == (NR_BASES - 1) * NR_OF_BOXES_PER_BASE + NR_OF_BOXES_PER_LARGE_BASE
     )
 
+
+def test_reseed_db_staging(auth0_client, monkeypatch):
     # Simulate staging environment
     monkeypatch.setenv("MYSQL_DB", "dropapp_staging")
     monkeypatch.setenv("ENVIRONMENT", "staging")
