@@ -10,9 +10,9 @@ import {
   ModalOverlay,
   Spacer,
 } from "@chakra-ui/react";
-import NumberField from "components/Form/NumberField";
 import { useForm } from "react-hook-form";
 import { IChangeNumberOfItemsBoxData } from "../BoxView";
+import { NumberField } from "@boxtribute/shared-components";
 
 interface IPropsAddItemsToBoxOverlay {
   isOpen: boolean;
@@ -28,15 +28,16 @@ function AddItemsToBoxOverlay({
   isLoading,
 }: IPropsAddItemsToBoxOverlay) {
   const {
-    register,
     control,
     handleSubmit,
+    watch,
     formState: { isSubmitting, errors },
   } = useForm<IChangeNumberOfItemsBoxData>({
     defaultValues: {
       numberOfItems: 1,
     },
   });
+  const numberOfItems = watch("numberOfItems");
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -52,14 +53,19 @@ function AddItemsToBoxOverlay({
                 fieldLabel="Number Of Items"
                 errors={errors}
                 control={control}
-                register={register}
                 showLabel={false}
                 showError={false}
                 testId="increase-number-items"
               />
               <Spacer />
 
-              <Button px={6} borderRadius="0" type="submit" isLoading={isSubmitting || isLoading}>
+              <Button
+                px={6}
+                borderRadius="0"
+                type="submit"
+                isLoading={isSubmitting || isLoading}
+                isDisabled={!numberOfItems || numberOfItems <= 0}
+              >
                 Submit
               </Button>
             </Flex>

@@ -20,11 +20,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AlertWithoutAction } from "components/Alerts";
-import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
 import SwitchField from "components/Form/SwitchField";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
 import { StandardProductFormSchema } from "./transformer";
+import { NumberField } from "@boxtribute/shared-components";
 
 export type EnableStandardProductFormInput = z.input<typeof StandardProductFormSchema>;
 export type EnableStandardProductFormOutput = z.output<typeof StandardProductFormSchema>;
@@ -207,7 +207,7 @@ function EnableStandardProductForm({
             </Text>
           </Box>
           <SwitchField fieldId="inShop" fieldLabel="Always Show in Stockroom?" control={control} />
-          <NewNumberField
+          <NumberField
             fieldId="price"
             fieldLabel="Token Price"
             errors={errors}

@@ -9,7 +9,6 @@ import {
   ButtonGroup,
   Stack,
 } from "@chakra-ui/react";
-import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -22,6 +21,7 @@ import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { ResultOf } from "gql.tada";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
 import { ProductGender } from "../../../../../graphql/types";
+import { NumberField } from "@boxtribute/shared-components";
 
 export interface ICategoryData {
   name: string;
@@ -253,7 +253,6 @@ function BoxEdit({
               fieldLabel="Number Of Items"
               errors={errors}
               control={control}
-              register={register}
             />
           </ListItem>
           <ListItem>
