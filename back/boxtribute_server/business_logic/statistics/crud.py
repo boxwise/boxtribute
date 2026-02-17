@@ -7,7 +7,7 @@ from typing import Any
 
 from peewee import JOIN, SQL, fn
 
-from ...db import db
+from ...db import execute_sql
 from ...enums import BoxState, TaggableObjectType, TargetType
 from ...errors import InvalidDate
 from ...models.definitions.base import Base
@@ -25,7 +25,7 @@ from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.unit import Unit
-from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
+from ...models.utils import compute_age, convert_ids, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from ..metrics.crud import exclude_test_organisation
 from .sql import MOVED_BOXES_QUERY
@@ -413,7 +413,10 @@ def compute_moved_boxes(*base_ids):
         base_ids,
         TargetType.BoxState.name,
         base_ids,
-        database=db.replica or db.database,
+        # Though the compute function is wrapped in use_db_replica, this only has an
+        # effect when executing SQL via peewee models. Since we run raw SQL here, we
+        # explicitly demand using the replica
+        use_replica=True,
         query=MOVED_BOXES_QUERY,
     )
     for fact in facts:
