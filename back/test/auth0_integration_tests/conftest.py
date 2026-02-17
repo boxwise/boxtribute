@@ -9,7 +9,6 @@ from auth import (
 )
 from boxtribute_server.app import main
 from boxtribute_server.cli import service
-from boxtribute_server.db import db
 from boxtribute_server.routes import api_bp, app_bp, shared_bp
 
 
@@ -32,7 +31,6 @@ def dev_app(monkeypatch, connection_parameters):
     app = main(api_bp, app_bp, shared_bp)
     app.testing = True
     yield app
-    db.close_db(None)
 
 
 @pytest.fixture
