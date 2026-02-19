@@ -287,3 +287,13 @@ def test_mutations(auth0_client_with_rollback, mocker):
     response = assert_successful_request(auth0_client, mutation)
     assert response.pop("createdOn").startswith(today)
     assert response == {"base": {"id": "100000000"}, "createdBy": {"id": user_id}}
+
+
+def test_replica_usage(auth0_client, mocker):
+    from boxtribute_server.db import db
+
+    db.replica = mocker.MagicMock()
+    query = 'query { resolveLink(code: "abc") { __typename } }'
+    assert_successful_request(auth0_client, query, endpoint="public")
+    db.replica.connect.assert_called_once()  # in DatabaseManager.connect_db
+    db.replica.bind_ctx.assert_called_once()  # in use_db_replica()

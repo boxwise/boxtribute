@@ -40,19 +40,6 @@ def convert_ids(concat_ids, converter=int):
     return [converter(i) for i in (concat_ids or "").split(",") if i]
 
 
-def execute_sql(*params, database=None, query):
-    """Utility function to execute a raw SQL query, returning the result rows as
-    dicts.
-    By default, the primary database is selected. Any `params` are passed into peewee's
-    `execute_sql` method as values for query parameters.
-    """
-    database = database or db.database
-    cursor = database.execute_sql(query, params=params)
-    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
-    column_names = [x[0] for x in cursor.description]
-    return [dict(zip(column_names, row)) for row in cursor.fetchall()]
-
-
 def format_sql(query):
     """Format the given Peewee query such that string parameters are properly quoted.
     Then the result can be used in a different DB query executor (GUI, script, ...).

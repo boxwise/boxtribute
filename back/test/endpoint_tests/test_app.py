@@ -545,12 +545,3 @@ def test_gcloud_logging(client, mocker):
     assert response == {"__typename": "UnknownLinkError"}
     mocked_loggers[WEBAPP_CONTEXT].log_struct.assert_not_called()
     mocked_loggers[API_CONTEXT].log_struct.assert_not_called()
-
-
-def test_replica_usage(client, mocker):
-    from boxtribute_server.db import db
-
-    db.replica = mocker.MagicMock()
-    query = 'query { resolveLink(code: "abc") { __typename } }'
-    assert_successful_request(client, query, endpoint="public")
-    db.replica.bind_ctx.assert_called_once()  # in use_db_replica()
