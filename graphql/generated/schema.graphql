@@ -988,6 +988,8 @@ type Tag {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  " The most recent time the tag was applied to a box or beneficiary "
+  lastUsedOn: Datetime
   deletedOn: Datetime
 }
 
