@@ -2194,6 +2194,7 @@ def test_create_boxes(
     mass_product,
     mixed_size,
     tags,
+    mocker,
     monkeypatch,
 ):
     product_id = str(default_product["id"])
@@ -2332,3 +2333,7 @@ def test_create_boxes(
     monkeypatch.setenv("ENVIRONMENT", "production")
     boxes = assert_successful_request(client, mutation)
     assert boxes == []
+
+    mock_user_for_request(mocker, is_god=True)
+    boxes = assert_successful_request(client, mutation)
+    assert len(boxes) == 5
