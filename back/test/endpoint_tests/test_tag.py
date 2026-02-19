@@ -56,6 +56,7 @@ def test_tags_query(
                 id
                 name
                 type
+                lastUsedOn
                 taggedResources {
                     __typename
                     ...on Beneficiary { id }
@@ -67,6 +68,7 @@ def test_tags_query(
             "id": str(tags[0]["id"]),
             "name": tags[0]["name"],
             "type": tags[0]["type"].name,
+            "lastUsedOn": datetime(2023, 1, 1).isoformat() + "+00:00",
             "taggedResources": [
                 {
                     "__typename": "Beneficiary",
@@ -82,6 +84,7 @@ def test_tags_query(
             "id": str(tags[1]["id"]),
             "name": tags[1]["name"],
             "type": tags[1]["type"].name,
+            "lastUsedOn": datetime(2023, 1, 1).isoformat() + "+00:00",
             "taggedResources": [
                 {
                     "__typename": "Box",
@@ -93,6 +96,7 @@ def test_tags_query(
             "id": str(tags[2]["id"]),
             "name": tags[2]["name"],
             "type": tags[2]["type"].name,
+            "lastUsedOn": datetime(2024, 1, 1).isoformat() + "+00:00",
             "taggedResources": [
                 {
                     "__typename": "Beneficiary",
@@ -116,6 +120,7 @@ def test_tags_query(
             "id": str(tags[5]["id"]),
             "name": tags[5]["name"],
             "type": tags[5]["type"].name,
+            "lastUsedOn": None,
             "taggedResources": [],
         },
     ]
