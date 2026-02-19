@@ -21,7 +21,7 @@ def test_first_letters_of_base_name(base_id, result):
 def test_unitialized_database_manager():
     manager = DatabaseManager()
     with pytest.raises(RuntimeError):
-        manager.get_model_class()
+        manager.connect_db()
 
     # Verify dev error in handle_non_existing_resource()
     @handle_non_existing_resource

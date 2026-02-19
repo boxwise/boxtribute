@@ -88,7 +88,7 @@ def main(*blueprints):
     )
 
     # Enable opening/closing DB connection before/after request
-    db._register_handlers(app)
+    db.register_handlers(app)
     # With a complete list of models no need to recursively bind dependencies
     db.database.bind(Model.__subclasses__(), bind_refs=False, bind_backrefs=False)
     return app
