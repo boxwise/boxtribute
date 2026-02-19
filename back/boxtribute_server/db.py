@@ -2,7 +2,6 @@ from functools import wraps
 
 from flask import request
 from peewee import MySQLDatabase
-from playhouse.flask_utils import FlaskDB  # type: ignore
 
 from .blueprints import (
     API_GRAPHQL_PATH,
@@ -17,17 +16,26 @@ from .business_logic.statistics import statistics_queries
 from .models.definitions import Model
 
 
-class DatabaseManager(FlaskDB):
-    """Custom class to glue Flask and Peewee together.
-    If configured accordingly, connect to a database replica for statistics-related
-    GraphQL queries. To use the replica for database queries, wrap the calling code in
-    the `use_db_replica` decorator, and make sure the replica connection is set up in
-    the connect_db() method.
+class DatabaseManager:
+    """Custom class to glue Flask and Peewee together, borrowed from peewee's
+    playhouse.flask_utils.FlaskDB, with irrelevant parts stripped.
+    It holds the references to the primary and the replica database.
+
+    Most importantly, this class handles opening/closing database connection(s)
+    before/after handling incoming requests.
+
+    It onnects to the database replica for statistics-related GraphQL queries. To use
+    the replica for database queries, wrap the calling code in the `use_db_replica`
+    decorator.
     """
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self) -> None:
+        self.database: MySQLDatabase | None = None
         self.replica: MySQLDatabase | None = None
+
+    def register_handlers(self, app):
+        app.before_request(self.connect_db)
+        app.teardown_request(self.close_db)
 
     def connect_db(self):
         # GraphQL queries are sent as POST requests. Don't open database connection on
