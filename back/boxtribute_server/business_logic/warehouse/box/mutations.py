@@ -25,9 +25,9 @@ from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.utils import execute_sql
-from ....utils import in_development_environment, in_staging_environment
 from .crud import (
     WAREHOUSE_BOX_STATES,
+    BoxesResult,
     assign_missing_tags_to_boxes,
     create_box,
     create_box_from_box,
@@ -40,12 +40,6 @@ from .crud import (
 from .sql import BOXES_WITH_MISSING_TAGS_QUERY
 
 mutation = MutationType()
-
-
-@dataclass(kw_only=True)
-class BoxesResult:
-    updated_boxes: list[Box]
-    invalid_box_label_identifiers: list[str]
 
 
 @dataclass(kw_only=True)
@@ -107,15 +101,8 @@ def resolve_create_box_from_box(*_, creation_input):
 
 
 @mutation.field("createBoxes")
+@handle_unauthorized
 def resolve_create_boxes(*_, creation_input):
-    if (
-        not in_staging_environment()
-        and not in_development_environment()
-        and not g.user.is_god
-    ):
-        # Mutation has no effect for non-god users in production due to missing authz
-        # and validation
-        return []
     return create_boxes(user_id=g.user.id, data=creation_input)
 
 

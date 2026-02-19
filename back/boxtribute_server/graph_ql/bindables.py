@@ -192,6 +192,7 @@ union_types = (
     UnionType("DisableStandardProductResult", resolve_type_by_class_name),
     UnionType("StandardProductResult", resolve_type_by_class_name),
     UnionType("StandardProductsResult", resolve_type_by_class_name),
+    UnionType("CreateBoxesResult", resolve_type_by_class_name),
     UnionType("DeleteBoxesResult", resolve_type_by_class_name),
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
     UnionType("CreateBoxFromBoxResult", resolve_type_by_class_name),

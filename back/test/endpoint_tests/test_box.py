@@ -2184,14 +2184,14 @@ def test_create_boxes(
     mass_product,
     mixed_size,
     tags,
-    mocker,
-    monkeypatch,
 ):
     product_id = str(default_product["id"])
     mass_product_id = str(mass_product["id"])
     location_id = str(default_location["id"])
     tag_id = str(tags[1]["id"])
     comment = "3 packages, 12 piece each"
+
+    # Test case 8.2.110
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             # Product with discrete size range and valid size
@@ -2244,6 +2244,7 @@ def test_create_boxes(
             newTagNames: []
         }},
     ]) {{
+        ...on BoxesResult {{ updatedBoxes {{
         labelIdentifier
         product {{ id }}
         size {{ id }}
@@ -2254,9 +2255,13 @@ def test_create_boxes(
         comment
         tags {{ id }}
         history {{ changes }}
-    }} }}
+        }}
+        invalidBoxLabelIdentifiers
+    }} }} }}
     """
-    boxes = assert_successful_request(client, mutation)
+    response = assert_successful_request(client, mutation)
+    assert response["invalidBoxLabelIdentifiers"] == []
+    boxes = response["updatedBoxes"]
     assert len(boxes[0].pop("labelIdentifier")) == 8
     assert len(boxes[1].pop("labelIdentifier")) == 8
     assert len(boxes[2].pop("labelIdentifier")) == 8
@@ -2327,11 +2332,3 @@ def test_create_boxes(
             "history": [{"changes": "created box"}],
         },
     ]
-
-    monkeypatch.setenv("ENVIRONMENT", "production")
-    boxes = assert_successful_request(client, mutation)
-    assert boxes == []
-
-    mock_user_for_request(mocker, is_god=True)
-    boxes = assert_successful_request(client, mutation)
-    assert len(boxes) == 5
