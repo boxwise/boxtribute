@@ -652,7 +652,7 @@ def create_boxes(*, user_id, data):
     # More validation: product and location base ID matching? Deleted location/product?
 
     # Create new tags
-    new_tag_names = {n for row in data for n in row["new_tag_names"]}
+    new_tag_names = {n for row in data for n in row.get("new_tag_names", [])}
     new_tag_ids = {}
     for tag_name in new_tag_names:
         tag = create_tag(
@@ -688,7 +688,7 @@ def create_boxes(*, user_id, data):
     # Bulk create
     complete_data = []
     for row in sanitized_data:
-        comment = row["comment"]
+        comment = row.get("comment", "")
         sizes = sizes_for_product[row["product_id"]]
         size_id = None
         display_unit_id = None
@@ -720,7 +720,7 @@ def create_boxes(*, user_id, data):
                 "label_identifier": "".join(random.choices("0123456789", k=8)),
                 "product_id": row["product_id"],
                 "location_id": row["location_id"],
-                "number_of_items": row["number_of_items"],
+                "number_of_items": row.get("number_of_items", 0),
                 "comment": comment,
                 "size_id": size_id,
                 "display_unit": display_unit_id,
