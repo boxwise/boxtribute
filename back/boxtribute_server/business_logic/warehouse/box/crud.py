@@ -634,6 +634,9 @@ QUANTITY_REGEX = re.compile(
 
 
 def create_boxes(*, user_id, data):
+    if not data:
+        return BoxesResult(updated_boxes=[], invalid_box_label_identifiers=[])
+
     now = utcnow()
 
     # Find base corresponding to given locations
