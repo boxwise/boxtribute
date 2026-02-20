@@ -595,6 +595,13 @@ def test_invalid_permission_for_user_read(client, default_product, default_user)
             "...on InsufficientPermissionError { name }",
             {"name": "beneficiary:create"},
         ],
+        # Test case 8.2.112
+        [
+            "createBoxes",
+            'creationInput: [{ locationId: 1, productId: 1, sizeName: "L" }]',
+            "...on InsufficientPermissionError { name }",
+            {"name": "stock:write"},
+        ],
         # Test case 4.2.8
         [
             "createTag",
@@ -733,6 +740,13 @@ def test_mutate_insufficient_permission(
         [
             "createBeneficiaries",
             "creationInput: { baseId: 3, beneficiaryData: []}",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+        # Test case 8.2.111
+        [
+            "createBoxes",
+            'creationInput: [{ locationId: 2, productId: 1, sizeName: "L" }]',
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
         ],

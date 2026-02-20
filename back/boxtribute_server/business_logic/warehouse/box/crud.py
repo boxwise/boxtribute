@@ -1,10 +1,12 @@
 import random
 import re
 from collections import defaultdict
+from dataclasses import dataclass
 from decimal import Decimal
 
 import peewee
 
+from ....authz import authorize
 from ....db import db
 from ....enums import BoxState, TaggableObjectType, TagType
 from ....errors import (
@@ -57,6 +59,12 @@ WAREHOUSE_BOX_STATES = {
     BoxState.Scrap,
     BoxState.Lost,
 }
+
+
+@dataclass(kw_only=True)
+class BoxesResult:
+    updated_boxes: list[Box]
+    invalid_box_label_identifiers: list[str]
 
 
 def is_measure_product(product):
@@ -626,6 +634,9 @@ QUANTITY_REGEX = re.compile(
 
 
 def create_boxes(*, user_id, data):
+    if not data:
+        return BoxesResult(updated_boxes=[], invalid_box_label_identifiers=[])
+
     now = utcnow()
 
     # Find base corresponding to given locations
@@ -637,19 +648,21 @@ def create_boxes(*, user_id, data):
     if len(base_ids) != 1:
         raise ValueError(f"Invalid base IDs: {','.join([str(i) for i in base_ids])}")
 
-    # Authz should happen now
+    base_id = list(base_ids)[0]
+    authorize(permission="stock:write", base_id=base_id)
+    authorize(permission="tag_relation:assign")
 
     # More validation: product and location base ID matching? Deleted location/product?
 
     # Create new tags
-    new_tag_names = {n for row in data for n in row["new_tag_names"]}
+    new_tag_names = {n for row in data for n in row.get("new_tag_names", [])}
     new_tag_ids = {}
     for tag_name in new_tag_names:
         tag = create_tag(
             name=tag_name,
             type=TagType.Box,
             user_id=user_id,
-            base_id=list(base_ids)[0],
+            base_id=base_id,
             now=now,
         )
         new_tag_ids[tag_name] = tag.id
@@ -678,7 +691,7 @@ def create_boxes(*, user_id, data):
     # Bulk create
     complete_data = []
     for row in sanitized_data:
-        comment = row["comment"]
+        comment = row.get("comment", "")
         sizes = sizes_for_product[row["product_id"]]
         size_id = None
         display_unit_id = None
@@ -710,7 +723,7 @@ def create_boxes(*, user_id, data):
                 "label_identifier": "".join(random.choices("0123456789", k=8)),
                 "product_id": row["product_id"],
                 "location_id": row["location_id"],
-                "number_of_items": row["number_of_items"],
+                "number_of_items": row.get("number_of_items", 0),
                 "comment": comment,
                 "size_id": size_id,
                 "display_unit": display_unit_id,
@@ -755,4 +768,4 @@ def create_boxes(*, user_id, data):
         if tags_relations:
             TagsRelation.insert_many(tags_relations).execute()
 
-        return boxes
+        return BoxesResult(updated_boxes=boxes, invalid_box_label_identifiers=[])
