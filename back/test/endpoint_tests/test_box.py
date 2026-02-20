@@ -2191,7 +2191,18 @@ def test_create_boxes(
     tag_id = str(tags[1]["id"])
     comment = "3 packages, 12 piece each"
 
-    # Test case 8.2.110
+    # Test case 8.2.110b
+    mutation = """mutation { createBoxes(creationInput: [
+    ]) {
+        ...on BoxesResult {
+        updatedBoxes { labelIdentifier }
+        invalidBoxLabelIdentifiers
+    } } }
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"invalidBoxLabelIdentifiers": [], "updatedBoxes": []}
+
+    # Test case 8.2.110a
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             # Product with discrete size range and valid size
