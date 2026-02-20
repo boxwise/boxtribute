@@ -2219,9 +2219,6 @@ def test_create_boxes(
             sizeName: "10 ml"
             numberOfItems: 5
             locationId: {location_id}
-            comment: ""
-            tagIds: []
-            newTagNames: []
         }},
         {{
             # Product with continuous size range and valid measure
@@ -2229,15 +2226,11 @@ def test_create_boxes(
             sizeName: "500 G "
             numberOfItems: 2
             locationId: {location_id}
-            comment: ""
-            tagIds: []
-            newTagNames: []
         }},
         {{
             # Product with continuous size range and invalid measure
             productId: {mass_product_id}
             sizeName: "50"
-            numberOfItems: 3
             locationId: {location_id}
             comment: "this is cool"
             tagIds: []
@@ -2325,7 +2318,7 @@ def test_create_boxes(
             "size": None,
             "measureValue": None,
             "displayUnit": None,
-            "numberOfItems": 3,
+            "numberOfItems": 0,
             "state": BoxState.InStock.name,
             "comment": "this is cool; original size: '50'",
             "tags": [],
