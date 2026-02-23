@@ -7,9 +7,9 @@ import { useForm } from "react-hook-form";
 import { BiSubdirectoryRight } from "react-icons/bi";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
-import NumberField from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { ShipmentDetailWithAutomatchProduct } from "queries/types";
+import { NumberField } from "@boxtribute/shared-components";
 
 export interface ICategoryData {
   name: string;
@@ -71,7 +71,6 @@ export function MatchProductsForm({
     control,
     watch,
     resetField,
-    register,
     formState: { errors, isSubmitting },
   } = useForm<MatchProductsFormData>({
     resolver: zodResolver(MatchProductsFormDataSchema),
@@ -215,7 +214,6 @@ export function MatchProductsForm({
                 fieldLabel="Items"
                 errors={errors}
                 control={control}
-                register={register}
               />
             </WrapItem>
           </Wrap>

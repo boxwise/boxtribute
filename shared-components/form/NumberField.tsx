@@ -1,60 +1,68 @@
 import {
+  FormControlProps,
   FormControl,
-  FormErrorMessage,
   FormLabel,
   NumberInput,
   NumberInputField,
+  NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  NumberInputStepper,
+  FormErrorMessage,
   Text,
 } from "@chakra-ui/react";
-import { Controller } from "react-hook-form";
+import { FieldErrors, Control, Controller } from "react-hook-form";
 
-export interface INumberFieldProps {
+export interface INumberFieldProps extends Omit<FormControlProps, "onChange" | "defaultValue"> {
   fieldId: string;
   fieldLabel: string;
-  errors: object;
-  control: any;
-  register: any;
+  errors: FieldErrors<any>;
+  control: Control<any>;
   showLabel?: boolean;
   showError?: boolean;
-  testId?: any;
+  isRequired?: boolean;
+  testId?: string;
 }
 
-function NumberField({
+export function NumberField({
   fieldId,
   fieldLabel,
   errors,
   control,
-  register,
   showLabel = true,
   showError = true,
+  isRequired = false,
   testId,
+  ...props
 }: INumberFieldProps) {
   return (
-    <FormControl isInvalid={!!errors[fieldId]}>
+    <FormControl {...props} isInvalid={!!errors[fieldId]} >
       {showLabel && (
-        <FormLabel htmlFor="numberOfItems" textAlign="left">
+        <FormLabel htmlFor={fieldId} textAlign="left">
           {fieldLabel}{" "}
-          <Text as="span" color="red.500">
-            *
-          </Text>
+          {isRequired && (
+            <Text as="span" color="red.500">
+              *
+            </Text>
+          )}
         </FormLabel>
       )}
-      {/* The React Form Controller is needed because the Input is actually in NumberInputField and not in Number Input chakraUI components */}
-      {/* https://react-hook-form.com/api/usecontroller/controller */}
-      {/* https://codesandbox.io/s/chakra-ui-5mp8g */}
-      {/* Please do not put any validation or rules in here. This is set where the component is imported. */}
+
       <Controller
         name={fieldId}
         control={control}
         render={({ field }) => (
-          <NumberInput min={0} data-testid={testId}>
-            {/* The NumberInputField only returns strings and needs to be casted before validation is possible */}
+          <NumberInput
+            min={0}
+            data-testid={testId}
+            value={field.value ?? ""}
+            onChange={(_valueAsString, valueAsNumber) => {
+              // Convert empty string to undefined if you prefer
+              field.onChange(Number.isNaN(valueAsNumber) ? "" : valueAsNumber);
+            }}
+          >
             <NumberInputField
               onKeyDown={(e) => {
-                // prevent entering negetive number
+                // block negative sign
                 if (e.code === "Minus") {
                   e.preventDefault();
                 }
@@ -62,20 +70,6 @@ function NumberField({
               border="2px"
               borderRadius="0"
               borderColor="black"
-              {...register(field.name, {
-                setValueAs: (val) => {
-                  if (typeof val === "number") {
-                    // only happens if a number is passed as default value
-                    return val;
-                  }
-                  if (val) {
-                    // if a number is entered it is passed as a string
-                    return Number(val);
-                  }
-                  // This is if "" is entered.
-                  return undefined;
-                },
-              })}
             />
             <NumberInputStepper>
               <NumberIncrementStepper />
@@ -84,10 +78,7 @@ function NumberField({
           </NumberInput>
         )}
       />
-      {showError && (
-        <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
-      )}
+      {showError && <FormErrorMessage>{errors[fieldId]?.message as string}</FormErrorMessage>}
     </FormControl>
   );
 }
-export default NumberField;
