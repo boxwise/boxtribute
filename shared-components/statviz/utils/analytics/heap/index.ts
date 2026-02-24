@@ -16,7 +16,6 @@ export const getHeap = (): IHeap => {
 };
 
 // Filter related utility functions
-
 type HeapEvent = Record<string, string | number>;
 
 export interface IFilterEvent extends HeapEvent {

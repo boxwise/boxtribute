@@ -1,6 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from "react";
-import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
-import { Result } from "@zxing/library";
+import { Scanner, IDetectedBarcode } from "@yudiel/react-qr-scanner";
 import { styles } from "./QrReaderScannerStyles";
 import { ViewFinder } from "./ViewFinder";
 
@@ -10,18 +8,14 @@ export type OnResultFunction = (
    */
   multiScan: boolean,
   /**
-   * The QR values extracted by Zxing
+   * The QR values extracted by the scanner
    */
-  result?: Result | undefined | null,
+  result?: IDetectedBarcode[] | undefined | null,
   /**
    * The name of the exceptions thrown while reading the QR
    */
   error?: Error | undefined | null,
-  /**
-   * The instance of the QR browser reader
-   */
-  codeReader?: BrowserQRCodeReader,
-) => void;
+) => Promise<void>;
 
 export type QrReaderScannerProps = {
   multiScan: boolean;
@@ -30,108 +24,49 @@ export type QrReaderScannerProps = {
   scanPeriod?: number;
 };
 
-const isMediaDevicesAPIAvailable = () => {
-  const isMediaDevicesAPIAvailable = typeof navigator !== "undefined" && !!navigator.mediaDevices;
-
-  return isMediaDevicesAPIAvailable;
-};
-
 export function QrReaderScanner({
   multiScan,
   facingMode = "environment",
   onResult,
-  scanPeriod: delayBetweenScanAttempts = 500,
+  scanPeriod = 500,
 }: QrReaderScannerProps) {
-  // this ref is needed to pass/preview the video stream coming from BrowserQrCodeReader to the the user
-  const previewVideoRef: MutableRefObject<HTMLVideoElement | null> = useRef<HTMLVideoElement>(null);
-  // this ref is to store the controls for the BrowerQRCodeReader. We only need it to tell it to stop scanning at certain points.
-  const controlsRef: MutableRefObject<IScannerControls | null> = useRef<IScannerControls>(null);
-  // this ref is to store the BrowerQRCodeReader. We need a reference with useRef to ensure that multiple scanning processes are started by the different renders.
-  const browserQRCodeReaderRef: MutableRefObject<BrowserQRCodeReader | null> =
-    useRef<BrowserQRCodeReader>(null);
-
-  useEffect(() => {
-    const constraints = {
-      facingMode,
-    };
-
-    if (previewVideoRef.current == null) {
-      console.error("QR Reader: Video Element not (yet) available");
-      return;
+  const handleScan = async (detectedCodes: IDetectedBarcode[]) => {
+    // Only call onResult when QR codes are detected
+    if (detectedCodes && detectedCodes.length > 0) {
+      await onResult(multiScan, detectedCodes, null);
     }
+  };
 
-    // This if clause ensure that it only starts one BrowserQRCodeReader
-    // browserQRCodeReaderRef.current can only be null when the component is mounted or
-    // when after the stop function of controlsRef is executed
-    if (browserQRCodeReaderRef.current == null) {
-      browserQRCodeReaderRef.current = new BrowserQRCodeReader(undefined, {
-        // These settings force that the scanning attempts are reduced (to 1 attempt per 500ms)
-        delayBetweenScanAttempts,
-        delayBetweenScanSuccess: delayBetweenScanAttempts,
-      });
-
-      // check if video is available
-      if (!isMediaDevicesAPIAvailable()) {
-        const message = "QRReader: This browser doesn't support MediaDevices API.\"";
-        console.error(message);
-        onResult(multiScan, null, new Error(message), browserQRCodeReaderRef.current);
-      }
-
-      // decodeFromConstraints starts the scanning process.
-      // It runs as long as the stop function of the IScannerControls is called
-      // We get access to the IScannerControls in .then.
-      browserQRCodeReaderRef.current
-        .decodeFromConstraints(
-          {
-            video: constraints,
-          },
-          previewVideoRef.current,
-          (result, error) => {
-            if (browserQRCodeReaderRef.current != null) {
-              onResult(multiScan, result, error, browserQRCodeReaderRef.current);
-            }
-          },
-        )
-        .then((controls: IScannerControls) => {
-          controlsRef.current = controls;
-        })
-        .catch((error: Error) => {
-          if (browserQRCodeReaderRef.current != null) {
-            onResult(multiScan, null, error, browserQRCodeReaderRef.current);
-          }
-        });
-    }
-  }, [delayBetweenScanAttempts, onResult, facingMode, previewVideoRef, multiScan]);
-
-  useEffect(() => {
-    // This is the clean up function stopping the scanning.
-    // It is triggered when the component unmounts or when multiScan changes.
-    // multiScan identifies if which mode the Boxtribute QrReader is running in.
-    return () => {
-      browserQRCodeReaderRef.current = null;
-      controlsRef.current?.stop();
-    };
-  }, [multiScan]);
+  const handleError = async (error: Error) => {
+    await onResult(multiScan, null, error);
+  };
 
   return (
     <section>
-      <div
-        style={{
-          ...styles.container,
-        }}
-      >
-        <ViewFinder />
-        <video
-          muted
-          ref={previewVideoRef}
-          style={{
-            ...styles.video,
-            transform: facingMode === "user" && "scaleX(-1)",
+      <div style={styles.container}>
+        <Scanner
+          onScan={handleScan}
+          onError={handleError}
+          constraints={{
+            facingMode,
+            height: { ideal: 720 },
           }}
-        />
+          scanDelay={scanPeriod}
+          styles={{
+            video: styles.video,
+          }}
+          components={{
+            // Disable the default viewfinder since we're using our custom ViewFinder
+            finder: false,
+          }}
+          sound={false}
+          formats={["qr_code"]}
+          // Allow continuous scanning based on multiScan prop
+          allowMultiple={multiScan}
+        >
+          <ViewFinder />
+        </Scanner>
       </div>
     </section>
   );
 }
-
-QrReaderScanner.displayName = "QrReader";
