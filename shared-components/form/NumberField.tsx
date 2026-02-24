@@ -35,7 +35,7 @@ export function NumberField({
   ...props
 }: INumberFieldProps) {
   return (
-    <FormControl {...props} isInvalid={!!errors[fieldId]} >
+    <FormControl {...props} isInvalid={!!errors[fieldId]}>
       {showLabel && (
         <FormLabel htmlFor={fieldId} textAlign="left">
           {fieldLabel}{" "}

@@ -7,6 +7,16 @@ export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
+        tag: {
+          // Read from the normalized cache for individual tag queries
+          read(_, { args, toReference }) {
+            if (!args?.id) return undefined;
+            return toReference({
+              __typename: "Tag",
+              id: args.id,
+            });
+          },
+        },
         scannedBoxes: {
           merge(_, incoming) {
             // For a complete replacement (like in flushAllBoxes),

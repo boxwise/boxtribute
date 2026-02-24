@@ -15,7 +15,8 @@
     "graphql-gen": "cat ./back/boxtribute_server/graph_ql/definitions/basic/*.graphql ./back/boxtribute_server/graph_ql/definitions/protected/*.graphql ./back/boxtribute_server/graph_ql/definitions/public/types.graphql > ./graphql/generated/schema.graphql && pnpm gql-tada generate output",
     "test": "TZ=UTC vitest",
     "test:coverage": "TZ=UTC vitest run --coverage",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "rebuild-restart": "pnpm i && docker compose build && docker compose up -d"
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",

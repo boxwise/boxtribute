@@ -242,7 +242,7 @@ importers:
         specifier: ^7.7.20
         version: 7.7.20
       msw:
-        specifier: ^2.12.9
+        specifier: ^2.12.10
         version: 2.12.10(@types/node@22.10.1)(typescript@5.9.3)
       mutationobserver-shim:
         specifier: ^0.3.7
