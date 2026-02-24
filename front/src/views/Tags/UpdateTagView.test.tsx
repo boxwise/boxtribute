@@ -216,7 +216,7 @@ describe("UpdateTagView", () => {
       },
       { timeout: 5000 },
     );
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Update the form fields
     const nameInput = screen.getByPlaceholderText(/please enter a tag name/i);
@@ -283,7 +283,7 @@ describe("UpdateTagView", () => {
       { timeout: 5000 },
     );
     // Wait for form to load
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Description field should be empty - find by label text since there's no value
     const descriptionLabel = screen.getByText(/^description$/i);
@@ -327,7 +327,7 @@ describe("UpdateTagView", () => {
       },
       { timeout: 5000 },
     );
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit without changes
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -380,7 +380,7 @@ describe("UpdateTagView", () => {
       },
       { timeout: 5000 },
     );
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit without changes
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -432,7 +432,7 @@ describe("UpdateTagView", () => {
       },
       { timeout: 5000 },
     );
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit without changes
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -480,7 +480,7 @@ describe("UpdateTagView", () => {
       },
       { timeout: 5000 },
     );
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit the form
     const saveButton = screen.getByRole("button", { name: /save tag/i });
@@ -536,7 +536,7 @@ describe("UpdateTagView", () => {
       },
       { timeout: 5000 },
     );
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Click nevermind button
     const nevermindButton = screen.getByRole("button", { name: /nevermind/i });
@@ -564,7 +564,7 @@ describe("UpdateTagView", () => {
       },
       { timeout: 5000 },
     );
-    await screen.findByDisplayValue("Existing Tag");
+    expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Update a field
     const nameInput = screen.getByPlaceholderText(/please enter a tag name/i);
