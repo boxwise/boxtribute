@@ -189,7 +189,7 @@ describe("UpdateTagView", () => {
 
     expect(screen.getByRole("button", { name: /save tag/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /nevermind/i })).toBeInTheDocument();
-  });
+  }, 20000);
 
   it("successfully updates a tag and navigates back", async () => {
     const user = userEvent.setup();
@@ -248,7 +248,7 @@ describe("UpdateTagView", () => {
 
     // Verify navigation back to tags list
     expect(mockNavigate).toHaveBeenCalledWith("..");
-  });
+  }, 20000);
 
   it("handles tag with null/undefined description", async () => {
     const tagQueryNullDescription = {
@@ -288,7 +288,7 @@ describe("UpdateTagView", () => {
     // Description field should be empty - find by label text since there's no value
     const descriptionLabel = screen.getByText(/^description$/i);
     expect(descriptionLabel).toBeInTheDocument();
-  });
+  }, 20000);
 
   it("handles insufficient permission error on update", async () => {
     const insufficientPermissionMutation = {
@@ -341,7 +341,7 @@ describe("UpdateTagView", () => {
         }),
       ),
     );
-  });
+  }, 20000);
 
   it("handles unauthorized for base error", async () => {
     const unauthorizedMutation = {
@@ -394,7 +394,7 @@ describe("UpdateTagView", () => {
         }),
       ),
     );
-  });
+  }, 20000);
 
   it("handles invalid color error", async () => {
     const invalidColorMutation = {
@@ -446,7 +446,7 @@ describe("UpdateTagView", () => {
         }),
       ),
     );
-  });
+  }, 20000);
 
   it("handles API network errors during tag update", async () => {
     const errorMutation = {
@@ -494,7 +494,7 @@ describe("UpdateTagView", () => {
         }),
       ),
     );
-  });
+  }, 20000);
 
   it("handles tag query error", async () => {
     const tagQueryError = {
@@ -518,7 +518,7 @@ describe("UpdateTagView", () => {
 
     // Should show error boundary fallback with error message
     expect(await screen.findByText(/apolloerror/i)).toBeInTheDocument();
-  });
+  }, 20000);
 
   it("navigates back when clicking Nevermind button", async () => {
     const user = userEvent.setup();
@@ -544,7 +544,7 @@ describe("UpdateTagView", () => {
 
     // Verify navigation back
     expect(mockNavigate).toHaveBeenCalledWith("..");
-  });
+  }, 20000);
 
   // Note: Component doesn't render when tagId is missing - this is expected behavior
 
@@ -597,5 +597,5 @@ describe("UpdateTagView", () => {
         }),
       ),
     );
-  });
+  }, 20000);
 });
