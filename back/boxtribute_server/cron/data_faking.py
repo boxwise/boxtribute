@@ -45,7 +45,6 @@ from ..business_logic.warehouse.product.crud import (
     enable_standard_product,
 )
 from ..business_logic.warehouse.qr_code.crud import create_qr_code
-from ..db import db
 from ..enums import (
     BoxState,
     HumanGender,
@@ -235,7 +234,7 @@ class Generator:
 
         org_ids = {b.id: b.organisation_id for b in bases}
 
-        cursor = db.database.execute_sql(
+        cursor = Base._meta.database.execute_sql(
             """\
     SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) FROM cms_users u
     INNER JOIN cms_usergroups_camps cuc

@@ -2,7 +2,6 @@ from functools import wraps
 
 from flask import request
 from peewee import MySQLDatabase
-from playhouse.flask_utils import FlaskDB  # type: ignore
 
 from .blueprints import (
     API_GRAPHQL_PATH,
@@ -17,21 +16,26 @@ from .business_logic.statistics import statistics_queries
 from .models.definitions import Model
 
 
-class DatabaseManager(FlaskDB):
-    """Custom class to glue Flask and Peewee together.
-    If configured accordingly, connect to a database replica for statistics-related
-    GraphQL queries. To use the replica for database queries, wrap the calling code in
-    the `use_db_replica` decorator, and make sure the replica connection is set up in
-    the connect_db() method.
+class DatabaseManager:
+    """Custom class to glue Flask and Peewee together, borrowed from peewee's
+    playhouse.flask_utils.FlaskDB, with irrelevant parts stripped.
+    It holds the references to the primary and the replica database.
+
+    Most importantly, this class handles opening/closing database connection(s)
+    before/after handling incoming requests.
+
+    It onnects to the database replica for statistics-related GraphQL queries. To use
+    the replica for database queries, wrap the calling code in the `use_db_replica`
+    decorator.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.replica = None
+    def __init__(self) -> None:
+        self.database: MySQLDatabase | None = None
+        self.replica: MySQLDatabase | None = None
 
-    def init_app(self, app):
-        self.replica = app.config.get("DATABASE_REPLICA")  # expecting peewee.Database
-        super().init_app(app)
+    def register_handlers(self, app):
+        app.before_request(self.connect_db)
+        app.teardown_request(self.close_db)
 
     def connect_db(self):
         # GraphQL queries are sent as POST requests. Don't open database connection on
@@ -104,3 +108,18 @@ def create_db_interface(**mysql_kwargs):
     return MySQLDatabase(
         **mysql_kwargs, field_types={"AUTO": "INTEGER UNSIGNED AUTO_INCREMENT"}
     )
+
+
+def execute_sql(*params, use_replica=False, query):
+    """Utility function to execute a raw SQL query, returning the result rows as dicts.
+    By default, the primary database is selected. Any `params` are passed into peewee's
+    `execute_sql` method as values for query parameters.
+    """
+    database = db.replica if use_replica and db.replica is not None else db.database
+    cursor = database.execute_sql(query, params=params)
+    if cursor.description is None:
+        # For e.g. UPDATE statements no description is available
+        return
+    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
+    column_names = [x[0] for x in cursor.description]
+    return [dict(zip(column_names, row)) for row in cursor.fetchall()]
