@@ -7,7 +7,7 @@ import StockDataFilter from "@boxtribute/shared-components/statviz/components/vi
 import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
-import { tagFilterValuesVar } from "@boxtribute/shared-components/statviz/state/filter";
+import { tagFilterIncludedValuesVar } from "@boxtribute/shared-components/statviz/state/filter";
 import { tagToFilterValue } from "@boxtribute/shared-components/statviz/components/filter/TagFilter";
 import BoxesOrItemsSelect, {
   boxesOrItemsFilterValues,
@@ -97,7 +97,7 @@ function App() {
   // Get tag filters.
   useEffect(() => {
     const tags = data?.resolveLink?.data[0].dimensions?.tag?.map((t) => tagToFilterValue(t!));
-    if (tags?.length) tagFilterValuesVar(tags);
+    if (tags?.length) tagFilterIncludedValuesVar(tags);
   }, [data?.resolveLink?.data]);
 
   if (error) {
