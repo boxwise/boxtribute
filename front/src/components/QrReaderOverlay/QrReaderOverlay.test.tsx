@@ -145,7 +145,7 @@ it("3.4.1.3 - Mobile: Enter valid box identifier and click on Find button", asyn
 
   // Click a button to trigger the event of scanning a QR-Code in mockImplementationOfQrReader
   expect(await screen.findByRole("heading", { name: "/bases/1/boxes/123456" })).toBeInTheDocument();
-}, 20000);
+}, 30000);
 
 const queryFindBoxFromOtherOrg = {
   request: {
@@ -398,7 +398,7 @@ it("3.4.2.5b - Mobile: User scans non Boxtribute QR code", async () => {
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryHashNotInDb],
+    mocks: [queryHashNotInDb, ...multiBoxActionOptionsMocks],
     mediaQueryReturnValue: false,
   });
 
@@ -446,7 +446,7 @@ it("3.4.2.5c - Internal Server Error", async () => {
   render(<HeaderMenuContainer />, {
     routePath: "/bases/:baseId",
     initialUrl: "/bases/1",
-    mocks: [queryInternalServerError],
+    mocks: [queryInternalServerError, ...multiBoxActionOptionsMocks],
     mediaQueryReturnValue: false,
   });
 

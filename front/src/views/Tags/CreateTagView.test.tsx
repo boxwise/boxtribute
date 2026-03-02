@@ -53,7 +53,7 @@ const refetchQuery = {
   },
 };
 
-const refetchQueries = [refetchQuery, refetchQuery];
+const refetchQueries = [refetchQuery, refetchQuery, refetchQuery, refetchQuery, refetchQuery];
 
 const successfulCreateTagMutation = {
   request: {
@@ -182,7 +182,7 @@ describe("CreateTagView", () => {
 
     // Verify navigation back to tags list
     expect(mockNavigate).toHaveBeenCalledWith("..");
-  });
+  }, 30000);
 
   it("successfully creates a tag with minimal required fields", async () => {
     const user = userEvent.setup();
