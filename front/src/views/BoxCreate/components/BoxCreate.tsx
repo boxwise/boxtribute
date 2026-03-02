@@ -9,9 +9,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { groupBy } from "lodash";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import NumberField from "components/Form/NumberField";
 import { ProductGender } from "../../../../../graphql/types";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { NumberField } from "@boxtribute/shared-components";
 
 export interface ICategoryData {
   name: string;
@@ -208,7 +208,6 @@ export function BoxCreate({
               fieldLabel="Number Of Items"
               errors={errors}
               control={control}
-              register={register}
             />
           </ListItem>
           <ListItem>

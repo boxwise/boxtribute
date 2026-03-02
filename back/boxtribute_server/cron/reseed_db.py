@@ -4,22 +4,21 @@ from ..db import db
 from ..utils import in_demo_environment, in_staging_environment
 from .data_faking import Generator
 
-SEED_FILENAME = (
-    "init.sql" if (in_staging_environment() or in_demo_environment()) else "minimal.sql"
-)
-SEED_FILEPATH = Path(__file__).parent.resolve().parent.parent / SEED_FILENAME
-
 
 def reseed_db():
-    # For testing locally, run
-    # dotenv run flask --debug --app boxtribute_server.dev_main:app run -p 5005
-    # curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
-    with db.database.cursor() as cursor, open(SEED_FILEPATH) as seed:
-        execute_sql_statements_from_file(cursor, seed)
-
     # Seed the staging/demo DB with the large init.sql dump and skip running the
     # fake-data generation because the long runtime causes the connection to the GCloud
     # MySQL server to be interrupted
+    seed_filename = "minimal.sql"
+    if in_staging_environment() or in_demo_environment():
+        seed_filename = "init.sql"
+    seed_filepath = Path(__file__).parent.resolve().parent.parent / seed_filename
+    # For testing locally, run
+    # dotenv run flask --debug --app boxtribute_server.dev_main:app run -p 5005
+    # curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
+    with db.database.cursor() as cursor, open(seed_filepath) as seed:
+        execute_sql_statements_from_file(cursor, seed)
+
     if in_staging_environment() or in_demo_environment():
         # The seed contains Auth0 role IDs of the dev tenant which need to be replaced
         update_auth0_role_ids()

@@ -1,5 +1,5 @@
 import time
-from datetime import date
+from datetime import date, datetime
 
 import pytest
 from boxtribute_server.enums import TagType
@@ -27,6 +27,7 @@ def test_tag_query(client, tags):
             createdBy {{ id }}
             lastModifiedOn
             lastModifiedBy {{ id }}
+            lastUsedOn
         }} }}"""
     queried_tag = assert_successful_request(client, query)
     assert queried_tag == {
@@ -37,6 +38,7 @@ def test_tag_query(client, tags):
         "createdBy": {"id": str(tag["created_by"])},
         "lastModifiedOn": None,
         "lastModifiedBy": None,
+        "lastUsedOn": datetime(2023, 1, 1).isoformat() + "+00:00",
     }
 
 
@@ -54,6 +56,7 @@ def test_tags_query(
                 id
                 name
                 type
+                lastUsedOn
                 taggedResources {
                     __typename
                     ...on Beneficiary { id }
@@ -65,6 +68,7 @@ def test_tags_query(
             "id": str(tags[0]["id"]),
             "name": tags[0]["name"],
             "type": tags[0]["type"].name,
+            "lastUsedOn": datetime(2023, 1, 1).isoformat() + "+00:00",
             "taggedResources": [
                 {
                     "__typename": "Beneficiary",
@@ -80,6 +84,7 @@ def test_tags_query(
             "id": str(tags[1]["id"]),
             "name": tags[1]["name"],
             "type": tags[1]["type"].name,
+            "lastUsedOn": datetime(2023, 1, 1).isoformat() + "+00:00",
             "taggedResources": [
                 {
                     "__typename": "Box",
@@ -91,6 +96,7 @@ def test_tags_query(
             "id": str(tags[2]["id"]),
             "name": tags[2]["name"],
             "type": tags[2]["type"].name,
+            "lastUsedOn": datetime(2024, 1, 1).isoformat() + "+00:00",
             "taggedResources": [
                 {
                     "__typename": "Beneficiary",
@@ -114,6 +120,7 @@ def test_tags_query(
             "id": str(tags[5]["id"]),
             "name": tags[5]["name"],
             "type": tags[5]["type"].name,
+            "lastUsedOn": None,
             "taggedResources": [],
         },
     ]
@@ -176,6 +183,7 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                     createdBy {{ id }}
                     lastModifiedOn
                     lastModifiedBy {{ id }}
+                    lastUsedOn
                     base {{ id }}
                     taggedResources {{
                         ...on Beneficiary {{ id }}
@@ -198,6 +206,7 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
         "createdBy": {"id": "8"},
         "lastModifiedOn": None,
         "lastModifiedBy": None,
+        "lastUsedOn": None,
     }
 
     # Test case 4.2.3
@@ -261,8 +270,10 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
                     ...on Beneficiary {{ id }}
                     ...on Box {{ id }}
                 }}
+                lastUsedOn
     }} }}"""
     tag = assert_successful_request(client, query)
+    assert tag.pop("lastUsedOn").startswith(today)
     assert tag == {"taggedResources": [{"id": i} for i in [beneficiary_id, box_id]]}
 
     # Test case 4.2.27
@@ -290,6 +301,7 @@ def test_tags_mutations(client, tags, base1_active_tags, another_beneficiary, lo
     assert beneficiary == {"tags": []}
 
     tag = assert_successful_request(client, query)
+    assert tag.pop("lastUsedOn").startswith(today)
     assert tag == {"taggedResources": []}
 
     history_entries = list(

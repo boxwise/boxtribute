@@ -34,7 +34,7 @@ from .sql import MOVED_BOXES_QUERY
 @dataclass(kw_only=True)
 class DataCube:
     facts: list[dict[str, Any]]
-    dimensions: list[dict[str, Any]]
+    dimensions: dict[str, list[dict[str, Any]]]
     type: str  # Identical to GraphQL DataCube implementation type
 
 
@@ -375,7 +375,7 @@ def compute_top_products_donated(base_id):
     return DataCube(facts=facts, dimensions=dimensions, type="TopProductsDonatedData")
 
 
-def compute_moved_boxes(base_id):
+def compute_moved_boxes(*base_ids):
     """Count all boxes that were
     1. shipped to other bases from given base as source
     2. moved between the box states InStock and Donated within the given base
@@ -393,23 +393,26 @@ def compute_moved_boxes(base_id):
     boxes didn't have states assigned, instead box state was dictated by the type of
     location the box was stored in
     """
-    _validate_existing_base(base_id)
+    if len(base_ids) == 0:
+        return DataCube(facts=[], dimensions={}, type="MovedBoxesData")
+    elif len(base_ids) == 1:
+        _validate_existing_base(base_ids[0])
     min_history_id = 1
     if in_production_environment() and not in_ci_environment():  # pragma: no cover
         # Earliest row ID in tables in 2023
         min_history_id = 1_324_559
 
     facts = execute_sql(
-        base_id,
+        base_ids,
         min_history_id,
         TargetType.BoxState.name,
         TargetType.BoxState.name,
         TargetType.OutgoingLocation.name,
         TargetType.OutgoingLocation.name,
         TargetType.Shipment.name,
-        base_id,
+        base_ids,
         TargetType.BoxState.name,
-        base_id,
+        base_ids,
         database=db.replica or db.database,
         query=MOVED_BOXES_QUERY,
     )
@@ -554,49 +557,49 @@ def create_shareable_link(
     )
 
 
-# Basic look-up to reduce number of expensive compute_moved_boxes() calls
-MOVED_BOXES_CACHE: dict[int, Any] = {}
-
-
-def number_of_boxes_moved_between(start, end):
-    """Compute number of moved boxes for all active bases in the given time span.
+def get_data_for_number_of_moved_boxes():
+    """Return moved-box facts and org/base metadata for all active bases.
+    The returned facts cover all-time moved-box events for the active bases;
+    aggregation (e.g. counting boxes per base and date range) is performed
+    by callers such as `number_of_boxes_moved_between`.
     Active bases are non-deleted or deleted within the last year.
     """
     one_year_ago = utcnow() - timedelta(days=365)
-    active_bases = (
-        Base.select(Base.id, Base.name, Organisation.id, Organisation.name)
+    active_bases = list(
+        Base.select(
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+        )
         .join(Organisation)
         .where(
             (Base.deleted_on.is_null()) | (Base.deleted_on >= one_year_ago),
             exclude_test_organisation(),
         )
+        .order_by(Base.id)
+        .dicts()
     )
 
+    base_ids = [base["base_id"] for base in active_bases]
+    result = compute_moved_boxes(*base_ids)
+    return result.facts, active_bases
+
+
+def number_of_boxes_moved_between(start, end, moved_boxes, org_base_info):
+    # Convert datetime to date for comparison since moved_on is a date
+    start = start.date()
+    end = end.date()
+    filtered_moved_boxes = [b for b in moved_boxes if start <= b["moved_on"] <= end]
+
+    # Pre-aggregate totals per base to avoid repeatedly scanning filtered_moved_boxes
+    base_totals = {}
+    for box in filtered_moved_boxes:
+        base_id = box["base_id"]
+        base_totals[base_id] = base_totals.get(base_id, 0) + box["boxes_count"]
     results = []
-    for base in active_bases:
-        moved_boxes_data = MOVED_BOXES_CACHE.get(base.id)
-        if moved_boxes_data is None:
-            moved_boxes_data = compute_moved_boxes(base.id)
-            MOVED_BOXES_CACHE[base.id] = moved_boxes_data
-
-        # Count boxes moved in the specified time span
-        # Convert datetime to date for comparison since moved_on is a date
-        start_date = start.date()
-        end_date = end.date()
-        total_boxes = sum(
-            fact["boxes_count"]
-            for fact in moved_boxes_data.facts
-            if start_date <= fact["moved_on"] <= end_date
-        )
-
-        results.append(
-            {
-                "organisation_id": base.organisation.id,
-                "organisation_name": base.organisation.name,
-                "base_id": base.id,
-                "base_name": base.name,
-                "number": total_boxes,
-            }
-        )
+    for row in org_base_info:
+        total_count = base_totals.get(row["base_id"], 0)
+        results.append(row | {"number": total_count})
 
     return results

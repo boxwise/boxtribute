@@ -1,3 +1,4 @@
+import { NumberField } from "@boxtribute/shared-components";
 import {
   Box,
   Button,
@@ -12,7 +13,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { NewNumberField } from "components/Form/NumberField";
 import SelectField from "components/Form/SelectField";
 import SwitchField from "components/Form/SwitchField";
 import { useForm } from "react-hook-form";
@@ -208,7 +208,7 @@ function CreateCustomProductForm({
           </Text>
         </Box>
         <SwitchField fieldId="inShop" fieldLabel="Always Show in Stockroom?" control={control} />
-        <NewNumberField
+        <NumberField
           fieldId="price"
           fieldLabel="Token Price"
           errors={errors}

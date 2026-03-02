@@ -14,7 +14,10 @@ from ..business_logic.metrics.crud import (
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
 )
-from ..business_logic.statistics.crud import number_of_boxes_moved_between
+from ..business_logic.statistics.crud import (
+    get_data_for_number_of_moved_boxes,
+    number_of_boxes_moved_between,
+)
 from ..models.utils import utcnow
 from .formatting import format_as_table
 
@@ -100,6 +103,7 @@ def get_internal_data():
     # Some computations need data which is expensive to collect. Fetch this data only
     # once and provide it via a look-up
     data_collections = {
+        TITLES[5]: get_data_for_number_of_moved_boxes(),
         TITLES[6]: get_data_for_number_of_active_users(),
     }
 

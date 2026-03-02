@@ -14,11 +14,11 @@ import {
   Flex,
   VStack,
 } from "@chakra-ui/react";
-import { NewNumberField } from "components/Form/NumberField";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useForm } from "react-hook-form";
 import { IChangeNumberOfItemsBoxData } from "../BoxView";
 import { useAuthorization } from "hooks/useAuthorization";
+import { NumberField } from "@boxtribute/shared-components";
 
 export interface ITakeItemsFromBoxData extends IChangeNumberOfItemsBoxData {
   locationId?: IDropdownOption | null;
@@ -79,7 +79,7 @@ function TakeItemsFromBoxOverlay({
         <ModalBody>
           <form onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4} py={1} px={1} alignItems="flex-start">
-              <NewNumberField
+              <NumberField
                 fieldId="numberOfItems"
                 fieldLabel="Number Of Items"
                 errors={errors}

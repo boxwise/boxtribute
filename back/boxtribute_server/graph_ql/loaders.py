@@ -713,3 +713,19 @@ class ResourcesForTagLoader(DataLoader):
         return [
             sorted(resources.get(tag_id, []), key=lambda r: r.id) for tag_id in tag_ids
         ]
+
+
+class TagLastUsedOnLoader(DataLoader):
+    async def batch_load_fn(self, tag_ids):
+        authorize(permission="tag_relation:read")
+
+        relations = (
+            TagsRelation.select(
+                TagsRelation.tag,
+                fn.MAX(TagsRelation.created_on).alias("last_used_on"),
+            )
+            .where(TagsRelation.tag << tag_ids)
+            .group_by(TagsRelation.tag)
+        )
+        last_used_on_data = {r.tag_id: r.last_used_on for r in relations}
+        return [last_used_on_data.get(tag_id) for tag_id in tag_ids]

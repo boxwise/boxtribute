@@ -2,6 +2,8 @@ from datetime import date, datetime
 
 from auth import mock_user_for_request
 from boxtribute_server.business_logic.statistics.crud import (
+    compute_moved_boxes,
+    get_data_for_number_of_moved_boxes,
     number_of_boxes_moved_between,
 )
 from boxtribute_server.enums import BoxState, ProductGender, TargetType
@@ -409,16 +411,27 @@ def test_query_moved_boxes(
         },
     }
 
+    # Verify handling of missing base_ids as parameters
+    result = compute_moved_boxes()
+    assert result.facts == []
+    assert result.dimensions == {}
+
     total_boxes_count = sum(fact["boxesCount"] for fact in data["facts"])
-    result = number_of_boxes_moved_between(datetime(2022, 12, 1), datetime.today())
-    assert len(result) == 4
-    assert result[0] == {
+    moved_boxes, org_base_info = get_data_for_number_of_moved_boxes()
+    results = number_of_boxes_moved_between(
+        datetime(2022, 12, 1), datetime.today(), moved_boxes, org_base_info
+    )
+    assert len(results) == 4
+    assert results[0] == {
         "base_id": default_base["id"],
         "base_name": default_base["name"],
         "organisation_id": default_organisation["id"],
         "organisation_name": default_organisation["name"],
         "number": total_boxes_count,
     }
+    for base_id, result in enumerate(results[1:], start=2):
+        assert result["base_id"] == base_id
+        assert result["number"] == 0
 
 
 def test_query_stock_overview(client, default_product, default_location):
