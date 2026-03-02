@@ -137,7 +137,7 @@ export default function CreatedBoxesFilterContainer({
       filters.push(
         filter(
           (fact: CreatedBoxesResult) =>
-            filterCategories.find((fC) => fC?.id === fact.productId!) !== undefined,
+            filterCategories.find((fC) => fC?.id === fact.categoryId!) !== undefined,
         ),
       );
     }
