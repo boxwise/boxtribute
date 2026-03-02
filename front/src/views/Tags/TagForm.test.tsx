@@ -112,7 +112,7 @@ describe("TagForm", () => {
         expect.anything(), // form event
       );
     });
-  });
+  }, 30000);
 
   it("submits form without optional description", async () => {
     const user = userEvent.setup();

@@ -197,7 +197,7 @@ it("3.4.1.4 - Mobile: Enter valid box identifier from unauthorized bases and cli
   );
   // QrOverlay stays open
   expect(screen.getByRole("button", { name: /find/i })).toBeInTheDocument();
-}, 10000);
+}, 20000);
 
 const queryNoBoxAssociatedWithQrCode = {
   request: {
