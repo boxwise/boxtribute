@@ -102,6 +102,8 @@ const refetchQuery = {
   },
 };
 
+const refetchQueries = [refetchQuery, refetchQuery];
+
 const successfulUpdateTagMutation = {
   request: {
     query: UPDATE_TAG_MUTATION,
@@ -201,7 +203,7 @@ describe("UpdateTagView", () => {
     render(<UpdateTagView />, {
       routePath: "/bases/:baseId/tags/:tagId",
       initialUrl: "/bases/1/tags/1",
-      mocks: [tagQuery, successfulUpdateTagMutation, refetchQuery],
+      mocks: [tagQuery, successfulUpdateTagMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -302,7 +304,7 @@ describe("UpdateTagView", () => {
     render(<UpdateTagView />, {
       routePath: "/bases/:baseId/tags/:tagId",
       initialUrl: "/bases/1/tags/1",
-      mocks: [tagQuery, insufficientPermissionMutation],
+      mocks: [tagQuery, insufficientPermissionMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -350,7 +352,7 @@ describe("UpdateTagView", () => {
     render(<UpdateTagView />, {
       routePath: "/bases/:baseId/tags/:tagId",
       initialUrl: "/bases/1/tags/1",
-      mocks: [tagQuery, unauthorizedMutation],
+      mocks: [tagQuery, unauthorizedMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -397,7 +399,7 @@ describe("UpdateTagView", () => {
     render(<UpdateTagView />, {
       routePath: "/bases/:baseId/tags/:tagId",
       initialUrl: "/bases/1/tags/1",
-      mocks: [tagQuery, invalidColorMutation],
+      mocks: [tagQuery, invalidColorMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -440,7 +442,7 @@ describe("UpdateTagView", () => {
     render(<UpdateTagView />, {
       routePath: "/bases/:baseId/tags/:tagId",
       initialUrl: "/bases/1/tags/1",
-      mocks: [tagQuery, errorMutation],
+      mocks: [tagQuery, errorMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -514,7 +516,7 @@ describe("UpdateTagView", () => {
     render(<UpdateTagView />, {
       routePath: "/bases/:baseId/tags/:tagId",
       initialUrl: "/bases/1/tags/1",
-      mocks: [tagQuery, successfulUpdateTagMutationAllFields, refetchQuery],
+      mocks: [tagQuery, successfulUpdateTagMutationAllFields, ...refetchQueries],
       addTypename: true,
     });
 

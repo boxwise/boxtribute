@@ -234,6 +234,7 @@ it("3.4.7.8 - One Box of two or more Boxes fail for the assign tag Mutation", as
       mockSuccessfulQrQuery({ hash: "InStockBox1", labelIdentifier: "123" }),
       mockSuccessfulQrQuery({ hash: "InStockBox2", labelIdentifier: "678" }),
       mockTagsQuery({}),
+      mockTagsQuery({}),
       mockAssignTagsMutation({ labelIdentifiers: ["123", "678"] }),
     ],
     cache,

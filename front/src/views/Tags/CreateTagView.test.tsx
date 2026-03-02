@@ -53,6 +53,8 @@ const refetchQuery = {
   },
 };
 
+const refetchQueries = [refetchQuery, refetchQuery];
+
 const successfulCreateTagMutation = {
   request: {
     query: CREATE_TAG_MUTATION,
@@ -144,7 +146,7 @@ describe("CreateTagView", () => {
     render(<CreateTagView />, {
       routePath: "/bases/:baseId/tags/create",
       initialUrl: "/bases/1/tags/create",
-      mocks: [successfulCreateTagMutation, refetchQuery],
+      mocks: [successfulCreateTagMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -187,7 +189,7 @@ describe("CreateTagView", () => {
     render(<CreateTagView />, {
       routePath: "/bases/:baseId/tags/create",
       initialUrl: "/bases/1/tags/create",
-      mocks: [successfulCreateTagMutationMinimal, refetchQuery],
+      mocks: [successfulCreateTagMutationMinimal, ...refetchQueries],
       addTypename: true,
     });
 
@@ -268,7 +270,7 @@ describe("CreateTagView", () => {
     render(<CreateTagView />, {
       routePath: "/bases/:baseId/tags/create",
       initialUrl: "/bases/1/tags/create",
-      mocks: [insufficientPermissionMutation],
+      mocks: [insufficientPermissionMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -324,7 +326,7 @@ describe("CreateTagView", () => {
     render(<CreateTagView />, {
       routePath: "/bases/:baseId/tags/create",
       initialUrl: "/bases/1/tags/create",
-      mocks: [invalidColorMutation],
+      mocks: [invalidColorMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -376,7 +378,7 @@ describe("CreateTagView", () => {
     render(<CreateTagView />, {
       routePath: "/bases/:baseId/tags/create",
       initialUrl: "/bases/1/tags/create",
-      mocks: [errorMutation],
+      mocks: [errorMutation, ...refetchQueries],
       addTypename: true,
     });
 
@@ -431,7 +433,7 @@ describe("CreateTagView", () => {
     render(<CreateTagView />, {
       routePath: "/bases/:baseId/tags/create",
       initialUrl: "/bases/1/tags/create",
-      mocks: [successfulCreateTagMutation, refetchQuery],
+      mocks: [successfulCreateTagMutation, ...refetchQueries],
       addTypename: true,
     });
 
