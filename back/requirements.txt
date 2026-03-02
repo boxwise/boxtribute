@@ -5,10 +5,10 @@ sentry-sdk[flask]==2.53.0
 PyMySQL==1.1.2
 peewee==3.19.0
 peewee-moves==2.1.0
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 PyJWT[crypto]==2.11.0
 aiodataloader==0.4.3
 gunicorn
 auth0-python==5.1.0
-Faker==40.4.0
+Faker==40.5.1
 freezegun==1.5.5
