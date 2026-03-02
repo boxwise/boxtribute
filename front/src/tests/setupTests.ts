@@ -3,7 +3,6 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
-import { createElement, forwardRef, ReactNode } from "react";
 import { cache } from "queries/cache";
 import { beforeEach, vi } from "vitest";
 import "regenerator-runtime/runtime";
@@ -12,45 +11,12 @@ import { useNotification } from "hooks/useNotification";
 
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
-const createMockMotionComponent = (element: string) => {
-  const MockMotionComponent = forwardRef<HTMLElement, Record<string, ReactNode>>(
-    ({ children, ...props }, ref) => {
-      const motionProps = {
-        ...props,
-        ref,
-        animate: undefined,
-        initial: undefined,
-        exit: undefined,
-        transition: undefined,
-        variants: undefined,
-        whileHover: undefined,
-        whileTap: undefined,
-        whileInView: undefined,
-        drag: undefined,
-        layout: undefined,
-      };
-
-      return createElement(element, motionProps, children);
-    },
-  );
-
-  MockMotionComponent.displayName = `MockMotion(${element})`;
-
-  return MockMotionComponent;
-};
-
 vi.mock("framer-motion", async () => {
   const actual = await vi.importActual<Record<string, unknown>>("framer-motion");
 
   return {
     ...actual,
     AnimatePresence: ({ children }: { children: unknown }) => children,
-    motion: new Proxy(
-      {},
-      {
-        get: (_target, element) => createMockMotionComponent(String(element)),
-      },
-    ),
   };
 });
 
