@@ -1,5 +1,5 @@
 import { vi, it, describe, expect, beforeEach } from "vitest";
-import { screen, render, waitFor } from "tests/test-utils";
+import { screen, render, waitFor, waitForElementToBeRemoved } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { selectOptionInSelectField } from "tests/helpers";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
@@ -44,6 +44,22 @@ beforeEach(async () => {
   vi.mocked(useNavigate).mockReturnValue(mockNavigate);
   vi.mocked(useParams).mockReturnValue({ tagId: "1" });
 });
+
+const waitForTableSkeletonToBeRemoved = async () => {
+  const tableSkeleton = screen.queryByTestId("TableSkeleton");
+
+  if (tableSkeleton) {
+    await waitForElementToBeRemoved(() => screen.queryByTestId("TableSkeleton"), {
+      timeout: 5000,
+    });
+  }
+};
+
+const waitForTagFormToBeReady = async () => {
+  await waitForTableSkeletonToBeRemoved();
+  await screen.findByPlaceholderText(/please enter a tag name/i);
+  await screen.findByRole("button", { name: /save tag/i });
+};
 
 const existingTag = {
   id: "1",
@@ -124,8 +140,6 @@ const successfulUpdateTagMutation = {
   },
 };
 
-// Additional mock for the "displays loading state during submission" test
-// which sends all fields from the form
 const successfulUpdateTagMutationAllFields = {
   request: {
     query: UPDATE_TAG_MUTATION,
@@ -170,12 +184,7 @@ describe("UpdateTagView", () => {
     });
 
     expect(await screen.findByRole("heading", { name: /update tag/i })).toBeInTheDocument();
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // Wait for form to load with existing values
     // const nameInput = await screen.findByDisplayValue("Existing Tag");
     // expect(nameInput).toBeInTheDocument();
@@ -201,21 +210,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-    // Wait for form to load
-    // Wait for skeletons to disappear before querying for the input value
-    await waitFor(
-      () => {
-        // Wait until no skeletons are present
-        expect(screen.queryByTestId("chakra-skeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Update the form fields
@@ -276,12 +271,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // Wait for form to load
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
@@ -321,12 +311,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit without changes
@@ -374,12 +359,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit without changes
@@ -426,12 +406,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit without changes
@@ -474,12 +449,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Submit the form
@@ -530,12 +500,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Click nevermind button
@@ -558,12 +523,7 @@ describe("UpdateTagView", () => {
     });
 
     await screen.findByRole("heading", { name: /update tag/i });
-    await waitFor(
-      () => {
-        expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitForTagFormToBeReady();
     // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
 
     // Update a field
