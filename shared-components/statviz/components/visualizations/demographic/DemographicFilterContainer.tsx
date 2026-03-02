@@ -2,7 +2,8 @@ import { useReactiveVar } from "@apollo/client";
 import { useEffect, useMemo } from "react";
 import { distinct, tidy } from "@tidyjs/tidy";
 import DemographicCharts from "./DemographicCharts";
-import { tagToFilterValue } from "../../filter/TabbedTagFilter";
+import { tagToFilterValue } from "../../filter/TagFilter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
@@ -24,13 +25,13 @@ export default function DemographicFilterContainer({
 
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
-    includedTagFilterValues,
-    "tags",
-    [],
-    excludedTagFilterValues,
-    "notags",
-  );
+  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
+    useMultiSelectFilter(
+      includedTagFilterValues,
+      tagFilterIncludedId,
+      excludedTagFilterValues,
+      tagFilterExcludedId,
+    );
 
   // merge Beneficiary tags to Box and All tags
   useEffect(() => {
@@ -68,15 +69,10 @@ export default function DemographicFilterContainer({
 
   const filteredFacts = useMemo(() => {
     // Apply tag filter (included/excluded)
-    const filtered = filterByTags(
-      demographicFacts,
-      includedFilterValue,
-      excludedFilterValue,
-      (fact) => fact.tagIds,
-    );
+    const filtered = filterByTags(demographicFacts, includedTags, excludedTags);
 
     return filtered;
-  }, [demographicFacts, includedFilterValue, excludedFilterValue]);
+  }, [demographicFacts, includedTags, excludedTags]);
 
   const demographicCube = {
     ...demographics,

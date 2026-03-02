@@ -8,6 +8,7 @@ import {
 } from "../../filter/BoxesOrItemsSelect";
 import useValueFilter from "../../../hooks/useValueFilter";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { filterByTags } from "../../../utils/filterByTags";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
@@ -28,21 +29,20 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
     boxesOrItemsUrlId,
   );
 
-  const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
-    includedTagFilterValues,
-    "tags",
-    [],
-    excludedTagFilterValues,
-    "notags",
-  );
+  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
+    useMultiSelectFilter(
+      includedTagFilterValues,
+      tagFilterIncludedId,
+      excludedTagFilterValues,
+      tagFilterExcludedId,
+    );
 
   const filteredStockOverview = useMemo(() => {
     // Filter by included and excluded tags
     const tagFilteredFacts = filterByTags(
       (stockOverview?.facts ?? []) as StockOverviewResult[],
-      includedFilterValue,
-      excludedFilterValue,
-      (fact) => fact.tagIds,
+      includedTags,
+      excludedTags,
     );
 
     // Filter by box state
@@ -52,7 +52,7 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
       ...stockOverview,
       facts: inStockFacts,
     } as StockOverview;
-  }, [includedFilterValue, excludedFilterValue, stockOverview]);
+  }, [includedTags, excludedTags, stockOverview]);
 
   return <StockCharts stockOverview={filteredStockOverview} boxesOrItems={filterValue.value} />;
 }

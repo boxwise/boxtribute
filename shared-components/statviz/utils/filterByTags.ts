@@ -5,23 +5,21 @@ import { ITagFilterValue } from "../state/filter";
  *
  * Usage:
  * ```typescript
- * const filteredData = filterByTags(data, includedTags, excludedTags, (item) => item.tagIds);
+ * const filteredData = filterByTags(data, includedTags, excludedTags);
  * ```
  *
- * @param data - Array of data items to filter
+ * @param data - Array of data items to filter (must have tagIds property)
  * @param includedTags - Tags to include (only items with these tags)
  * @param excludedTags - Tags to exclude (remove items with any of these tags)
- * @param getTagIds - Function to extract tag IDs from a data item
  * @returns Filtered array of data items
  */
-export function filterByTags<T>(
+export function filterByTags<T extends { tagIds?: number[] | null }>(
   data: T[],
   includedTags: ITagFilterValue[],
   excludedTags: ITagFilterValue[],
-  getTagIds: (item: T) => number[] | null | undefined,
 ): T[] {
   return data.filter((item) => {
-    const itemTagIds = getTagIds(item) || [];
+    const itemTagIds = item.tagIds || [];
 
     // If included tags are specified, item must have at least one of them
     if (includedTags.length > 0) {

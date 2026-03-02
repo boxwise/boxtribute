@@ -24,6 +24,7 @@ import {
   tagFilterExcludedValuesVar,
   categoryFilterValuesVar,
 } from "../../../state/filter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
 import { filterByTags } from "../../../utils/filterByTags";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
@@ -59,13 +60,13 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
-    includedTagFilterValues,
-    "tags",
-    [],
-    excludedTagFilterValues,
-    "notags",
-  );
+  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
+    useMultiSelectFilter(
+      includedTagFilterValues,
+      tagFilterIncludedId,
+      excludedTagFilterValues,
+      tagFilterExcludedId,
+    );
 
   // fill target filter with data
   useEffect(() => {
@@ -127,12 +128,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     }
 
     // Apply tag filter (included/excluded)
-    filtered = filterByTags(
-      filtered,
-      includedFilterValue,
-      excludedFilterValue,
-      (fact) => fact.tagIds,
-    );
+    filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
   }, [
@@ -141,8 +137,8 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     movedBoxesFacts,
     productsFilter,
     filterCategories,
-    includedFilterValue,
-    excludedFilterValue,
+    includedTags,
+    excludedTags,
   ]);
 
   const filteredMovedBoxesCube = {

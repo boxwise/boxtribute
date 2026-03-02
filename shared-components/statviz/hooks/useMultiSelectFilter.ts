@@ -53,7 +53,6 @@ function useMultiSelectFilter<T>(
 function useMultiSelectFilter<T>(
   values: (IFilterValue & T)[],
   filterId: string,
-  defaultFilterValues: (IFilterValue & T)[],
   excludedValues: (IFilterValue & T)[],
   excludedFilterId: string,
 ): IncludeExcludeFilterReturn<T>;
@@ -61,15 +60,18 @@ function useMultiSelectFilter<T>(
 function useMultiSelectFilter<T>(
   values: (IFilterValue & T)[],
   filterId: string,
-  defaultFilterValues?: (IFilterValue & T)[],
-  excludedValues?: (IFilterValue & T)[],
+  defaultFilterValuesOrExcludedValues?: (IFilterValue & T)[],
   excludedFilterId?: string,
 ): SimpleFilterReturn<T> | IncludeExcludeFilterReturn<T> {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filterValue, setFilterValue] = useState<(IFilterValue & T)[]>(defaultFilterValues ?? []);
-  const [excludedFilterValue, setExcludedFilterValue] = useState<(IFilterValue & T)[]>([]);
 
-  const hasExcludeMode = excludedValues !== undefined && excludedFilterId !== undefined;
+  // Determine if we're in exclude mode based on the presence of excludedFilterId
+  const hasExcludeMode = excludedFilterId !== undefined;
+
+  const [filterValue, setFilterValue] = useState<(IFilterValue & T)[]>(
+    hasExcludeMode ? [] : (defaultFilterValuesOrExcludedValues ?? []),
+  );
+  const [excludedFilterValue, setExcludedFilterValue] = useState<(IFilterValue & T)[]>([]);
 
   // Sync included/main filter values from URL
   useEffect(() => {
@@ -77,7 +79,11 @@ function useMultiSelectFilter<T>(
     if (param !== null) {
       setFilterValue(urlFilterValuesDecode(param, values));
     } else {
-      setFilterValue(defaultFilterValues ?? []);
+      if (hasExcludeMode) {
+        setFilterValue([]);
+      } else {
+        setFilterValue(defaultFilterValuesOrExcludedValues ?? []);
+      }
     }
     if (param === "" && !hasExcludeMode) {
       const newParams = new URLSearchParams(searchParams);
@@ -89,15 +95,16 @@ function useMultiSelectFilter<T>(
 
   // Sync excluded filter values from URL (only in exclude mode)
   useEffect(() => {
-    if (!hasExcludeMode || !excludedFilterId || !excludedValues) return;
+    if (!hasExcludeMode || !excludedFilterId) return;
 
+    const excludedValues = defaultFilterValuesOrExcludedValues as (IFilterValue & T)[];
     const param = searchParams.get(excludedFilterId);
     if (param !== null) {
       setExcludedFilterValue(urlFilterValuesDecode(param, excludedValues));
     } else {
       setExcludedFilterValue([]);
     }
-  }, [searchParams, excludedFilterId, excludedValues, hasExcludeMode]);
+  }, [searchParams, excludedFilterId, defaultFilterValuesOrExcludedValues, hasExcludeMode]);
 
   const onFilterChange = (event: (IFilterValue & T)[]) => {
     const selected = event;

@@ -20,7 +20,8 @@ import {
   categoryToFilterValue,
 } from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { tagToFilterValue } from "../../filter/TabbedTagFilter";
+import { tagToFilterValue } from "../../filter/TagFilter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
 import {
   productFilterValuesVar,
   tagFilterIncludedValuesVar,
@@ -59,13 +60,13 @@ export default function CreatedBoxesFilterContainer({
 
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
-    includedTagFilterValues,
-    "tags",
-    [],
-    excludedTagFilterValues,
-    "notags",
-  );
+  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
+    useMultiSelectFilter(
+      includedTagFilterValues,
+      tagFilterIncludedId,
+      excludedTagFilterValues,
+      tagFilterExcludedId,
+    );
 
   // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
   // Beneficiary and All Tags are merged inside the DemographicFilterContainer
@@ -149,12 +150,7 @@ export default function CreatedBoxesFilterContainer({
     }
 
     // Apply tag filter (included/excluded)
-    filtered = filterByTags(
-      filtered,
-      includedFilterValue,
-      excludedFilterValue,
-      (fact) => fact.tagIds,
-    );
+    filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
   }, [
@@ -162,8 +158,8 @@ export default function CreatedBoxesFilterContainer({
     filterProductGenders,
     filterProducts,
     filterCategories,
-    includedFilterValue,
-    excludedFilterValue,
+    includedTags,
+    excludedTags,
   ]);
 
   const filteredCreatedBoxesCube = {

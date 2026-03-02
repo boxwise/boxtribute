@@ -1,6 +1,5 @@
 import { Box, FormLabel } from "@chakra-ui/react";
 import { useReactiveVar } from "@apollo/client";
-import { ResultOf } from "gql.tada";
 import {
   tagFilterIncludedValuesVar,
   tagFilterExcludedValuesVar,
@@ -8,38 +7,24 @@ import {
 } from "../../state/filter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import TabbedTagDropdown from "./TabbedTagDropdown";
-import { TAG_DIMENSION_INFO_FRAGMENT } from "../../queries/fragments";
+import { tagFilterId } from "./TagFilter";
 
-export const tagFilterIncludedId = "tags";
+export const tagFilterIncludedId = tagFilterId;
 export const tagFilterExcludedId = "notags";
-
-/**
- * Converts a tag from GraphQL query to filter value format
- */
-export const tagToFilterValue = (
-  tag: ResultOf<typeof TAG_DIMENSION_INFO_FRAGMENT>,
-): ITagFilterValue => ({
-  value: tag.id!.toString(),
-  label: tag.name!,
-  color: tag.color!,
-  id: tag.id!,
-  urlId: tag.id!.toString(),
-});
 
 export default function TabbedTagFilter() {
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
 
   const {
-    includedFilterValue,
-    excludedFilterValue,
+    includedFilterValue: includedTags,
+    excludedFilterValue: excludedTags,
     onIncludedFilterChange,
     onExcludedFilterChange,
     onClearAll,
   } = useMultiSelectFilter<ITagFilterValue>(
     includedTagFilterValues,
     tagFilterIncludedId,
-    [],
     excludedTagFilterValues,
     tagFilterExcludedId,
   );
@@ -51,8 +36,8 @@ export default function TabbedTagFilter() {
       </FormLabel>
       <TabbedTagDropdown
         availableTags={includedTagFilterValues}
-        includedTags={includedFilterValue}
-        excludedTags={excludedFilterValue}
+        includedTags={includedTags}
+        excludedTags={excludedTags}
         onIncludedChange={onIncludedFilterChange}
         onExcludedChange={onExcludedFilterChange}
         onClearAll={onClearAll}
