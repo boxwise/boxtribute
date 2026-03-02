@@ -1,5 +1,5 @@
 import { vi, it, describe, expect, beforeEach } from "vitest";
-import { screen, render, waitFor, waitForElementToBeRemoved } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { selectOptionInSelectField } from "tests/helpers";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
@@ -45,20 +45,16 @@ beforeEach(async () => {
   vi.mocked(useParams).mockReturnValue({ tagId: "1" });
 });
 
-const waitForTableSkeletonToBeRemoved = async () => {
-  const tableSkeleton = screen.queryByTestId("TableSkeleton");
-
-  if (tableSkeleton) {
-    await waitForElementToBeRemoved(() => screen.queryByTestId("TableSkeleton"), {
-      timeout: 5000,
-    });
-  }
-};
-
 const waitForTagFormToBeReady = async () => {
-  await waitForTableSkeletonToBeRemoved();
-  await screen.findByPlaceholderText(/please enter a tag name/i);
-  await screen.findByRole("button", { name: /save tag/i });
+  const saveButton = await screen.findByRole("button", { name: /save tag/i }, { timeout: 10000 });
+  await waitFor(() => {
+    expect(saveButton).toBeEnabled();
+  });
+
+  await screen.findByRole("textbox", { name: /color/i }, { timeout: 10000 });
+  await screen.findByPlaceholderText(/please enter a tag name/i, undefined, {
+    timeout: 10000,
+  });
 };
 
 const existingTag = {
