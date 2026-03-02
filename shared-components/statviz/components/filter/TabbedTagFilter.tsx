@@ -26,43 +26,6 @@ export const tagToFilterValue = (
   urlId: tag.id!.toString(),
 });
 
-/**
- * Main tag filter component with tabbed interface for including and excluding tags.
- * Provides a dropdown with two tabs for including and excluding tags.
- *
- * Usage in Dashboard:
- * ```tsx
- * import TabbedTagFilter from "../components/filter/TabbedTagFilter";
- *
- * // In your component:
- * <TabbedTagFilter />
- * ```
- *
- * To use the filter in data containers:
- * ```tsx
- * import { useReactiveVar } from "@apollo/client";
- * import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../state/filter";
- * import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
- * import { filterByTags } from "../../utils/filterByTags";
- *
- * const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
- * const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
- * const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
- *   includedTagFilterValues,
- *   "tags",
- *   [],
- *   excludedTagFilterValues,
- *   "notags"
- * );
- *
- * const filteredData = filterByTags(
- *   data,
- *   includedFilterValue,
- *   excludedFilterValue,
- *   (item) => item.tagIds
- * );
- * ```
- */
 export default function TabbedTagFilter() {
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);

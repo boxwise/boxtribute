@@ -14,7 +14,6 @@ export interface ITagFilterValue extends IFilterValue {
   id: number;
 }
 // Reactive variable for included tags (tags to filter data IN)
-// This replaces the old tagFilterValuesVar
 export const tagFilterIncludedValuesVar = makeVar<ITagFilterValue[]>([]);
 
 // Reactive variable for excluded tags (tags to filter data OUT)
