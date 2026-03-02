@@ -1,4 +1,4 @@
-import { ITagFilterValue } from "../state/tagFilterDashboard";
+import { ITagFilterValue } from "../state/filter";
 
 /**
  * Utility function to filter data by included and excluded tags.

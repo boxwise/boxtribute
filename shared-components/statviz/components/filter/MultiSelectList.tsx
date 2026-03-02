@@ -1,6 +1,6 @@
 import { Stack, Text, Flex } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
-import { ITagFilterValue } from "../../state/tagFilterDashboard";
+import { ITagFilterValue } from "../../state/filter";
 
 interface IMultiSelectListProps {
   values: ITagFilterValue[];

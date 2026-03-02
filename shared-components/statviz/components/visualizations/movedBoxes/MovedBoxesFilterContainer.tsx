@@ -17,17 +17,13 @@ import {
   productFilterId,
   categoryFilterId,
 } from "../../filter/GenderProductFilter";
-import { tagFilterId } from "../../filter/TagFilter";
 import {
   targetFilterValuesVar,
   productFilterValuesVar,
-  tagFilterValuesVar,
-  categoryFilterValuesVar,
-} from "../../../state/filter";
-import {
   tagFilterIncludedValuesVar,
   tagFilterExcludedValuesVar,
-} from "../../../state/tagFilterDashboard";
+  categoryFilterValuesVar,
+} from "../../../state/filter";
 import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
 import { filterByTags } from "../../../utils/filterByTags";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
@@ -47,7 +43,6 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   );
 
   const productsFilterValues = useReactiveVar(productFilterValuesVar);
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
   const targetFilterValues = useReactiveVar(targetFilterValuesVar);
   const categoryFilterValues = useReactiveVar(categoryFilterValuesVar);
 
@@ -57,18 +52,17 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   );
 
   const { filterValue: genderFilter } = useMultiSelectFilter(genders, genderFilterId);
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
   const { filterValue: excludedTargets } = useMultiSelectFilter(targetFilterValues, targetFilterId);
   const { filterValue: filterCategories } = useMultiSelectFilter(
     categoryFilterValues,
     categoryFilterId,
   );
 
-  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
-    includedValues,
-    excludedValues,
+    includedTagFilterValues,
+    excludedTagFilterValues,
   );
 
   // fill target filter with data
@@ -124,19 +118,13 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
       );
     }
 
-    if (filteredTags.length > 0) {
-      filters.push(
-        filter((fact: MovedBoxesResult) => filteredTags.some((fT) => fact.tagIds!.includes(fT.id))),
-      );
-    }
-
     let filtered = movedBoxesFacts;
     if (filters.length > 0) {
       // @ts-expect-error
       filtered = tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
     }
 
-    // Apply Dashboard tag filter (included/excluded)
+    // Apply tag filter (included/excluded)
     filtered = filterByTags(
       filtered,
       includedFilterValue,
@@ -147,7 +135,6 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     return filtered;
   }, [
     excludedTargets,
-    filteredTags,
     genderFilter,
     movedBoxesFacts,
     productsFilter,

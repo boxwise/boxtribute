@@ -13,7 +13,7 @@ import {
   IBoxesOrItemsFilter,
 } from "../components/filter/BoxesOrItemsSelect";
 import { tagFilterId } from "../components/filter/TagFilter";
-import { tagFilterValuesVar } from "../state/filter";
+import { tagFilterIncludedValuesVar } from "../state/filter";
 import useMultiSelectFilter from "./useMultiSelectFilter";
 
 const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
@@ -55,7 +55,7 @@ export default function useShareableLink({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const tagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
   const [expirationDate, setExpirationDate] = useState<string | undefined>();
 

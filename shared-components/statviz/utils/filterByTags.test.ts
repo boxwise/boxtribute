@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { filterByTags } from "./filterByTags";
-import { ITagFilterValue } from "../state/tagFilterDashboard";
+import { ITagFilterValue } from "../state/filter";
 
 describe("filterByTags", () => {
   const mockData = [

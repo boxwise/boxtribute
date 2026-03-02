@@ -7,10 +7,7 @@ import {
   defaultBoxesOrItems,
 } from "../../filter/BoxesOrItemsSelect";
 import useValueFilter from "../../../hooks/useValueFilter";
-import {
-  tagFilterIncludedValuesVar,
-  tagFilterExcludedValuesVar,
-} from "../../../state/tagFilterDashboard";
+import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
 import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
 import { filterByTags } from "../../../utils/filterByTags";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
@@ -22,8 +19,8 @@ interface IStockDataFilterProps {
 export default function StockDataFilter({ stockOverview }: IStockDataFilterProps) {
   // currently not affected by the selected timerange
 
-  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
 
   const { filterValue } = useValueFilter(
     boxesOrItemsFilterValues,
@@ -32,8 +29,8 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
   );
 
   const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
-    includedValues,
-    excludedValues,
+    includedTagFilterValues,
+    excludedTagFilterValues,
   );
 
   const filteredStockOverview = useMemo(() => {

@@ -1,16 +1,11 @@
 import { useReactiveVar } from "@apollo/client";
 import { useEffect, useMemo } from "react";
-import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
+import { distinct, tidy } from "@tidyjs/tidy";
 import DemographicCharts from "./DemographicCharts";
-import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
-import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
+import { tagToFilterValue } from "../../filter/TabbedTagFilter";
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
-import { tagFilterValuesVar } from "../../../state/filter";
-import {
-  tagFilterIncludedValuesVar,
-  tagFilterExcludedValuesVar,
-} from "../../../state/tagFilterDashboard";
+import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
 import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
 import { filterByTags } from "../../../utils/filterByTags";
 import {
@@ -27,14 +22,11 @@ export default function DemographicFilterContainer({
 }: IDemographicFilterContainerProps) {
   const { interval } = useTimerange();
 
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
-
-  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
-    includedValues,
-    excludedValues,
+    includedTagFilterValues,
+    excludedTagFilterValues,
   );
 
   // merge Beneficiary tags to Box and All tags
@@ -45,12 +37,11 @@ export default function DemographicFilterContainer({
 
     if (beneficiaryTagFilterValues?.length! > 0) {
       const distinctTagFilterValues = tidy(
-        [...tagFilterValues, ...beneficiaryTagFilterValues!],
+        [...includedTagFilterValues, ...beneficiaryTagFilterValues!],
         distinct(["id"]),
       );
 
-      tagFilterValuesVar(distinctTagFilterValues);
-      // Also populate the Dashboard tag filter values
+      // Populate the tag filter values for both included and excluded
       tagFilterIncludedValuesVar(distinctTagFilterValues);
       tagFilterExcludedValuesVar(distinctTagFilterValues);
     }
@@ -73,31 +64,16 @@ export default function DemographicFilterContainer({
   }, [demographics?.facts, interval]);
 
   const filteredFacts = useMemo(() => {
-    const filters: TidyFn<object, object>[] = [];
-    if (filteredTags.length > 0) {
-      filters.push(
-        filter((fact: BeneficiaryDemographicsResult) =>
-          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
-        ),
-      );
-    }
-
-    let filtered = demographicFacts;
-    if (filters.length > 0) {
-      // @ts-expect-error
-      filtered = tidy(demographicFacts, ...filters);
-    }
-
-    // Apply Dashboard tag filter (included/excluded)
-    filtered = filterByTags(
-      filtered,
+    // Apply tag filter (included/excluded)
+    const filtered = filterByTags(
+      demographicFacts,
       includedFilterValue,
       excludedFilterValue,
       (fact) => fact.tagIds,
     );
 
     return filtered;
-  }, [demographicFacts, filteredTags, includedFilterValue, excludedFilterValue]);
+  }, [demographicFacts, includedFilterValue, excludedFilterValue]);
 
   const demographicCube = {
     ...demographics,

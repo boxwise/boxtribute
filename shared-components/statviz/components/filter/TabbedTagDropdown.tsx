@@ -18,7 +18,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, CloseIcon } from "@chakra-ui/icons";
-import { ITagFilterValue } from "../../state/tagFilterDashboard";
+import { ITagFilterValue } from "../../state/filter";
 import MultiSelectList from "./MultiSelectList";
 
 interface ITabbedTagDropdownProps {

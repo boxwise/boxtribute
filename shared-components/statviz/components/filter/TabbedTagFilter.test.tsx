@@ -3,11 +3,11 @@ import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import { MockedProvider } from "@apollo/client/testing";
-import DashboardTagFilter, {
+import TabbedTagFilter, {
   tagFilterIncludedId,
   tagFilterExcludedId,
   tagToFilterValue,
-} from "./DashboardTagFilter";
+} from "./TabbedTagFilter";
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <ChakraProvider>
@@ -17,11 +17,11 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   </ChakraProvider>
 );
 
-describe("DashboardTagFilter", () => {
+describe("TabbedTagFilter", () => {
   it("renders the tag filter component", () => {
     render(
       <TestWrapper>
-        <DashboardTagFilter />
+        <TabbedTagFilter />
       </TestWrapper>,
     );
 

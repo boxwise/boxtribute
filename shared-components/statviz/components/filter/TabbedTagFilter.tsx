@@ -5,7 +5,7 @@ import {
   tagFilterIncludedValuesVar,
   tagFilterExcludedValuesVar,
   ITagFilterValue,
-} from "../../state/tagFilterDashboard";
+} from "../../state/filter";
 import useTagFilterDashboard from "../../hooks/useTagFilterDashboard";
 import TabbedTagDropdown from "./TabbedTagDropdown";
 import { TAG_DIMENSION_INFO_FRAGMENT } from "../../queries/fragments";
@@ -27,27 +27,27 @@ export const tagToFilterValue = (
 });
 
 /**
- * Main tag filter component for the Dashboard.
+ * Main tag filter component with tabbed interface for including and excluding tags.
  * Provides a dropdown with two tabs for including and excluding tags.
  *
  * Usage in Dashboard:
  * ```tsx
- * import DashboardTagFilter from "../components/filter/DashboardTagFilter";
+ * import TabbedTagFilter from "../components/filter/TabbedTagFilter";
  *
  * // In your component:
- * <DashboardTagFilter />
+ * <TabbedTagFilter />
  * ```
  *
  * To use the filter in data containers:
  * ```tsx
  * import { useReactiveVar } from "@apollo/client";
- * import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../state/tagFilterDashboard";
+ * import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../state/filter";
  * import useTagFilterDashboard from "../../hooks/useTagFilterDashboard";
  * import { filterByTags } from "../../utils/filterByTags";
  *
- * const includedTags = useReactiveVar(tagFilterIncludedValuesVar);
- * const excludedTags = useReactiveVar(tagFilterExcludedValuesVar);
- * const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(includedTags, excludedTags);
+ * const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+ * const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
+ * const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(includedTagFilterValues, excludedTagFilterValues);
  *
  * const filteredData = filterByTags(
  *   data,
@@ -57,9 +57,9 @@ export const tagToFilterValue = (
  * );
  * ```
  */
-export default function DashboardTagFilter() {
-  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+export default function TabbedTagFilter() {
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
 
   const {
     includedFilterValue,
@@ -68,19 +68,19 @@ export default function DashboardTagFilter() {
     onExcludedFilterChange,
     onClearAll,
   } = useTagFilterDashboard<ITagFilterValue>(
-    includedValues,
-    excludedValues,
+    includedTagFilterValues,
+    excludedTagFilterValues,
     tagFilterIncludedId,
     tagFilterExcludedId,
   );
 
   return (
     <Box maxW="250px" w="100%">
-      <FormLabel htmlFor="dashboard-tag-filter" mb={2}>
+      <FormLabel htmlFor="tabbed-tag-filter" mb={2}>
         tags
       </FormLabel>
       <TabbedTagDropdown
-        availableTags={includedValues}
+        availableTags={includedTagFilterValues}
         includedTags={includedFilterValue}
         excludedTags={excludedFilterValue}
         onIncludedChange={onIncludedFilterChange}

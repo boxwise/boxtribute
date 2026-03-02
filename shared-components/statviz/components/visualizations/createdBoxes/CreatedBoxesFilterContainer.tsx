@@ -20,16 +20,13 @@ import {
   categoryToFilterValue,
 } from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
+import { tagToFilterValue } from "../../filter/TabbedTagFilter";
 import {
   productFilterValuesVar,
-  tagFilterValuesVar,
-  categoryFilterValuesVar,
-} from "../../../state/filter";
-import {
   tagFilterIncludedValuesVar,
   tagFilterExcludedValuesVar,
-} from "../../../state/tagFilterDashboard";
+  categoryFilterValuesVar,
+} from "../../../state/filter";
 import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
@@ -61,14 +58,11 @@ export default function CreatedBoxesFilterContainer({
     categoryFilterId,
   );
 
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
-
-  const includedValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
-    includedValues,
-    excludedValues,
+    includedTagFilterValues,
+    excludedTagFilterValues,
   );
 
   // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
@@ -92,10 +86,12 @@ export default function CreatedBoxesFilterContainer({
 
     const boxTags = createdBoxes?.dimensions!.tag!.map((e) => tagToFilterValue(e!));
     if (boxTags?.length) {
-      const distinctTagFilterValues = tidy([...tagFilterValues, ...boxTags], distinct(["id"]));
+      const distinctTagFilterValues = tidy(
+        [...includedTagFilterValues, ...boxTags],
+        distinct(["id"]),
+      );
 
-      tagFilterValuesVar(distinctTagFilterValues);
-      // Also populate the Dashboard tag filter values
+      // Populate the tag filter values for both included and excluded
       tagFilterIncludedValuesVar(distinctTagFilterValues);
       tagFilterExcludedValuesVar(distinctTagFilterValues);
     }
@@ -139,14 +135,7 @@ export default function CreatedBoxesFilterContainer({
       filters.push(
         filter(
           (fact: CreatedBoxesResult) =>
-            filterCategories.find((fC) => fC?.id === fact.categoryId!) !== undefined,
-        ),
-      );
-    }
-    if (filteredTags.length > 0) {
-      filters.push(
-        filter((fact: CreatedBoxesResult) =>
-          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
+            filterCategories.find((fC) => fC?.id === fact.productId!) !== undefined,
         ),
       );
     }
@@ -157,7 +146,7 @@ export default function CreatedBoxesFilterContainer({
       filtered = tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
 
-    // Apply Dashboard tag filter (included/excluded)
+    // Apply tag filter (included/excluded)
     filtered = filterByTags(
       filtered,
       includedFilterValue,
@@ -171,7 +160,6 @@ export default function CreatedBoxesFilterContainer({
     filterProductGenders,
     filterProducts,
     filterCategories,
-    filteredTags,
     includedFilterValue,
     excludedFilterValue,
   ]);

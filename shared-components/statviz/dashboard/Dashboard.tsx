@@ -8,7 +8,7 @@ import BoxesOrItemsSelect, {
   boxesOrItemsFilterValues,
 } from "../components/filter/BoxesOrItemsSelect";
 import GenderProductFilter from "../components/filter/GenderProductFilter";
-import DashboardTagFilter from "../components/filter/DashboardTagFilter";
+import TabbedTagFilter from "../components/filter/TabbedTagFilter";
 import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { date2String } from "../../utils/helpers";
@@ -72,7 +72,7 @@ export default function Dashboard() {
         </WrapItem>
         <WrapItem w="250">
           <Center>
-            <DashboardTagFilter />
+            <TabbedTagFilter />
           </Center>
         </WrapItem>
       </Wrap>
