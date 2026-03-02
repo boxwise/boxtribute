@@ -8,7 +8,7 @@ import {
 } from "../../filter/BoxesOrItemsSelect";
 import useValueFilter from "../../../hooks/useValueFilter";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
-import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
+import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { filterByTags } from "../../../utils/filterByTags";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 
@@ -28,9 +28,12 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
     boxesOrItemsUrlId,
   );
 
-  const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
+  const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
     includedTagFilterValues,
+    "tags",
+    [],
     excludedTagFilterValues,
+    "notags",
   );
 
   const filteredStockOverview = useMemo(() => {

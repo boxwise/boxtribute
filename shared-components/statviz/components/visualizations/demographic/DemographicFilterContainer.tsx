@@ -6,7 +6,7 @@ import { tagToFilterValue } from "../../filter/TabbedTagFilter";
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
-import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
+import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { filterByTags } from "../../../utils/filterByTags";
 import {
   BeneficiaryDemographics,
@@ -24,9 +24,12 @@ export default function DemographicFilterContainer({
 
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
+  const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
     includedTagFilterValues,
+    "tags",
+    [],
     excludedTagFilterValues,
+    "notags",
   );
 
   // merge Beneficiary tags to Box and All tags

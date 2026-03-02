@@ -6,7 +6,7 @@ import {
   tagFilterExcludedValuesVar,
   ITagFilterValue,
 } from "../../state/filter";
-import useTagFilterDashboard from "../../hooks/useTagFilterDashboard";
+import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
 import TabbedTagDropdown from "./TabbedTagDropdown";
 import { TAG_DIMENSION_INFO_FRAGMENT } from "../../queries/fragments";
 
@@ -42,12 +42,18 @@ export const tagToFilterValue = (
  * ```tsx
  * import { useReactiveVar } from "@apollo/client";
  * import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../state/filter";
- * import useTagFilterDashboard from "../../hooks/useTagFilterDashboard";
+ * import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
  * import { filterByTags } from "../../utils/filterByTags";
  *
  * const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
  * const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
- * const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(includedTagFilterValues, excludedTagFilterValues);
+ * const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
+ *   includedTagFilterValues,
+ *   "tags",
+ *   [],
+ *   excludedTagFilterValues,
+ *   "notags"
+ * );
  *
  * const filteredData = filterByTags(
  *   data,
@@ -67,10 +73,11 @@ export default function TabbedTagFilter() {
     onIncludedFilterChange,
     onExcludedFilterChange,
     onClearAll,
-  } = useTagFilterDashboard<ITagFilterValue>(
+  } = useMultiSelectFilter<ITagFilterValue>(
     includedTagFilterValues,
-    excludedTagFilterValues,
     tagFilterIncludedId,
+    [],
+    excludedTagFilterValues,
     tagFilterExcludedId,
   );
 

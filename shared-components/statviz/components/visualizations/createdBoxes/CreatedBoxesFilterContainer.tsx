@@ -27,7 +27,6 @@ import {
   tagFilterExcludedValuesVar,
   categoryFilterValuesVar,
 } from "../../../state/filter";
-import useTagFilterDashboard from "../../../hooks/useTagFilterDashboard";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
 
@@ -60,9 +59,12 @@ export default function CreatedBoxesFilterContainer({
 
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue, excludedFilterValue } = useTagFilterDashboard(
+  const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
     includedTagFilterValues,
+    "tags",
+    [],
     excludedTagFilterValues,
+    "notags",
   );
 
   // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
