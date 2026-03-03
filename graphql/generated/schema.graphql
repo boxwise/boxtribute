@@ -1500,6 +1500,10 @@ type TagBaseMismatchError {
   " Dummy field since type definitions without fields are not possible "
   _: Boolean
 }
+type ProductLocationBaseMismatchError {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
+}
 type DeletedLocationError {
   name: String!
 }
@@ -1524,6 +1528,9 @@ type InvalidColorError {
 type InvalidNumberOfItemsError {
   numberOfItems: Int!
 }
+type InvalidBaseError {
+  ids: [Int!]!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
@@ -1540,7 +1547,7 @@ union EnableStandardProductsResult = ProductsResult | InsufficientPermissionErro
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union CreateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ResourceDoesNotExistError
-union CreateBoxesResult = BoxesResult | InsufficientPermissionError | UnauthorizedForBaseError  # | DeletedBaseError | ResourceDoesNotExistError
+union CreateBoxesResult = BoxesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ProductLocationBaseMismatchError | InvalidBaseError
 
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError

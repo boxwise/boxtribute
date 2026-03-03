@@ -103,6 +103,7 @@ def resolve_create_box_from_box(*_, creation_input):
 @mutation.field("createBoxes")
 @handle_unauthorized
 def resolve_create_boxes(*_, creation_input):
+    # Authz is complex and hence moved into the crud function
     return create_boxes(user_id=g.user.id, data=creation_input)
 
 

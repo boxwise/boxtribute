@@ -2188,12 +2188,16 @@ def test_mutate_box_with_invalid_location_or_product(
 
 def test_create_boxes(
     client,
+    mocker,
     default_product,
     default_location,
     default_size,
+    another_product,
     mass_product,
     mixed_size,
     tags,
+    location_in_deleted_base,
+    deleted_base,
 ):
     product_id = str(default_product["id"])
     mass_product_id = str(mass_product["id"])
@@ -2338,3 +2342,77 @@ def test_create_boxes(
             "history": [{"changes": "created box"}],
         },
     ]
+
+    # Test case 8.2.115
+    another_location_id = location_in_deleted_base["id"]
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 2
+            locationId: {another_location_id}
+        }}
+    ]) {{
+        ...on InvalidBaseError {{ ids }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"ids": [1, 5]}
+
+    another_product_id = another_product["id"]
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+        }},
+        {{
+            productId: {another_product_id}
+            sizeName: "Small"
+            numberOfItems: 2
+            locationId: {location_id}
+        }}
+    ]) {{
+        ...on InvalidBaseError {{ ids }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"ids": [1, 3]}
+
+    # Test case 8.2.113
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {another_product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+        }}
+    ]) {{
+        ...on ProductLocationBaseMismatchError {{ _ }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"_": None}
+
+    # Test case 8.2.114
+    mock_user_for_request(mocker, base_ids=[5], organisation_id=3)
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {another_location_id}
+        }}
+    ]) {{
+        ...on DeletedBaseError {{ name }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": deleted_base["name"]}

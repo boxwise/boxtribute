@@ -36,6 +36,11 @@ class InvalidColor(UserError):
         self.color = color
 
 
+class InvalidBase(UserError):
+    def __init__(self, *, ids):
+        self.ids = ids
+
+
 class EmptyName(UserError):
     _ = None
 
@@ -81,6 +86,10 @@ class TagTypeMismatch(UserError):
 
 
 class TagBaseMismatch(UserError):
+    _ = None
+
+
+class ProductLocationBaseMismatch(UserError):
     _ = None
 
 
