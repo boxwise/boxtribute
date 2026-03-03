@@ -125,8 +125,8 @@ def test_query_non_existent_resource_for_god_user(client, mocker, resource):
     "mutation",
     [
         "mutation { deleteTag( id: 1 ) { id } }",
-        "mutation { createBeneficiaries( creationInput: [] ) { id } }",
-        "mutation { createBoxes( creationInput: [] ) { id } }",
+        "mutation { createBeneficiaries( creationInput: [] ) { __typename } }",
+        "mutation { createBoxes( creationInput: [] ) { __typename } }",
         """mutation DeleteMultiple {
             deleteTag( id: 1 ) { id }
             # Permitted for beta-level 4 but not together with deleteTag
