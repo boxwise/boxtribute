@@ -11,6 +11,7 @@ interface IMultiSelectListProps {
 /**
  * Reusable multi-select list component for tag filtering.
  * Displays a list with CheckIcon on the right for selected items.
+ * Keyboard accessible with Enter/Space key support.
  */
 export default function MultiSelectList({
   values,
@@ -25,6 +26,13 @@ export default function MultiSelectList({
     onChange(newSelected);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent, tag: ITagFilterValue) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleToggle(tag);
+    }
+  };
+
   return (
     <Stack spacing={0} maxH="300px" overflowY="auto" p={2}>
       {values.length === 0 ? (
@@ -37,13 +45,22 @@ export default function MultiSelectList({
           return (
             <Flex
               key={tag.id}
+              as="button"
+              role="button"
+              tabIndex={0}
               align="center"
               justify="space-between"
               px={2}
               py={1.5}
               cursor="pointer"
               _hover={{ bg: "gray.100" }}
+              _focus={{ bg: "gray.100", outline: "2px solid", outlineColor: "blue.500" }}
               onClick={() => handleToggle(tag)}
+              onKeyDown={(e) => handleKeyDown(e, tag)}
+              border="none"
+              bg="transparent"
+              width="100%"
+              textAlign="left"
             >
               <Text as="span" color="black">
                 {tag.label}

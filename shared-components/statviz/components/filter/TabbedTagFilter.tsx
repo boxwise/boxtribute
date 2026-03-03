@@ -31,9 +31,7 @@ export default function TabbedTagFilter() {
 
   return (
     <Box maxW="250px" w="100%">
-      <FormLabel htmlFor="tabbed-tag-filter" mb={2}>
-        tags
-      </FormLabel>
+      <FormLabel mb={2}>tags</FormLabel>
       <TabbedTagDropdown
         availableTags={includedTagFilterValues}
         includedTags={includedTags}

@@ -77,7 +77,7 @@ function useMultiSelectFilter<T>(
     } else {
       setFilterValue([]);
     }
-    if (param === "" && !hasExcludeMode) {
+    if (param === "") {
       const newParams = new URLSearchParams(searchParams);
       newParams.delete(filterId);
       setSearchParams(newParams);
@@ -95,6 +95,12 @@ function useMultiSelectFilter<T>(
     } else {
       setExcludedFilterValue([]);
     }
+    if (param === "") {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete(excludedFilterId);
+      setSearchParams(newParams);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, excludedFilterId, excludedValues, hasExcludeMode]);
 
   const onFilterChange = (event: (IFilterValue & T)[]) => {

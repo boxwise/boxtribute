@@ -68,20 +68,18 @@ const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
 const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
 
 // Use hook in include/exclude mode
-const { includedFilterValue, excludedFilterValue } = useMultiSelectFilter(
+const { includedTags, excludedTags } = useMultiSelectFilter(
   includedTagFilterValues,
-  "tags",
-  [],
+  tagFilterIncludedId,
   excludedTagFilterValues,
-  "notags",
+  tagFilterExcludedId,
 );
 
 // Apply filtering:
 const filteredData = filterByTags(
   data,
-  includedFilterValue,
-  excludedFilterValue,
-  (item) => item.tagIds
+  includedTags,
+  excludedTags
 );
 ```
 

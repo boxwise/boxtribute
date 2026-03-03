@@ -14,7 +14,6 @@ import {
   TagLabel,
   Text,
   Flex,
-  CloseButton,
   IconButton,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, CloseIcon } from "@chakra-ui/icons";
@@ -62,7 +61,7 @@ export default function TabbedTagDropdown({
     const allSelected = [...includedTags, ...excludedTags];
     if (allSelected.length === 0) {
       return (
-        <Text color="gray.500" fontSize="m">
+        <Text color="gray.500" fontSize="md">
           {placeholder}
         </Text>
       );
@@ -73,14 +72,6 @@ export default function TabbedTagDropdown({
         {includedTags.map((tag) => (
           <Tag key={`inc-${tag.id}`} size="sm" bg={tag.color} color="white" borderRadius="full">
             {tag.label}
-            <CloseButton
-              size="sm"
-              ml={1}
-              onClick={(e) => {
-                e.stopPropagation();
-                onIncludedChange(includedTags.filter((t) => t.id !== tag.id));
-              }}
-            />
           </Tag>
         ))}
         {excludedTags.map((tag) => (
@@ -93,14 +84,6 @@ export default function TabbedTagDropdown({
             borderRadius="full"
           >
             <TagLabel textDecoration="line-through">{tag.label}</TagLabel>
-            <CloseButton
-              size="sm"
-              ml={1}
-              onClick={(e) => {
-                e.stopPropagation();
-                onExcludedChange(excludedTags.filter((t) => t.id !== tag.id));
-              }}
-            />
           </Tag>
         ))}
       </Flex>
@@ -108,68 +91,73 @@ export default function TabbedTagDropdown({
   };
 
   return (
-    <Popover closeOnBlur>
-      {() => (
-        <>
-          <PopoverTrigger>
-            <Button
-              variant="outline"
-              width="100%"
-              justifyContent="space-between"
-              rightIcon={hasSelections ? undefined : <ChevronDownIcon />}
-              borderColor="black"
-              borderWidth="2px"
-              borderRadius="0"
-              fontWeight="normal"
-              minH="40px"
-              h="auto"
-              py={2}
-            >
-              <Box flex="1" textAlign="left" overflow="hidden">
-                {renderSelectedTags()}
-              </Box>
-              {hasSelections && (
-                <Flex gap={1} ml={2}>
-                  <IconButton
-                    aria-label="Clear all filters"
-                    icon={<CloseIcon />}
-                    size="xs"
-                    variant="ghost"
-                    onClick={handleClearAll}
-                  />
-                  <ChevronDownIcon boxSize={5} />
-                </Flex>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent width="250px" borderRadius="0" borderColor="black" borderWidth="2px">
-            <PopoverBody p={0}>
-              <Tabs>
-                <TabList>
-                  <Tab flex="1">Include</Tab>
-                  <Tab flex="1">Exclude</Tab>
-                </TabList>
-                <TabPanels>
-                  <TabPanel p={2}>
-                    <MultiSelectList
-                      values={availableTags}
-                      selectedValues={includedTags}
-                      onChange={onIncludedChange}
-                    />
-                  </TabPanel>
-                  <TabPanel p={2}>
-                    <MultiSelectList
-                      values={availableTags}
-                      selectedValues={excludedTags}
-                      onChange={onExcludedChange}
-                    />
-                  </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </PopoverBody>
-          </PopoverContent>
-        </>
+    <Flex gap={0} position="relative">
+      <Popover closeOnBlur>
+        {() => (
+          <>
+            <PopoverTrigger>
+              <Button
+                variant="outline"
+                width="100%"
+                justifyContent="space-between"
+                rightIcon={<ChevronDownIcon />}
+                borderColor="black"
+                borderWidth="2px"
+                borderRadius="0"
+                fontWeight="normal"
+                minH="40px"
+                h="auto"
+                py={2}
+              >
+                <Box flex="1" textAlign="left" overflow="hidden">
+                  {renderSelectedTags()}
+                </Box>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent width="250px" borderRadius="0" borderColor="black" borderWidth="2px">
+              <PopoverBody p={0}>
+                <Tabs>
+                  <TabList>
+                    <Tab flex="1">Include</Tab>
+                    <Tab flex="1">Exclude</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel p={2}>
+                      <MultiSelectList
+                        values={availableTags}
+                        selectedValues={includedTags}
+                        onChange={onIncludedChange}
+                      />
+                    </TabPanel>
+                    <TabPanel p={2}>
+                      <MultiSelectList
+                        values={availableTags}
+                        selectedValues={excludedTags}
+                        onChange={onExcludedChange}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+              </PopoverBody>
+            </PopoverContent>
+          </>
+        )}
+      </Popover>
+      {hasSelections && (
+        <IconButton
+          aria-label="Clear all filters"
+          icon={<CloseIcon />}
+          size="sm"
+          variant="ghost"
+          onClick={handleClearAll}
+          position="absolute"
+          right="32px"
+          top="50%"
+          transform="translateY(-50%)"
+          zIndex={1}
+          pointerEvents="auto"
+        />
       )}
-    </Popover>
+    </Flex>
   );
 }
