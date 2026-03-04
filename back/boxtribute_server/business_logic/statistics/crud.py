@@ -413,10 +413,6 @@ def compute_moved_boxes(*base_ids):
         base_ids,
         TargetType.BoxState.name,
         base_ids,
-        # Though the compute function is wrapped in use_db_replica, this only has an
-        # effect when executing SQL via peewee models. Since we run raw SQL here, we
-        # explicitly demand using the replica
-        use_replica=True,
         query=MOVED_BOXES_QUERY,
     )
     for fact in facts:

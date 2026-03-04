@@ -111,12 +111,13 @@ def create_db_interface(**mysql_kwargs):
     )
 
 
-def execute_sql(*params, use_replica=False, query):
+def execute_sql(*params, query):
     """Utility function to execute a raw SQL query, returning the result rows as dicts.
-    By default, the primary database is selected. Any `params` are passed into peewee's
-    `execute_sql` method as values for query parameters.
+    Use the database that the data models currently are bound to. If execute_sql() is
+    called wrapped in use_db_replica(), the replica database is used. Any `params` are
+    passed into peewee's `execute_sql` method as values for query parameters.
     """
-    database = db.replica if use_replica and db.replica is not None else db.database
+    database = models()[0]._meta.database
     cursor = database.execute_sql(query, params=params)
     if cursor.description is None:
         # For e.g. UPDATE statements no description is available

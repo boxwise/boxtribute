@@ -297,3 +297,10 @@ def test_replica_usage(auth0_client, mocker):
     assert_successful_request(auth0_client, query, endpoint="public")
     db.replica.connect.assert_called_once()  # in DatabaseManager.connect_db
     db.replica.bind_ctx.assert_called_once()  # in use_db_replica()
+    db.replica.reset_mock()
+
+    query = "query { createdBoxes(baseId: 1) { __typename } }"
+    assert_successful_request(auth0_client, query)
+    db.replica.connect.assert_called_once()  # in DatabaseManager.connect_db
+    db.replica.bind_ctx.assert_called_once()  # in use_db_replica()
+    db.replica.reset_mock()
