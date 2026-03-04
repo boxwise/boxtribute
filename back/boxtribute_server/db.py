@@ -13,7 +13,7 @@ from .blueprints import (
     shared_bp,
 )
 from .business_logic.statistics import statistics_queries
-from .models.definitions import Model
+from .models.definitions import models
 
 
 class DatabaseManager:
@@ -87,9 +87,7 @@ def use_db_replica(f):
     def decorated(*args, **kwargs):
         if db.replica is not None:
             # With a complete list of models no need to recursively bind dependencies
-            with db.replica.bind_ctx(
-                Model.__subclasses__(), bind_refs=False, bind_backrefs=False
-            ):
+            with db.replica.bind_ctx(models(), bind_refs=False, bind_backrefs=False):
                 return f(*args, **kwargs)
 
         return f(*args, **kwargs)

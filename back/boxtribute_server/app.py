@@ -9,7 +9,7 @@ from sentry_sdk.integrations.ariadne import AriadneIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
-from .models.definitions import Model
+from .models.definitions import models
 
 
 def create_app():
@@ -90,5 +90,5 @@ def main(*blueprints):
     # Enable opening/closing DB connection before/after request
     db.register_handlers(app)
     # With a complete list of models no need to recursively bind dependencies
-    db.database.bind(Model.__subclasses__(), bind_refs=False, bind_backrefs=False)
+    db.database.bind(models(), bind_refs=False, bind_backrefs=False)
     return app
