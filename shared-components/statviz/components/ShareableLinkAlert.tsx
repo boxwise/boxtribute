@@ -7,24 +7,32 @@ import { IFilterValue } from "./filter/ValueFilter";
 interface ShareableLinkAlertProps {
   alertType?: "info" | "warning";
   boi?: IFilterValue & IBoxesOrItemsFilter;
-  filteredTags?: (IFilterValue & ITagFilterValue)[];
+  includedTags?: (IFilterValue & ITagFilterValue)[];
+  excludedTags?: (IFilterValue & ITagFilterValue)[];
   expirationDate?: string;
 }
 
 export const ShareableLinkAlert: React.FC<ShareableLinkAlertProps> = ({
   alertType,
   boi,
-  filteredTags = [],
+  includedTags = [],
+  excludedTags = [],
   expirationDate,
 }) => {
   if (!alertType) return <Box></Box>;
 
   const boiText = boi?.label;
 
-  const tagText =
-    filteredTags.length > 0
-      ? `, filtered by tags: ${filteredTags.map(({ label }) => label).join(", ")}`
-      : "";
+  const tagText = (() => {
+    const parts: string[] = [];
+    if (includedTags.length > 0) {
+      parts.push(`including: ${includedTags.map(({ label }) => label).join(", ")}`);
+    }
+    if (excludedTags.length > 0) {
+      parts.push(`excluding: ${excludedTags.map(({ label }) => label).join(", ")}`);
+    }
+    return parts.length > 0 ? `, filtered by tags (${parts.join("; ")})` : "";
+  })();
 
   const expirationText = expirationDate ? `Link will expire on ${expirationDate}.` : "";
 

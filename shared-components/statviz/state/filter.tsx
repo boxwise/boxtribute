@@ -13,7 +13,11 @@ export interface ITagFilterValue extends IFilterValue {
   color: string;
   id: number;
 }
-export const tagFilterValuesVar = makeVar<ITagFilterValue[]>([]);
+// Reactive variable for included tags (tags to filter data IN)
+export const tagFilterIncludedValuesVar = makeVar<ITagFilterValue[]>([]);
+
+// Reactive variable for excluded tags (tags to filter data OUT)
+export const tagFilterExcludedValuesVar = makeVar<ITagFilterValue[]>([]);
 
 export interface ITargetFilterValue extends IFilterValue {
   id: string;
