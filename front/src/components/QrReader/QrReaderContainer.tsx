@@ -12,7 +12,7 @@ import { useScannedBoxesActions } from "hooks/useScannedBoxesActions";
 import { useReactiveVar } from "@apollo/client";
 import { qrReaderOverlayVar } from "queries/cache";
 import { AlertWithoutAction } from "components/Alerts";
-import QrReader from "./components/QrReader";
+import { QrReader } from "./components/QrReader";
 import { QrReaderSkeleton } from "components/Skeletons";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 
@@ -33,19 +33,11 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
   const { loading: findByBoxLabelIsLoading, checkLabelIdentifier } = useLabelIdentifierResolver();
   const { addBox: addBoxToScannedBoxes } = useScannedBoxesActions();
   const qrReaderOverlayState = useReactiveVar(qrReaderOverlayVar);
-  const [isMultiBox, setIsMultiBox] = useState(!!qrReaderOverlayState.isMultiBox);
+  const [isMultiBox, setIsMultiBox] = useState(qrReaderOverlayState.isMultiBox || false);
   const [isProcessingQrCode, setIsProcessingQrCode] = useState(false);
   const [isCameraNotPermited, setIsCameraNotPermited] = useState(false);
   const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
   const [boxNotOwned, setBoxNotOwned] = useState("");
-  const setIsProcessingQrCodeDelayed = useCallback(
-    (state: boolean) => {
-      setTimeout(() => {
-        setIsProcessingQrCode(state);
-      }, 1000);
-    },
-    [setIsProcessingQrCode],
-  );
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
@@ -99,8 +91,8 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             // add box reference to query for list of all scanned boxes
 
             if (qrResolvedValue?.box!) addBoxToScannedBoxes(qrResolvedValue?.box!);
-            setIsProcessingQrCode(false);
           }
+          setIsProcessingQrCode(false);
           break;
         }
         case IQrResolverResultKind.NOT_ASSIGNED_TO_BOX: {
@@ -111,14 +103,14 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             triggerError({
               message: "No box associated to this QR code!",
             });
-            setIsProcessingQrCodeDelayed(false);
           }
+          setIsProcessingQrCode(false);
           break;
         }
         default: {
-          // the following cases should arrive here:
+          // the following cases should *still* arrive here:
           // FAIL,NOT_AUTHORIZED_FOR_BOX, NOT_AUTHORIZED_FOR_QR,NO_BOXTRIBUTE_QR
-          setIsProcessingQrCodeDelayed(false);
+          setIsProcessingQrCode(false);
         }
       }
     }
