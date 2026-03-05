@@ -11,7 +11,6 @@ interface IMultiSelectListProps {
 /**
  * Reusable multi-select list component for tag filtering.
  * Displays a list with CheckIcon on the right for selected items.
- * Keyboard accessible with Enter/Space key support.
  */
 export default function MultiSelectList({
   values,
@@ -27,7 +26,7 @@ export default function MultiSelectList({
   };
 
   return (
-    <Stack spacing={0} maxH="300px" overflowY="auto" p={2}>
+    <Stack spacing={0} maxH="300px" overflowY="auto" p={0}>
       {values.length === 0 ? (
         <Text color="gray.500" fontSize="sm" p={2}>
           No tags available
@@ -43,18 +42,11 @@ export default function MultiSelectList({
               tabIndex={0}
               align="center"
               justify="space-between"
-              px={2}
+              px={4}
               py={1.5}
               cursor="pointer"
               _hover={{ bg: "gray.100" }}
-              _focus={{ bg: "gray.100", outline: "2px solid", outlineColor: "blue.500" }}
               onClick={() => handleToggle(tag)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleToggle(tag);
-                }
-              }}
               border="none"
               bg="transparent"
               width="100%"

@@ -73,7 +73,6 @@ export default function TabbedTagDropdown({
           <Tag key={`inc-${tag.id}`} size="md" bg={tag.color} color="white" borderRadius="full">
             {tag.label}
             <TagCloseButton
-              size="sm"
               ml={1}
               onClick={(e) => {
                 e.stopPropagation();
@@ -93,7 +92,6 @@ export default function TabbedTagDropdown({
           >
             <TagLabel textDecoration="line-through">{tag.label}</TagLabel>
             <TagCloseButton
-              size="sm"
               ml={1}
               onClick={(e) => {
                 e.stopPropagation();
@@ -113,7 +111,6 @@ export default function TabbedTagDropdown({
           <PopoverTrigger>
             <Flex
               gap={1}
-              variant="outline"
               width="100%"
               justifyContent="space-between"
               align="center"
@@ -125,7 +122,7 @@ export default function TabbedTagDropdown({
               minW="150px"
               h="auto"
               py={0}
-              _hover={{ borderColor: "gray.300", outline: "none" }}
+              _hover={{ borderColor: "gray.300" }}
             >
               <Box flex="1" ml={4} textAlign="left" overflow="hidden">
                 {renderSelectedTags()}
@@ -149,7 +146,6 @@ export default function TabbedTagDropdown({
           </PopoverTrigger>
           <PopoverContent
             width="250px"
-            borderRadius="0"
             borderColor="gray.100"
             borderWidth="1px"
             borderRadius="5"
@@ -161,14 +157,14 @@ export default function TabbedTagDropdown({
                   <Tab flex="1">Exclude</Tab>
                 </TabList>
                 <TabPanels>
-                  <TabPanel p={2}>
+                  <TabPanel p={0}>
                     <MultiSelectList
                       values={availableTags}
                       selectedValues={includedTags}
                       onChange={onIncludedChange}
                     />
                   </TabPanel>
-                  <TabPanel p={2}>
+                  <TabPanel p={0}>
                     <MultiSelectList
                       values={availableTags}
                       selectedValues={excludedTags}
