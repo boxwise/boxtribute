@@ -7,7 +7,6 @@ from boxtribute_server.db import DatabaseManager
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
-    execute_sql,
     format_sql,
     handle_non_existing_resource,
 )
@@ -22,7 +21,7 @@ def test_first_letters_of_base_name(base_id, result):
 def test_unitialized_database_manager():
     manager = DatabaseManager()
     with pytest.raises(RuntimeError):
-        manager.get_model_class()
+        manager.connect_db()
 
     # Verify dev error in handle_non_existing_resource()
     @handle_non_existing_resource
@@ -48,5 +47,5 @@ def test_format_sql():
         == 'SELECT IF((`t1`.`changedate` > 0), "new", NULL) AS `x` FROM `history` AS `t1` WHERE (((`t1`.`tablename` = "stock") AND (`t1`.`changes` = "product_id")) AND (`t1`.`from_int` = 1))'  # noqa
     )
     # Validate the formatted SQL
-    result = execute_sql(query=formatted_query, database=Base._meta.database)
-    assert result == []
+    result = Base._meta.database.execute_sql(formatted_query).fetchall()
+    assert result == ()
