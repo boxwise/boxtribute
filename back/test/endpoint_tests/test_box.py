@@ -2178,20 +2178,35 @@ def test_mutate_box_with_invalid_location_or_product(
 
 def test_create_boxes(
     client,
+    mocker,
     default_product,
     default_location,
     default_size,
+    another_product,
     mass_product,
     mixed_size,
     tags,
-    mocker,
-    monkeypatch,
+    location_in_deleted_base,
+    deleted_base,
 ):
     product_id = str(default_product["id"])
     mass_product_id = str(mass_product["id"])
     location_id = str(default_location["id"])
     tag_id = str(tags[1]["id"])
     comment = "3 packages, 12 piece each"
+
+    # Test case 8.2.110b
+    mutation = """mutation { createBoxes(creationInput: [
+    ]) {
+        ...on BoxesResult {
+        updatedBoxes { labelIdentifier }
+        invalidBoxLabelIdentifiers
+    } } }
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"invalidBoxLabelIdentifiers": [], "updatedBoxes": []}
+
+    # Test case 8.2.110a
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             # Product with discrete size range and valid size
@@ -2219,9 +2234,6 @@ def test_create_boxes(
             sizeName: "10 ml"
             numberOfItems: 5
             locationId: {location_id}
-            comment: ""
-            tagIds: []
-            newTagNames: []
         }},
         {{
             # Product with continuous size range and valid measure
@@ -2229,21 +2241,18 @@ def test_create_boxes(
             sizeName: "500 G "
             numberOfItems: 2
             locationId: {location_id}
-            comment: ""
-            tagIds: []
-            newTagNames: []
         }},
         {{
             # Product with continuous size range and invalid measure
             productId: {mass_product_id}
             sizeName: "50"
-            numberOfItems: 3
             locationId: {location_id}
             comment: "this is cool"
             tagIds: []
             newTagNames: []
         }},
     ]) {{
+        ...on BoxesResult {{ updatedBoxes {{
         labelIdentifier
         product {{ id }}
         size {{ id }}
@@ -2254,9 +2263,13 @@ def test_create_boxes(
         comment
         tags {{ id }}
         history {{ changes }}
-    }} }}
+        }}
+        invalidBoxLabelIdentifiers
+    }} }} }}
     """
-    boxes = assert_successful_request(client, mutation)
+    response = assert_successful_request(client, mutation)
+    assert response["invalidBoxLabelIdentifiers"] == []
+    boxes = response["updatedBoxes"]
     assert len(boxes[0].pop("labelIdentifier")) == 8
     assert len(boxes[1].pop("labelIdentifier")) == 8
     assert len(boxes[2].pop("labelIdentifier")) == 8
@@ -2320,7 +2333,7 @@ def test_create_boxes(
             "size": None,
             "measureValue": None,
             "displayUnit": None,
-            "numberOfItems": 3,
+            "numberOfItems": 0,
             "state": BoxState.InStock.name,
             "comment": "this is cool; original size: '50'",
             "tags": [],
@@ -2328,10 +2341,76 @@ def test_create_boxes(
         },
     ]
 
-    monkeypatch.setenv("ENVIRONMENT", "production")
-    boxes = assert_successful_request(client, mutation)
-    assert boxes == []
+    # Test case 8.2.115
+    another_location_id = location_in_deleted_base["id"]
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 2
+            locationId: {another_location_id}
+        }}
+    ]) {{
+        ...on InvalidBaseError {{ ids }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"ids": [1, 5]}
 
-    mock_user_for_request(mocker, is_god=True)
-    boxes = assert_successful_request(client, mutation)
-    assert len(boxes) == 5
+    another_product_id = another_product["id"]
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+        }},
+        {{
+            productId: {another_product_id}
+            sizeName: "Small"
+            numberOfItems: 2
+            locationId: {location_id}
+        }}
+    ]) {{
+        ...on InvalidBaseError {{ ids }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"ids": [1, 3]}
+
+    # Test case 8.2.113
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {another_product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+        }}
+    ]) {{
+        ...on ProductLocationBaseMismatchError {{ _ }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"_": None}
+
+    # Test case 8.2.114
+    mock_user_for_request(mocker, base_ids=[5], organisation_id=3)
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {another_location_id}
+        }}
+    ]) {{
+        ...on DeletedBaseError {{ name }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": deleted_base["name"]}
