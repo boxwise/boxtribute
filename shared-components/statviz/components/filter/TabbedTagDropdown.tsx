@@ -11,6 +11,7 @@ import {
   TabPanels,
   Tabs,
   Tag,
+  TagCloseButton,
   TagLabel,
   Text,
   Flex,
@@ -72,6 +73,14 @@ export default function TabbedTagDropdown({
         {includedTags.map((tag) => (
           <Tag key={`inc-${tag.id}`} size="sm" bg={tag.color} color="white" borderRadius="full">
             {tag.label}
+            <TagCloseButton
+              size="sm"
+              ml={1}
+              onClick={(e) => {
+                e.stopPropagation();
+                onIncludedChange(includedTags.filter((t) => t.id !== tag.id));
+              }}
+            />
           </Tag>
         ))}
         {excludedTags.map((tag) => (
@@ -84,6 +93,14 @@ export default function TabbedTagDropdown({
             borderRadius="full"
           >
             <TagLabel textDecoration="line-through">{tag.label}</TagLabel>
+            <TagCloseButton
+              size="sm"
+              ml={1}
+              onClick={(e) => {
+                e.stopPropagation();
+                onExcludedChange(excludedTags.filter((t) => t.id !== tag.id));
+              }}
+            />
           </Tag>
         ))}
       </Flex>
