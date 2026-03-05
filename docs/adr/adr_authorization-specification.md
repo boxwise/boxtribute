@@ -41,7 +41,7 @@ The `boxtribute` partner organisations operate in one or more sites each, called
 
 A role reflects the user's responsibilities in the partner organisations. Currently, these roles exist:
 
-- administrator (head of operations)
+- head of operations (formerly: administrator)
 - coordinator
 - warehouse volunteer
 - free shop volunteer
@@ -75,7 +75,7 @@ The ground truth for permissions management are the Auth0 Action scripts. Any up
 
 There are two scenarios that require an additional guarding mechanism in boxtribute v2. We introduce a series of levels, each associated with certain available app functionality. The lowest level provides the least functionality, while each of the larger levels additively builds up on the previous one. We can now assign beta-level values to individual users to control their access to certain functionality because a user can only access functionality of a beta-level smaller or equal to the user's beta-level value.
 
-**The default beta-level value is 3 (April 2025)**. On the back-end side, this is controlled in the `authz` module:
+**The default beta-level value is 4 (June 2025)**. On the back-end side, this is controlled in the `authz` module:
 - on [staging](https://github.com/boxwise/boxtribute/blob/master/back/boxtribute_server/authz.py#L310)
 - on [production](https://github.com/boxwise/boxtribute/blob/production/back/boxtribute_server/authz.py#L310)
 
@@ -136,7 +136,7 @@ Field name | Kind | Description | Usage
 #### Dropapp
 
 When a new base is created, the following is automatically created:
-- in dropapp the usergroups: administrator (only created when an organisation is created), coordinator, volunteer (combination of warehouse/free shop volunteer), warehouse volunteer, free shop volunteer, label creator.
+- in dropapp the usergroups: head of operations (only created when an organisation is created), coordinator, volunteer (combination of warehouse/free shop volunteer), warehouse volunteer, free shop volunteer, label creator.
 - in Auth0 all roles (see [above](#roles) which roles are created).
 - in dropapp database table `usergroups_roles` a mapping between the user groups and roles.
 
@@ -216,6 +216,6 @@ Note that it is distinguished between base-agnostic (e.g. box state, product cat
 
 **(B)** A filter needs to be applied to select only those resource entries in bases that the user is authorized for. This is achieved via the `authorized_bases_filter(model)` function which enforces permission for the resource corresponding to the specified model under the hood.
 
-**(C)** When loading a resource through a data loader, one can omit enforcement of RBP in the loader. However in the loader's `batch_load_fn()` method, one of `authorize()` or `authorized_base_ids()` must be called. This reduces permission enforcement overhead.
+**(C)** When loading a resource through a data loader, one can omit enforcement of RBP in the resolver. However in the loader's `batch_load_fn()` method, one of `authorize()` or `authorized_base_ids()` must be called. This reduces permission enforcement overhead. Example: product category resolver in `warehouse.product.fields`; the RBP `product_category:read` is enforced in `SimpleDataLoader`
 
 ## Consequences
