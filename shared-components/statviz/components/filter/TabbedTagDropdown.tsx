@@ -168,11 +168,14 @@ export default function TabbedTagDropdown({
           variant="ghost"
           onClick={handleClearAll}
           position="absolute"
-          right="32px"
+          right="36px"
           top="50%"
           transform="translateY(-50%)"
           zIndex={1}
           pointerEvents="auto"
+          bg="transparent"
+          _hover={{ bg: "transparent" }}
+          _active={{ bg: "transparent" }}
         />
       )}
     </Flex>

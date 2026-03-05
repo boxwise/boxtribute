@@ -26,13 +26,6 @@ export default function MultiSelectList({
     onChange(newSelected);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent, tag: ITagFilterValue) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleToggle(tag);
-    }
-  };
-
   return (
     <Stack spacing={0} maxH="300px" overflowY="auto" p={2}>
       {values.length === 0 ? (
@@ -56,7 +49,12 @@ export default function MultiSelectList({
               _hover={{ bg: "gray.100" }}
               _focus={{ bg: "gray.100", outline: "2px solid", outlineColor: "blue.500" }}
               onClick={() => handleToggle(tag)}
-              onKeyDown={(e) => handleKeyDown(e, tag)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleToggle(tag);
+                }
+              }}
               border="none"
               bg="transparent"
               width="100%"
