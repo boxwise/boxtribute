@@ -425,3 +425,74 @@ LEFT OUTER JOIN units u ON u.id = t.display_unit_id
 GROUP BY p.camp_id, moved_on, p.category_id, p.name, p.gender_id, t.size_id, bs.label, absolute_measure_value, dimension_id, tag_ids
 ;
 """
+
+STOCK_OVERVIEW_QUERY = """\
+WITH non_deleted_boxes_with_tags AS (
+    SELECT
+         s.id as box_id,
+         tr.tag_id
+    FROM stock s
+    JOIN locations l
+      ON l.id = s.location_id
+     AND l.camp_id = %s
+    LEFT JOIN tags_relations tr
+      ON tr.object_id = s.id
+     AND tr.object_type = 'Stock'
+     AND tr.deleted_on IS null
+   WHERE (s.deleted IS NULL OR s.deleted = 0)
+     AND (l.deleted IS NULL OR l.deleted = 0)
+),
+box_tag_agg AS (
+    SELECT
+        box_id,
+        GROUP_CONCAT(DISTINCT tag_id ORDER BY tag_id) AS tag_ids,
+        -- count box tags that are part of in/excluded_tag_ids
+        IF(
+            %s,  -- include_filter_active
+            SUM(tag_id IN %s),
+            1
+        ) AS has_include_tags,
+        IF(
+            %s,  -- exclude_filter_active
+            SUM(tag_id IN %s),
+            0
+        ) AS has_exclude_tags
+    FROM non_deleted_boxes_with_tags
+    GROUP BY box_id
+)
+-- Aggregate box and items count by pulling in all dimensions
+SELECT
+    s.size_id,
+    s.location_id,
+    s.box_state_id AS box_state,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    ROUND(
+       s.measure_value, 3 - FLOOR(LOG10(s.measure_value) + 1)
+    ) AS absolute_measure_value,
+    u.dimension_id,
+    p.gender_id AS gender,
+    bta.tag_ids,
+    COUNT(bta.box_id) AS boxes_count,
+    SUM(s.items) AS items_count
+FROM box_tag_agg bta
+JOIN stock s ON s.id = bta.box_id
+JOIN products p ON p.id = s.product_id
+LEFT OUTER JOIN units u ON u.id = s.display_unit_id
+WHERE
+    -- If filters are active, include boxes that have at least one of the included tags,
+    -- and none of the excluded tags. Otherwise, this evaluates to True
+    (NOT %s OR bta.has_include_tags > 0)
+    AND (NOT %s OR bta.has_exclude_tags = 0)
+GROUP BY
+    size_id,
+    location_id,
+    s.box_state_id,
+    category_id,
+    TRIM(LOWER(p.name)),
+    measure_value,
+    u.dimension_id,
+    gender_id,
+    tag_ids
+;
+"""
