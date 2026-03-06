@@ -54,6 +54,16 @@ def data():
             "created_on": now,
             "created_by": default_user_data()["id"],
         },
+        {
+            "id": 5,
+            "code": hashlib.sha256(b"5").hexdigest(),
+            "valid_until": one_week_from_now,
+            "view": ShareableView.StockOverview,
+            "base_id": 1,
+            "url_parameters": "tags=2&notags=3",
+            "created_on": now,
+            "created_by": default_user_data()["id"],
+        },
     ]
 
 
@@ -75,6 +85,11 @@ def stock_overview_link():
 @pytest.fixture
 def tagged_stock_overview_link():
     return data()[3]
+
+
+@pytest.fixture
+def another_tagged_stock_overview_link():
+    return data()[4]
 
 
 def create():
