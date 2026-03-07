@@ -81,6 +81,7 @@ def test_shareable_link_queries(
     shareable_link,
     stock_overview_link,
     tagged_stock_overview_link,
+    another_tagged_stock_overview_link,
     expired_link,
     default_base,
     default_organisation,
@@ -180,3 +181,16 @@ def test_shareable_link_queries(
         {"tagIds": [3]},
         {"tagIds": [3]},
     ]
+
+    code = another_tagged_stock_overview_link["code"]
+    query = f"""query {{ resolveLink(code: "{code}") {{
+                ...on ResolvedLink {{
+                    data {{
+                        ...on StockOverviewData {{
+                            stockOverviewFacts: facts {{ tagIds }}
+                        }}
+                    }}
+                }} }} }}"""
+    response = assert_successful_request(client, query, endpoint="public")
+    data = response.pop("data")
+    assert data[0]["stockOverviewFacts"] == []

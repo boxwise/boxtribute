@@ -80,6 +80,7 @@ from .qr_code import (
 from .service import english_lesson_service
 from .services_relation import default_service_relation
 from .shareable_link import (
+    another_tagged_stock_overview_link,
     expired_link,
     shareable_link,
     stock_overview_link,
@@ -142,6 +143,7 @@ __all__ = [
     "another_size",
     "another_size_range",
     "another_standard_product",
+    "another_tagged_stock_overview_link",
     "another_transaction",
     "another_user",
     "base1_active_tags",
