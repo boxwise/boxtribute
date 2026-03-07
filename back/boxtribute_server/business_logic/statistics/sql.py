@@ -454,7 +454,8 @@ box_tag_agg AS (
         ) AS has_include_tags,
         IF(
             %s,  -- exclude_filter_active
-            SUM(tag_id IN %s),
+            -- don't exclude boxes without tags if include filter inactive
+            COALESCE(SUM(tag_id IN %s), 0),
             0
         ) AS has_exclude_tags
     FROM non_deleted_boxes_with_tags
@@ -490,7 +491,7 @@ GROUP BY
     s.box_state_id,
     category_id,
     TRIM(LOWER(p.name)),
-    measure_value,
+    ROUND(s.measure_value, 3 - FLOOR(LOG10(s.measure_value) + 1)),
     u.dimension_id,
     gender_id,
     tag_ids

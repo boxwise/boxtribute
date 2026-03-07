@@ -450,8 +450,8 @@ def compute_stock_overview(base_id, *, tag_ids=None, excluded_tag_ids=None):
 
     # Filtering is implemented with an SQL IN expression which needs a dummy value if
     # the tag filter is not active
-    included_tag_ids = tag_ids if include_filter_active else [SQL("NULL")]
-    excluded_tag_ids = excluded_tag_ids if exclude_filter_active else [SQL("NULL")]
+    included_tag_ids = tag_ids if include_filter_active else [None]
+    excluded_tag_ids = excluded_tag_ids if exclude_filter_active else [None]
 
     facts = execute_sql(
         base_id,
