@@ -36,6 +36,7 @@ export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
     deletedOn
     createdOn
     lastModifiedOn
+    lastUsedOn
   }
 `);
 

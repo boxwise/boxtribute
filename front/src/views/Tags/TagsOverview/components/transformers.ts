@@ -12,6 +12,7 @@ export type TagRow = {
   createdOn?: Date;
   lastModifiedOn?: Date;
   deletedOn?: Date;
+  lastUsedOn?: Date;
 };
 
 export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
@@ -28,6 +29,7 @@ export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
           createdOn,
           lastModifiedOn,
           deletedOn,
+          lastUsedOn,
         }) => {
           return {
             id,
@@ -39,6 +41,7 @@ export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
             createdOn: createdOn ? new Date(createdOn) : undefined,
             lastModifiedOn: lastModifiedOn ? new Date(lastModifiedOn) : undefined,
             deletedOn: deletedOn ? new Date(deletedOn) : undefined,
+            lastUsedOn: lastUsedOn ? new Date(lastUsedOn) : undefined,
           } satisfies TagRow;
         },
       )

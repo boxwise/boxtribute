@@ -128,6 +128,7 @@ const assignTagsMutation = ({
                   tags: tagIds.map((id) => ({
                     id: id.toString(),
                     __typename: "Tag",
+                    lastUsedOn: null,
                     deletedOn: null,
                   })),
                 })),

@@ -75,6 +75,7 @@ const successfulCreateTagMutation = {
         description: "A test tag description",
         color: "#FF5733",
         type: "Box",
+        lastUsedOn: null,
         base: {
           id: "1",
           name: "Test Base",
@@ -109,6 +110,7 @@ const successfulCreateTagMutationMinimal = {
         description: null,
         color: "#123456",
         type: "All",
+        lastUsedOn: null,
         base: {
           id: "1",
           name: "Test Base",

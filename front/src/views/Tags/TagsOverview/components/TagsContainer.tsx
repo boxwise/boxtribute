@@ -55,7 +55,7 @@ export function TagsContainer() {
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [],
-      sortBy: [{ id: "name", desc: false }],
+      sortBy: [{ id: "lastUsedOn", desc: false }],
       hiddenColumns: ["createdOn", "lastModifiedOn"],
     },
   });
@@ -128,11 +128,14 @@ export function TagsContainer() {
         accessor: "lastModifiedOn",
         id: "lastModifiedOn",
         Cell: DateCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.lastModifiedOn ? rowA.values.lastModifiedOn.getTime() : 0;
-          const b = rowB.values.lastModifiedOn ? rowB.values.lastModifiedOn.getTime() : 0;
-          return a - b;
-        },
+        sort: "datetime",
+      },
+      {
+        Header: "Last Used Date",
+        accessor: "lastUsedOn",
+        id: "lastUsedOn",
+        Cell: DateCell,
+        sort: "datetime",
       },
     ],
     [],

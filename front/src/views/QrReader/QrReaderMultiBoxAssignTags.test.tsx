@@ -90,6 +90,7 @@ export const generateAssignTagsResponse = ({
           {
             __typename: "Tag",
             id: String(newTagId),
+            lastUsedOn: null,
             deletedOn: null,
           },
         ],

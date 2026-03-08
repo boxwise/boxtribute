@@ -52,6 +52,7 @@ export const UPDATE_TAG_MUTATION = graphql(
             id
             name
           }
+          lastUsedOn
           createdOn
         }
         ... on InsufficientPermissionError {

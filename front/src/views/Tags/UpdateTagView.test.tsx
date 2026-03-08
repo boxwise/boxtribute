@@ -65,6 +65,7 @@ const existingTag = {
   description: "An existing tag",
   createdOn: "2023-01-01T00:00:00.000Z",
   lastModifiedOn: "2023-01-02T00:00:00.000Z",
+  lastUsedOn: null,
   deletedOn: null,
   __typename: "Tag",
 };
@@ -124,6 +125,7 @@ const successfulUpdateTagMutation = {
         description: "Updated description",
         color: "#123456",
         type: "All",
+        lastUsedOn: null,
         base: {
           id: "1",
           name: "Test Base",
@@ -158,6 +160,7 @@ const successfulUpdateTagMutationAllFields = {
         description: "Updated description",
         color: "#123456",
         type: "All",
+        lastUsedOn: null,
         base: {
           id: "1",
           name: "Test Base",
