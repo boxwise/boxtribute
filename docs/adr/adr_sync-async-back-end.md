@@ -35,7 +35,7 @@ C. Fully async back-end
 1. **Software performance**: how much does either of the options slow down or speed up code execution?
 1. **Software consistency**: how important is it to get away from the current mixed state?
 1. **Initial development cost**: how expensive is a possible migration to fully sync or fully async?
-1. **Async use cases**: what is the estimated extent of I/O blocking code in the back-end (e.g. network calls to external APIs like Auth0)? Since async is a prerequisite for using ariadne subscriptions, how likely is it to integrate this functionality in the future?
+1. **Async use cases**: what is the estimated extent of I/O blocking code in the back-end (e.g. network calls to external APIs like Auth0)? Since async is a prerequisite for using ariadne subscriptions, how likely is it to integrate this functionality in the future (note: since v0.29, ariadne supports subscriptions in sync apps)?
 
 ### Experience reports
 
@@ -106,7 +106,7 @@ What becomes easier or more difficult to do because of this change?
 - (+) no risk of switching to unfamiliar packages and programming concepts
 - (o) use a [sync batch-loading package](https://github.com/jkimbo/graphql-sync-dataloaders) (rather unpopular but recommended by ariadne in their docs)
 - (o) must find work-arounds to call external APIs (e.g. threading)
-- (-) uncertainty of using subscriptions
+- (o) subscriptions supported (since ariadne v0.29); uncertainty of performance overhead
 
 **C. Fully async back-end**
 - (+) subscriptions are supported
