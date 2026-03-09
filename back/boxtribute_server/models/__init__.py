@@ -12,7 +12,6 @@ from .definitions.distribution_events_tracking_group import (
 from .definitions.history import DbChangeHistory
 from .definitions.language import Language
 from .definitions.location import Location
-from .definitions.log import Log
 from .definitions.organisation import Organisation
 from .definitions.packing_list_entry import PackingListEntry
 from .definitions.product import Product
@@ -59,7 +58,6 @@ MODELS = (
     DbChangeHistory,
     Language,
     Location,
-    Log,
     Organisation,
     PackingListEntry,
     Product,
