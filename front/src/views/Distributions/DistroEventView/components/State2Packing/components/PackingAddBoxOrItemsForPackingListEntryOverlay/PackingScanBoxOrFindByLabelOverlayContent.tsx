@@ -178,7 +178,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
           multiScan={false}
           facingMode={"environment"}
           scanPeriod={1000}
-          onResult={async (multiScan, detectedCodes, error) => {
+          onResult={async (multiScan, detectedCodes) => {
             if (detectedCodes && detectedCodes.length > 0) {
               const qrValue = detectedCodes[0].rawValue;
               if (qrValue != null) {
