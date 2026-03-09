@@ -16,7 +16,7 @@ import pymysql
 import pytest
 from boxtribute_server.app import create_app, register_blueprints
 from boxtribute_server.db import create_db_interface, db
-from boxtribute_server.models.definitions import models as get_models
+from boxtribute_server.models import MODELS
 
 # It's crucial to import the blueprints from the routes module (NOT the blueprints
 # module) because only then
@@ -94,10 +94,9 @@ def _create_app(database_interface, *blueprints):
 @pytest.fixture(scope="session")
 def setup_testing_database(testing_database):
     """Bind all data models to the testing database and populate it with test data."""
-    models = get_models()
-    with testing_database.bind_ctx(models, False, False):
-        testing_database.drop_tables(models)
-        testing_database.create_tables(models)
+    with testing_database.bind_ctx(MODELS, False, False):
+        testing_database.drop_tables(MODELS)
+        testing_database.create_tables(MODELS)
         setup_models()
         testing_database.close()
         yield testing_database

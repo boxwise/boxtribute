@@ -1,3 +1,5 @@
+from boxtribute_server.models import MODELS
+from boxtribute_server.models.definitions import Model
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.box import Box
@@ -87,3 +89,12 @@ def test_models(
         ServicesRelation, default_service_relation["id"]
     )
     assert service_relation.items() >= default_service_relation.items()
+
+
+def test_subclasses():
+    assert set(MODELS) == set(Model.__subclasses__())
+
+    class TestModel(Model):
+        pass
+
+    assert len(MODELS) == len(Model.__subclasses__()) - 1

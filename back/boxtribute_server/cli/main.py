@@ -18,13 +18,9 @@ import getpass
 import logging
 
 from ..db import create_db_interface
-from ..models.definitions import models
+from ..models import MODELS
 from ..models.definitions.base import Base
 from ..models.definitions.organisation import Organisation
-
-# We must import something from the routes module (or anything that effectively imports
-# all Model subclasses) in order for the models() function to work
-from ..routes import API_CONTEXT  # noqa
 from .remove_base_access import LOGGER as RBA_LOGGER
 from .remove_base_access import remove_base_access
 from .service import LOGGER as SERVICE_LOGGER
@@ -150,7 +146,7 @@ def main(args=None):
     database = _create_db_interface(
         **{n: options.pop(n) for n in ["host", "port", "password", "database", "user"]}
     )
-    database.bind(models())
+    database.bind(MODELS, False, False)
 
     command = options.pop("command")
     try:

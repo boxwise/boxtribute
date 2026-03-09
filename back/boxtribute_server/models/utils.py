@@ -7,7 +7,6 @@ import peewee
 from flask import g
 from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
 
-from ..db import db
 from ..errors import ResourceDoesNotExist
 from .definitions import Model
 from .definitions.history import DbChangeHistory
@@ -102,7 +101,7 @@ def _save_to_history(f, changes):
 
     @wraps(f)
     def inner(*args, **kwargs):
-        with db.database.atomic():
+        with DbChangeHistory._meta.database.atomic():
             # Use single timestamp for DbChangeHistory entry AND to pass to f for fields
             # like created_on
             if "now" in kwargs:
@@ -182,7 +181,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 fields=fields,
                 change_date=now,
             )
-            with db.database.atomic():
+            with DbChangeHistory._meta.database.atomic():
                 DbChangeHistory.bulk_create(entries, batch_size=BATCH_SIZE)
                 if entries:
                     result.last_modified_on = now
