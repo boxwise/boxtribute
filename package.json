@@ -54,7 +54,7 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@sentry/types": "^10.40.0",
+    "@sentry/types": "^10.42.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.5.2",
@@ -76,7 +76,7 @@
     "eslint-plugin-testing-library": "^7.16.0",
     "husky": "^9.1.7",
     "jsdom": "26.1.0",
-    "lint-staged": "^16.3.1",
+    "lint-staged": "^16.3.2",
     "prettier": "^3.8.1",
     "rollup": "^4.59.0",
     "tsc-files": "^1.1.4",

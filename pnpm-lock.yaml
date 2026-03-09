@@ -112,8 +112,8 @@ importers:
         version: 4.2.1
     devDependencies:
       '@sentry/types':
-        specifier: ^10.40.0
-        version: 10.40.0
+        specifier: ^10.42.0
+        version: 10.42.0
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -178,8 +178,8 @@ importers:
         specifier: 26.1.0
         version: 26.1.0
       lint-staged:
-        specifier: ^16.3.1
-        version: 16.3.1
+        specifier: ^16.3.2
+        version: 16.3.2
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
@@ -1614,14 +1614,18 @@ packages:
     resolution: {integrity: sha512-/wrcHPp9Avmgl6WBimPjS4gj810a1wU5oX9fF1bzJfeIIbF3jTsAbv0oMbgDp0cSDnkwv2+NvcPnn3+c5J6pBA==}
     engines: {node: '>=18'}
 
+  '@sentry/core@10.42.0':
+    resolution: {integrity: sha512-L4rMrXMqUKBanpjpMT+TuAVk6xAijz6AWM6RiEYpohAr7SGcCEc1/T0+Ep1eLV8+pwWacfU27OvELIyNeOnGzA==}
+    engines: {node: '>=18'}
+
   '@sentry/react@10.40.0':
     resolution: {integrity: sha512-3T5W/e3QJMimXRIOx8xMEZbxeIuFiKlXvHLcMTLGygGBYnxQGeb8Oz/8heov+3zF1JoCIxeVQNFW0woySApfyA==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^16.14.0 || 17.x || 18.x || 19.x
 
-  '@sentry/types@10.40.0':
-    resolution: {integrity: sha512-osTUdrcRuFslMUekJ2LJUq3Cd5JUNeKVoyMt6OYNHbOj5HLwQv8fBKEcSu7zphx3FQYxLuRyu7hok86hTeSFWg==}
+  '@sentry/types@10.42.0':
+    resolution: {integrity: sha512-KEZtRI1ldl0H77lTLxtnBTihiD0/mf7I26Y7S30mU96PzXFei9Lnm3v9YuDIjDM5R7KlFSmndg6K9Q2oBm8Wxg==}
     engines: {node: '>=18'}
 
   '@standard-schema/utils@0.3.0':
@@ -3541,8 +3545,8 @@ packages:
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
-  lint-staged@16.3.1:
-    resolution: {integrity: sha512-bqvvquXzFBAlSbluugR4KXAe4XnO/QZcKVszpkBtqLWa2KEiVy8n6Xp38OeUbv/gOJOX4Vo9u5pFt/ADvbm42Q==}
+  lint-staged@16.3.2:
+    resolution: {integrity: sha512-xKqhC2AeXLwiAHXguxBjuChoTTWFC6Pees0SHPwOpwlvI3BH7ZADFPddAdN3pgo3aiKgPUx/bxE78JfUnxQnlg==}
     engines: {node: '>=20.17'}
     hasBin: true
 
@@ -6599,15 +6603,17 @@ snapshots:
 
   '@sentry/core@10.40.0': {}
 
+  '@sentry/core@10.42.0': {}
+
   '@sentry/react@10.40.0(react@18.3.1)':
     dependencies:
       '@sentry/browser': 10.40.0
       '@sentry/core': 10.40.0
       react: 18.3.1
 
-  '@sentry/types@10.40.0':
+  '@sentry/types@10.42.0':
     dependencies:
-      '@sentry/core': 10.40.0
+      '@sentry/core': 10.42.0
 
   '@standard-schema/utils@0.3.0': {}
 
@@ -8933,7 +8939,7 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
-  lint-staged@16.3.1:
+  lint-staged@16.3.2:
     dependencies:
       commander: 14.0.3
       listr2: 9.0.5
