@@ -128,6 +128,7 @@ function BoxesTable({
     allColumns,
     state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
+    setAllFilters,
     page,
     rows,
     canPreviousPage,
@@ -214,6 +215,15 @@ function BoxesTable({
       tableConfig.setHiddenColumns(hiddenColumns);
     }
   }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
+
+  // Sync tableConfig filters to react-table when they change externally (e.g., from Apply button)
+  useEffect(() => {
+    const configFilters = tableConfig.getColumnFilters();
+    // Only update if filters actually changed to avoid infinite loop
+    if (JSON.stringify(configFilters) !== JSON.stringify(filters)) {
+      setAllFilters(configFilters);
+    }
+  }, [tableConfig.getColumnFilters()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Flex direction="column" height="100%">
