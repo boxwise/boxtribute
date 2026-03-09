@@ -14,7 +14,6 @@ import {
 } from "../../../../graphql/fragments";
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
-import { SelectColumnFilter } from "components/Table/Filter";
 import {
   DaysCell,
   ObjectCell,
@@ -24,7 +23,6 @@ import {
   QrCodeCell,
 } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
-import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
@@ -36,15 +34,19 @@ import {
   PopoverAnchor,
   useBoolean,
   Box,
+  IconButton,
 } from "@chakra-ui/react";
 import { FaInfoCircle } from "react-icons/fa";
+import { MdFilterList } from "react-icons/md";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
 import BoxesTable from "./components/BoxesTable";
-import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
+import { boxStateIds } from "utils/constants";
 import { useSearchParams } from "react-router-dom";
+import { BoxesFilterDrawer, FilterOption } from "./components/BoxesFilterDrawer";
+import { IBoxesTagFilterValue } from "./components/BoxesTagFilter";
 
 // TODO: Implement Pagination and Filtering
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
@@ -196,6 +198,27 @@ function Boxes({
     syncFiltersAndUrlParams: true,
   });
 
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useBoolean();
+  const [pendingFilters, setPendingFilters] = useState<{
+    product: FilterOption[];
+    gender: FilterOption[];
+    size: FilterOption[];
+    state: FilterOption[];
+    location: FilterOption[];
+    comment: FilterOption[];
+    includedTags: IBoxesTagFilterValue[];
+    excludedTags: IBoxesTagFilterValue[];
+  }>({
+    product: [],
+    gender: [],
+    size: [],
+    state: [],
+    location: [],
+    comment: [],
+    includedTags: [],
+    excludedTags: [],
+  });
+
   // fetch options for actions on boxes causing the suspense.
   const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
     variables: {
@@ -295,8 +318,7 @@ function Boxes({
           const b = rowB.values.product?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
+        disableFilters: true,
       },
       {
         Header: "Product Category",
@@ -308,8 +330,7 @@ function Boxes({
           const b = rowB.values.productCategory?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
+        disableFilters: true,
       },
       {
         Header: "Gender",
@@ -321,8 +342,7 @@ function Boxes({
           const b = rowB.values.gender?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
+        disableFilters: true,
       },
       {
         Header: "Size",
@@ -334,8 +354,7 @@ function Boxes({
           const b = rowB.values.size?.name?.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
+        disableFilters: true,
       },
       {
         Header: "Items",
@@ -353,8 +372,7 @@ function Boxes({
           const b = rowB.values.state?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        Filter: SelectBoxStateFilter,
-        filter: "includesSomeObject",
+        disableFilters: true,
       },
       {
         Header: "Location",
@@ -366,8 +384,7 @@ function Boxes({
           const b = rowB.values.location?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
+        disableFilters: true,
       },
       {
         Header: "Tags",
@@ -379,8 +396,7 @@ function Boxes({
           const b = rowB.values.tags?.length ?? 0;
           return a - b;
         },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeTagObject",
+        disableFilters: true,
       },
       {
         Header: "Shipment",
@@ -394,8 +410,7 @@ function Boxes({
         Header: "Comments",
         accessor: "comment",
         id: "comment",
-        Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        disableFilters: true,
       },
       {
         Header: (
@@ -443,19 +458,166 @@ function Boxes({
         Header: "Last Modified By",
         accessor: "lastModifiedBy",
         id: "lastModifiedBy",
-        Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        disableFilters: true,
       },
       {
         Header: "Created By",
         accessor: "createdBy",
         id: "createdBy",
-        Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        disableFilters: true,
       },
     ],
     [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],
   );
+
+  const filterOptions = useMemo(() => {
+    const extractOptions = (rows: any[], accessor: string): FilterOption[] => {
+      const uniqueValues = new Map<string, string>();
+      rows.forEach((row) => {
+        const value = row[accessor];
+        if (value && typeof value === "object" && value.id && value.name) {
+          uniqueValues.set(value.id, value.name);
+        }
+      });
+      return Array.from(uniqueValues.entries())
+        .map(([id, name]) => ({ value: id, label: name }))
+        .sort((a, b) => a.label.localeCompare(b.label));
+    };
+
+    return {
+      product: extractOptions([], "product"),
+      gender: extractOptions([], "gender"),
+      size: extractOptions([], "size"),
+      state: Object.entries(boxStateIds).map(([name, id]) => ({ label: name, value: id })),
+      location: locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? []),
+      comment: [],
+    };
+  }, [actionOptionsData]);
+
+  const availableTags: IBoxesTagFilterValue[] = useMemo(
+    () =>
+      (actionOptionsData?.base?.tags ?? []).map((tag) => ({
+        id: parseInt(tag.id, 10),
+        value: tag.id,
+        label: tag.name,
+        urlId: tag.id,
+        color: tag.color || "#000000",
+      })),
+    [actionOptionsData],
+  );
+
+  useEffect(() => {
+    const currentFilters = tableConfig.getColumnFilters();
+    const newPendingFilters: typeof pendingFilters = {
+      product: [],
+      gender: [],
+      size: [],
+      state: [],
+      location: [],
+      comment: [],
+      includedTags: [],
+      excludedTags: [],
+    };
+
+    currentFilters.forEach((filter) => {
+      if (filter.id === "product" && Array.isArray(filter.value)) {
+        newPendingFilters.product = filter.value.map((id: string) => {
+          const option = filterOptions.product.find((opt) => opt.value === id);
+          return option || { value: id, label: id };
+        });
+      } else if (filter.id === "gender" && Array.isArray(filter.value)) {
+        newPendingFilters.gender = filter.value.map((id: string) => {
+          const option = filterOptions.gender.find((opt) => opt.value === id);
+          return option || { value: id, label: id };
+        });
+      } else if (filter.id === "size" && Array.isArray(filter.value)) {
+        newPendingFilters.size = filter.value.map((id: string) => {
+          const option = filterOptions.size.find((opt) => opt.value === id);
+          return option || { value: id, label: id };
+        });
+      } else if (filter.id === "state" && Array.isArray(filter.value)) {
+        newPendingFilters.state = filter.value.map((id: string) => {
+          const option = filterOptions.state.find((opt) => opt.value === id);
+          return option || { value: id, label: id };
+        });
+      } else if (filter.id === "location" && Array.isArray(filter.value)) {
+        newPendingFilters.location = filter.value.map((id: string) => {
+          const option = filterOptions.location.find((opt) => opt.value === id);
+          return option || { value: id, label: id };
+        });
+      } else if (filter.id === "tags" && Array.isArray(filter.value)) {
+        newPendingFilters.includedTags = filter.value
+          .map((id: string) => availableTags.find((tag) => tag.id === parseInt(id, 10)))
+          .filter((tag): tag is IBoxesTagFilterValue => tag !== undefined);
+      }
+    });
+
+    setPendingFilters(newPendingFilters);
+  }, [tableConfig, filterOptions, availableTags, isFilterDrawerOpen]);
+
+  const handleFilterChange = (filterId: string, value: FilterOption[] | IBoxesTagFilterValue[]) => {
+    setPendingFilters((prev) => ({
+      ...prev,
+      [filterId]: value,
+    }));
+  };
+
+  const handleApplyFilters = () => {
+    const newFilters: any[] = [];
+
+    if (pendingFilters.product.length > 0) {
+      newFilters.push({
+        id: "product",
+        value: pendingFilters.product.map((opt) => opt.value),
+      });
+    }
+    if (pendingFilters.gender.length > 0) {
+      newFilters.push({
+        id: "gender",
+        value: pendingFilters.gender.map((opt) => opt.value),
+      });
+    }
+    if (pendingFilters.size.length > 0) {
+      newFilters.push({
+        id: "size",
+        value: pendingFilters.size.map((opt) => opt.value),
+      });
+    }
+    if (pendingFilters.state.length > 0) {
+      newFilters.push({
+        id: "state",
+        value: pendingFilters.state.map((opt) => opt.value),
+      });
+    }
+    if (pendingFilters.location.length > 0) {
+      newFilters.push({
+        id: "location",
+        value: pendingFilters.location.map((opt) => opt.value),
+      });
+    }
+    if (pendingFilters.includedTags.length > 0) {
+      newFilters.push({
+        id: "tags",
+        value: pendingFilters.includedTags.map((tag) => String(tag.id)),
+      });
+    }
+
+    tableConfig.setColumnFilters(newFilters);
+  };
+
+  const handleClearFilters = () => {
+    setPendingFilters({
+      product: [],
+      gender: [],
+      size: [],
+      state: [],
+      location: [],
+      comment: [],
+      includedTags: [],
+      excludedTags: [],
+    });
+    tableConfig.setColumnFilters([]);
+  };
 
   return (
     <>
@@ -475,6 +637,30 @@ function Boxes({
           actionOptionsData.base?.locations ?? [],
         )}
         tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
+        filterButton={
+          <IconButton
+            aria-label="Filter boxes"
+            icon={<MdFilterList />}
+            onClick={setIsFilterDrawerOpen.on}
+            size="md"
+            variant="ghost"
+          />
+        }
+      />
+      <BoxesFilterDrawer
+        isOpen={isFilterDrawerOpen}
+        onClose={setIsFilterDrawerOpen.off}
+        productOptions={filterOptions.product}
+        genderOptions={filterOptions.gender}
+        sizeOptions={filterOptions.size}
+        stateOptions={filterOptions.state}
+        locationOptions={filterOptions.location}
+        commentOptions={filterOptions.comment}
+        availableTags={availableTags}
+        pendingFilters={pendingFilters}
+        onFilterChange={handleFilterChange}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
       />
     </>
   );

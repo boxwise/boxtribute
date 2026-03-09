@@ -56,6 +56,7 @@ interface IBoxesTableProps {
   locationOptions: { label: string; value: string }[];
   tagOptions: IDropdownOption[];
   shipmentOptions: { label: string; value: string }[];
+  filterButton?: React.ReactNode;
 }
 
 function BoxesTable({
@@ -68,6 +69,7 @@ function BoxesTable({
   locationOptions,
   tagOptions,
   shipmentOptions,
+  filterButton,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -234,6 +236,7 @@ function BoxesTable({
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+          {filterButton}
         </HStack>
       </Flex>
       <Table key="boxes-table">
