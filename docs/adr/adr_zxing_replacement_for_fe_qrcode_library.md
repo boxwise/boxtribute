@@ -1,6 +1,6 @@
 # ADR: Replacing ZXing library for QR Code reading
 
-Trello-card: [Link to Task](https://trello.com/c/Zv00dw2j/1864-20-fe-replace-zxing-qr-reading-package?filter=member%3Amomorazor)
+Trello-card: [Link to Task](https://trello.com/c/Zv00dw2j/1864-20-fe-replace-zxing-qr-reading-package)
 
 Decision Deadline: N/A
 
@@ -14,11 +14,11 @@ Implemented
 
 ## Context or Problem Statement
 
-QR code generation and scanning is a core part of the user workflows for warehousing and inventory management in Boxtribute. In particular, the in-house QR code scanner has a single component in the project, that is referenced in two separate contexts around the application, once of which is the landing page of mobile users. However, the current library set used by the frontend to parse QR Codes ([@zxing/library](https://www.npmjs.com/package/@zxing/library?activeTab=readme) and [@zxing/browser](https://www.npmjs.com/package/@zxing/browser)) has been in maintenance mode for the past 2 years.
+QR code generation and scanning is a core part of the user workflows for warehousing and inventory management in Boxtribute. In particular, the in-house QR code scanner has a single component in the project, that is referenced in two separate contexts around the application, one of which is the landing page of mobile users. However, the current library set used by the frontend to parse QR Codes ([@zxing/library](https://www.npmjs.com/package/@zxing/library?activeTab=readme) and [@zxing/browser](https://www.npmjs.com/package/@zxing/browser)) has been in maintenance mode for the past 2 years.
 
 This creates a medium-high risk for both active field workers and the development team that increases with time as devices continue to change and older software becomes less and less compatible.
 
-For active field workers, the risk with increasing incompatiblity is if the QR scanner functionality breaks, their ability to effectively receive and distribute aid is compromised. For the development team, since QR scanning is a core application workflow an emergency fix will most likely be needed, which will impact the backlog and timelines of other active projects.
+For active field workers, the risk with increasing incompatibility is if the QR scanner functionality breaks, their ability to effectively receive and distribute aid is compromised. For the development team, since QR scanning is a core application workflow an emergency fix will most likely be needed, which will impact the backlog and timelines of other active projects.
 
 Apart from this, more modern packages could bring secondary benefits, such as smaller bundle sizing (making load times and network usage decrease), quicker detection, and less battery utilization through lower level optimizations.
 
@@ -28,13 +28,13 @@ Apart from this, more modern packages could bring secondary benefits, such as sm
 
 - This will make sure that the mission critical feature of QR Code scanning continues to work optimally and without issues even on newer devices and newer browser versions.
 
-2. Maintainabilty + Bug Fixing:
+2. Maintainability + Bug Fixing:
 
 - It will also make sure that the package remains compatible with ecosystem well, and re-opens the possible of asking for support to an active community, if issues arise related to QR Scanning that might be coming from under the hood.
 
 3. Performance
 
-- Older packages using old code and old practices can affect negatively performance and bundle size. This leads to increase loading times and network bandwidth requirements. More modern implementations will utilize more current practices and stratagies to mitigate these effects.
+- Older packages using old code and old practices can affect negatively performance and bundle size. This leads to increase loading times and network bandwidth requirements. More modern implementations will utilize more current practices and strategies to mitigate these effects.
 
 ## Considered Options
 
@@ -46,7 +46,7 @@ There are a couple of possible replacements that I have found up till now:
 
 For added context, zxing based here means that both of these packages use the zxing source code underneath. For the current `@zxing/library` and `@zxing/browser`, the zxing engine is ported to javascript and typescript. Unfortunately it is not as maintained and therefore could be using older versions of these languages. `Zxing-wasm` is instead a WebAssembly port. This uses a C++ port called [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp), which is a very well maintained port.
 
-Using a port of the same engine ensure that we will have the same functionality supported as before, written in more modern code, bundled with more tree shaking capabilities. This will result in a smaller final bundle, as will be shown later in this document.
+Using a port of the same engine ensures that we will have the same functionality supported as before, written in more modern code, bundled with more tree shaking capabilities. This will result in a smaller final bundle, as will be shown later in this document.
 
 Broad Implementation:
 
@@ -55,7 +55,7 @@ Broad Implementation:
 3. Capture return of `readBarcodesFromImageData(imageData, options)`, which is an array, therefore `onResult` needs to only be called when this array is not empty and when there are errors.
 4. Clean up requires adding animation frame cancellations as well.
 
-Estimated Time of Implementation: 1.5 hours
+Estimated time of Implementation: 1.5 hours
 
 Bundle Size (unpacked): 3.41Mb (Note: The maintainer has also provided sizes for importing `zxing-wasm/reader` only, which should only be about 919 KiB)
 
@@ -72,7 +72,7 @@ Estimated Time of Implementation: 15 mins
 
 Bundle Size (unpacked): 226 kB (Note: In this case, this package depends on `zxing/wasm`, so it would add both sizes, + `barcode-decoder` which is a further 246 kB)
 
-General Note about size: NPM (and other tools like PNPM) implement their own tree shaking, so these sizes are always worst case senarios)
+General Note about size: NPM (and other tools like PNPM) implement their own tree shaking, so these sizes are always worst case scenarios)
 
 ## Decision
 
@@ -82,11 +82,11 @@ In my opinion, due to the relatively big difference in implementation time, it m
 
 Pros:
 
-- Intermittant issues with the QRCode reader (such as [this](https://trello.com/c/ocYoFeZ6/1846-20-fe-fix-unknownerror-setphotooptions-failed)) should decrease or be removed completely.
-- If issues arrise within QR Code Scanning, it would become possible to ask for support within an active community.
+- Intermittent issues with the QRCode reader (such as [this](https://trello.com/c/ocYoFeZ6/1846-20-fe-fix-unknownerror-setphotooptions-failed)) should decrease or be removed completely.
+- If issues arise within QR Code Scanning, it would become possible to ask for support within an active community.
 - A MUCH smaller bundle size, as the current zxing package embeds more parts of the zxing engine then required by more modern browsers.
 
-For comparision to the size figures given in the options section, the following are the sizes of the current libraries:
+For comparison to the size figures given in the options section, the following are the sizes of the current libraries:
 
 1. `@zxing/library` size (unpacked) - 9.46Mb
 2. `@zxing/browser` size (unpacked) - 5.4Mb
@@ -94,10 +94,10 @@ For comparision to the size figures given in the options section, the following 
 Cons:
 
 - A small window of testing will be required to ensure the new implementation working properly. Considering that QR Code scanning is consolidated in one place within the project, this should not be over 1 hour.
-- (Potential) As newer packages are installed, peer dependency issues may always arrise with older parts of the codebase. This can only be confirmed onces the process is begun however. An example of this would be the fact that `react-qr-scanner` uses React 19 under the hood, while this project uses React 18. However, the package seems to support React 17 and up, so this should not be an issue.
+- (Potential) As newer packages are installed, peer dependency issues may always arise with older parts of the codebase. This can only be confirmed once the process is begun however. An example of this would be the fact that `react-qr-scanner` uses React 19 under the hood, while this project uses React 18. However, the package seems to support React 17 and up, so this should not be an issue.
 
 Post-Implementation Notes:
 
 The current implementation of this replacement was done with `@yudiel/react-qr-scanner`. This package provided a ready-made component that significantly decreased the complexity of project-side code. However, due to this extra abstraction, the component does not provide full customizability visually, which resulted in minor visual changes.
 
-Apart from this, a small fix was required for the provided component to work perfectly in our context. This was fixed with a small PR which we submitted. The PR was was merged and deployed in short order. A good sign of the package's maintenance state at time of writing.
+Apart from this, a small fix was required for the provided component to work perfectly in our context. This was fixed with a [small PR which we submitted](https://github.com/yudielcurbelo/react-qr-scanner/pull/152). The PR was was merged and deployed in short order. A good sign of the package's maintenance state at time of writing.
