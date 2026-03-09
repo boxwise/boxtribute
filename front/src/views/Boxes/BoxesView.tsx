@@ -14,6 +14,7 @@ import {
 } from "../../../../graphql/fragments";
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
+import { SelectColumnFilter } from "components/Table/Filter";
 import {
   DaysCell,
   ObjectCell,
@@ -26,6 +27,7 @@ import {
   prepareBoxesForBoxesViewQueryVariables,
   boxesRawDataToTableDataTransformer,
 } from "./components/transformers";
+import { SelectBoxStateFilter } from "./components/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
@@ -320,7 +322,8 @@ function Boxes({
           const b = rowB.values.product?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesSomeObject",
       },
       {
         Header: "Product Category",
@@ -332,7 +335,8 @@ function Boxes({
           const b = rowB.values.productCategory?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesSomeObject",
       },
       {
         Header: "Gender",
@@ -344,7 +348,8 @@ function Boxes({
           const b = rowB.values.gender?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesSomeObject",
       },
       {
         Header: "Size",
@@ -356,7 +361,8 @@ function Boxes({
           const b = rowB.values.size?.name?.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesSomeObject",
       },
       {
         Header: "Items",
@@ -374,7 +380,8 @@ function Boxes({
           const b = rowB.values.state?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        disableFilters: true,
+        Filter: SelectBoxStateFilter,
+        filter: "includesSomeObject",
       },
       {
         Header: "Location",
@@ -386,7 +393,8 @@ function Boxes({
           const b = rowB.values.location?.name.toLowerCase() ?? "";
           return a.localeCompare(b);
         },
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesSomeObject",
       },
       {
         Header: "Tags",
@@ -398,7 +406,8 @@ function Boxes({
           const b = rowB.values.tags?.length ?? 0;
           return a - b;
         },
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesSomeTagObject",
       },
       {
         Header: "Shipment",
@@ -412,7 +421,8 @@ function Boxes({
         Header: "Comments",
         accessor: "comment",
         id: "comment",
-        disableFilters: true,
+        Filter: SelectColumnFilter,
+        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: (
