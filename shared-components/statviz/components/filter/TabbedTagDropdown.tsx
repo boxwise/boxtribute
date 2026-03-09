@@ -121,7 +121,7 @@ export default function TabbedTagDropdown({
               minH="40px"
               minW="150px"
               h="auto"
-              py={0}
+              py={1}
               _hover={{ borderColor: "gray.300" }}
             >
               <Box flex="1" ml={4} textAlign="left" overflow="hidden">
