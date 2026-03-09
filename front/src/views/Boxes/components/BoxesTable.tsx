@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo, useTransition, useCallback } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -12,6 +12,7 @@ import {
   IconButton,
   HStack,
   Box,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -22,6 +23,7 @@ import {
   useRowSelect,
   usePagination,
   CellProps,
+  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { useAtomValue } from "jotai";
@@ -45,6 +47,8 @@ import ColumnSelector from "components/Table/ColumnSelector";
 import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
+import { BoxesFilterDrawer } from "./BoxesFilterDrawer";
+import { MdFilterList, MdFilterListAlt } from "react-icons/md";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -210,6 +214,65 @@ function BoxesTable({
     }
   }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
 
+  const filterDrawerDisclosure = useDisclosure();
+
+  const productOptions = useMemo(() => {
+    const uniqueProducts = new Map<string, { id: string; name: string; gender: string }>();
+    tableData.forEach((row) => {
+      if (row.product && row.product.id && row.product.name) {
+        const key = row.product.id;
+        if (!uniqueProducts.has(key)) {
+          uniqueProducts.set(key, {
+            id: row.product.id,
+            name: row.product.name,
+            gender: row.gender?.name || "",
+          });
+        }
+      }
+    });
+    return Array.from(uniqueProducts.values())
+      .map((p) => ({
+        label: `${p.name} (${p.gender})`,
+        value: p.id,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const genderOptions = useMemo(() => {
+    const uniqueGenders = new Map<string, { id: string; name: string }>();
+    tableData.forEach((row) => {
+      if (row.gender && row.gender.name) {
+        uniqueGenders.set(row.gender.id, { id: row.gender.id, name: row.gender.name });
+      }
+    });
+    return Array.from(uniqueGenders.values())
+      .map((g) => ({ label: g.name, value: g.id }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const sizeOptions = useMemo(() => {
+    const uniqueSizes = new Map<string, { id: string; name: string }>();
+    tableData.forEach((row) => {
+      if (row.size) {
+        uniqueSizes.set(row.size.id, row.size);
+      }
+    });
+    return Array.from(uniqueSizes.values())
+      .map((s) => ({ label: s.name, value: s.id }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const handleApplyFilters = useCallback(
+    (newFilters: Filters<any>) => {
+      tableConfig.setColumnFilters(newFilters);
+    },
+    [tableConfig],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    tableConfig.setColumnFilters([]);
+  }, [tableConfig]);
+
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
@@ -234,10 +297,29 @@ function BoxesTable({
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+          <IconButton
+            icon={filters.length > 0 ? <MdFilterListAlt /> : <MdFilterList />}
+            aria-label="Open filters"
+            size="md"
+            onClick={filterDrawerDisclosure.onOpen}
+            data-testid="filter-drawer-button"
+          />
+          <BoxesFilterDrawer
+            isOpen={filterDrawerDisclosure.isOpen}
+            onClose={filterDrawerDisclosure.onClose}
+            columnFilters={filters}
+            onApplyFilters={handleApplyFilters}
+            onClearFilters={handleClearFilters}
+            productOptions={productOptions}
+            genderOptions={genderOptions}
+            sizeOptions={sizeOptions}
+            locationOptions={locationOptions}
+            tagOptions={tagOptions}
+          />
         </HStack>
       </Flex>
       <Table key="boxes-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} />
+        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
           <Tr key={"boxes-count-row"} bg={"gray.100"}>
             <Td fontWeight="bold" key={"product-total"}>
