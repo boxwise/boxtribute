@@ -8,15 +8,16 @@ import {
   DrawerCloseButton,
   Button,
   VStack,
-  FormControl,
-  FormLabel,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
 import BoxesTagFilter, { IBoxesTagFilterValue } from "./BoxesTagFilter";
+import MultiSelectFilter, {
+  IFilterValue,
+} from "../../../../../shared-components/statviz/components/filter/MultiSelectFilter";
 
-export interface FilterOption {
+export interface FilterOption extends IFilterValue {
   label: string;
   value: string;
+  urlId: string;
 }
 
 interface BoxesFilterDrawerProps {
@@ -83,89 +84,59 @@ export function BoxesFilterDrawer({
 
         <DrawerBody>
           <VStack spacing={4} align="stretch">
-            <FormControl>
-              <FormLabel>Product</FormLabel>
-              <Select
-                isMulti
-                options={productOptions}
-                value={pendingFilters.product}
-                onChange={(selected) => onFilterChange("product", selected as FilterOption[])}
-                placeholder="All products"
-                tagVariant="outline"
-                tagColorScheme="black"
-                isSearchable
-              />
-            </FormControl>
+            <MultiSelectFilter
+              values={productOptions}
+              filterId="product"
+              filterValue={pendingFilters.product}
+              fieldLabel="Product"
+              placeholder={productOptions.length === 0 ? "Loading options..." : "All products"}
+              onFilterChange={(selected) => onFilterChange("product", selected)}
+            />
 
-            <FormControl>
-              <FormLabel>Gender</FormLabel>
-              <Select
-                isMulti
-                options={genderOptions}
-                value={pendingFilters.gender}
-                onChange={(selected) => onFilterChange("gender", selected as FilterOption[])}
-                placeholder="All genders"
-                tagVariant="outline"
-                tagColorScheme="black"
-                isSearchable
-              />
-            </FormControl>
+            <MultiSelectFilter
+              values={genderOptions}
+              filterId="gender"
+              filterValue={pendingFilters.gender}
+              fieldLabel="Gender"
+              placeholder={genderOptions.length === 0 ? "Loading options..." : "All genders"}
+              onFilterChange={(selected) => onFilterChange("gender", selected)}
+            />
 
-            <FormControl>
-              <FormLabel>Size</FormLabel>
-              <Select
-                isMulti
-                options={sizeOptions}
-                value={pendingFilters.size}
-                onChange={(selected) => onFilterChange("size", selected as FilterOption[])}
-                placeholder="All sizes"
-                tagVariant="outline"
-                tagColorScheme="black"
-                isSearchable
-              />
-            </FormControl>
+            <MultiSelectFilter
+              values={sizeOptions}
+              filterId="size"
+              filterValue={pendingFilters.size}
+              fieldLabel="Size"
+              placeholder={sizeOptions.length === 0 ? "Loading options..." : "All sizes"}
+              onFilterChange={(selected) => onFilterChange("size", selected)}
+            />
 
-            <FormControl>
-              <FormLabel>Box State</FormLabel>
-              <Select
-                isMulti
-                options={stateOptions}
-                value={pendingFilters.state}
-                onChange={(selected) => onFilterChange("state", selected as FilterOption[])}
-                placeholder="All states"
-                tagVariant="outline"
-                tagColorScheme="black"
-                isSearchable
-              />
-            </FormControl>
+            <MultiSelectFilter
+              values={stateOptions}
+              filterId="state"
+              filterValue={pendingFilters.state}
+              fieldLabel="Box State"
+              placeholder="All states"
+              onFilterChange={(selected) => onFilterChange("state", selected)}
+            />
 
-            <FormControl>
-              <FormLabel>Location</FormLabel>
-              <Select
-                isMulti
-                options={locationOptions}
-                value={pendingFilters.location}
-                onChange={(selected) => onFilterChange("location", selected as FilterOption[])}
-                placeholder="All locations"
-                tagVariant="outline"
-                tagColorScheme="black"
-                isSearchable
-              />
-            </FormControl>
+            <MultiSelectFilter
+              values={locationOptions}
+              filterId="location"
+              filterValue={pendingFilters.location}
+              fieldLabel="Location"
+              placeholder="All locations"
+              onFilterChange={(selected) => onFilterChange("location", selected)}
+            />
 
-            <FormControl>
-              <FormLabel>Comments</FormLabel>
-              <Select
-                isMulti
-                options={commentOptions}
-                value={pendingFilters.comment}
-                onChange={(selected) => onFilterChange("comment", selected as FilterOption[])}
-                placeholder="All comments"
-                tagVariant="outline"
-                tagColorScheme="black"
-                isSearchable
-              />
-            </FormControl>
+            <MultiSelectFilter
+              values={commentOptions}
+              filterId="comment"
+              filterValue={pendingFilters.comment}
+              fieldLabel="Comments"
+              placeholder="All comments"
+              onFilterChange={(selected) => onFilterChange("comment", selected)}
+            />
 
             <BoxesTagFilter
               availableTags={availableTags}

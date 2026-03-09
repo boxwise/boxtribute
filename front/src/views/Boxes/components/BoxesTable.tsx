@@ -45,6 +45,7 @@ import ColumnSelector from "components/Table/ColumnSelector";
 import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
+import { MdFilterList } from "react-icons/md";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -56,7 +57,7 @@ interface IBoxesTableProps {
   locationOptions: { label: string; value: string }[];
   tagOptions: IDropdownOption[];
   shipmentOptions: { label: string; value: string }[];
-  filterButton?: React.ReactNode;
+  onFilterButtonClick: () => void;
 }
 
 function BoxesTable({
@@ -69,7 +70,7 @@ function BoxesTable({
   locationOptions,
   tagOptions,
   shipmentOptions,
-  filterButton,
+  onFilterButtonClick,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -236,7 +237,13 @@ function BoxesTable({
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-          {filterButton}
+          <IconButton
+            aria-label="Filter boxes"
+            icon={<MdFilterList />}
+            onClick={onFilterButtonClick}
+            size="md"
+            bg="gray.100"
+          />
         </HStack>
       </Flex>
       <Table key="boxes-table">

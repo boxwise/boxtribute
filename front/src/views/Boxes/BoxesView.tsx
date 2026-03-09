@@ -22,7 +22,10 @@ import {
   TagsCell,
   QrCodeCell,
 } from "./components/TableCells";
-import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
+import {
+  prepareBoxesForBoxesViewQueryVariables,
+  boxesRawDataToTableDataTransformer,
+} from "./components/transformers";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
@@ -34,10 +37,8 @@ import {
   PopoverAnchor,
   useBoolean,
   Box,
-  IconButton,
 } from "@chakra-ui/react";
 import { FaInfoCircle } from "react-icons/fa";
-import { MdFilterList } from "react-icons/md";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
@@ -191,7 +192,7 @@ function Boxes({
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [],
+      columnFilters: [{ id: "state", value: ["1"] }],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: defaultHiddenColumns,
     },
@@ -480,19 +481,38 @@ function Boxes({
         }
       });
       return Array.from(uniqueValues.entries())
-        .map(([id, name]) => ({ value: id, label: name }))
+        .map(([id, name]) => ({ value: id, label: name, urlId: id }))
         .sort((a, b) => a.label.localeCompare(b.label));
     };
 
+    let boxData: any[] = [];
+    try {
+      const rawData = apolloClient.readQuery({
+        query: BOXES_FOR_BOXESVIEW_QUERY,
+        variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
+      });
+      if (rawData?.boxes?.elements) {
+        boxData = boxesRawDataToTableDataTransformer(rawData);
+      }
+    } catch {
+      // Data not yet loaded
+    }
+
     return {
-      product: extractOptions([], "product"),
-      gender: extractOptions([], "gender"),
-      size: extractOptions([], "size"),
-      state: Object.entries(boxStateIds).map(([name, id]) => ({ label: name, value: id })),
-      location: locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? []),
+      product: extractOptions(boxData, "product"),
+      gender: extractOptions(boxData, "gender"),
+      size: extractOptions(boxData, "size"),
+      state: Object.entries(boxStateIds).map(([name, id]) => ({
+        label: name,
+        value: id,
+        urlId: id,
+      })),
+      location: locationToDropdownOptionTransformer(actionOptionsData.base?.locations ?? []).map(
+        (opt) => ({ ...opt, urlId: opt.value }),
+      ),
       comment: [],
     };
-  }, [actionOptionsData]);
+  }, [actionOptionsData, apolloClient, baseId, tableConfig]);
 
   const availableTags: IBoxesTagFilterValue[] = useMemo(
     () =>
@@ -527,27 +547,27 @@ function Boxes({
       if (filter.id === "product" && Array.isArray(filter.value)) {
         newPendingFilters.product = filter.value.map((id: string) => {
           const option = filterOptions.product.find((opt) => opt.value === id);
-          return option || { value: id, label: id };
+          return option || { value: id, label: id, urlId: id };
         });
       } else if (filter.id === "gender" && Array.isArray(filter.value)) {
         newPendingFilters.gender = filter.value.map((id: string) => {
           const option = filterOptions.gender.find((opt) => opt.value === id);
-          return option || { value: id, label: id };
+          return option || { value: id, label: id, urlId: id };
         });
       } else if (filter.id === "size" && Array.isArray(filter.value)) {
         newPendingFilters.size = filter.value.map((id: string) => {
           const option = filterOptions.size.find((opt) => opt.value === id);
-          return option || { value: id, label: id };
+          return option || { value: id, label: id, urlId: id };
         });
       } else if (filter.id === "state" && Array.isArray(filter.value)) {
         newPendingFilters.state = filter.value.map((id: string) => {
           const option = filterOptions.state.find((opt) => opt.value === id);
-          return option || { value: id, label: id };
+          return option || { value: id, label: id, urlId: id };
         });
       } else if (filter.id === "location" && Array.isArray(filter.value)) {
         newPendingFilters.location = filter.value.map((id: string) => {
           const option = filterOptions.location.find((opt) => opt.value === id);
-          return option || { value: id, label: id };
+          return option || { value: id, label: id, urlId: id };
         });
       } else if (filter.id === "tags" && Array.isArray(filter.value)) {
         newPendingFilters.includedTags = filter.value
@@ -641,15 +661,7 @@ function Boxes({
           actionOptionsData.base?.locations ?? [],
         )}
         tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
-        filterButton={
-          <IconButton
-            aria-label="Filter boxes"
-            icon={<MdFilterList />}
-            onClick={setIsFilterDrawerOpen.on}
-            size="md"
-            variant="ghost"
-          />
-        }
+        onFilterButtonClick={setIsFilterDrawerOpen.on}
       />
       <BoxesFilterDrawer
         isOpen={isFilterDrawerOpen}
