@@ -814,10 +814,11 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=999", // Invalid state ID
         mocks: [
+          boxesQuery({ state: "ALL", paginationInput: 20 }),
+          boxesQuery({ state: "ALL" }),
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
           boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ state: "InStock", paginationInput: 20 }),
-          boxesQuery({ state: "InStock" }),
+          boxesQuery({ paginationInput: 20 }),
           actionsQuery,
         ],
         cache,
@@ -826,7 +827,7 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
       },
     );
 
-    // Should still render properly by using default filter when invalid parameters are provided
+    // Should still render properly by ignoring invalid parameters
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
   });
@@ -884,9 +885,10 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
-        initialUrl: "/bases/2/boxes?state_ids=1,5",
+        initialUrl: "/bases/2/boxes?product_ids=267,350&state_ids=1,5",
         mocks: [
           boxesQuery({ state: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 20 }),
           boxesQuery({ state: "InStock", state2: "Donated", paginationInput: 20 }),
           boxesQuery({ state: "InStock", state2: "Donated" }),
           actionsQuery,

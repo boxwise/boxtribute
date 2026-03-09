@@ -192,7 +192,7 @@ function Boxes({
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [{ id: "state", value: ["1"] }],
+      columnFilters: [],
       sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: defaultHiddenColumns,
     },
