@@ -794,9 +794,9 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     // Verify that the state filter is applied (showing InStock boxes)
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
 
-    // Check that the state filter button indicates it has a filter applied
-    const stateFilterButton = screen.getByTestId("filter-state");
-    expect(stateFilterButton).toBeInTheDocument();
+    // Check that the filter drawer button indicates it has a filter applied (filled icon)
+    const filterDrawerButton = screen.getByTestId("filter-drawer-button");
+    expect(filterDrawerButton).toBeInTheDocument();
   });
 
   it("4.8.3.2 - Component should handle invalid state_ids parameter", async () => {
@@ -867,9 +867,9 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     // Verify that the product filter is applied (showing Sweatpants)
     expect(screen.getByText(/Sweatpants/i)).toBeInTheDocument();
 
-    // Check that the product filter button indicates it has a filter applied
-    const productFilterButton = screen.getByTestId("filter-product");
-    expect(productFilterButton).toBeInTheDocument();
+    // Check that the filter drawer button indicates it has a filter applied
+    const filterDrawerButton = screen.getByTestId("filter-drawer-button");
+    expect(filterDrawerButton).toBeInTheDocument();
   });
 
   it("4.8.3.4 - Component should handle multiple comma-separated IDs", async () => {
