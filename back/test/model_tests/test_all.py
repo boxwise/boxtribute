@@ -3,7 +3,6 @@ from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.distribution_event import DistributionEvent
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from boxtribute_server.models.definitions.log import Log
 from boxtribute_server.models.definitions.qr_code import QrCode
 from boxtribute_server.models.definitions.service import Service
 from boxtribute_server.models.definitions.services_relation import ServicesRelation
@@ -23,7 +22,6 @@ def test_models(
     default_beneficiary,
     default_box,
     default_history,
-    default_log,
     default_qr_code,
     default_shipment,
     default_standard_product,
@@ -49,9 +47,6 @@ def test_models(
 
     history = model_instance_dict(DbChangeHistory, default_history["id"])
     assert history.items() >= default_history.items()
-
-    log = model_instance_dict(Log, default_log["id"])
-    assert log.items() >= default_log.items()
 
     qr_code = model_instance_dict(QrCode, default_qr_code["id"])
     assert qr_code.items() >= default_qr_code.items()

@@ -50,7 +50,6 @@ from .location import (
     null_box_state_location,
     yet_another_location,
 )
-from .log import default_log
 from .organisation import (
     another_organisation,
     default_organisation,
@@ -164,7 +163,6 @@ __all__ = [
     "default_history",
     "default_location",
     "default_location_boxes",
-    "default_log",
     "default_organisation",
     "default_product",
     "default_product_category",
