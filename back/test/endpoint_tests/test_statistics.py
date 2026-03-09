@@ -446,7 +446,7 @@ def test_query_stock_overview(client, default_product, default_location):
         "location": [{"id": default_location["id"], "name": default_location["name"]}],
         "dimension": [{"id": 28, "name": "Mass"}, {"id": 29, "name": "Volume"}],
     }
-    assert data["facts"] == [
+    expected_facts = [
         {
             "boxState": BoxState.InStock.name,
             "boxesCount": 1,
@@ -604,6 +604,26 @@ def test_query_stock_overview(client, default_product, default_location):
             "tagIds": [],
         },
     ]
+    assert len(data["facts"]) == len(expected_facts)
+
+    def _fact_sort_key(fact):
+        return (
+            fact["boxState"],
+            fact["categoryId"],
+            fact["gender"],
+            fact["locationId"],
+            fact["productName"],
+            fact["sizeId"],
+            fact["absoluteMeasureValue"],
+            fact["dimensionId"],
+            tuple(fact["tagIds"]),
+            fact["boxesCount"],
+            fact["itemsCount"],
+        )
+
+    assert sorted(data["facts"], key=_fact_sort_key) == sorted(
+        expected_facts, key=_fact_sort_key
+    )
 
 
 def test_authorization(client, mocker):

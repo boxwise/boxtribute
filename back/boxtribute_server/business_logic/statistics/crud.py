@@ -24,11 +24,10 @@ from ...models.definitions.size_range import SizeRange
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
-from ...models.definitions.unit import Unit
 from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from ..metrics.crud import exclude_test_organisation
-from .sql import MOVED_BOXES_QUERY
+from .sql import MOVED_BOXES_QUERY, STOCK_OVERVIEW_QUERY
 
 
 @dataclass(kw_only=True)
@@ -437,83 +436,37 @@ def compute_moved_boxes(*base_ids):
     return DataCube(facts=facts, dimensions=dimensions, type="MovedBoxesData")
 
 
-def compute_stock_overview(base_id, *, tag_ids=None):
+def compute_stock_overview(base_id, *, tag_ids=None, excluded_tag_ids=None):
     """Compute stock overview (number of boxes and number of contained items) for the
     given base. The result can be filtered by size, location, box state, product
     category, product name, and product gender.
+    Optionally filter by tags: all boxes with any of tag_ids are included, and all boxes
+    with any of excluded_tag_ids are excluded.
     """
     _validate_existing_base(base_id)
-    tag_filter = (TagsRelation.tag << tag_ids) if tag_ids is not None else True
 
-    # Subquery to select distinct boxes with associated tags
-    boxes = (
-        Box.select(
-            Box.id,
-            Box.size.alias("size_id"),
-            Box.location.alias("location_id"),
-            Box.state.alias("box_state"),
-            Box.product.alias("product_id"),
-            # Round float to three significant digits
-            fn.ROUND(
-                Box.measure_value, 3 - fn.FLOOR(fn.LOG10(Box.measure_value) + 1)
-            ).alias("absolute_measure_value"),
-            Box.display_unit,
-            Box.number_of_items.alias("number_of_items"),
-            fn.GROUP_CONCAT(TagsRelation.tag).alias("tag_ids"),
-        )
-        .join(
-            TagsRelation,
-            JOIN.LEFT_OUTER,
-            src=Box,
-            on=(
-                (TagsRelation.object_id == Box.id)
-                & (TagsRelation.object_type == TaggableObjectType.Box)
-                & (TagsRelation.deleted_on.is_null())
-            ),
-        )
-        .where((~Box.deleted_on) | (Box.deleted_on.is_null()), tag_filter)
-        .group_by(Box.id)
-    )
-    facts = (
-        Box.select(
-            boxes.c.size_id,
-            boxes.c.location_id,
-            boxes.c.box_state,
-            Product.category.alias("category_id"),
-            fn.TRIM(fn.LOWER(Product.name)).alias("product_name"),
-            boxes.c.absolute_measure_value,
-            Unit.dimension.alias("dimension_id"),
-            Product.gender.alias("gender"),
-            boxes.c.tag_ids,
-            fn.COUNT(boxes.c.id).alias("boxes_count"),
-            fn.SUM(boxes.c.number_of_items).alias("items_count"),
-        )
-        .from_(boxes)
-        .join(
-            Location,
-            on=(
-                (boxes.c.location_id == Location.id)
-                & (Location.base == base_id)
-                & (Location.deleted_on.is_null())
-            ),
-        )
-        .join(Product, on=(boxes.c.product_id == Product.id))
-        .left_outer_join(Unit, on=(boxes.c.display_unit_id == Unit.id))
-        .group_by(
-            SQL("size_id"),
-            SQL("location_id"),
-            SQL("box_state"),
-            SQL("category_id"),
-            SQL("product_name"),
-            SQL("absolute_measure_value"),
-            SQL("dimension_id"),
-            SQL("gender"),
-            SQL("tag_ids"),
-        )
-        .dicts()
+    include_filter_active = bool(tag_ids)
+    exclude_filter_active = bool(excluded_tag_ids)
+
+    # Filtering is implemented with an SQL IN expression which needs a dummy value if
+    # the tag filter is not active
+    included_tag_ids = tag_ids if include_filter_active else [None]
+    excluded_tag_ids = excluded_tag_ids if exclude_filter_active else [None]
+
+    facts = execute_sql(
+        base_id,
+        include_filter_active,
+        included_tag_ids,
+        exclude_filter_active,
+        excluded_tag_ids,
+        include_filter_active,
+        exclude_filter_active,
+        database=db.replica or db.database,
+        query=STOCK_OVERVIEW_QUERY,
     )
     for fact in facts:
-        fact["tag_ids"] = sorted(convert_ids(fact["tag_ids"]))
+        fact["tag_ids"] = convert_ids(fact["tag_ids"])
+
     dimensions = _generate_dimensions(
         "size", "location", "category", "tag", "dimension", facts=facts
     )
