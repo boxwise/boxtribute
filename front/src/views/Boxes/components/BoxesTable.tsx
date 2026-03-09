@@ -58,6 +58,7 @@ interface IBoxesTableProps {
   tagOptions: IDropdownOption[];
   shipmentOptions: { label: string; value: string }[];
   onFilterButtonClick: () => void;
+  hideColumnFilters?: boolean;
 }
 
 function BoxesTable({
@@ -71,6 +72,7 @@ function BoxesTable({
   tagOptions,
   shipmentOptions,
   onFilterButtonClick,
+  hideColumnFilters = true,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
@@ -247,7 +249,10 @@ function BoxesTable({
         </HStack>
       </Flex>
       <Table key="boxes-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} />
+        <FilteringSortingTableHeader
+          headerGroups={headerGroups}
+          hideColumnFilters={hideColumnFilters}
+        />
         <Tbody>
           <Tr key={"boxes-count-row"} bg={"gray.100"}>
             <Td fontWeight="bold" key={"product-total"}>

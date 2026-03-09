@@ -16,6 +16,7 @@ interface IUseTableConfigProps {
   tableConfigKey: string;
   defaultTableConfig: ITableConfig;
   syncFiltersAndUrlParams?: boolean;
+  deferUrlSync?: boolean;
 }
 
 export interface IUseTableConfigReturnType {
@@ -27,6 +28,7 @@ export interface IUseTableConfigReturnType {
   setColumnFilters: (columnFilters: Filters<any>) => void;
   setSortBy: (sortBy: SortingRule<any>[]) => void;
   setHiddenColumns: (hiddenColumns: string[] | undefined) => void;
+  syncFiltersToUrl: () => void;
   isNotMounted: boolean;
 }
 
@@ -119,6 +121,7 @@ export const useTableConfig = ({
   tableConfigKey,
   defaultTableConfig,
   syncFiltersAndUrlParams = false,
+  deferUrlSync = false,
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
   const [searchParams, setSearchParams] = useSearchParams();
   // Parse all URL filters using helper
@@ -253,8 +256,17 @@ export const useTableConfig = ({
     });
     tableConfigsVar(tableConfigsState);
 
-    // Update URL parameters
-    if (syncFiltersAndUrlParams) updateUrl(columnFilters);
+    // Update URL parameters only if not deferred
+    if (syncFiltersAndUrlParams && !deferUrlSync) {
+      updateUrl(columnFilters);
+    }
+  }
+
+  function syncFiltersToUrl() {
+    if (syncFiltersAndUrlParams) {
+      const currentFilters = getColumnFilters();
+      updateUrl(currentFilters);
+    }
   }
 
   function setSortBy(sortBy: SortingRule<any>[]) {
@@ -280,6 +292,7 @@ export const useTableConfig = ({
     setColumnFilters,
     setSortBy,
     setHiddenColumns,
+    syncFiltersToUrl,
     isNotMounted: isInitialMount,
   };
 };

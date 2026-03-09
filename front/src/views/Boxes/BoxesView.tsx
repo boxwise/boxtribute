@@ -197,6 +197,7 @@ function Boxes({
       hiddenColumns: defaultHiddenColumns,
     },
     syncFiltersAndUrlParams: true,
+    deferUrlSync: true,
   });
 
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useBoolean();
@@ -527,7 +528,19 @@ function Boxes({
   );
 
   useEffect(() => {
+    // Only sync pendingFilters from tableConfig when drawer first opens
+    // AND when there are no pending changes (to preserve user selections)
     if (!isFilterDrawerOpen) {
+      return;
+    }
+
+    // Check if pendingFilters are already populated (user made selections)
+    const hasPendingChanges = Object.values(pendingFilters).some(
+      (filterArray) => filterArray.length > 0,
+    );
+
+    // If user already has pending changes, don't reset them
+    if (hasPendingChanges) {
       return;
     }
 
@@ -577,7 +590,7 @@ function Boxes({
     });
 
     setPendingFilters(newPendingFilters);
-  }, [isFilterDrawerOpen, tableConfig, filterOptions, availableTags]);
+  }, [isFilterDrawerOpen, tableConfig, filterOptions, availableTags, pendingFilters]);
 
   const handleFilterChange = (filterId: string, value: FilterOption[] | IBoxesTagFilterValue[]) => {
     setPendingFilters((prev) => ({
@@ -627,6 +640,8 @@ function Boxes({
     }
 
     tableConfig.setColumnFilters(newFilters);
+    // Sync filters to URL only when Apply is clicked
+    tableConfig.syncFiltersToUrl();
   };
 
   const handleClearFilters = () => {
@@ -641,6 +656,8 @@ function Boxes({
       excludedTags: [],
     });
     tableConfig.setColumnFilters([]);
+    // Sync URL when clearing filters
+    tableConfig.syncFiltersToUrl();
   };
 
   return (
