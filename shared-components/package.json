@@ -9,6 +9,8 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "tsc:check": "tsc --noEmit",
+    "format:write": "prettier --write --ignore-path ../.eslintignore",
+    "format:write:all": "pnpm format:write \"./**/*.{js,jsx,json,scss,md,ts,tsx}\"",
     "tsc:precommit": "tsc-files --noEmit"
   }
 }

@@ -1,6 +1,5 @@
 import { useReactiveVar } from "@apollo/client";
 import { useMemo } from "react";
-import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import StockCharts from "./StockCharts";
 import {
   boxesOrItemsFilterValues,
@@ -8,9 +7,10 @@ import {
   defaultBoxesOrItems,
 } from "../../filter/BoxesOrItemsSelect";
 import useValueFilter from "../../../hooks/useValueFilter";
+import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { tagFilterId } from "../../filter/TagFilter";
-import { tagFilterValuesVar } from "../../../state/filter";
+import { filterByTags } from "../../../utils/filterByTags";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 
 interface IStockDataFilterProps {
@@ -20,7 +20,8 @@ interface IStockDataFilterProps {
 export default function StockDataFilter({ stockOverview }: IStockDataFilterProps) {
   // currently not affected by the selected timerange
 
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
 
   const { filterValue } = useValueFilter(
     boxesOrItemsFilterValues,
@@ -28,29 +29,30 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
     boxesOrItemsUrlId,
   );
 
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
+  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
+    useMultiSelectFilter(
+      includedTagFilterValues,
+      tagFilterIncludedId,
+      excludedTagFilterValues,
+      tagFilterExcludedId,
+    );
 
   const filteredStockOverview = useMemo(() => {
-    const filters: TidyFn<object, object>[] = [];
-    if (filteredTags.length > 0) {
-      filters.push(
-        filter((fact: StockOverviewResult) =>
-          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
-        ),
-      );
-    }
+    // Filter by included and excluded tags
+    const tagFilteredFacts = filterByTags(
+      (stockOverview?.facts ?? []) as StockOverviewResult[],
+      includedTags,
+      excludedTags,
+    );
 
-    filters.push(filter((fact: StockOverviewResult) => fact.boxState === "InStock"));
+    // Filter by box state
+    const inStockFacts = tagFilteredFacts.filter((fact) => fact.boxState === "InStock");
 
-    if (filters.length > 0) {
-      return {
-        ...stockOverview,
-        // @ts-expect-error ts(2556)
-        facts: tidy(stockOverview.facts, ...filters),
-      } as StockOverview;
-    }
-    return stockOverview;
-  }, [filteredTags, stockOverview]);
+    return {
+      ...stockOverview,
+      facts: inStockFacts,
+    } as StockOverview;
+  }, [includedTags, excludedTags, stockOverview]);
 
   return <StockCharts stockOverview={filteredStockOverview} boxesOrItems={filterValue.value} />;
 }
