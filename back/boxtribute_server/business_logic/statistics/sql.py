@@ -439,8 +439,11 @@ WITH non_deleted_boxes_with_tags AS (
       ON tr.object_id = s.id
      AND tr.object_type = 'Stock'
      AND tr.deleted_on IS null
+    LEFT JOIN tags t
+      ON t.id = tr.tag_id
    WHERE (s.deleted IS NULL OR s.deleted = 0)
      AND (l.deleted IS NULL OR l.deleted = 0)
+     AND (t.deleted IS NULL OR t.deleted = 0)
 ),
 box_tag_agg AS (
     SELECT
