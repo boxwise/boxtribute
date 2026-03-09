@@ -45,11 +45,13 @@ export default function MultiSelectFilter({
     // TODO: fix types
   } = useForm<any>({
     resolver: zodResolver(ValueFilterSchema),
-    defaultValues: values,
+    defaultValues: {
+      [filterId]: filterValue || [],
+    },
   });
 
   useEffect(() => {
-    if (filterValue) {
+    if (filterValue !== undefined) {
       setValue(filterId, filterValue);
     }
   }, [filterId, filterValue, setValue]);
