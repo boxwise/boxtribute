@@ -100,4 +100,4 @@ Post-Implementation Notes:
 
 The current implementation of this replacement was done with `@yudiel/react-qr-scanner`. This package provided a ready-made component that significantly decreased the complexity of project-side code. However, due to this extra abstraction, the component does not provide full customizability visually, which resulted in minor visual changes.
 
-Apart from this, a small fix was required for the provided component to work perfectly in our context. This was fixed with a [small PR which we submitted](https://github.com/yudielcurbelo/react-qr-scanner/pull/152). The PR was was merged and deployed in short order. A good sign of the package's maintenance state at time of writing.
+Apart from this, a small fix was required for the provided component to work perfectly in our context. This was fixed with a [small PR which we submitted](https://github.com/yudielcurbelo/react-qr-scanner/pull/152). The PR was merged and deployed in short order. A good sign of the package's maintenance state at time of writing.
