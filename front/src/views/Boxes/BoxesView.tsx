@@ -507,6 +507,10 @@ function Boxes({
   );
 
   useEffect(() => {
+    if (!isFilterDrawerOpen) {
+      return;
+    }
+
     const currentFilters = tableConfig.getColumnFilters();
     const newPendingFilters: typeof pendingFilters = {
       product: [],
@@ -553,7 +557,7 @@ function Boxes({
     });
 
     setPendingFilters(newPendingFilters);
-  }, [tableConfig, filterOptions, availableTags, isFilterDrawerOpen]);
+  }, [isFilterDrawerOpen, tableConfig, filterOptions, availableTags]);
 
   const handleFilterChange = (filterId: string, value: FilterOption[] | IBoxesTagFilterValue[]) => {
     setPendingFilters((prev) => ({
