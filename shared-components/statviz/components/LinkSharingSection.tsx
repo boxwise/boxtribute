@@ -22,7 +22,8 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-    filteredTags,
+    includedTags,
+    excludedTags,
     boi,
     expirationDate,
   } = useShareableLink({ view });
@@ -47,7 +48,8 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
                 <ShareableLinkAlert
                   alertType={alertType}
                   boi={boi}
-                  filteredTags={filteredTags}
+                  includedTags={includedTags}
+                  excludedTags={excludedTags}
                   expirationDate={expirationDate}
                 />
                 <Button onClick={handleShareLinkClick}>Create Link</Button>
