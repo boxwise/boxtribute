@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import {
   Drawer,
   DrawerBody,
@@ -10,11 +10,15 @@ import {
   Button,
   HStack,
   Box,
+  FormControl,
+  FormLabel,
 } from "@chakra-ui/react";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import TabbedTagDropdown from "@boxtribute/shared-components/statviz/components/filter/TabbedTagDropdown";
+import type { ITagFilterValue } from "@boxtribute/shared-components/statviz/state/filter";
 
 interface BoxesFilterDrawerProps {
   isOpen: boolean;
@@ -42,6 +46,50 @@ export function BoxesFilterDrawer({
   tagOptions,
 }: BoxesFilterDrawerProps) {
   const [stagedFilters, setStagedFilters] = useState<Record<string, string[]>>({});
+
+  // Convert IFilterValue[] to ITagFilterValue[] for TabbedTagDropdown
+  const tagFilterValues: ITagFilterValue[] = useMemo(
+    () =>
+      tagOptions.map((tag) => ({
+        ...tag,
+        id: parseInt(tag.value, 10),
+        color: (tag as any).color || "#000000", // Default color if missing
+      })),
+    [tagOptions],
+  );
+
+  // Get included and excluded tags from stagedFilters
+  const includedTags = useMemo(
+    () => tagFilterValues.filter((tag) => stagedFilters.tags?.includes(tag.value)),
+    [tagFilterValues, stagedFilters.tags],
+  );
+
+  const excludedTags = useMemo(
+    () => tagFilterValues.filter((tag) => stagedFilters.no_tags?.includes(tag.value)),
+    [tagFilterValues, stagedFilters.no_tags],
+  );
+
+  const handleIncludedTagsChange = useCallback((tags: ITagFilterValue[]) => {
+    setStagedFilters((prev) => ({
+      ...prev,
+      tags: tags.map((t) => t.value),
+    }));
+  }, []);
+
+  const handleExcludedTagsChange = useCallback((tags: ITagFilterValue[]) => {
+    setStagedFilters((prev) => ({
+      ...prev,
+      no_tags: tags.map((t) => t.value),
+    }));
+  }, []);
+
+  const handleClearAllTags = useCallback(() => {
+    setStagedFilters((prev) => ({
+      ...prev,
+      tags: [],
+      no_tags: [],
+    }));
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -160,33 +208,18 @@ export function BoxesFilterDrawer({
               placeholder="All"
             />
 
-            <MultiSelectFilter
-              fieldLabel="Tags"
-              values={tagOptions}
-              filterId="tags"
-              filterValue={tagOptions.filter((o) => stagedFilters.tags?.includes(o.value))}
-              onFilterChange={(selected) =>
-                handleFilterChange(
-                  "tags",
-                  selected.map((s) => s.value),
-                )
-              }
-              placeholder="All"
-            />
-
-            <MultiSelectFilter
-              fieldLabel="Exclude tags"
-              values={tagOptions}
-              filterId="no_tags"
-              filterValue={tagOptions.filter((o) => stagedFilters.no_tags?.includes(o.value))}
-              onFilterChange={(selected) =>
-                handleFilterChange(
-                  "no_tags",
-                  selected.map((s) => s.value),
-                )
-              }
-              placeholder="None"
-            />
+            <FormControl>
+              <FormLabel>Tags</FormLabel>
+              <TabbedTagDropdown
+                availableTags={tagFilterValues}
+                includedTags={includedTags}
+                excludedTags={excludedTags}
+                onIncludedChange={handleIncludedTagsChange}
+                onExcludedChange={handleExcludedTagsChange}
+                onClearAll={handleClearAllTags}
+                placeholder="All"
+              />
+            </FormControl>
 
             <Box pt={4}>
               <HStack spacing={3}>
