@@ -129,6 +129,7 @@ function BoxesTable({
     setGlobalFilter,
     page,
     rows,
+    setAllFilters,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -264,14 +265,14 @@ function BoxesTable({
 
   const handleApplyFilters = useCallback(
     (newFilters: Filters<any>) => {
-      tableConfig.setColumnFilters(newFilters);
+      setAllFilters(newFilters);
     },
-    [tableConfig],
+    [],
   );
 
   const handleClearFilters = useCallback(() => {
-    tableConfig.setColumnFilters([]);
-  }, [tableConfig]);
+    setAllFilters([]);
+  }, []);
 
   return (
     <Flex direction="column" height="100%">
