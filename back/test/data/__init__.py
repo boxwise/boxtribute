@@ -50,7 +50,6 @@ from .location import (
     null_box_state_location,
     yet_another_location,
 )
-from .log import default_log
 from .organisation import (
     another_organisation,
     default_organisation,
@@ -80,6 +79,7 @@ from .qr_code import (
 from .service import english_lesson_service
 from .services_relation import default_service_relation
 from .shareable_link import (
+    another_tagged_stock_overview_link,
     expired_link,
     shareable_link,
     stock_overview_link,
@@ -142,6 +142,7 @@ __all__ = [
     "another_size",
     "another_size_range",
     "another_standard_product",
+    "another_tagged_stock_overview_link",
     "another_transaction",
     "another_user",
     "base1_active_tags",
@@ -164,7 +165,6 @@ __all__ = [
     "default_history",
     "default_location",
     "default_location_boxes",
-    "default_log",
     "default_organisation",
     "default_product",
     "default_product_category",
