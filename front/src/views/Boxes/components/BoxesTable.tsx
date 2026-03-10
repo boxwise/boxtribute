@@ -32,6 +32,7 @@ import {
   includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
   includesSomeTagObjectFilterFn,
+  excludesSomeTagObjectFilterFn,
 } from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
@@ -86,6 +87,7 @@ function BoxesTable({
       includesSomeObject: includesSomeObjectFilterFn,
       includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
       includesSomeTagObject: includesSomeTagObjectFilterFn,
+      excludesSomeTagObject: excludesSomeTagObjectFilterFn,
     }),
     [],
   );

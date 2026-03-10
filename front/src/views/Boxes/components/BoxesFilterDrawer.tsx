@@ -174,6 +174,20 @@ export function BoxesFilterDrawer({
               placeholder="All"
             />
 
+            <MultiSelectFilter
+              fieldLabel="Exclude tags"
+              values={tagOptions}
+              filterId="no_tags"
+              filterValue={tagOptions.filter((o) => stagedFilters.no_tags?.includes(o.value))}
+              onFilterChange={(selected) =>
+                handleFilterChange(
+                  "no_tags",
+                  selected.map((s) => s.value),
+                )
+              }
+              placeholder="None"
+            />
+
             <Box pt={4}>
               <HStack spacing={3}>
                 <Button colorScheme="blue" onClick={handleApply} flex={1}>
