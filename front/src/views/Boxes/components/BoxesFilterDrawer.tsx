@@ -9,19 +9,12 @@ import {
   VStack,
   Button,
   HStack,
-  FormControl,
-  FormLabel,
   Box,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
-
-interface ISelectOption {
-  label: string;
-  value: string;
-}
+import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 
 interface BoxesFilterDrawerProps {
   isOpen: boolean;
@@ -29,11 +22,11 @@ interface BoxesFilterDrawerProps {
   columnFilters: Filters<any>;
   onApplyFilters: (filters: Filters<any>) => void;
   onClearFilters: () => void;
-  productOptions: ISelectOption[];
-  genderOptions: ISelectOption[];
-  sizeOptions: ISelectOption[];
-  locationOptions: ISelectOption[];
-  tagOptions: ISelectOption[];
+  productOptions: IFilterValue[];
+  genderOptions: IFilterValue[];
+  sizeOptions: IFilterValue[];
+  locationOptions: IFilterValue[];
+  tagOptions: IFilterValue[];
 }
 
 export function BoxesFilterDrawer({
@@ -86,6 +79,7 @@ export function BoxesFilterDrawer({
   const stateOptions = Object.entries(boxStateIds).map(([name, id]) => ({
     label: name,
     value: id,
+    urlId: id,
   }));
 
   return (
@@ -110,90 +104,75 @@ export function BoxesFilterDrawer({
               placeholder="All"
             />
 
-            <FormControl>
-              <FormLabel>Gender</FormLabel>
-              <Select
-                isMulti
-                options={genderOptions}
-                value={genderOptions.filter((o) => stagedFilters.gender?.includes(o.value))}
-                onChange={(selected) =>
-                  handleFilterChange(
-                    "gender",
-                    selected.map((s) => s.value),
-                  )
-                }
-                placeholder="All"
-                size="sm"
-              />
-            </FormControl>
+            <MultiSelectFilter
+              fieldLabel="Gender"
+              values={genderOptions}
+              filterId="gender"
+              filterValue={genderOptions.filter((o) => stagedFilters.gender?.includes(o.value))}
+              onFilterChange={(selected) =>
+                handleFilterChange(
+                  "gender",
+                  selected.map((s) => s.value),
+                )
+              }
+              placeholder="All"
+            />
 
-            <FormControl>
-              <FormLabel>Size</FormLabel>
-              <Select
-                isMulti
-                options={sizeOptions}
-                value={sizeOptions.filter((o) => stagedFilters.size?.includes(o.value))}
-                onChange={(selected) =>
-                  handleFilterChange(
-                    "size",
-                    selected.map((s) => s.value),
-                  )
-                }
-                placeholder="All"
-                size="sm"
-              />
-            </FormControl>
+            <MultiSelectFilter
+              fieldLabel="Size"
+              values={sizeOptions}
+              filterId="size"
+              filterValue={sizeOptions.filter((o) => stagedFilters.size?.includes(o.value))}
+              onFilterChange={(selected) =>
+                handleFilterChange(
+                  "size",
+                  selected.map((s) => s.value),
+                )
+              }
+              placeholder="All"
+            />
 
-            <FormControl>
-              <FormLabel>Status</FormLabel>
-              <Select
-                isMulti
-                options={stateOptions}
-                value={stateOptions.filter((o) => stagedFilters.state?.includes(o.value))}
-                onChange={(selected) =>
-                  handleFilterChange(
-                    "state",
-                    selected.map((s) => s.value),
-                  )
-                }
-                placeholder="All"
-                size="sm"
-              />
-            </FormControl>
+            <MultiSelectFilter
+              fieldLabel="Status"
+              values={stateOptions}
+              filterId="state"
+              filterValue={stateOptions.filter((o) => stagedFilters.state?.includes(o.value))}
+              onFilterChange={(selected) =>
+                handleFilterChange(
+                  "state",
+                  selected.map((s) => s.value),
+                )
+              }
+              placeholder="All"
+            />
 
-            <FormControl>
-              <FormLabel>Location</FormLabel>
-              <Select
-                isMulti
-                options={locationOptions}
-                value={locationOptions.filter((o) => stagedFilters.location?.includes(o.value))}
-                onChange={(selected) =>
-                  handleFilterChange(
-                    "location",
-                    selected.map((s) => s.value),
-                  )
-                }
-                placeholder="All"
-                size="sm"
-              />
-            </FormControl>
+            <MultiSelectFilter
+              fieldLabel="Location"
+              values={locationOptions}
+              filterId="location"
+              filterValue={locationOptions.filter((o) => stagedFilters.location?.includes(o.value))}
+              onFilterChange={(selected) =>
+                handleFilterChange(
+                  "location",
+                  selected.map((s) => s.value),
+                )
+              }
+              placeholder="All"
+            />
 
-            <FormControl>
-              <FormLabel>Tags</FormLabel>
-              <Select
-                isMulti
-                options={tagOptions}
-                value={tagOptions.filter((o) => stagedFilters.tags?.includes(o.value))}
-                onChange={(selected) =>
-                  handleFilterChange(
-                    "tags",
-                    selected.map((s) => s.value),
-                  )
-                }
-                placeholder="All"
-                size="sm"
-              />
-            </FormControl>
+            <MultiSelectFilter
+              fieldLabel="Tags"
+              values={tagOptions}
+              filterId="tags"
+              filterValue={tagOptions.filter((o) => stagedFilters.tags?.includes(o.value))}
+              onFilterChange={(selected) =>
+                handleFilterChange(
+                  "tags",
+                  selected.map((s) => s.value),
+                )
+              }
+              placeholder="All"
+            />
 
             <Box pt={4}>
               <HStack spacing={3}>

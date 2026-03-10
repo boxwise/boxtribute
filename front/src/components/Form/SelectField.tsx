@@ -9,6 +9,7 @@ export interface IDropdownOption extends OptionBase {
   subTitle?: string | undefined | null;
   color?: string | undefined | null;
   data?: object | undefined | null;
+  urlId?: string;
   /** Whether this option should be styled as a special action. Defaults to false. */
   isSpecial?: boolean;
 }

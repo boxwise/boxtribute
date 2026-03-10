@@ -49,6 +49,7 @@ import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BoxesFilterDrawer } from "./BoxesFilterDrawer";
 import { MdFilterList, MdFilterListAlt } from "react-icons/md";
+import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -57,9 +58,9 @@ interface IBoxesTableProps {
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
-  locationOptions: { label: string; value: string }[];
-  tagOptions: IDropdownOption[];
-  shipmentOptions: { label: string; value: string }[];
+  locationOptions: IFilterValue[];
+  tagOptions: IFilterValue[];
+  shipmentOptions: IDropdownOption[];
 }
 
 function BoxesTable({
@@ -235,6 +236,7 @@ function BoxesTable({
       .map((p) => ({
         label: `${p.name} (${p.gender})`,
         value: p.id,
+        urlId: p.id,
       }))
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [tableData]);
@@ -247,19 +249,19 @@ function BoxesTable({
       }
     });
     return Array.from(uniqueGenders.values())
-      .map((g) => ({ label: g.name, value: g.id }))
+      .map((g) => ({ label: g.name, value: g.id, urlId: g.id }))
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [tableData]);
 
   const sizeOptions = useMemo(() => {
     const uniqueSizes = new Map<string, { id: string; name: string }>();
     tableData.forEach((row) => {
-      if (row.size) {
-        uniqueSizes.set(row.size.id, row.size);
+      if (row.size && row.size.name) {
+        uniqueSizes.set(row.size.id, { id: row.size.id, name: row.size.name });
       }
     });
     return Array.from(uniqueSizes.values())
-      .map((s) => ({ label: s.name, value: s.id }))
+      .map((s) => ({ label: s.name, value: s.id, urlId: s.id }))
       .sort((a, b) => a.label.localeCompare(b.label));
   }, [tableData]);
 
@@ -267,12 +269,12 @@ function BoxesTable({
     (newFilters: Filters<any>) => {
       setAllFilters(newFilters);
     },
-    [],
+    [setAllFilters],
   );
 
   const handleClearFilters = useCallback(() => {
     setAllFilters([]);
-  }, []);
+  }, [setAllFilters]);
 
   return (
     <Flex direction="column" height="100%">
