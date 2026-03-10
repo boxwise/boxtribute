@@ -16,6 +16,7 @@ import {
 import { Select } from "chakra-react-select";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
+import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 
 interface ISelectOption {
   label: string;
@@ -95,22 +96,19 @@ export function BoxesFilterDrawer({
         <DrawerHeader>Filters</DrawerHeader>
         <DrawerBody>
           <VStack spacing={4} align="stretch">
-            <FormControl>
-              <FormLabel>Product</FormLabel>
-              <Select
-                isMulti
-                options={productOptions}
-                value={productOptions.filter((o) => stagedFilters.product?.includes(o.value))}
-                onChange={(selected) =>
-                  handleFilterChange(
-                    "product",
-                    selected.map((s) => s.value),
-                  )
-                }
-                placeholder="All"
-                size="sm"
-              />
-            </FormControl>
+            <MultiSelectFilter
+              fieldLabel="Product"
+              values={productOptions}
+              filterId="product"
+              filterValue={productOptions.filter((o) => stagedFilters.product?.includes(o.value))}
+              onFilterChange={(selected) =>
+                handleFilterChange(
+                  "product",
+                  selected.map((s) => s.value),
+                )
+              }
+              placeholder="All"
+            />
 
             <FormControl>
               <FormLabel>Gender</FormLabel>
