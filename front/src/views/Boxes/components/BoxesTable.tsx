@@ -51,6 +51,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { BoxesFilterDrawer } from "./BoxesFilterDrawer";
 import { MdFilterList, MdFilterListAlt } from "react-icons/md";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import { FilterChips } from "./FilterChips";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -278,6 +279,30 @@ function BoxesTable({
     setAllFilters([]);
   }, [setAllFilters]);
 
+  const handleRemoveFilter = useCallback(
+    (filterId: string, valueToRemove?: string) => {
+      const updatedFilters = filters
+        .map((filter) => {
+          if (filter.id === filterId) {
+            if (!valueToRemove) {
+              // Remove entire filter
+              return null;
+            }
+            // Remove specific value from filter
+            const remainingValues = Array.isArray(filter.value)
+              ? filter.value.filter((v: string) => v !== valueToRemove)
+              : [];
+            return remainingValues.length > 0 ? { ...filter, value: remainingValues } : null;
+          }
+          return filter;
+        })
+        .filter((f) => f !== null) as Filters<any>;
+
+      setAllFilters(updatedFilters);
+    },
+    [filters, setAllFilters],
+  );
+
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
@@ -323,6 +348,16 @@ function BoxesTable({
           />
         </HStack>
       </Flex>
+      <FilterChips
+        filters={filters}
+        productOptions={productOptions}
+        genderOptions={genderOptions}
+        sizeOptions={sizeOptions}
+        locationOptions={locationOptions}
+        tagOptions={tagOptions}
+        onRemoveFilter={handleRemoveFilter}
+        onClearAllFilters={handleClearFilters}
+      />
       <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>

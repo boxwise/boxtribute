@@ -864,8 +864,8 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     expect(screen.getByText(/1481666/i)).toBeInTheDocument();
     expect(screen.queryByText(/8650860/i)).not.toBeInTheDocument();
 
-    // Verify that the product filter is applied (showing Sweatpants)
-    expect(screen.getByText(/Sweatpants/i)).toBeInTheDocument();
+    // Verify that the product filter is applied (showing Sweatpants in filter chip and table)
+    expect(screen.getAllByText(/Sweatpants/i).length).toBeGreaterThanOrEqual(1);
 
     // Check that the filter drawer button indicates it has a filter applied
     const filterDrawerButton = screen.getByTestId("filter-drawer-button");
