@@ -45,7 +45,8 @@ function CustomMenu(menuProps: { selectProps: ICustomSelectProps; children: Reac
   return (
     <chakraComponents.Menu {...(menuProps as any)}>
       <Tabs index={tabIndex} onChange={handleTabChange} size="sm">
-        <TabList>
+        {/* onMouseDown preventDefault keeps the Select input focused when switching tabs */}
+        <TabList bg="white" onMouseDown={(e) => e.preventDefault()}>
           <Tab flex="1">Include</Tab>
           <Tab flex="1">Exclude</Tab>
         </TabList>
@@ -115,21 +116,31 @@ export default function TabbedTagDropdown({
       if (actionMeta.action === "select-option" && actionMeta.option) {
         const added = actionMeta.option;
         if (tabIndexRef.current === 0) {
-          // Include tab: add to included, remove from excluded if present
+          // Include tab: add to included list.
+          // Only remove from excluded if it was actually there (avoids a second setSearchParams
+          // call that would overwrite the first one with a stale URL params snapshot).
+          if (excludedTags.some((t) => t.id === added.id)) {
+            onExcludedChange(excludedTags.filter((t) => t.id !== added.id));
+          }
           onIncludedChange([...includedTags, added]);
-          onExcludedChange(excludedTags.filter((t) => t.id !== added.id));
         } else {
-          // Exclude tab: add to excluded, remove from included if present
+          // Exclude tab: add to excluded list.
+          if (includedTags.some((t) => t.id === added.id)) {
+            onIncludedChange(includedTags.filter((t) => t.id !== added.id));
+          }
           onExcludedChange([...excludedTags, added]);
-          onIncludedChange(includedTags.filter((t) => t.id !== added.id));
         }
       } else if (
         (actionMeta.action === "remove-value" || actionMeta.action === "pop-value") &&
         actionMeta.removedValue
       ) {
         const removed = actionMeta.removedValue;
-        onIncludedChange(includedTags.filter((t) => t.id !== removed.id));
-        onExcludedChange(excludedTags.filter((t) => t.id !== removed.id));
+        // Only call the handler that actually owns this tag.
+        if (includedTags.some((t) => t.id === removed.id)) {
+          onIncludedChange(includedTags.filter((t) => t.id !== removed.id));
+        } else {
+          onExcludedChange(excludedTags.filter((t) => t.id !== removed.id));
+        }
       } else if (actionMeta.action === "clear") {
         if (onClearAll) {
           onClearAll();
