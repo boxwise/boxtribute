@@ -111,6 +111,39 @@ describe("TabbedTagDropdown", () => {
     expect(screen.getByText("Exclude")).toBeInTheDocument();
   });
 
+  it("remembers the active tab (Exclude) after the menu is closed and reopened", async () => {
+    const user = userEvent.setup();
+    const onIncludedChange = vi.fn();
+    const onExcludedChange = vi.fn();
+
+    render(
+      <TestWrapper>
+        <TabbedTagDropdown
+          availableTags={allTags}
+          includedTags={[]}
+          excludedTags={[]}
+          onIncludedChange={onIncludedChange}
+          onExcludedChange={onExcludedChange}
+        />
+      </TestWrapper>,
+    );
+
+    // Open menu and switch to Exclude tab
+    await user.click(screen.getByText("Filter by tags"));
+    await user.click(screen.getByText("Exclude"));
+
+    // Close the menu by pressing Escape (unmounts CustomMenu)
+    await user.keyboard("{Escape}");
+
+    // Reopen the menu — the Exclude tab should still be active
+    await user.click(screen.getByText("Filter by tags"));
+    await user.click(screen.getByRole("option", { name: /dark tag/i }));
+
+    // Selection must go to the excluded list, not the included list
+    expect(onExcludedChange).toHaveBeenCalledWith([darkTag]);
+    expect(onIncludedChange).not.toHaveBeenCalled();
+  });
+
   it("calls onIncludedChange when a tag is selected on the Include tab", async () => {
     const user = userEvent.setup();
     const onIncludedChange = vi.fn();

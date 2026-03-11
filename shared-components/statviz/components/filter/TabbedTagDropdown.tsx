@@ -37,8 +37,9 @@ interface ICustomSelectProps {
 // input and closes the dropdown. Using plain Box elements with onMouseDown preventDefault
 // prevents focus transfer without that side-effect.
 function CustomMenu(menuProps: { selectProps: ICustomSelectProps; children: React.ReactNode }) {
-  const [tabIndex, setTabIndex] = useState(0);
   const { tabIndexRef } = menuProps.selectProps;
+  // Initialize from the ref so the active tab is remembered across menu open/close cycles.
+  const [tabIndex, setTabIndex] = useState(() => tabIndexRef?.current ?? 0);
 
   const handleTabChange = (index: number) => {
     setTabIndex(index);
