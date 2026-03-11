@@ -204,6 +204,16 @@ export default function TabbedTagDropdown({
           minW: "150px",
           _hover: { borderColor: "gray.300" },
         }),
+        menuList: (provided) => ({
+          ...provided,
+          borderTopRadius: 0,
+        }),
+        option: (provided) => ({
+          ...provided,
+          background: "white",
+          _hover: { background: "gray.100" },
+          _active: { background: "gray.100" },
+        }),
         multiValue: (provided, { data }) => {
           const tagData = data as ITagFilterValue;
           const isIncluded = includedTags.some((t) => t.id === tagData.id);
