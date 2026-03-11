@@ -1,5 +1,5 @@
 import { useRef, useMemo, useCallback, useState } from "react";
-import { Tab, TabList, TabPanel, TabPanels, Tabs, Flex } from "@chakra-ui/react";
+import { Box, Flex } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Select, chakraComponents } from "chakra-react-select";
 
@@ -31,6 +31,10 @@ interface ICustomSelectProps {
 
 // Custom Menu component that wraps the dropdown in Include/Exclude tabs.
 // Defined at module level so the reference is stable and avoids hook violations.
+// NOTE: We intentionally avoid Chakra's Tab/TabList/Tabs here. Chakra's Tab is a <button>
+// whose useTab hook calls element.focus() on click, which steals focus from the react-select
+// input and closes the dropdown. Using plain Box elements with onMouseDown preventDefault
+// prevents focus transfer without that side-effect.
 function CustomMenu(menuProps: { selectProps: ICustomSelectProps; children: React.ReactNode }) {
   const [tabIndex, setTabIndex] = useState(0);
   const { tabIndexRef } = menuProps.selectProps;
@@ -42,19 +46,37 @@ function CustomMenu(menuProps: { selectProps: ICustomSelectProps; children: Reac
     }
   };
 
+  const TAB_LABELS = ["Include", "Exclude"] as const;
+
   return (
     <chakraComponents.Menu {...(menuProps as any)}>
-      <Tabs index={tabIndex} onChange={handleTabChange} size="sm">
-        {/* onMouseDown preventDefault keeps the Select input focused when switching tabs */}
-        <TabList bg="white" onMouseDown={(e) => e.preventDefault()}>
-          <Tab flex="1">Include</Tab>
-          <Tab flex="1">Exclude</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel p={0}>{tabIndex === 0 ? menuProps.children : null}</TabPanel>
-          <TabPanel p={0}>{tabIndex === 1 ? menuProps.children : null}</TabPanel>
-        </TabPanels>
-      </Tabs>
+      {/* Plain flex row for tabs — no Chakra Tab/TabList so focus stays on the Select input */}
+      <Flex bg="white" border="1px solid" borderColor="gray.200" borderBottom="none">
+        {TAB_LABELS.map((label, i) => (
+          <Box
+            key={label}
+            as="button"
+            type="button"
+            flex="1"
+            py={2}
+            fontSize="sm"
+            fontWeight="medium"
+            textAlign="center"
+            cursor="pointer"
+            color={tabIndex === i ? "blue.600" : "gray.500"}
+            borderBottom="2px solid"
+            borderBottomColor={tabIndex === i ? "blue.500" : "transparent"}
+            bg="white"
+            _focus={{ outline: "none" }}
+            /* preventDefault on mousedown keeps focus on the react-select input */
+            onMouseDown={(e: React.MouseEvent) => e.preventDefault()}
+            onClick={() => handleTabChange(i)}
+          >
+            {label}
+          </Box>
+        ))}
+      </Flex>
+      {menuProps.children}
     </chakraComponents.Menu>
   );
 }
