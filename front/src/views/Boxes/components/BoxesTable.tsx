@@ -378,83 +378,85 @@ function BoxesTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      <Table key="boxes-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
-        <Tbody>
-          <Tr key={"boxes-count-row"} bg={"gray.100"}>
-            <Td fontWeight="bold" key={"product-total"}>
-              Total
-            </Td>
-            <Td fontWeight="bold" key={"boxes-count"} data-testid="boxes-count">
-              {isBackgroundFetchOfBoxesLoading ||
-              refetchBoxesIsPending ||
-              tableConfig.isNotMounted ? (
-                <Skeleton height={5} width={10} mr={2} />
-              ) : hasExecutedInitialFetchOfBoxes.current ? (
-                <Text as="span">
-                  {boxCount} box{boxCount === 1 ? "" : "es"}
-                </Text>
-              ) : (
-                <Text as="span">Data unavailable</Text>
-              )}
-            </Td>
-            <Td fontWeight="bold" key={"item-count"}>
-              {isBackgroundFetchOfBoxesLoading ||
-              refetchBoxesIsPending ||
-              tableConfig.isNotMounted ? (
-                <Skeleton height={5} width={10} mr={2} />
-              ) : hasExecutedInitialFetchOfBoxes.current ? (
-                <Text as="span">{itemsCount} items</Text>
-              ) : (
-                <Text as="span">Data unavailable</Text>
-              )}
-            </Td>
-            <Td colSpan={20}></Td>
-          </Tr>
-          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-            <Tr key="refetchIsPending1">
-              <Td colSpan={columns.length + 1}>
-                <Skeleton height={5} />
+      <Box overflowX="auto" maxW="100vw">
+        <Table key="boxes-table">
+          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+          <Tbody>
+            <Tr key={"boxes-count-row"} bg={"gray.100"}>
+              <Td fontWeight="bold" key={"product-total"}>
+                Total
               </Td>
-            </Tr>
-          )}
-          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-            <Tr key="refetchIsPending2">
-              <Td colSpan={columns.length + 1}>
-                <Skeleton height={5} />
+              <Td fontWeight="bold" key={"boxes-count"} data-testid="boxes-count">
+                {isBackgroundFetchOfBoxesLoading ||
+                refetchBoxesIsPending ||
+                tableConfig.isNotMounted ? (
+                  <Skeleton height={5} width={10} mr={2} />
+                ) : hasExecutedInitialFetchOfBoxes.current ? (
+                  <Text as="span">
+                    {boxCount} box{boxCount === 1 ? "" : "es"}
+                  </Text>
+                ) : (
+                  <Text as="span">Data unavailable</Text>
+                )}
               </Td>
+              <Td fontWeight="bold" key={"item-count"}>
+                {isBackgroundFetchOfBoxesLoading ||
+                refetchBoxesIsPending ||
+                tableConfig.isNotMounted ? (
+                  <Skeleton height={5} width={10} mr={2} />
+                ) : hasExecutedInitialFetchOfBoxes.current ? (
+                  <Text as="span">{itemsCount} items</Text>
+                ) : (
+                  <Text as="span">Data unavailable</Text>
+                )}
+              </Td>
+              <Td colSpan={20}></Td>
             </Tr>
-          )}
+            {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
+              <Tr key="refetchIsPending1">
+                <Td colSpan={columns.length + 1}>
+                  <Skeleton height={5} />
+                </Td>
+              </Tr>
+            )}
+            {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
+              <Tr key="refetchIsPending2">
+                <Td colSpan={columns.length + 1}>
+                  <Skeleton height={5} />
+                </Td>
+              </Tr>
+            )}
 
-          {page.map((row) => {
-            prepareRow(row);
-            if (row.isSelected && actionsAreLoading) {
+            {page.map((row) => {
+              prepareRow(row);
+              if (row.isSelected && actionsAreLoading) {
+                return (
+                  <Tr key={row.original.labelIdentifier}>
+                    <Td colSpan={columns.length + 1}>
+                      <Skeleton height={5} />
+                    </Td>
+                  </Tr>
+                );
+              }
+
               return (
-                <Tr key={row.original.labelIdentifier}>
-                  <Td colSpan={columns.length + 1}>
-                    <Skeleton height={5} />
-                  </Td>
+                <Tr
+                  cursor="pointer"
+                  {...row.getRowProps()}
+                  onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                  key={row.original.labelIdentifier}
+                >
+                  {row.cells.map((cell) => (
+                    <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                      {cell.render("Cell")}
+                    </Td>
+                  ))}
                 </Tr>
               );
-            }
-
-            return (
-              <Tr
-                cursor="pointer"
-                {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
-                key={row.original.labelIdentifier}
-              >
-                {row.cells.map((cell) => (
-                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+            })}
+          </Tbody>
+        </Table>
+      </Box>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
