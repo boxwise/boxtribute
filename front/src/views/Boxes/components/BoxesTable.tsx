@@ -195,10 +195,30 @@ function BoxesTable({
   } = useBoxesActions(selectedFlatRows, toggleRowSelected);
 
   useEffect(() => {
-    // refetch
+    // Helper to compare filter values (deep equality for arrays)
+    const areFilterValuesEqual = (
+      filter1: { id: string; value: any } | undefined,
+      filter2: { id: string; value: any } | undefined,
+    ): boolean => {
+      if (!filter1 && !filter2) return true;
+      if (!filter1 || !filter2) return false;
+
+      const val1 = Array.isArray(filter1.value) ? filter1.value : [filter1.value];
+      const val2 = Array.isArray(filter2.value) ? filter2.value : [filter2.value];
+
+      if (val1.length !== val2.length) return false;
+
+      // Sort and compare arrays
+      const sorted1 = [...val1].sort();
+      const sorted2 = [...val2].sort();
+      return sorted1.every((v, i) => v === sorted2[i]);
+    };
+
+    // refetch only if state filter actually changed
     const newStateFilter = filters.find((filter) => filter.id === "state");
     const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-    if (newStateFilter !== oldStateFilter) {
+
+    if (!areFilterValuesEqual(newStateFilter, oldStateFilter)) {
       startRefetchBoxes(() => {
         onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
       });
