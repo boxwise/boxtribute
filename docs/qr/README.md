@@ -2,11 +2,11 @@
 
 For generation (e.g. after updating the seed) run
 
-    git rm code-with-box-base-* without-box/*
+    git rm code-with-box-base-* without-box/* not-in-database/*
     bash generate_pngs.bash
-    git add code-with-box-base-* without-box/*
+    git add code-with-box-base-* without-box/* not-in-database/*
 
-Then update the links in the repo-root README.
+(Then update the links in the repo-root README.)
 
 The script requires a running `db` docker-compose service and the `segno` package:
 
