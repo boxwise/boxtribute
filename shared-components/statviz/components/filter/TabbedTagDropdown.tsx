@@ -61,7 +61,7 @@ function CustomMenu(menuProps: { selectProps: ICustomSelectProps; children: Reac
             type="button"
             flex="1"
             py={2}
-            fontSize="sm"
+            fontSize="md"
             fontWeight="medium"
             textAlign="center"
             cursor="pointer"
