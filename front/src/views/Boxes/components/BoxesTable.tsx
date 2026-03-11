@@ -348,7 +348,7 @@ function BoxesTable({
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <IconButton
-            icon={filters.length > 0 ? <MdFilterListAlt /> : <MdFilterList />}
+            icon={<MdFilterList />}
             aria-label="Open filters"
             size="md"
             onClick={filterDrawerDisclosure.onOpen}
