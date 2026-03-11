@@ -82,7 +82,7 @@ function CustomMenu(menuProps: { selectProps: ICustomSelectProps; children: Reac
   );
 }
 
-// Custom Option component that shows a color dot and a check mark when already selected.
+// Custom Option component that shows a check mark when already selected.
 function CustomOption(optionProps: { data: ITagFilterValue; selectProps: ICustomSelectProps }) {
   const { data, selectProps } = optionProps;
   const { includedTags = [], excludedTags = [] } = selectProps;
@@ -93,16 +93,6 @@ function CustomOption(optionProps: { data: ITagFilterValue; selectProps: ICustom
     <chakraComponents.Option {...(optionProps as any)}>
       <Flex justify="space-between" align="center" width="100%">
         <Flex align="center" gap={2}>
-          <span
-            style={{
-              width: "10px",
-              height: "10px",
-              borderRadius: "50%",
-              backgroundColor: data.color,
-              display: "inline-block",
-              flexShrink: 0,
-            }}
-          />
           {data.label}
         </Flex>
         {(isIncluded || isExcluded) && <CheckIcon boxSize={3} />}
@@ -211,6 +201,7 @@ export default function TabbedTagDropdown({
         }),
         option: (provided) => ({
           ...provided,
+          color: "black",
           background: "white",
           _hover: { background: "gray.100" },
           _active: { background: "gray.100" },
@@ -224,7 +215,7 @@ export default function TabbedTagDropdown({
             border: isIncluded ? "none" : `2px solid ${tagData.color}`,
             borderRadius: "full",
             paddingLeft: "6px",
-            paddingRight: "2px",
+            paddingRight: "6px",
           };
         },
         multiValueLabel: (provided, { data }) => {
