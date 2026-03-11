@@ -3,6 +3,7 @@ import { Box, Flex } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Select, chakraComponents } from "chakra-react-select";
 
+import { colorIsBright } from "../../../utils/helpers";
 import { ITagFilterValue } from "../../state/filter";
 
 interface ITabbedTagDropdownProps {
@@ -229,21 +230,31 @@ export default function TabbedTagDropdown({
         multiValueLabel: (provided, { data }) => {
           const tagData = data as ITagFilterValue;
           const isIncluded = includedTags.some((t) => t.id === tagData.id);
+          const labelColor = isIncluded
+            ? colorIsBright(tagData.color)
+              ? "black"
+              : "white"
+            : tagData.color;
           return {
             ...provided,
-            color: isIncluded ? "white" : tagData.color,
+            color: labelColor,
             textDecoration: isIncluded ? "none" : "line-through",
           };
         },
         multiValueRemove: (provided, { data }) => {
           const tagData = data as ITagFilterValue;
           const isIncluded = includedTags.some((t) => t.id === tagData.id);
+          const removeColor = isIncluded
+            ? colorIsBright(tagData.color)
+              ? "black"
+              : "white"
+            : tagData.color;
           return {
             ...provided,
-            color: isIncluded ? "white" : tagData.color,
+            color: removeColor,
             _hover: {
-              background: isIncluded ? "whiteAlpha.300" : "transparent",
-              color: isIncluded ? "white" : tagData.color,
+              background: isIncluded ? "blackAlpha.100" : "transparent",
+              color: removeColor,
             },
           };
         },
