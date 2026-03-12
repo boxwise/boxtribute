@@ -38,7 +38,7 @@ const CustomOption = (props: any) => {
     <chakraComponents.Option {...props}>
       <Flex justifyContent="space-between" alignItems="center" width="100%">
         <Box>{children}</Box>
-        {isSelected && <CheckIcon color="blue.500" ml={2} />}
+        {isSelected && <CheckIcon ml={2} />}
       </Flex>
     </chakraComponents.Option>
   );
@@ -111,6 +111,13 @@ function SelectField({
               border: "2px",
               borderRadius: "0",
               borderColor: "black",
+            }),
+            option: (provided) => ({
+              ...provided,
+              color: "black",
+              background: "white",
+              _hover: { background: "gray.100" },
+              _active: { background: "gray.100" },
             }),
             multiValue: (provided, state) => ({
               ...provided,

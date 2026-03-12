@@ -93,8 +93,7 @@ export function FilterChips({
           return (
             <Tag
               key={`${filter.id}-${value}-${index}`}
-              size="md"
-              borderRadius="full"
+              size="lg"
               variant="solid"
               colorScheme="gray"
               data-testid={`filter-chip-${filter.id}-${value}`}
@@ -110,7 +109,7 @@ export function FilterChips({
       })}
       <Button
         variant="ghost"
-        size="sm"
+        size="md"
         onClick={onClearAllFilters}
         colorScheme="gray"
         data-testid="clear-all-filters-button"

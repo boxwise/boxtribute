@@ -2,7 +2,6 @@ import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList } from "@chak
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
 import { FaDollyFlatbed } from "react-icons/fa";
-import { BsBox2HeartFill } from "react-icons/bs";
 import RemoveBoxesButton from "./RemoveBoxesButton";
 import { Row } from "react-table";
 import { BoxRow } from "./types";
@@ -14,6 +13,7 @@ import RemoveTagsButton from "./RemoveTagsButton";
 import { useMemo } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { BiNetworkChart } from "react-icons/bi";
+import { SlOptions } from "react-icons/sl";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
@@ -61,25 +61,9 @@ function BoxesActions({
 
   return (
     <ButtonGroup mb={2}>
-      <SelectButton
-        label="Move"
-        options={locationOptions}
-        onSelect={onMoveBoxes}
-        icon={<FaDollyFlatbed />}
-        isDisabled={actionsAreLoading || locationOptions.length === 0}
-        key="move-to"
-      />
-      <SelectButton
-        label="Transfer"
-        options={shipmentOptions}
-        onSelect={onAssignBoxesToShipment}
-        icon={<BiNetworkChart />}
-        isDisabled={actionsAreLoading || shipmentOptions.length === 0}
-        key="assign-to-shipment"
-      />
       <Menu key="box-actions" closeOnSelect={false}>
         <MenuButton as={Button}>
-          <BsBox2HeartFill />
+          <SlOptions />
         </MenuButton>
         <MenuList zIndex={3}>
           <MenuItem as="div">
@@ -123,6 +107,22 @@ function BoxesActions({
           </MenuItem>
         </MenuList>
       </Menu>
+      <SelectButton
+        label="Transfer"
+        options={shipmentOptions}
+        onSelect={onAssignBoxesToShipment}
+        icon={<BiNetworkChart />}
+        isDisabled={actionsAreLoading || shipmentOptions.length === 0}
+        key="assign-to-shipment"
+      />
+      <SelectButton
+        label="Move"
+        options={locationOptions}
+        onSelect={onMoveBoxes}
+        icon={<FaDollyFlatbed />}
+        isDisabled={actionsAreLoading || locationOptions.length === 0}
+        key="move-to"
+      />
       <div key="unassign-from-shipment">
         {thereIsABoxMarkedForShipmentSelected && (
           <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>

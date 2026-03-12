@@ -348,11 +348,12 @@ function BoxesTable({
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <IconButton
-            icon={<MdFilterList />}
+            icon={<MdFilterList color={"white"} size={25} />}
             aria-label="Open filters"
             size="md"
             onClick={filterDrawerDisclosure.onOpen}
             data-testid="filter-drawer-button"
+            background="blue.500"
           />
           <BoxesFilterDrawer
             isOpen={filterDrawerDisclosure.isOpen}
