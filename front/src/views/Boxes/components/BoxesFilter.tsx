@@ -115,7 +115,7 @@ export function BoxesFilter({
 
   return (
     <VStack spacing={4} align="stretch">
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+      <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
         <MultiSelectFilter
           fieldLabel="Product"
           values={productOptions}
@@ -201,7 +201,7 @@ export function BoxesFilter({
       </SimpleGrid>
 
       <Box pt={4}>
-        <VStack spacing={3} display={{ base: "flex", md: "none" }}>
+        <VStack spacing={3} display={{ base: "none", md: "flex" }}>
           <Button colorScheme="blue" onClick={handleApply} width="100%">
             Apply
           </Button>
@@ -209,14 +209,6 @@ export function BoxesFilter({
             Clear filters
           </Button>
         </VStack>
-        <HStack spacing={3} display={{ base: "none", md: "flex" }}>
-          <Button colorScheme="blue" onClick={handleApply} flex={1}>
-            Apply
-          </Button>
-          <Button variant="outline" onClick={handleClear} flex={1}>
-            Clear filters
-          </Button>
-        </HStack>
       </Box>
     </VStack>
   );
