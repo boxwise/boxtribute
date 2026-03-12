@@ -15,35 +15,72 @@ import {
 } from "@chakra-ui/react";
 import { RiFileDownloadLine } from "react-icons/ri";
 import { CSVLink } from "react-csv";
-import { graphql } from "../../../../../../graphql/graphql";
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { SHIPMENT_DATA_FOR_EXPORT_QUERY } from "queries/queries";
 
 // Workaround for Chakra UI issue #5896
 const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
-const SHIPMENT_DATA_FOR_EXPORT_QUERY = graphql(
-  `
-    query ShipmentDataForExport {
-      shipments {
-        ...ShipmentFields
-      }
-    }
-  `,
-  [SHIPMENT_FIELDS_FRAGMENT],
-);
+interface ShipmentCsvRow {
+  shipmentId: string;
+  shipmentLabelIdentifier: string;
+  shipmentState: string | null;
+  transferAgreementId: string;
+  sourceBaseId: string;
+  sourceBaseName: string;
+  targetBaseId: string;
+  targetBaseName: string;
+  detailId: string;
+  boxLabelIdentifier: string;
+  sourceProductName: string;
+  targetProductName: string;
+  sourceSizeName: string;
+  targetSizeName: string;
+  sourceLocationName: string;
+  sourceQuantity: string;
+  targetQuantity: string;
+  createdOn: string;
+  createdByName: string;
+  removedOn: string;
+  removedByName: string;
+  lostOn: string;
+  lostByName: string;
+  receivedOn: string;
+  receivedByName: string;
+  startedOn: string;
+  startedByName: string;
+  sentOn: string;
+  sentByName: string;
+  receivingStartedOn: string;
+  receivingStartedByName: string;
+  completedOn: string;
+  completedByName: string;
+  canceledOn: string;
+  canceledByName: string;
+}
 
 interface ShipmentExportButtonProps {
   baseId: string;
   currentBaseName: string;
 }
 
+// Helper function to determine shipment direction based on labelIdentifier format
+// LabelIdentifier format: S001-231111-LExTH (where last 5 chars are SourceXTargetBase)
+const determineShipmentDirection = (
+  labelIdentifier: string,
+  currentBaseName: string,
+): "Sending" | "Receiving" => {
+  const baseCodeFromLabel = labelIdentifier.slice(-5, -3);
+  const currentBaseCode = currentBaseName.slice(0, 2).toUpperCase();
+  return baseCodeFromLabel === currentBaseCode ? "Sending" : "Receiving";
+};
+
 const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, currentBaseName }) => {
   const [includeReceiving, setIncludeReceiving] = useState(true);
   const [includeSending, setIncludeSending] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [csvData, setCsvData] = useState<any[]>([]);
-  const csvLinkRef = useRef<any>(null);
+  const [csvData, setCsvData] = useState<ShipmentCsvRow[]>([]);
+  const csvLinkRef = useRef<CSVLink & HTMLAnchorElement>(null);
 
   const [fetchShipments] = useLazyQuery(SHIPMENT_DATA_FOR_EXPORT_QUERY);
 
@@ -62,12 +99,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
       if (data?.shipments) {
         // Filter shipments based on selected checkboxes
         const filteredShipments = data.shipments.filter((shipment) => {
-          // Determine direction based on labelIdentifier
-          const direction = shipment.labelIdentifier
-            .slice(-5)
-            .startsWith(currentBaseName.slice(0, 2).toUpperCase())
-            ? "Sending"
-            : "Receiving";
+          const direction = determineShipmentDirection(shipment.labelIdentifier, currentBaseName);
 
           // Only include shipments from current base
           if (shipment.sourceBase.id !== baseId && shipment.targetBase.id !== baseId) {
@@ -175,7 +207,8 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
 
   const isExportDisabled = !includeReceiving && !includeSending;
 
-  const filename = `Shipments_${new Date().toJSON().slice(0, 10)}_${new Date().valueOf()}`;
+  const now = new Date();
+  const filename = `Shipments_${now.toJSON().slice(0, 10)}_${now.valueOf()}`;
 
   return (
     <>

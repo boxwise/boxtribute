@@ -2,24 +2,11 @@ import { it, expect, vi, beforeEach } from "vitest";
 import { screen, render, waitFor } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
-import { ALL_SHIPMENTS_QUERY } from "queries/queries";
+import { ALL_SHIPMENTS_QUERY, SHIPMENT_DATA_FOR_EXPORT_QUERY } from "queries/queries";
 import ShipmentsOverviewView from "./ShipmentsOverviewView";
 import userEvent from "@testing-library/user-event";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
-import { graphql } from "../../../../../graphql/graphql";
-import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
-
-const SHIPMENT_DATA_FOR_EXPORT_QUERY = graphql(
-  `
-    query ShipmentDataForExport {
-      shipments {
-        ...ShipmentFields
-      }
-    }
-  `,
-  [SHIPMENT_FIELDS_FRAGMENT],
-);
 
 vi.mock("@auth0/auth0-react");
 // .mocked() is a nice helper function from jest for typescript support
