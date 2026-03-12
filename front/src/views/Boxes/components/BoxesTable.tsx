@@ -367,7 +367,7 @@ function BoxesTable({
                 data-testid="filter-drawer-button"
               />
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent maxWidth={{ base: "90vw", md: "800px" }}>
               <PopoverHeader>Filters</PopoverHeader>
               <PopoverCloseButton />
               <PopoverBody>
@@ -397,40 +397,24 @@ function BoxesTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
+      <Box bg="gray.100" px={4} py={2} width="100%" fontWeight="bold" data-testid="total-summary">
+        {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
+          <HStack spacing={2}>
+            <Text>Total</Text>
+            <Skeleton height={5} width={20} />
+          </HStack>
+        ) : hasExecutedInitialFetchOfBoxes.current ? (
+          <Text data-testid="boxes-count">
+            Total {boxCount} box{boxCount === 1 ? "" : "es"} {itemsCount} items
+          </Text>
+        ) : (
+          <Text>Data unavailable</Text>
+        )}
+      </Box>
       <Flex direction="column" overflowX="auto">
         <Table key="boxes-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
           <Tbody>
-            <Tr key={"boxes-count-row"} bg={"gray.100"}>
-              <Td fontWeight="bold" key={"product-total"}>
-                Total
-              </Td>
-              <Td fontWeight="bold" key={"boxes-count"} data-testid="boxes-count">
-                {isBackgroundFetchOfBoxesLoading ||
-                refetchBoxesIsPending ||
-                tableConfig.isNotMounted ? (
-                  <Skeleton height={5} width={10} mr={2} />
-                ) : hasExecutedInitialFetchOfBoxes.current ? (
-                  <Text as="span">
-                    {boxCount} box{boxCount === 1 ? "" : "es"}
-                  </Text>
-                ) : (
-                  <Text as="span">Data unavailable</Text>
-                )}
-              </Td>
-              <Td fontWeight="bold" key={"item-count"}>
-                {isBackgroundFetchOfBoxesLoading ||
-                refetchBoxesIsPending ||
-                tableConfig.isNotMounted ? (
-                  <Skeleton height={5} width={10} mr={2} />
-                ) : hasExecutedInitialFetchOfBoxes.current ? (
-                  <Text as="span">{itemsCount} items</Text>
-                ) : (
-                  <Text as="span">Data unavailable</Text>
-                )}
-              </Td>
-              <Td colSpan={20}></Td>
-            </Tr>
             {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
               <Tr key="refetchIsPending1">
                 <Td colSpan={columns.length + 1}>

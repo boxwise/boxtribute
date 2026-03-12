@@ -440,10 +440,12 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[1]).toHaveTextContent("3 boxes");
-        expect(boxes[2]).toHaveTextContent("Scrap");
-        expect(boxes[3]).toHaveTextContent("Stockroom");
-        expect(boxes[4]).toHaveTextContent("WH1");
+        // Check total summary is displayed correctly (moved outside table)
+        expect(screen.getByTestId("total-summary")).toHaveTextContent(/3 boxes/);
+        // First data row is now boxes[1] (not boxes[2])
+        expect(boxes[1]).toHaveTextContent("Scrap");
+        expect(boxes[2]).toHaveTextContent("Stockroom");
+        expect(boxes[3]).toHaveTextContent("WH1");
       },
       { timeout: 10000 },
     );
@@ -452,9 +454,9 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[2]).toHaveTextContent("WH1");
-        expect(boxes[3]).toHaveTextContent("Stockroom");
-        expect(boxes[4]).toHaveTextContent("Scrap");
+        expect(boxes[1]).toHaveTextContent("WH1");
+        expect(boxes[2]).toHaveTextContent("Stockroom");
+        expect(boxes[3]).toHaveTextContent("Scrap");
       },
       { timeout: 10000 },
     );
@@ -464,10 +466,11 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[1]).toHaveTextContent("3 boxes");
+        // Check total summary is displayed correctly
+        expect(screen.getByTestId("total-summary")).toHaveTextContent(/3 boxes/);
+        expect(boxes[1]).toHaveTextContent("InStock");
         expect(boxes[2]).toHaveTextContent("InStock");
-        expect(boxes[3]).toHaveTextContent("InStock");
-        expect(boxes[4]).toHaveTextContent("Scrap");
+        expect(boxes[3]).toHaveTextContent("Scrap");
       },
       { timeout: 10000 },
     );
@@ -476,9 +479,9 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[2]).toHaveTextContent("Scrap");
+        expect(boxes[1]).toHaveTextContent("Scrap");
+        expect(boxes[2]).toHaveTextContent("InStock");
         expect(boxes[3]).toHaveTextContent("InStock");
-        expect(boxes[4]).toHaveTextContent("InStock");
       },
       { timeout: 10000 },
     );
@@ -525,7 +528,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "pants");
     await waitFor(
       () => {
-        expect(screen.getByText("1 box")).toBeInTheDocument();
+        expect(screen.getByText(/Total 1 box \d+ items/)).toBeInTheDocument();
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.queryByText("8650860")).not.toBeInTheDocument();
       },
@@ -537,7 +540,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "bottoms");
     await waitFor(
       () => {
-        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        expect(screen.getByText(/Total 2 boxes \d+ items/)).toBeInTheDocument();
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
@@ -549,7 +552,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "new");
     await waitFor(
       () => {
-        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        expect(screen.getByText(/Total 2 boxes \d+ items/)).toBeInTheDocument();
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
