@@ -442,6 +442,8 @@ describe("4.8.1 - Initial load of Page", () => {
         const boxes = screen.getAllByRole("row");
         // Check total summary is displayed correctly (moved outside table)
         expect(screen.getByTestId("total-summary")).toHaveTextContent(/3 boxes/);
+        // Wait until we have exactly 4 rows (header + 3 data rows, no skeleton rows)
+        expect(boxes).toHaveLength(4);
         // First data row is now boxes[1] (not boxes[2])
         expect(boxes[1]).toHaveTextContent("Scrap");
         expect(boxes[2]).toHaveTextContent("Stockroom");
@@ -454,6 +456,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
+        expect(boxes).toHaveLength(4);
         expect(boxes[1]).toHaveTextContent("WH1");
         expect(boxes[2]).toHaveTextContent("Stockroom");
         expect(boxes[3]).toHaveTextContent("Scrap");
@@ -468,6 +471,7 @@ describe("4.8.1 - Initial load of Page", () => {
         const boxes = screen.getAllByRole("row");
         // Check total summary is displayed correctly
         expect(screen.getByTestId("total-summary")).toHaveTextContent(/3 boxes/);
+        expect(boxes).toHaveLength(4);
         expect(boxes[1]).toHaveTextContent("InStock");
         expect(boxes[2]).toHaveTextContent("InStock");
         expect(boxes[3]).toHaveTextContent("Scrap");
@@ -479,6 +483,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
+        expect(boxes).toHaveLength(4);
         expect(boxes[1]).toHaveTextContent("Scrap");
         expect(boxes[2]).toHaveTextContent("InStock");
         expect(boxes[3]).toHaveTextContent("InStock");
