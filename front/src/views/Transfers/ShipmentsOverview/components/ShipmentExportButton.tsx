@@ -16,6 +16,7 @@ import {
 import { RiFileDownloadLine } from "react-icons/ri";
 import { CSVLink } from "react-csv";
 import { SHIPMENT_DATA_FOR_EXPORT_QUERY } from "queries/queries";
+import { useNotification } from "hooks/useNotification";
 
 // Workaround for Chakra UI issue #5896
 const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
@@ -64,14 +65,19 @@ interface ShipmentExportButtonProps {
 }
 
 // Helper function to determine shipment direction based on labelIdentifier format
-// LabelIdentifier format: S001-231111-LExTH (where last 5 chars are SourceXTargetBase)
+// LabelIdentifier format: S001-231111-LExTH (where last 5 chars represent source and target base codes)
+// The last 5 characters follow the pattern: SourceCodeXTargetCode (e.g., "LExTH" for Lesvos to Thessaloniki)
 const determineShipmentDirection = (
   labelIdentifier: string,
   currentBaseName: string,
 ): "Sending" | "Receiving" => {
-  const baseCodeFromLabel = labelIdentifier.slice(-5, -3);
+  if (labelIdentifier.length < 5 || currentBaseName.length < 2) {
+    // Fallback to "Receiving" if format is unexpected
+    return "Receiving";
+  }
+  const lastFiveChars = labelIdentifier.slice(-5);
   const currentBaseCode = currentBaseName.slice(0, 2).toUpperCase();
-  return baseCodeFromLabel === currentBaseCode ? "Sending" : "Receiving";
+  return lastFiveChars.startsWith(currentBaseCode) ? "Sending" : "Receiving";
 };
 
 const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, currentBaseName }) => {
@@ -80,7 +86,9 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [csvData, setCsvData] = useState<ShipmentCsvRow[]>([]);
+  const [filename, setFilename] = useState("");
   const csvLinkRef = useRef<CSVLink & HTMLAnchorElement>(null);
+  const { createToast } = useNotification();
 
   const [fetchShipments] = useLazyQuery(SHIPMENT_DATA_FOR_EXPORT_QUERY);
 
@@ -95,8 +103,21 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      const { data } = await fetchShipments();
+      const { data, error } = await fetchShipments();
+
+      if (error) {
+        createToast({
+          type: "error",
+          message: "Failed to fetch shipment data. Please try again.",
+        });
+        return;
+      }
+
       if (data?.shipments) {
+        // Generate filename with current timestamp
+        const now = new Date();
+        setFilename(`Shipments_${now.toJSON().slice(0, 10)}_${now.valueOf()}`);
+
         // Filter shipments based on selected checkboxes
         const filteredShipments = data.shipments.filter((shipment) => {
           const direction = determineShipmentDirection(shipment.labelIdentifier, currentBaseName);
@@ -199,6 +220,11 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
         // Set the CSV data which will trigger the useEffect to download
         setCsvData(flattenedData);
       }
+    } catch (err) {
+      createToast({
+        type: "error",
+        message: "An error occurred while exporting shipments. Please try again.",
+      });
     } finally {
       setIsExporting(false);
       setIsOpen(false);
@@ -206,9 +232,6 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
   };
 
   const isExportDisabled = !includeReceiving && !includeSending;
-
-  const now = new Date();
-  const filename = `Shipments_${now.toJSON().slice(0, 10)}_${now.valueOf()}`;
 
   return (
     <>
