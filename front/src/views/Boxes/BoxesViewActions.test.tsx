@@ -832,7 +832,12 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           );
           await user.click(addTagsButton);
 
-          const selectInput = await screen.findByRole("combobox", {}, { timeout: 10000 });
+          const selectContainer = await screen.findByTestId(
+            "assign-tags-select-container",
+            {},
+            { timeout: 10000 },
+          );
+          const selectInput = within(selectContainer).getByRole("combobox");
           await user.click(selectInput);
 
           const tagOption = await screen.findByText(clicks[1], {}, { timeout: 10000 });
@@ -852,7 +857,12 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           );
           await user.click(removeTagsButton);
 
-          const selectInput = await screen.findByRole("combobox", {}, { timeout: 10000 });
+          const selectContainer = await screen.findByTestId(
+            "remove-tags-select-container",
+            {},
+            { timeout: 10000 },
+          );
+          const selectInput = within(selectContainer).getByRole("combobox");
           await user.click(selectInput);
 
           const tagBadgeToRemove = await screen.findByLabelText(

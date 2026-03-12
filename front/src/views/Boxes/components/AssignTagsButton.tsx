@@ -64,7 +64,7 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       </Box>
       {isInputOpen && (
         <>
-          <Box maxWidth={230}>
+          <Box maxWidth={230} data-testid="assign-tags-select-container">
             <Select
               placeholder="Type to find tags"
               isSearchable

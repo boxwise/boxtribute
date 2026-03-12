@@ -397,16 +397,28 @@ function BoxesTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      <Box bg="gray.100" px={4} py={2} width="100%" fontWeight="bold" data-testid="total-summary">
+      <Box bg="gray.100" px={4} py={2} width="100%" data-testid="total-summary">
         {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
           <HStack spacing={2}>
-            <Text>Total</Text>
+            <Text fontWeight="bold">Total</Text>
             <Skeleton height={5} width={20} />
           </HStack>
         ) : hasExecutedInitialFetchOfBoxes.current ? (
-          <Text data-testid="boxes-count">
-            Total {boxCount} box{boxCount === 1 ? "" : "es"} {itemsCount} items
-          </Text>
+          <HStack spacing={2} data-testid="boxes-count">
+            <Text fontWeight="bold">Total</Text>
+            <Text>
+              <Text as="span" fontWeight="bold">
+                {boxCount}
+              </Text>{" "}
+              box{boxCount === 1 ? "" : "es"}
+            </Text>
+            <Text>
+              <Text as="span" fontWeight="bold">
+                {itemsCount}
+              </Text>{" "}
+              items
+            </Text>
+          </HStack>
         ) : (
           <Text>Data unavailable</Text>
         )}
