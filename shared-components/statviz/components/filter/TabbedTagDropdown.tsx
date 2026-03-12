@@ -190,11 +190,12 @@ export default function TabbedTagDropdown({
         control: (provided) => ({
           ...provided,
           borderWidth: "2px",
-          borderColor: "black",
+          borderColor: "gray.300",
           borderRadius: "0",
           minH: "40px",
           minW: "150px",
           _hover: { borderColor: "gray.300" },
+          _active: { borderColor: "gray.300" },
         }),
         menuList: (provided) => ({
           ...provided,

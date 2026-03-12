@@ -404,7 +404,7 @@ function BoxesTable({
             <Skeleton height={5} width={20} />
           </HStack>
         ) : hasExecutedInitialFetchOfBoxes.current ? (
-          <HStack spacing={2} data-testid="boxes-count">
+          <HStack spacing={10} data-testid="boxes-count">
             <Text fontWeight="bold">Total</Text>
             <Text>
               <Text as="span" fontWeight="bold">
