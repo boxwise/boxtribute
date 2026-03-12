@@ -16,6 +16,7 @@ import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { ShipmentState } from "queries/types";
 import { DateCell } from "components/Table/Cells";
+import ShipmentExportButton from "./components/ShipmentExportButton";
 
 // TODO: Revisit this after gql.tada merge
 type ShipmentRow =
@@ -228,6 +229,7 @@ function ShipmentsOverviewView() {
             Create Shipment
           </Button>
         </Link>
+        <ShipmentExportButton baseId={baseId} currentBaseName={currentBaseName} />
       </Stack>
       <Tabs
         variant="enclosed-colored"
