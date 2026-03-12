@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
-import {
-  VStack,
-  Button,
-  HStack,
-  Box,
-  FormControl,
-  FormLabel,
-} from "@chakra-ui/react";
+import { VStack, Button, HStack, Box, FormControl, FormLabel, SimpleGrid } from "@chakra-ui/react";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
@@ -19,7 +12,6 @@ interface BoxesFilterProps {
   onClose: () => void;
   columnFilters: Filters<any>;
   onApplyFilters: (filters: Filters<any>) => void;
-  onClearFilters: () => void;
   productOptions: IFilterValue[];
   genderOptions: IFilterValue[];
   sizeOptions: IFilterValue[];
@@ -32,7 +24,6 @@ export function BoxesFilter({
   onClose,
   columnFilters,
   onApplyFilters,
-  onClearFilters,
   productOptions,
   genderOptions,
   sizeOptions,
@@ -114,9 +105,7 @@ export function BoxesFilter({
 
   const handleClear = useCallback(() => {
     setStagedFilters({});
-    onClearFilters();
-    onClose();
-  }, [onClearFilters, onClose]);
+  }, []);
 
   const stateOptions = Object.entries(boxStateIds).map(([name, id]) => ({
     label: name,
@@ -126,91 +115,101 @@ export function BoxesFilter({
 
   return (
     <VStack spacing={4} align="stretch">
-      <MultiSelectFilter
-        fieldLabel="Product"
-        values={productOptions}
-        filterId="product"
-        filterValue={productOptions.filter((o) => stagedFilters.product?.includes(o.value))}
-        onFilterChange={(selected) =>
-          handleFilterChange(
-            "product",
-            selected.map((s) => s.value),
-          )
-        }
-        placeholder="All"
-      />
-
-      <MultiSelectFilter
-        fieldLabel="Gender"
-        values={genderOptions}
-        filterId="gender"
-        filterValue={genderOptions.filter((o) => stagedFilters.gender?.includes(o.value))}
-        onFilterChange={(selected) =>
-          handleFilterChange(
-            "gender",
-            selected.map((s) => s.value),
-          )
-        }
-        placeholder="All"
-      />
-
-      <MultiSelectFilter
-        fieldLabel="Size"
-        values={sizeOptions}
-        filterId="size"
-        filterValue={sizeOptions.filter((o) => stagedFilters.size?.includes(o.value))}
-        onFilterChange={(selected) =>
-          handleFilterChange(
-            "size",
-            selected.map((s) => s.value),
-          )
-        }
-        placeholder="All"
-      />
-
-      <MultiSelectFilter
-        fieldLabel="Status"
-        values={stateOptions}
-        filterId="state"
-        filterValue={stateOptions.filter((o) => stagedFilters.state?.includes(o.value))}
-        onFilterChange={(selected) =>
-          handleFilterChange(
-            "state",
-            selected.map((s) => s.value),
-          )
-        }
-        placeholder="All"
-      />
-
-      <MultiSelectFilter
-        fieldLabel="Location"
-        values={locationOptions}
-        filterId="location"
-        filterValue={locationOptions.filter((o) => stagedFilters.location?.includes(o.value))}
-        onFilterChange={(selected) =>
-          handleFilterChange(
-            "location",
-            selected.map((s) => s.value),
-          )
-        }
-        placeholder="All"
-      />
-
-      <FormControl>
-        <FormLabel>Tags</FormLabel>
-        <TabbedTagDropdown
-          availableTags={tagFilterValues}
-          includedTags={includedTags}
-          excludedTags={excludedTags}
-          onIncludedChange={handleIncludedTagsChange}
-          onExcludedChange={handleExcludedTagsChange}
-          onClearAll={handleClearAllTags}
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+        <MultiSelectFilter
+          fieldLabel="Product"
+          values={productOptions}
+          filterId="product"
+          filterValue={productOptions.filter((o) => stagedFilters.product?.includes(o.value))}
+          onFilterChange={(selected) =>
+            handleFilterChange(
+              "product",
+              selected.map((s) => s.value),
+            )
+          }
           placeholder="All"
         />
-      </FormControl>
+
+        <MultiSelectFilter
+          fieldLabel="Gender"
+          values={genderOptions}
+          filterId="gender"
+          filterValue={genderOptions.filter((o) => stagedFilters.gender?.includes(o.value))}
+          onFilterChange={(selected) =>
+            handleFilterChange(
+              "gender",
+              selected.map((s) => s.value),
+            )
+          }
+          placeholder="All"
+        />
+
+        <MultiSelectFilter
+          fieldLabel="Size"
+          values={sizeOptions}
+          filterId="size"
+          filterValue={sizeOptions.filter((o) => stagedFilters.size?.includes(o.value))}
+          onFilterChange={(selected) =>
+            handleFilterChange(
+              "size",
+              selected.map((s) => s.value),
+            )
+          }
+          placeholder="All"
+        />
+
+        <MultiSelectFilter
+          fieldLabel="Status"
+          values={stateOptions}
+          filterId="state"
+          filterValue={stateOptions.filter((o) => stagedFilters.state?.includes(o.value))}
+          onFilterChange={(selected) =>
+            handleFilterChange(
+              "state",
+              selected.map((s) => s.value),
+            )
+          }
+          placeholder="All"
+        />
+
+        <MultiSelectFilter
+          fieldLabel="Location"
+          values={locationOptions}
+          filterId="location"
+          filterValue={locationOptions.filter((o) => stagedFilters.location?.includes(o.value))}
+          onFilterChange={(selected) =>
+            handleFilterChange(
+              "location",
+              selected.map((s) => s.value),
+            )
+          }
+          placeholder="All"
+        />
+
+        <FormControl>
+          <FormLabel>Tags</FormLabel>
+          <TabbedTagDropdown
+            availableTags={tagFilterValues}
+            includedTags={includedTags}
+            excludedTags={excludedTags}
+            onIncludedChange={handleIncludedTagsChange}
+            onExcludedChange={handleExcludedTagsChange}
+            onClearAll={handleClearAllTags}
+            placeholder="All"
+          />
+        </FormControl>
+      </SimpleGrid>
 
       <Box pt={4}>
-        <HStack spacing={3}>
+        <VStack spacing={3} display={{ base: "flex", md: "none" }}>
+          <Button colorScheme="blue" onClick={handleApply} width="100%">
+            Apply
+          </Button>
+          <Button variant="outline" onClick={handleClear} width="100%">
+            Clear filters
+          </Button>
+        </VStack>
+        <HStack spacing={3} display={{ base: "none", md: "flex" }}>
           <Button colorScheme="blue" onClick={handleApply} flex={1}>
             Apply
           </Button>

@@ -110,7 +110,9 @@ function SelectField({
               ...provided,
               border: "2px",
               borderRadius: "0",
-              borderColor: "black",
+              borderColor: "gray.300",
+              _hover: { borderColor: "gray.300" },
+              _focus: { borderColor: "gray.300", boxShadow: "none" },
             }),
             option: (provided) => ({
               ...provided,

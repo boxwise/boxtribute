@@ -376,7 +376,6 @@ function BoxesTable({
                   onClose={filterDisclosure.onClose}
                   columnFilters={filters}
                   onApplyFilters={handleApplyFilters}
-                  onClearFilters={handleClearFilters}
                   productOptions={productOptions}
                   genderOptions={genderOptions}
                   sizeOptions={sizeOptions}

@@ -12,7 +12,7 @@ export function FilteringSortingTableHeader({
   hideColumnFilters = false,
 }: IFilteringSortingTableHeaderProps) {
   return (
-    <Thead position="sticky" top={0} background="white" zIndex={2}>
+    <Thead position="sticky" top={0} background="gray.100" zIndex={2}>
       {headerGroups.map((headerGroup: HeaderGroup, idx) => (
         <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
           {headerGroup.headers.map((column, idx) => (

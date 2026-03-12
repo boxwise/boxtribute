@@ -88,7 +88,9 @@ export function FilterChips({
 
         return values.map((value: string, index: number) => {
           const label = getValueLabel(filter.id, value);
-          const chipLabel = values.length === 1 ? `${filterConfig.label}: ${label}` : `${label}`;
+          // For excluded tags, show strikethrough. Otherwise, just show the label without description
+          const isExcluded = filter.id === "no_tags";
+          const chipLabel = label;
 
           return (
             <Tag
@@ -98,7 +100,7 @@ export function FilterChips({
               colorScheme="gray"
               data-testid={`filter-chip-${filter.id}-${value}`}
             >
-              <TagLabel>{chipLabel}</TagLabel>
+              <TagLabel textDecoration={isExcluded ? "line-through" : "none"}>{chipLabel}</TagLabel>
               <TagCloseButton
                 onClick={() => onRemoveFilter(filter.id, value)}
                 data-testid={`filter-chip-close-${filter.id}-${value}`}
