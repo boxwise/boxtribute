@@ -411,7 +411,7 @@ function BoxesTable({
           <Text>Data unavailable</Text>
         )}
       </Box>
-      <Flex direction="column" overflowX="auto">
+      <Flex py={3} direction="column" overflowX="auto">
         <Table key="boxes-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
           <Tbody>
