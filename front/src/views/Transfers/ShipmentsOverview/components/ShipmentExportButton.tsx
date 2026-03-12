@@ -30,7 +30,6 @@ interface ShipmentCsvRow {
   sourceBaseName: string;
   targetBaseId: string;
   targetBaseName: string;
-  detailId: string;
   boxLabelIdentifier: string;
   sourceProductName: string;
   targetProductName: string;
@@ -59,28 +58,25 @@ interface ShipmentCsvRow {
   canceledByName: string;
 }
 
-interface ShipmentExportButtonProps {
-  baseId: string;
-  currentBaseName: string;
-}
-
-// Helper function to determine shipment direction based on labelIdentifier format
-// LabelIdentifier format: S001-231111-LExTH (where last 5 chars represent source and target base codes)
-// The last 5 characters follow the pattern: SourceCodeXTargetCode (e.g., "LExTH" for Lesvos to Thessaloniki)
-const determineShipmentDirection = (
-  labelIdentifier: string,
-  currentBaseName: string,
-): "Sending" | "Receiving" => {
-  if (labelIdentifier.length < 5 || currentBaseName.length < 2) {
-    // Fallback to "Receiving" if format is unexpected
-    return "Receiving";
-  }
-  const lastFiveChars = labelIdentifier.slice(-5);
-  const currentBaseCode = currentBaseName.slice(0, 2).toUpperCase();
-  return lastFiveChars.startsWith(currentBaseCode) ? "Sending" : "Receiving";
+type ShipmentRow = {
+  id: string;
+  labelIdentifier: string;
+  direction: "Sending" | "Receiving";
+  partnerBaseOrg: {
+    base: string;
+    organisation: string;
+  };
+  state: string | null | undefined;
+  boxes: number;
+  lastUpdated: Date | undefined;
+  href: string;
 };
 
-const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, currentBaseName }) => {
+interface ShipmentExportButtonProps {
+  rowData: (ShipmentRow | undefined)[];
+}
+
+const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) => {
   const [includeReceiving, setIncludeReceiving] = useState(true);
   const [includeSending, setIncludeSending] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -118,12 +114,20 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
         const now = new Date();
         setFilename(`Shipments_${now.toJSON().slice(0, 10)}_${now.valueOf()}`);
 
+        // Create a map of shipment ID to direction from rowData
+        const shipmentDirectionMap = new Map<string, "Sending" | "Receiving">();
+        rowData.forEach((row) => {
+          if (row) {
+            shipmentDirectionMap.set(row.id, row.direction);
+          }
+        });
+
         // Filter shipments based on selected checkboxes
         const filteredShipments = data.shipments.filter((shipment) => {
-          const direction = determineShipmentDirection(shipment.labelIdentifier, currentBaseName);
+          const direction = shipmentDirectionMap.get(shipment.id);
 
-          // Only include shipments from current base
-          if (shipment.sourceBase.id !== baseId && shipment.targetBase.id !== baseId) {
+          // Skip if we don't have direction info (shouldn't happen)
+          if (!direction) {
             return false;
           }
 
@@ -146,7 +150,6 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
                 sourceBaseName: shipment.sourceBase.name,
                 targetBaseId: shipment.targetBase.id,
                 targetBaseName: shipment.targetBase.name,
-                detailId: "",
                 boxLabelIdentifier: "",
                 sourceProductName: "",
                 targetProductName: "",
@@ -187,7 +190,6 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
             sourceBaseName: shipment.sourceBase.name,
             targetBaseId: shipment.targetBase.id,
             targetBaseName: shipment.targetBase.name,
-            detailId: detail.id,
             boxLabelIdentifier: detail.box.labelIdentifier,
             sourceProductName: detail.sourceProduct?.name || "",
             targetProductName: detail.targetProduct?.name || "",
@@ -298,7 +300,6 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
           { label: "Source Base Name", key: "sourceBaseName" },
           { label: "Target Base ID", key: "targetBaseId" },
           { label: "Target Base Name", key: "targetBaseName" },
-          { label: "Detail ID", key: "detailId" },
           { label: "Box Label", key: "boxLabelIdentifier" },
           { label: "Source Product", key: "sourceProductName" },
           { label: "Target Product", key: "targetProductName" },
