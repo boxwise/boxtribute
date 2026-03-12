@@ -435,7 +435,7 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const locationHeader = screen.getAllByText(/Location/i)[1];
+    const locationHeader = screen.getAllByText(/Location/i)[2];
     await userEvent.click(locationHeader); // Ascending sort
     await waitFor(
       () => {
@@ -464,7 +464,7 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const stateHeader = screen.getAllByText(/Status/i)[1];
+    const stateHeader = screen.getAllByText(/Status/i)[2];
     await userEvent.click(stateHeader); // Ascending sort
     await waitFor(
       () => {
@@ -566,10 +566,10 @@ describe("4.8.1 - Initial load of Page", () => {
 
     // Search for "wh" - should show only box 8650860 (in location WH1)
     await user.clear(searchInput);
-    await user.type(searchInput, "wh");
+    await user.type(searchInput, "wh1");
     await waitFor(
       () => {
-        expect(screen.getByText("1 box")).toBeInTheDocument();
+        expect(screen.getByText(/Total 1 box \d+ items/)).toBeInTheDocument();
         expect(screen.queryByText("1481666")).not.toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
@@ -581,7 +581,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "mix");
     await waitFor(
       () => {
-        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        expect(screen.getByText(/Total 2 boxes \d+ items/)).toBeInTheDocument();
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
@@ -593,7 +593,7 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "randomxyz");
     await waitFor(
       () => {
-        expect(screen.getByText("0 boxes")).toBeInTheDocument();
+        expect(screen.getByText(/Total 0 boxes \d+ items/)).toBeInTheDocument();
         expect(screen.queryByText("1481666")).not.toBeInTheDocument();
         expect(screen.queryByText("8650860")).not.toBeInTheDocument();
       },
