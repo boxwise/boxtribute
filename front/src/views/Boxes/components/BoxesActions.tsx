@@ -105,6 +105,19 @@ function BoxesActions({
           <MenuItem as="div">
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
+          {thereIsABoxMarkedForShipmentSelected && (
+            <MenuItem as="div" key="unassign-from-shipment">
+              <Button
+                onClick={() => onUnassignBoxesToShipment()}
+                isDisabled={actionsAreLoading}
+                padding={1}
+                variant="ghost"
+                width="100%"
+              >
+                Remove from Shipment
+              </Button>
+            </MenuItem>
+          )}
         </MenuList>
       </Menu>
       <SelectButton
@@ -123,13 +136,6 @@ function BoxesActions({
         isDisabled={actionsAreLoading || locationOptions.length === 0}
         key="move-to"
       />
-      <div key="unassign-from-shipment">
-        {thereIsABoxMarkedForShipmentSelected && (
-          <Button onClick={() => onUnassignBoxesToShipment()} isDisabled={actionsAreLoading}>
-            Remove from Shipment
-          </Button>
-        )}
-      </div>
     </ButtonGroup>
   );
 }

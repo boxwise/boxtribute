@@ -868,6 +868,26 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
             { timeout: 10000 },
           );
           await user.click(applyButton);
+        } else if (name.toLowerCase().includes("unassign from shipment")) {
+          // First, open the box-actions menu (SlOptions icon button)
+          const allButtons = screen.getAllByRole("button");
+          const boxActionsMenuButton = allButtons.find((button) => {
+            // Find button with no text content (the SlOptions icon button)
+            return !button.textContent?.trim();
+          });
+
+          if (boxActionsMenuButton) {
+            await user.click(boxActionsMenuButton);
+          }
+
+          // Then click the "Remove from Shipment" button
+          const actionButton = await screen.findByRole(
+            "button",
+            { name: clicks[0] },
+            { timeout: 10000 },
+          );
+          expect(actionButton).toBeInTheDocument();
+          await user.click(actionButton);
         } else {
           // Perform action based on the `clicks` parameter
           const actionButton = await screen.findByRole(
