@@ -245,7 +245,7 @@ function BoxesTable({
     }
   }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
 
-  const filterDrawerDisclosure = useDisclosure();
+  const filterDisclosure = useDisclosure();
 
   const productOptions = useMemo(() => {
     const uniqueProducts = new Map<string, { id: string; name: string; gender: string }>();
@@ -355,17 +355,16 @@ function BoxesTable({
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <Popover
             placement="bottom-end"
-            isOpen={filterDrawerDisclosure.isOpen}
-            onOpen={filterDrawerDisclosure.onOpen}
-            onClose={filterDrawerDisclosure.onClose}
+            isOpen={filterDisclosure.isOpen}
+            onOpen={filterDisclosure.onOpen}
+            onClose={filterDisclosure.onClose}
           >
             <PopoverTrigger>
               <IconButton
-                icon={<MdFilterList color={"white"} size={25} />}
+                icon={<MdFilterList color={"black"} size={25} />}
                 aria-label="Open filters"
                 size="md"
                 data-testid="filter-drawer-button"
-                background="blue.500"
               />
             </PopoverTrigger>
             <PopoverContent>
@@ -373,8 +372,8 @@ function BoxesTable({
               <PopoverCloseButton />
               <PopoverBody>
                 <BoxesFilter
-                  isOpen={filterDrawerDisclosure.isOpen}
-                  onClose={filterDrawerDisclosure.onClose}
+                  isOpen={filterDisclosure.isOpen}
+                  onClose={filterDisclosure.onClose}
                   columnFilters={filters}
                   onApplyFilters={handleApplyFilters}
                   onClearFilters={handleClearFilters}
