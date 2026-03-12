@@ -353,7 +353,12 @@ function BoxesTable({
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-          <Popover placement="bottom-end">
+          <Popover
+            placement="bottom-end"
+            isOpen={filterDrawerDisclosure.isOpen}
+            onOpen={filterDrawerDisclosure.onOpen}
+            onClose={filterDrawerDisclosure.onClose}
+          >
             <PopoverTrigger>
               <IconButton
                 icon={<MdFilterList color={"white"} size={25} />}
