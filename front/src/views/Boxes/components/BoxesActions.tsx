@@ -12,7 +12,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import RemoveTagsButton from "./RemoveTagsButton";
 import { useMemo } from "react";
 import { AddIcon } from "@chakra-ui/icons";
-import { BiNetworkChart } from "react-icons/bi";
+import { BiMinusCircle, BiNetworkChart } from "react-icons/bi";
 import { SlOptions } from "react-icons/sl";
 
 type BoxesActionsProps = {
@@ -106,13 +106,16 @@ function BoxesActions({
             <MakeLabelsButton selectedBoxes={selectedBoxes} key="make-labels" />
           </MenuItem>
           {thereIsABoxMarkedForShipmentSelected && (
-            <MenuItem as="div" key="unassign-from-shipment">
+            <MenuItem as="div">
               <Button
                 onClick={() => onUnassignBoxesToShipment()}
                 isDisabled={actionsAreLoading}
                 padding={1}
                 variant="ghost"
+                leftIcon={<BiMinusCircle />}
+                iconSpacing={2}
                 width="100%"
+                key="unassign-from-shipment"
               >
                 Remove from Shipment
               </Button>

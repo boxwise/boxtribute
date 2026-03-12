@@ -49,7 +49,7 @@ import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BoxesFilterDrawer } from "./BoxesFilterDrawer";
-import { MdFilterList, MdFilterListAlt } from "react-icons/md";
+import { MdFilterList } from "react-icons/md";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { FilterChips } from "./FilterChips";
 
@@ -379,7 +379,7 @@ function BoxesTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      <Box overflowX="auto" maxW="100vw">
+      <Flex direction="column" overflowX="auto">
         <Table key="boxes-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
           <Tbody>
@@ -457,7 +457,7 @@ function BoxesTable({
             })}
           </Tbody>
         </Table>
-      </Box>
+      </Flex>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
