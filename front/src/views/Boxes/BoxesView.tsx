@@ -470,7 +470,6 @@ function Boxes({
 
   return (
     <>
-      <BreadcrumbNavigation items={[{ label: "Aid Inventory" }]} />
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Boxes
       </Heading>

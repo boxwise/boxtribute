@@ -354,7 +354,7 @@ function BoxesTable({
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <Popover
-            placement="bottom-end"
+            placement="left-start"
             isOpen={filterDisclosure.isOpen}
             onOpen={filterDisclosure.onOpen}
             onClose={filterDisclosure.onClose}

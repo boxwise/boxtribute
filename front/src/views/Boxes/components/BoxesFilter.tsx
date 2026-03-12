@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { VStack, Button, HStack, Box, FormControl, FormLabel, SimpleGrid } from "@chakra-ui/react";
+import { VStack, Button, Box, FormControl, FormLabel, SimpleGrid } from "@chakra-ui/react";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
