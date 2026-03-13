@@ -536,12 +536,12 @@ describe("4.8.1 - Initial load of Page", () => {
         const totalSummary = screen.getByTestId("boxes-count");
         expect(totalSummary).toHaveTextContent(/Total/);
         expect(totalSummary).toHaveTextContent(/box/);
-        expect(totalSummary).toHaveTextContent(/1/);;
+        expect(totalSummary).toHaveTextContent(/1/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.queryByText("8650860")).not.toBeInTheDocument();
       },
       { timeout: 10000 },
-    )
+    );
 
     // Search for "bottoms" - should show two boxes (1481666 and 8650860, both have category "Bottoms")
     await user.clear(searchInput);
@@ -551,12 +551,12 @@ describe("4.8.1 - Initial load of Page", () => {
         const totalSummary = screen.getByTestId("boxes-count");
         expect(totalSummary).toHaveTextContent(/Total/);
         expect(totalSummary).toHaveTextContent(/boxes/);
-        expect(totalSummary).toHaveTextContent(/2/);;
+        expect(totalSummary).toHaveTextContent(/2/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
       { timeout: 10000 },
-    )
+    );
 
     // Search for "new" - should show two boxes (1481666 and 8650860, both have tag "new")
     await user.clear(searchInput);
@@ -566,12 +566,12 @@ describe("4.8.1 - Initial load of Page", () => {
         const totalSummary = screen.getByTestId("boxes-count");
         expect(totalSummary).toHaveTextContent(/Total/);
         expect(totalSummary).toHaveTextContent(/boxes/);
-        expect(totalSummary).toHaveTextContent(/2/);;
+        expect(totalSummary).toHaveTextContent(/2/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
       { timeout: 10000 },
-    )
+    );
 
     // Search for "wh" - should show only box 8650860 (in location WH1)
     await user.clear(searchInput);
@@ -581,12 +581,12 @@ describe("4.8.1 - Initial load of Page", () => {
         const totalSummary = screen.getByTestId("boxes-count");
         expect(totalSummary).toHaveTextContent(/Total/);
         expect(totalSummary).toHaveTextContent(/box/);
-        expect(totalSummary).toHaveTextContent(/1/);;
+        expect(totalSummary).toHaveTextContent(/1/);
         expect(screen.queryByText("1481666")).not.toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
       { timeout: 10000 },
-    )
+    );
 
     // Search for "mix" - should show two boxes (1481666 and 8650860, both have size "Mixed")
     await user.clear(searchInput);
@@ -596,12 +596,12 @@ describe("4.8.1 - Initial load of Page", () => {
         const totalSummary = screen.getByTestId("boxes-count");
         expect(totalSummary).toHaveTextContent(/Total/);
         expect(totalSummary).toHaveTextContent(/boxes/);
-        expect(totalSummary).toHaveTextContent(/2/);;
+        expect(totalSummary).toHaveTextContent(/2/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
       { timeout: 10000 },
-    )
+    );
 
     // Search for "randomxyz" - should show no boxes
     await user.clear(searchInput);
@@ -611,12 +611,12 @@ describe("4.8.1 - Initial load of Page", () => {
         const totalSummary = screen.getByTestId("boxes-count");
         expect(totalSummary).toHaveTextContent(/Total/);
         expect(totalSummary).toHaveTextContent(/boxes/);
-        expect(totalSummary).toHaveTextContent(/0/);;
+        expect(totalSummary).toHaveTextContent(/0/);
         expect(screen.queryByText("1481666")).not.toBeInTheDocument();
         expect(screen.queryByText("8650860")).not.toBeInTheDocument();
       },
       { timeout: 10000 },
-    )
+    );
   }, 20000);
 });
 
@@ -656,10 +656,10 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       () => {
         const totalSummary = screen.getByTestId("boxes-count");
         expect(totalSummary).toHaveTextContent(/2/);
-        expect(totalSummary).toHaveTextContent(/boxes/);;
+        expect(totalSummary).toHaveTextContent(/boxes/);
       },
       { timeout: 15000 },
-    )
+    );
 
     const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 10000 });
     const checkbox1 = within(row1).getByRole("checkbox", {

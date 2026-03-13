@@ -343,7 +343,8 @@ function BoxesTable({
         <HStack spacing={2} mb={2}>
           <ColumnSelector
             availableColumns={allColumns.filter(
-              (column) => column.id !== "shipment" && column.id !== "selection",
+              (column) =>
+                column.id !== "shipment" && column.id !== "selection" && column.id !== "no_tags",
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
