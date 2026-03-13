@@ -25,7 +25,6 @@ import {
 } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
   Popover,

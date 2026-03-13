@@ -12,12 +12,6 @@ import {
   IconButton,
   HStack,
   Box,
-  Popover,
-  PopoverBody,
-  PopoverHeader,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
 import {
@@ -55,9 +49,9 @@ import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BoxesFilter } from "./BoxesFilter";
-import { MdFilterList } from "react-icons/md";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { FilterChips } from "./FilterChips";
+import { FilterPanel } from "components/Table/FilterPanel";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -353,38 +347,23 @@ function BoxesTable({
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-          <Popover
-            placement="left-start"
+          <FilterPanel
             isOpen={filterDisclosure.isOpen}
             onOpen={filterDisclosure.onOpen}
             onClose={filterDisclosure.onClose}
           >
-            <PopoverTrigger>
-              <IconButton
-                icon={<MdFilterList color={"black"} size={25} />}
-                aria-label="Open filters"
-                size="md"
-                data-testid="filter-drawer-button"
-              />
-            </PopoverTrigger>
-            <PopoverContent maxWidth={{ base: "90vw", md: "800px" }}>
-              <PopoverHeader>Filters</PopoverHeader>
-              <PopoverCloseButton />
-              <PopoverBody>
-                <BoxesFilter
-                  isOpen={filterDisclosure.isOpen}
-                  onClose={filterDisclosure.onClose}
-                  columnFilters={filters}
-                  onApplyFilters={handleApplyFilters}
-                  productOptions={productOptions}
-                  genderOptions={genderOptions}
-                  sizeOptions={sizeOptions}
-                  locationOptions={locationOptions}
-                  tagOptions={tagOptions}
-                />
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
+            <BoxesFilter
+              isOpen={filterDisclosure.isOpen}
+              onClose={filterDisclosure.onClose}
+              columnFilters={filters}
+              onApplyFilters={handleApplyFilters}
+              productOptions={productOptions}
+              genderOptions={genderOptions}
+              sizeOptions={sizeOptions}
+              locationOptions={locationOptions}
+              tagOptions={tagOptions}
+            />
+          </FilterPanel>
         </HStack>
       </Flex>
       <FilterChips
