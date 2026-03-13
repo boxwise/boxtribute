@@ -201,7 +201,7 @@ export function BoxesFilter({
       </SimpleGrid>
 
       <Box pt={4}>
-        <VStack spacing={3} display={{ base: "none", md: "flex" }}>
+        <VStack spacing={3}>
           <Button colorScheme="blue" onClick={handleApply} width="100%">
             Apply
           </Button>
