@@ -435,15 +435,19 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const locationHeader = screen.getAllByText(/Location/i)[1];
+    const locationHeader = screen.getAllByText(/Location/i)[2];
     await userEvent.click(locationHeader); // Ascending sort
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[1]).toHaveTextContent("3 boxes");
-        expect(boxes[2]).toHaveTextContent("Scrap");
-        expect(boxes[3]).toHaveTextContent("Stockroom");
-        expect(boxes[4]).toHaveTextContent("WH1");
+        // Check total summary is displayed correctly (moved outside table)
+        expect(screen.getByTestId("total-summary")).toHaveTextContent(/3 boxes/);
+        // Wait until we have exactly 4 rows (header + 3 data rows, no skeleton rows)
+        expect(boxes).toHaveLength(4);
+        // First data row is now boxes[1] (not boxes[2])
+        expect(boxes[1]).toHaveTextContent("Scrap");
+        expect(boxes[2]).toHaveTextContent("Stockroom");
+        expect(boxes[3]).toHaveTextContent("WH1");
       },
       { timeout: 10000 },
     );
@@ -452,22 +456,25 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[2]).toHaveTextContent("WH1");
-        expect(boxes[3]).toHaveTextContent("Stockroom");
-        expect(boxes[4]).toHaveTextContent("Scrap");
+        expect(boxes).toHaveLength(4);
+        expect(boxes[1]).toHaveTextContent("WH1");
+        expect(boxes[2]).toHaveTextContent("Stockroom");
+        expect(boxes[3]).toHaveTextContent("Scrap");
       },
       { timeout: 10000 },
     );
 
-    const stateHeader = screen.getAllByText(/Status/i)[1];
+    const stateHeader = screen.getAllByText(/Status/i)[2];
     await userEvent.click(stateHeader); // Ascending sort
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[1]).toHaveTextContent("3 boxes");
+        // Check total summary is displayed correctly
+        expect(screen.getByTestId("total-summary")).toHaveTextContent(/3 boxes/);
+        expect(boxes).toHaveLength(4);
+        expect(boxes[1]).toHaveTextContent("InStock");
         expect(boxes[2]).toHaveTextContent("InStock");
-        expect(boxes[3]).toHaveTextContent("InStock");
-        expect(boxes[4]).toHaveTextContent("Scrap");
+        expect(boxes[3]).toHaveTextContent("Scrap");
       },
       { timeout: 10000 },
     );
@@ -476,9 +483,10 @@ describe("4.8.1 - Initial load of Page", () => {
     await waitFor(
       () => {
         const boxes = screen.getAllByRole("row");
-        expect(boxes[2]).toHaveTextContent("Scrap");
+        expect(boxes).toHaveLength(4);
+        expect(boxes[1]).toHaveTextContent("Scrap");
+        expect(boxes[2]).toHaveTextContent("InStock");
         expect(boxes[3]).toHaveTextContent("InStock");
-        expect(boxes[4]).toHaveTextContent("InStock");
       },
       { timeout: 10000 },
     );
@@ -525,7 +533,10 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "pants");
     await waitFor(
       () => {
-        expect(screen.getByText("1 box")).toBeInTheDocument();
+        const totalSummary = screen.getByTestId("boxes-count");
+        expect(totalSummary).toHaveTextContent(/Total/);
+        expect(totalSummary).toHaveTextContent(/box/);
+        expect(totalSummary).toHaveTextContent(/1/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.queryByText("8650860")).not.toBeInTheDocument();
       },
@@ -537,7 +548,10 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "bottoms");
     await waitFor(
       () => {
-        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        const totalSummary = screen.getByTestId("boxes-count");
+        expect(totalSummary).toHaveTextContent(/Total/);
+        expect(totalSummary).toHaveTextContent(/boxes/);
+        expect(totalSummary).toHaveTextContent(/2/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
@@ -549,7 +563,10 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "new");
     await waitFor(
       () => {
-        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        const totalSummary = screen.getByTestId("boxes-count");
+        expect(totalSummary).toHaveTextContent(/Total/);
+        expect(totalSummary).toHaveTextContent(/boxes/);
+        expect(totalSummary).toHaveTextContent(/2/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
@@ -558,10 +575,13 @@ describe("4.8.1 - Initial load of Page", () => {
 
     // Search for "wh" - should show only box 8650860 (in location WH1)
     await user.clear(searchInput);
-    await user.type(searchInput, "wh");
+    await user.type(searchInput, "wh1");
     await waitFor(
       () => {
-        expect(screen.getByText("1 box")).toBeInTheDocument();
+        const totalSummary = screen.getByTestId("boxes-count");
+        expect(totalSummary).toHaveTextContent(/Total/);
+        expect(totalSummary).toHaveTextContent(/box/);
+        expect(totalSummary).toHaveTextContent(/1/);
         expect(screen.queryByText("1481666")).not.toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
@@ -573,7 +593,10 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "mix");
     await waitFor(
       () => {
-        expect(screen.getByText("2 boxes")).toBeInTheDocument();
+        const totalSummary = screen.getByTestId("boxes-count");
+        expect(totalSummary).toHaveTextContent(/Total/);
+        expect(totalSummary).toHaveTextContent(/boxes/);
+        expect(totalSummary).toHaveTextContent(/2/);
         expect(screen.getByText("1481666")).toBeInTheDocument();
         expect(screen.getByText("8650860")).toBeInTheDocument();
       },
@@ -585,7 +608,10 @@ describe("4.8.1 - Initial load of Page", () => {
     await user.type(searchInput, "randomxyz");
     await waitFor(
       () => {
-        expect(screen.getByText("0 boxes")).toBeInTheDocument();
+        const totalSummary = screen.getByTestId("boxes-count");
+        expect(totalSummary).toHaveTextContent(/Total/);
+        expect(totalSummary).toHaveTextContent(/boxes/);
+        expect(totalSummary).toHaveTextContent(/0/);
         expect(screen.queryByText("1481666")).not.toBeInTheDocument();
         expect(screen.queryByText("8650860")).not.toBeInTheDocument();
       },
@@ -626,7 +652,14 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     // Test case 4.8.2.1 - Select two checkboxes and perform bulk moves
     // Wait for data to be fully loaded
-    await screen.findByText(/2 boxes/i, {}, { timeout: 15000 });
+    await waitFor(
+      () => {
+        const totalSummary = screen.getByTestId("boxes-count");
+        expect(totalSummary).toHaveTextContent(/2/);
+        expect(totalSummary).toHaveTextContent(/boxes/);
+      },
+      { timeout: 15000 },
+    );
 
     const row1 = await screen.findByRole("row", { name: /8650860/i }, { timeout: 10000 });
     const checkbox1 = within(row1).getByRole("checkbox", {
@@ -794,9 +827,9 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     // Verify that the state filter is applied (showing InStock boxes)
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
 
-    // Check that the state filter button indicates it has a filter applied
-    const stateFilterButton = screen.getByTestId("filter-state");
-    expect(stateFilterButton).toBeInTheDocument();
+    // Check that the filter drawer button indicates it has a filter applied (filled icon)
+    const filterDrawerButton = screen.getByTestId("filter-drawer-button");
+    expect(filterDrawerButton).toBeInTheDocument();
   });
 
   it("4.8.3.2 - Component should handle invalid state_ids parameter", async () => {
@@ -864,12 +897,12 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     expect(screen.getByText(/1481666/i)).toBeInTheDocument();
     expect(screen.queryByText(/8650860/i)).not.toBeInTheDocument();
 
-    // Verify that the product filter is applied (showing Sweatpants)
-    expect(screen.getByText(/Sweatpants/i)).toBeInTheDocument();
+    // Verify that the product filter is applied (showing Sweatpants in filter chip and table)
+    expect(screen.getAllByText(/Sweatpants/i).length).toBeGreaterThanOrEqual(1);
 
-    // Check that the product filter button indicates it has a filter applied
-    const productFilterButton = screen.getByTestId("filter-product");
-    expect(productFilterButton).toBeInTheDocument();
+    // Check that the filter drawer button indicates it has a filter applied
+    const filterDrawerButton = screen.getByTestId("filter-drawer-button");
+    expect(filterDrawerButton).toBeInTheDocument();
   });
 
   it("4.8.3.4 - Component should handle multiple comma-separated IDs", async () => {
