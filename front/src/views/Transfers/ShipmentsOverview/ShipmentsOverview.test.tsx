@@ -1,8 +1,8 @@
 import { it, expect, vi, beforeEach } from "vitest";
-import { screen, render } from "tests/test-utils";
+import { screen, render, waitFor } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
-import { ALL_SHIPMENTS_QUERY } from "queries/queries";
+import { ALL_SHIPMENTS_QUERY, SHIPMENT_DATA_FOR_EXPORT_QUERY } from "queries/queries";
 import ShipmentsOverviewView from "./ShipmentsOverviewView";
 import userEvent from "@testing-library/user-event";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -93,4 +93,73 @@ it("4.4.1.4 - Initial Load of Page", async () => {
       name: /manage shipments/i,
     }),
   ).toBeInTheDocument();
+});
+
+it("4.4.1.5 - Export CSV Button Functionality", async () => {
+  const mockShipment = generateMockShipment({});
+  const mocks = [
+    mockSuccessfulShipmentsQuery({}),
+    {
+      request: {
+        query: SHIPMENT_DATA_FOR_EXPORT_QUERY,
+      },
+      result: {
+        data: {
+          shipments: [mockShipment],
+        },
+      },
+    },
+  ];
+
+  render(<ShipmentsOverviewView />, {
+    routePath: "/bases/:baseId/transfers/shipments",
+    initialUrl: "/bases/1/transfers/shipments",
+    mocks,
+  });
+
+  const user = userEvent.setup();
+
+  // Wait for the page to load
+  await screen.findByRole("table");
+
+  // Check if Export CSV button exists
+  const exportButton = screen.getByTestId("export-csv-button");
+  expect(exportButton).toBeInTheDocument();
+  expect(exportButton).toHaveTextContent("Export .csv");
+
+  // Click the export button to open popover
+  await user.click(exportButton);
+
+  // Check if popover content is visible
+  expect(screen.getByText("Include following shipments:")).toBeInTheDocument();
+
+  // Check if checkboxes are present and checked by default
+  const receivingCheckbox = screen.getByRole("checkbox", { name: /receiving/i });
+  const sendingCheckbox = screen.getByRole("checkbox", { name: /sending/i });
+  expect(receivingCheckbox).toBeInTheDocument();
+  expect(sendingCheckbox).toBeInTheDocument();
+  expect(receivingCheckbox).toBeChecked();
+  expect(sendingCheckbox).toBeChecked();
+
+  // Check if export button in popover is enabled
+  const popoverExportButton = screen.getByTestId("export-button");
+  expect(popoverExportButton).toBeInTheDocument();
+  expect(popoverExportButton).not.toBeDisabled();
+
+  // Uncheck both checkboxes to test disabled state
+  await user.click(receivingCheckbox);
+  await user.click(sendingCheckbox);
+
+  // Export button should be disabled
+  await waitFor(() => {
+    expect(popoverExportButton).toBeDisabled();
+  });
+
+  // Re-check sending checkbox
+  await user.click(sendingCheckbox);
+
+  // Export button should be enabled again
+  await waitFor(() => {
+    expect(popoverExportButton).not.toBeDisabled();
+  });
 });
