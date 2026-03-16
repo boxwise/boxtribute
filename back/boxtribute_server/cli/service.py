@@ -1,3 +1,4 @@
+import httpx
 from auth0.management import ManagementClient
 from auth0.management.core.api_error import ApiError
 
@@ -5,9 +6,6 @@ from ..exceptions import ServiceError
 from .utils import setup_logger
 
 LOGGER = setup_logger(__name__)
-
-
-import httpx
 
 
 class _Client(httpx.Client):
