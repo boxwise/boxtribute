@@ -128,6 +128,8 @@ jobs:
       - run:
           name: Build front
           command: |
+            cat src/views/Boxes/BoxesView.test.tsx
+            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             pnpm build
       - slack/notify-on-failure:
           only_for_branches: master,production
