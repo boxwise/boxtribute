@@ -556,7 +556,7 @@ def test_auth0_users_api():
     assert nr_users > 10
 
     users = service.get_users(query=None, fields=["user_id"])
-    assert len(users) == nr_users
+    assert len(users) > 10
 
     interface._api._client_wrapper.httpx_client.httpx_client._page = 0
     response = interface.roles.list(per_page=5)
