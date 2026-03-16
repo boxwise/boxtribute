@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { Button, ButtonGroup, IconButton, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { SelectButton } from "./ActionButtons";
 import { FaDollyFlatbed } from "react-icons/fa";
@@ -62,9 +62,7 @@ function BoxesActions({
   return (
     <ButtonGroup mb={2}>
       <Menu key="box-actions" closeOnSelect={false}>
-        <MenuButton as={Button}>
-          <SlOptions />
-        </MenuButton>
+        <MenuButton as={IconButton} aria-label="Box actions" icon={<SlOptions />} />
         <MenuList zIndex={3}>
           <MenuItem as="div">
             <Link to="create">

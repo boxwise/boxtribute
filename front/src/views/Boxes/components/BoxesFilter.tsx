@@ -80,8 +80,13 @@ export function BoxesFilter({
     if (isOpen) {
       const filtersMap: Record<string, string[]> = {};
       columnFilters.forEach((filter) => {
-        if (filter.value && Array.isArray(filter.value)) {
-          filtersMap[filter.id] = filter.value;
+        if (filter.value == null) {
+          return;
+        }
+        if (Array.isArray(filter.value)) {
+          filtersMap[filter.id] = filter.value.map(String);
+        } else {
+          filtersMap[filter.id] = [String(filter.value)];
         }
       });
       setStagedFilters(filtersMap);
@@ -202,10 +207,20 @@ export function BoxesFilter({
 
       <Box pt={4}>
         <VStack spacing={3}>
-          <Button colorScheme="blue" onClick={handleApply} width="100%">
+          <Button
+            colorScheme="blue"
+            onClick={handleApply}
+            width="100%"
+            data-testid="boxes-filter-apply"
+          >
             Apply
           </Button>
-          <Button variant="outline" onClick={handleClear} width="100%">
+          <Button
+            variant="outline"
+            onClick={handleClear}
+            width="100%"
+            data-testid="boxes-filter-clear"
+          >
             Clear filters
           </Button>
         </VStack>
