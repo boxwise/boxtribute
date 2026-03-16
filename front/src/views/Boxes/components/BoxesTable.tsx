@@ -377,7 +377,7 @@ function BoxesTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      <Box bg="gray.100" px={4} py={2} width="100%" data-testid="total-summary">
+      <Box bg="gray.100" px={4} py={2} mb={2} width="100%" data-testid="total-summary">
         {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
           <HStack spacing={2}>
             <Text fontWeight="bold">Total</Text>
@@ -403,55 +403,53 @@ function BoxesTable({
           <Text>Data unavailable</Text>
         )}
       </Box>
-      <Flex py={3} direction="column" overflowX="auto">
-        <Table key="boxes-table">
-          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
-          <Tbody>
-            {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-              <Tr key="refetchIsPending1">
-                <Td colSpan={columns.length + 1}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-            )}
-            {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-              <Tr key="refetchIsPending2">
-                <Td colSpan={columns.length + 1}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-            )}
+      <Table key="boxes-table">
+        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+        <Tbody>
+          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
+            <Tr key="refetchIsPending1">
+              <Td colSpan={columns.length + 1}>
+                <Skeleton height={5} />
+              </Td>
+            </Tr>
+          )}
+          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
+            <Tr key="refetchIsPending2">
+              <Td colSpan={columns.length + 1}>
+                <Skeleton height={5} />
+              </Td>
+            </Tr>
+          )}
 
-            {page.map((row) => {
-              prepareRow(row);
-              if (row.isSelected && actionsAreLoading) {
-                return (
-                  <Tr key={row.original.labelIdentifier}>
-                    <Td colSpan={columns.length + 1}>
-                      <Skeleton height={5} />
-                    </Td>
-                  </Tr>
-                );
-              }
-
+          {page.map((row) => {
+            prepareRow(row);
+            if (row.isSelected && actionsAreLoading) {
               return (
-                <Tr
-                  cursor="pointer"
-                  {...row.getRowProps()}
-                  onClick={() => onBoxRowClick(row.original.labelIdentifier)}
-                  key={row.original.labelIdentifier}
-                >
-                  {row.cells.map((cell) => (
-                    <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
-                      {cell.render("Cell")}
-                    </Td>
-                  ))}
+                <Tr key={row.original.labelIdentifier}>
+                  <Td colSpan={columns.length + 1}>
+                    <Skeleton height={5} />
+                  </Td>
                 </Tr>
               );
-            })}
-          </Tbody>
-        </Table>
-      </Flex>
+            }
+
+            return (
+              <Tr
+                cursor="pointer"
+                {...row.getRowProps()}
+                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                key={row.original.labelIdentifier}
+              >
+                {row.cells.map((cell) => (
+                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                    {cell.render("Cell")}
+                  </Td>
+                ))}
+              </Tr>
+            );
+          })}
+        </Tbody>
+      </Table>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
