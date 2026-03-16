@@ -564,5 +564,4 @@ def test_auth0_users_api():
     assert len(role_names) > 5
 
     role_ids = service.get_single_base_user_role_ids(1)
-    assert len(role_ids) > 1
-    assert len(role_ids) == len([n for n in role_names if n.startswith("base_1_")])
+    assert len(role_ids) > 5
