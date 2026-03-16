@@ -122,8 +122,8 @@ jobs:
       - run:
           name: Run style checks
           command: |
-            pnpm lint:fix:all
-            pnpm format:write:all
+            pnpm lint:all
+            pnpm format:check:all
             pnpm -C .. graphql-gen
       - run:
           name: Build front
@@ -157,8 +157,8 @@ jobs:
       - run:
           name: Run style checks
           command: |
-            pnpm lint:fix:all
-            pnpm format:write:all
+            pnpm lint:all
+            pnpm format:check:all
             pnpm -C .. graphql-gen
       - run:
           name: Build shared-front
