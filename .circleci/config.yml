@@ -45,8 +45,19 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
+      - run:
+          name: Show file
+          command: |
+            ls -lisah front/src/views/Boxes
+            grep -n totalSummary front/src/views/Boxes/BoxesView.test.tsx
+            echo "${CIRCLE_SHA1}"
       - restore_cache:
           key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
+      - run:
+          name: Show file
+          command: |
+            grep -n totalSummary front/src/views/Boxes/BoxesView.test.tsx
+            echo "${CIRCLE_SHA1}"
       - run:
           name: Install pnpm package manager
           command: |
@@ -63,6 +74,11 @@ jobs:
             - front/node_modules
             - shared-front/node_modules
             - shared-components/node_modules
+      - run:
+          name: Show file
+          command: |
+            grep -n totalSummary front/src/views/Boxes/BoxesView.test.tsx
+            echo "${CIRCLE_SHA1}"
       - persist_to_workspace:
           root: ~/
           paths:
@@ -133,6 +149,7 @@ jobs:
       - run:
           name: Build front
           command: |
+            ls -lisah front/src/views/Boxes
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             echo "${CIRCLE_SHA1}"
             pnpm build
