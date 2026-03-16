@@ -126,8 +126,7 @@ jobs:
       - run:
           name: Show file
           command: |
-            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
-            echo "${CIRCLE_SHA1}"
+            ls -lisah .
       - attach_workspace:
           at: ~/
       - run:
