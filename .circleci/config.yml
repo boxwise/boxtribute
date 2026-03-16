@@ -33,6 +33,11 @@ jobs:
           root: .
           paths:
             - .
+      - run:
+          name: Show file
+          command: |
+            grep -n totalSummary front/src/views/Boxes/BoxesView.test.tsx
+            echo "${CIRCLE_SHA1}"
 
   install-node-packages:
     executor: node-executor
@@ -128,7 +133,6 @@ jobs:
       - run:
           name: Build front
           command: |
-            cat src/views/Boxes/BoxesView.test.tsx
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             echo "${CIRCLE_SHA1}"
             pnpm build
