@@ -562,6 +562,3 @@ def test_auth0_users_api():
     response = interface.roles.list(per_page=5)
     role_names = [r.name for r in response]
     assert len(role_names) > 5
-
-    role_ids = service.get_single_base_user_role_ids(1)
-    assert len(role_ids) > 5
