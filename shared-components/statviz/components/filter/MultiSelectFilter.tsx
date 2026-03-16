@@ -65,6 +65,9 @@ export default function MultiSelectFilter({
       options={values}
       errors={errors}
       control={control}
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      showCheckIcon={true}
     />
   );
 }
