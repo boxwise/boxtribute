@@ -153,6 +153,7 @@ jobs:
           name: Run style checks
           command: |
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
+            cp src/views/Boxes/BoxesView.test.tsx src/views/Boxes/BoxesView_.test.tsx
             pnpm lint:fix:all
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             pnpm format:write:all
@@ -163,6 +164,7 @@ jobs:
           name: Build front
           command: |
             ls -lisah src/views/Boxes
+            mv src/views/Boxes/BoxesView_.test.tsx src/views/Boxes/BoxesView.test.tsx
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             echo "${CIRCLE_SHA1}"
             pnpm build
