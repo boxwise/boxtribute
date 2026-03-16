@@ -160,6 +160,9 @@ jobs:
             pnpm lint:all
             pnpm format:check:all
             pnpm -C .. graphql-gen
+            cd ../shared-components
+            pnpm lint:all
+            pnpm format:check:all
       - run:
           name: Build shared-front
           command: |
