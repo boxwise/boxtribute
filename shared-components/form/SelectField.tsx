@@ -1,6 +1,5 @@
 import { FormControl, FormErrorMessage, FormLabel, chakra, Flex, Box } from "@chakra-ui/react";
-import { Select, OptionBase, chakraComponents } from "chakra-react-select";
-import type { ReactNode } from "react";
+import { Select, OptionBase, chakraComponents, GroupBase, OptionProps } from "chakra-react-select";
 import { Controller } from "react-hook-form";
 import { colorIsBright } from "../utils/helpers";
 import { CheckIcon } from "@chakra-ui/icons";
@@ -33,12 +32,13 @@ export interface ISelectFieldProps {
 }
 
 // Custom Option component that shows a CheckIcon for selected items
-interface CustomOptionProps {
-  isSelected: boolean;
-  children: ReactNode;
-}
-
-const CustomOption = (props: CustomOptionProps) => {
+const CustomOption = <
+  Option = IDropdownOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+>(
+  props: OptionProps<Option, IsMulti, Group>,
+) => {
   const { isSelected, children } = props;
   return (
     <chakraComponents.Option {...props}>
