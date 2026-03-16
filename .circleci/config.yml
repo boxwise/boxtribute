@@ -154,7 +154,7 @@ jobs:
           command: |
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             cp src/views/Boxes/BoxesView.test.tsx src/views/Boxes/BoxesView_.test.tsx
-            pnpm lint:fix:all
+            pnpm lint:all
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             pnpm format:write:all
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
@@ -164,6 +164,7 @@ jobs:
           name: Build front
           command: |
             ls -lisah src/views/Boxes
+            grep -n totalSummary src/views/Boxes/BoxesView_.test.tsx
             mv src/views/Boxes/BoxesView_.test.tsx src/views/Boxes/BoxesView.test.tsx
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             echo "${CIRCLE_SHA1}"
