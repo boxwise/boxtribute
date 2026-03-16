@@ -123,8 +123,18 @@ jobs:
     working_directory: ~/front
     resource_class: medium+
     steps:
+      - run:
+          name: Show file
+          command: |
+            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
+            echo "${CIRCLE_SHA1}"
       - attach_workspace:
           at: ~/
+      - run:
+          name: Show file
+          command: |
+            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
+            echo "${CIRCLE_SHA1}"
       - run:
           name: Generate .env File
           command: |
@@ -149,7 +159,7 @@ jobs:
       - run:
           name: Build front
           command: |
-            ls -lisah front/src/views/Boxes
+            ls -lisah src/views/Boxes
             grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             echo "${CIRCLE_SHA1}"
             pnpm build
