@@ -152,9 +152,13 @@ jobs:
       - run:
           name: Run style checks
           command: |
+            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             pnpm lint:fix:all
+            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             pnpm format:write:all
+            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
             pnpm -C .. graphql-gen
+            grep -n totalSummary src/views/Boxes/BoxesView.test.tsx
       - run:
           name: Build front
           command: |
