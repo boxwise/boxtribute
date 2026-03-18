@@ -318,7 +318,6 @@ jobs:
           name: Create version.txt
           command: |
             echo "CircleCI build number:${CIRCLE_BUILD_NUM}
-              ${GCLOUD_SERVICE_KEY}
               Branch: ${CIRCLE_BRANCH}
               Git hash: ${CIRCLE_SHA1}" > version.txt
       - run:
@@ -372,8 +371,7 @@ jobs:
       - run:
           name: Deploy to GAE
           command: |
-            gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1} --verbosity=debug
-          no_output_timeout: 20m
+            gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1} --verbosity=info
       - slack/notify-on-failure:
           only_for_branches: master,production
 
