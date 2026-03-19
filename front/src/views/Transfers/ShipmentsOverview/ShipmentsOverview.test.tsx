@@ -150,6 +150,7 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   expect(screen.getByText("Include the following shipments:")).toBeInTheDocument();
 
   // Check if checkboxes are present and checked by default
+  /* eslint-disable testing-library/no-node-access */
   const receivingWrapper = screen.getByTestId("receiving-checkbox");
   const receivingCheckbox = receivingWrapper.querySelector(
     'input[type="checkbox"]',
@@ -158,6 +159,7 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   const sendingCheckbox = sendingWrapper.querySelector(
     'input[type="checkbox"]',
   ) as HTMLInputElement;
+  /* eslint-enable testing-library/no-node-access */
   expect(receivingCheckbox).toBeInTheDocument();
   expect(sendingCheckbox).toBeInTheDocument();
   expect(receivingCheckbox).toBeChecked();
