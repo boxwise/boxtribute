@@ -229,7 +229,7 @@ function ShipmentsOverviewView() {
             Create Shipment
           </Button>
         </Link>
-        <ShipmentExportButton baseId={baseId} currentBaseName={currentBaseName} />
+        <ShipmentExportButton rowData={rowData} />
       </Stack>
       <Tabs
         variant="enclosed-colored"
