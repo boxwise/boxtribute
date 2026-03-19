@@ -150,7 +150,7 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   expect(screen.getByText("Include following shipments:")).toBeInTheDocument();
 
   // Check if checkboxes are present and checked by default
-  const receivingCheckbox = screen.getByTestId("receiving-checkbox")
+  const receivingCheckbox = screen.getByTestId("receiving-checkbox");
   const sendingCheckbox = screen.getByTestId("sending-checkbox");
   expect(receivingCheckbox).toBeInTheDocument();
   expect(sendingCheckbox).toBeInTheDocument();
