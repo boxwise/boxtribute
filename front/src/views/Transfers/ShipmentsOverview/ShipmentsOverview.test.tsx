@@ -1,5 +1,5 @@
 import { it, expect, vi, beforeEach } from "vitest";
-import { screen, render, waitFor } from "tests/test-utils";
+import { screen, render, waitFor, within } from "tests/test-utils";
 import { mockGraphQLError, mockNetworkError } from "mocks/functions";
 import { generateMockShipment } from "mocks/shipments";
 import { ALL_SHIPMENTS_QUERY, SHIPMENT_DATA_FOR_EXPORT_QUERY } from "queries/queries";
@@ -150,16 +150,9 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   expect(screen.getByText("Include the following shipments:")).toBeInTheDocument();
 
   // Check if checkboxes are present and checked by default
-  /* eslint-disable testing-library/no-node-access */
-  const receivingWrapper = screen.getByTestId("receiving-checkbox");
-  const receivingCheckbox = receivingWrapper.querySelector(
-    'input[type="checkbox"]',
-  ) as HTMLInputElement;
-  const sendingWrapper = screen.getByTestId("sending-checkbox");
-  const sendingCheckbox = sendingWrapper.querySelector(
-    'input[type="checkbox"]',
-  ) as HTMLInputElement;
-  /* eslint-enable testing-library/no-node-access */
+  const popoverContent = await screen.findByTestId("export-popover-content");
+  const receivingCheckbox = within(popoverContent).getByRole("checkbox", { name: /receiving/i });
+  const sendingCheckbox = within(popoverContent).getByRole("checkbox", { name: /sending/i });
   expect(receivingCheckbox).toBeInTheDocument();
   expect(sendingCheckbox).toBeInTheDocument();
   expect(receivingCheckbox).toBeChecked();

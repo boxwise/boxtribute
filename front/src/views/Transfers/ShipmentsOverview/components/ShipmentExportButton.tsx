@@ -248,7 +248,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
             Export .csv
           </Button>
         </PopoverTrigger>
-        <PopoverContent>
+        <PopoverContent data-testid="export-popover-content">
           <PopoverArrow />
           <PopoverCloseButton />
           <PopoverBody>
