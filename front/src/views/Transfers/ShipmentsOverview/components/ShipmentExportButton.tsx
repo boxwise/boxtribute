@@ -255,14 +255,14 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ baseId, cur
               <Checkbox
                 isChecked={includeReceiving}
                 onChange={(e) => setIncludeReceiving(e.target.checked)}
-                data-testid="receiving-checkbox"
+                inputProps={{ "data-testid": "receiving-checkbox" }}
               >
                 Receiving
               </Checkbox>
               <Checkbox
                 isChecked={includeSending}
                 onChange={(e) => setIncludeSending(e.target.checked)}
-                data-testid="sending-checkbox"
+                inputProps={{ "data-testid": "sending-checkbox" }}
               >
                 Sending
               </Checkbox>
