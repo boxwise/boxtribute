@@ -97,19 +97,35 @@ it("4.4.1.4 - Initial Load of Page", async () => {
 
 it("4.4.1.5 - Export CSV Button Functionality", async () => {
   const mockShipment = generateMockShipment({});
-  const mocks = [
-    mockSuccessfulShipmentsQuery({}),
-    {
-      request: {
-        query: SHIPMENT_DATA_FOR_EXPORT_QUERY,
-      },
-      result: {
+
+  // Create a mock for the export query with a flag to track if it was called
+  let exportQueryCalled = false;
+  const exportQueryMock = {
+    request: {
+      query: SHIPMENT_DATA_FOR_EXPORT_QUERY,
+    },
+    result: () => {
+      exportQueryCalled = true;
+      return {
         data: {
           shipments: [mockShipment],
         },
-      },
+      };
     },
-  ];
+  };
+
+  const mocks = [mockSuccessfulShipmentsQuery({}), exportQueryMock];
+
+  // Mock the HTMLAnchorElement.click method to verify CSV download is triggered
+  const mockClick = vi.fn();
+  const originalCreateElement = document.createElement.bind(document);
+  vi.spyOn(document, "createElement").mockImplementation((tagName) => {
+    const element = originalCreateElement(tagName);
+    if (tagName === "a") {
+      element.click = mockClick;
+    }
+    return element;
+  });
 
   render(<ShipmentsOverviewView />, {
     routePath: "/bases/:baseId/transfers/shipments",
@@ -162,4 +178,26 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   await waitFor(() => {
     expect(popoverExportButton).not.toBeDisabled();
   });
+
+  // Click the export button to trigger the export
+  await user.click(popoverExportButton);
+
+  // Wait for the backend request to be made
+  await waitFor(
+    () => {
+      expect(exportQueryCalled).toBe(true);
+    },
+    { timeout: 3000 },
+  );
+
+  // Wait for CSV download to be triggered
+  await waitFor(
+    () => {
+      expect(mockClick).toHaveBeenCalled();
+    },
+    { timeout: 3000 },
+  );
+
+  // Restore the original createElement
+  vi.restoreAllMocks();
 });
