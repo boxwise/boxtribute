@@ -147,7 +147,7 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   await user.click(exportButton);
 
   // Check if popover content is visible
-  expect(screen.getByText("Include following shipments:")).toBeInTheDocument();
+  expect(screen.getByText("Include the following shipments:")).toBeInTheDocument();
 
   // Check if checkboxes are present and checked by default
   const receivingCheckbox = screen.getByTestId("receiving-checkbox");

@@ -253,7 +253,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
           <PopoverCloseButton />
           <PopoverBody>
             <Stack spacing={3}>
-              <Text>Include following shipments:</Text>
+              <Text>Include the following shipments:</Text>
               <Checkbox
                 isChecked={includeReceiving}
                 onChange={(e) => setIncludeReceiving(e.target.checked)}
