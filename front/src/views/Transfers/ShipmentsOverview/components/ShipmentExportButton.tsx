@@ -257,14 +257,14 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
               <Checkbox
                 isChecked={includeReceiving}
                 onChange={(e) => setIncludeReceiving(e.target.checked)}
-                inputProps={{ ["data-testid"]: "receiving-checkbox" }}
+                data-testid="receiving-checkbox"
               >
                 Receiving
               </Checkbox>
               <Checkbox
                 isChecked={includeSending}
                 onChange={(e) => setIncludeSending(e.target.checked)}
-                inputProps={{ ["data-testid"]: "sending-checkbox" }}
+                data-testid="sending-checkbox"
               >
                 Sending
               </Checkbox>
