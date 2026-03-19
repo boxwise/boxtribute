@@ -55,6 +55,7 @@ export const URL_FILTER_CONFIG = [
   { filterId: "size", urlParam: "size_ids" },
   { filterId: "location", urlParam: "location_ids" },
   { filterId: "tags", urlParam: "tag_ids" },
+  { filterId: "no_tags", urlParam: "no_tag_ids" },
 ] as const;
 
 // Helper to update URL parameters from filters

@@ -6,9 +6,9 @@ from datetime import date
 from unittest.mock import patch
 
 import pytest
-from auth0.management import ManagementClient
 from auth0.management.core.api_error import ApiError
 from boxtribute_server.cli.main import main as cli_main
+from boxtribute_server.cli.service import Auth0Service
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.user import User
 
@@ -543,14 +543,22 @@ WHERE cms_usergroups_id BETWEEN 99999990 AND 99999994;""")
     assert data == (("base_80_volunteer" + test_role_name_suffix, 99999994),)
 
 
-@pytest.mark.xfail(reason="Auth0 SDK pagination bug")
 def test_auth0_users_api():
     domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
     client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
     secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
 
-    interface = ManagementClient(
-        domain=domain, client_id=client_id, client_secret=secret
-    )
+    service = Auth0Service.connect(domain=domain, client_id=client_id, secret=secret)
+    interface = service._interface
+
     response = interface.users.list(per_page=10)
-    assert len([u for u in response]) > 10
+    nr_users = len([u for u in response])
+    assert nr_users > 10
+
+    users = service.get_users(query=None, fields=["user_id"])
+    assert len(users) > 10
+
+    interface._api._client_wrapper.httpx_client.httpx_client._page = 0
+    response = interface.roles.list(per_page=5)
+    role_names = [r.name for r in response]
+    assert len(role_names) > 5

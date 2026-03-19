@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
-    "@auth0/auth0-react": "^2.15.0",
+    "@auth0/auth0-react": "^2.15.1",
     "@boxtribute/shared-components": "workspace:*",
     "@yudiel/react-qr-scanner": "2.5.1",
     "jotai": "^2.18.1",
@@ -19,9 +19,9 @@
   "devDependencies": {
     "@types/react-big-calendar": "^1.16.3",
     "@types/react-table": "^7.7.20",
-    "msw": "^2.12.10",
+    "msw": "^2.12.11",
     "mutationobserver-shim": "^0.3.7",
-    "vite-plugin-static-copy": "^3.2.0"
+    "vite-plugin-static-copy": "^3.3.0"
   },
   "scripts": {
     "build": "tsc && vite build",

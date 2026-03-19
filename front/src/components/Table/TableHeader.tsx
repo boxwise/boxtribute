@@ -4,11 +4,15 @@ import { HeaderGroup } from "react-table";
 
 interface IFilteringSortingTableHeaderProps {
   headerGroups: HeaderGroup<any>[];
+  hideColumnFilters?: boolean;
 }
 
-export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingTableHeaderProps) {
+export function FilteringSortingTableHeader({
+  headerGroups,
+  hideColumnFilters = false,
+}: IFilteringSortingTableHeaderProps) {
   return (
-    <Thead position="sticky" top={0} background="white" zIndex={2}>
+    <Thead position="sticky" top={0} background="gray.100" zIndex={2}>
       {headerGroups.map((headerGroup: HeaderGroup, idx) => (
         <Tr {...headerGroup.getHeaderGroupProps()} key={idx}>
           {headerGroup.headers.map((column, idx) => (
@@ -21,7 +25,7 @@ export function FilteringSortingTableHeader({ headerGroups }: IFilteringSortingT
                   <TriangleUpIcon aria-label="sorted ascending" />
                 )}
                 <div {...column.getSortByToggleProps()}>{column.render("Header")}</div>
-                {column.Filter && column.canFilter && (
+                {!hideColumnFilters && column.Filter && column.canFilter && (
                   <chakra.span>{column.render("Filter")}</chakra.span>
                 )}
               </HStack>
