@@ -17,6 +17,6 @@ def test_create_db_interface_with_none_fields(kwargs):
         create_db_interface(**kwargs)
 
 
-def test_current_database_without_binding():
+def test_current_database_without_binding(no_db_client):
     with pytest.raises(RuntimeError):
         current_database()
