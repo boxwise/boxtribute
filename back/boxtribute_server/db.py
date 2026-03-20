@@ -111,6 +111,16 @@ def create_db_interface(**mysql_kwargs):
     )
 
 
+def current_database() -> MySQLDatabase:
+    """Return the database object that the data models currently are bound to.
+    Return None if run without prior Database.bind() or Database.bind_ctx() call.
+    """
+    database = MODELS[0]._meta.database
+    if database is None:
+        raise RuntimeError("Data models not bound to database.")
+    return database
+
+
 def execute_sql(*params, query):
     """Utility function to execute a raw SQL query, returning the result rows as dicts.
     Use the database that the data models currently are bound to. If execute_sql() is

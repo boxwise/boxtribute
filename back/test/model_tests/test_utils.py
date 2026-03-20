@@ -3,7 +3,7 @@ import pytest
 from boxtribute_server.business_logic.box_transfer.shipment.fields import (
     first_letters_of_base_name,
 )
-from boxtribute_server.db import DatabaseManager
+from boxtribute_server.db import DatabaseManager, current_database
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
@@ -26,8 +26,9 @@ def test_unitialized_database_manager():
     # Verify dev error in handle_non_existing_resource()
     @handle_non_existing_resource
     def func():
-        database = Base._meta.database  # could use any Model here
-        database.execute_sql("""UPDATE stock SET box_state_id = 0 WHERE id = 2;""")
+        current_database().execute_sql(
+            "UPDATE stock SET box_state_id = 0 WHERE id = 2;"
+        )
 
     with pytest.raises(peewee.IntegrityError, match="REFERENCES `box_state`"):
         func()
