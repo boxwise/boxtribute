@@ -219,8 +219,17 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
           }));
         });
 
-        // Set the CSV data which will trigger the useEffect to download
-        setCsvData(flattenedData);
+        // Check if there's any data to export after filtering
+        if (flattenedData.length === 0) {
+          createToast({
+            type: "warning",
+            message: "No shipments to export.",
+          });
+        } else {
+          // Set the CSV data which will trigger the useEffect to download
+          setCsvData(flattenedData);
+          setIsOpen(false);
+        }
       }
     } catch (err) {
       createToast({
@@ -244,6 +253,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
             borderRadius="0"
             onClick={() => setIsOpen(true)}
             data-testid="export-csv-button"
+            isDisabled={rowData.length === 0}
           >
             Export .csv
           </Button>
