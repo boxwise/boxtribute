@@ -14,20 +14,17 @@ from contextlib import contextmanager
 
 import pymysql
 import pytest
-from boxtribute_server.app import configure_app, create_app
+from boxtribute_server.app import create_app, register_blueprints
 from boxtribute_server.db import create_db_interface, db
+from boxtribute_server.models import MODELS
 
 # It's crucial to import the blueprints from the routes module (NOT the blueprints
-# module) because only then
-# a) they actually have routes registered
-# b) all data models are registered as Model subclasses (because the GraphQL schema
-#    is imported into the routes module which in turn imports all data models down the
-#    line); this is relevant for setup_models() to work
+# module) because only then they actually have routes registered.
 from boxtribute_server.routes import api_bp, app_bp, shared_bp
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data import MODELS, setup_models
+from data import setup_models
 
 
 @pytest.fixture(scope="session")
@@ -70,24 +67,19 @@ def testing_database(connection_parameters):
 def _create_app(database_interface, *blueprints):
     """On each invocation, create the Flask app and configure it to access the
     `database_interface`.
-    Create all tables and populate them.
-
-    Adapted from
-    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton.
 
     The context manager allows to reuse the same fixture implementation with different
     scopes (cf. https://github.com/pytest-dev/pytest/issues/3425#issuecomment-383835876)
     """
     app = create_app()
     app.debug = True
-    # Reset handlers before registering in db.init_app(). This is crucial to enable the
-    # usage of transaction rollbacks in the client fixture. The connect_db/close_db
-    # methods are registered as before/after_request handlers in the Flask app. Usually
-    # they open/close the database connection but since this cannot happen during the
-    # transaction in the client fixture, they are rendered ineffective.
-    db.connect_db = lambda: None
-    db.close_db = lambda exc: None
-    configure_app(app, *blueprints, database_interface=database_interface)
+    # Omit registering before-/teardown-request handlers (cf. main()). This is crucial
+    # to enable the usage of transaction rollbacks in the client fixture. Usually the
+    # handlers open/close the database connection but since this cannot happen during
+    # the transaction in the client fixture, they are rendered ineffective.
+    register_blueprints(app, *blueprints)
+    db.database = database_interface
+    db.replica = None
     with app.app_context():
         yield app
 
@@ -105,7 +97,8 @@ def setup_testing_database(testing_database):
 
 @pytest.fixture
 def app(setup_testing_database):
-    """The fixture creates a web app on top of the given database fixture."""
+    """Function fixture to create the Flask back-end on top of the given database
+    fixture."""
     with _create_app(setup_testing_database, api_bp, app_bp, shared_bp) as app:
         yield app
 

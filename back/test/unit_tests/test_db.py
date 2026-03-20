@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.db import create_db_interface
+from boxtribute_server.db import create_db_interface, current_database
 
 
 @pytest.mark.parametrize(
@@ -15,3 +15,8 @@ from boxtribute_server.db import create_db_interface
 def test_create_db_interface_with_none_fields(kwargs):
     with pytest.raises(ValueError):
         create_db_interface(**kwargs)
+
+
+def test_current_database_without_binding(no_db_client):
+    with pytest.raises(RuntimeError):
+        current_database()
