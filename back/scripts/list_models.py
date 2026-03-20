@@ -5,11 +5,7 @@ corresponding MySQL table names and columns to file.
 import subprocess
 from pathlib import Path
 
-from boxtribute_server.models.definitions import models
-
-# We must import something from the routes module (or anything that effectively imports
-# all Model subclasses) in order for the models() function to work
-from boxtribute_server.routes import API_CONTEXT  # noqa
+from boxtribute_server.models import MODELS  # type: ignore
 
 SCRIPT_DIRPATH = Path(__file__).resolve().parent
 
@@ -32,7 +28,7 @@ version: {commit}
 MODEL (table)
 
 """)
-        for model in models():
+        for model in MODELS:
             file.write(f"{model._meta.name:32} " f"({model._meta.table_name})\n")
 
             for field in model._meta.sorted_fields:
