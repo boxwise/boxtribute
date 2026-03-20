@@ -126,41 +126,41 @@ A collection of various QR labels (associated/not associated with existing boxes
 
 ### QR labels associated with boxes
 
-Box in base 1
+#### Box in base 1
 
-![box in base 1](./docs/qr/code-with-box-base-1-a3f22cbf5e52ea40557d8c8117ece5d3.png)
+![box in base 1](./docs/qr/code-with-box-base-1-5ff6179fd2e655559b7eb80acb47318a.png)
 
-Box in base 2
+#### Box in base 2
 
-![box in base 2](./docs/qr/code-with-box-base-2-c7c9691e8490695871eff25a7184a68d.png)
+![box in base 2](./docs/qr/code-with-box-base-2-cd9474dadab181adca58a75b9ade885c.png)
 
-Box in base 3
+#### Box in base 3
 
-![box in base 3](./docs/qr/code-with-box-base-3-04508398e21891508288f9d64c250f1e.png)
+![box in base 3](./docs/qr/code-with-box-base-3-d9b1ab5169bd11f258df94aa57a82ef5.png)
 
-Box in base 4
+#### Box in base 4
 
-![box in base 4](./docs/qr/code-with-box-base-4-d871e6c7f0a6e74fea024427a6ee3381.png)
+![box in base 4](./docs/qr/code-with-box-base-4-bce56b0e6abc3714c560ec5d9e6adfaa.png)
 
 ### QR labels not associated with any boxes
 
-![x0](./docs/qr/without-box/0159bdee5ace105482989775c591f1af.png)
+![x0](./docs/qr/without-box/4b382363fa161c111fa9ad2b335ceacd.png)
 
-![x1](./docs/qr/without-box/02aab8f4b84d9c917c9ed5ff148c7776.png)
+![x1](./docs/qr/without-box/9f74396cd0a78a9cfde811fe7aa5dd25.png)
 
-![x2](./docs/qr/without-box/083c297c3de6396dad509f8018ac403d.png)
+![x2](./docs/qr/without-box/03f84a381471c765874c4f86529e973e.png)
 
-More boxes can be found [here](./docs/qr/without-box).
+More labels can be found [here](./docs/qr/without-box).
 
 ### QR labels that don't exist in the database
 
-![x0](./docs/qr/not-in-database/168842e6389b520d4b1836562aa1f05.png)
+![y0](./docs/qr/not-in-database/1764e0316a05c8ea61a46a77b61144a2.png)
 
-![x1](./docs/qr/not-in-database/12ca607ce60c484bdbb703def950c5b.png)
+![y1](./docs/qr/not-in-database/7fa933c2d302309fd273eec49e3d1be5.png)
 
-![x2](./docs/qr/not-in-database/13f12820c8010f2f7349962930e6bf4.png)
+![y2](./docs/qr/not-in-database/e7d6036262efa43b732a5278bc39af1a.png)
 
-More boxes can be found [here](./docs/qr/not-in-database).
+More labels can be found [here](./docs/qr/not-in-database).
 
 ## CircleCI
 

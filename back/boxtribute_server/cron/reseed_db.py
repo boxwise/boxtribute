@@ -3,7 +3,6 @@ from pathlib import Path
 from ..db import execute_sql
 from ..models.definitions.base import Base
 from ..utils import in_demo_environment, in_staging_environment
-from .data_faking import Generator
 
 
 def reseed_db():
@@ -24,6 +23,8 @@ def reseed_db():
         # The seed contains Auth0 role IDs of the dev tenant which need to be replaced
         update_auth0_role_ids()
         return
+
+    from .data_faking import Generator
 
     generator = Generator()
     generator.run()

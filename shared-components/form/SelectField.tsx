@@ -1,7 +1,8 @@
-import { FormControl, FormErrorMessage, FormLabel, chakra, Flex } from "@chakra-ui/react";
-import { Select, OptionBase } from "chakra-react-select";
+import { FormControl, FormErrorMessage, FormLabel, chakra, Flex, Box } from "@chakra-ui/react";
+import { Select, OptionBase, chakraComponents, GroupBase, OptionProps } from "chakra-react-select";
 import { Controller } from "react-hook-form";
 import { colorIsBright } from "../utils/helpers";
+import { CheckIcon } from "@chakra-ui/icons";
 
 export interface IDropdownOption extends OptionBase {
   value: string;
@@ -25,7 +26,29 @@ export interface ISelectFieldProps {
   defaultValue?: string;
   onChangeProp?: (event) => void;
   inlineLabel?: boolean;
+  closeMenuOnSelect?: boolean;
+  hideSelectedOptions?: boolean;
+  showCheckIcon?: boolean;
 }
+
+// Custom Option component that shows a CheckIcon for selected items
+const CustomOption = <
+  Option = IDropdownOption,
+  IsMulti extends boolean = boolean,
+  Group extends GroupBase<Option> = GroupBase<Option>,
+>(
+  props: OptionProps<Option, IsMulti, Group>,
+) => {
+  const { isSelected, children } = props;
+  return (
+    <chakraComponents.Option {...props}>
+      <Flex justifyContent="space-between" alignItems="center" width="100%">
+        <Box>{children}</Box>
+        {isSelected && <CheckIcon ml={2} />}
+      </Flex>
+    </chakraComponents.Option>
+  );
+};
 
 // The examples from chakra-react-select were super helpful:
 // https://www.npmjs.com/package/chakra-react-select#usage-with-react-form-libraries
@@ -44,6 +67,9 @@ function SelectField({
   defaultValue = undefined,
   onChangeProp = undefined,
   inlineLabel = false,
+  closeMenuOnSelect = undefined,
+  hideSelectedOptions = undefined,
+  showCheckIcon = false,
 }: ISelectFieldProps) {
   const labelElement = showLabel && (
     <FormLabel htmlFor={fieldId} mb={inlineLabel ? 0 : undefined} mr={inlineLabel ? 3 : undefined}>
@@ -77,6 +103,9 @@ function SelectField({
           tagVariant="outline"
           tagColorScheme="black"
           isMulti={isMulti}
+          closeMenuOnSelect={closeMenuOnSelect}
+          hideSelectedOptions={hideSelectedOptions}
+          components={showCheckIcon ? { Option: CustomOption } : undefined}
           focusBorderColor="blue.500"
           menuPortalTarget={document.body}
           styles={{
@@ -87,7 +116,16 @@ function SelectField({
               ...provided,
               border: "2px",
               borderRadius: "0",
-              borderColor: "black",
+              borderColor: "gray.300",
+              _hover: { borderColor: "gray.300" },
+              _focus: { borderColor: "gray.300", boxShadow: "none" },
+            }),
+            option: (provided) => ({
+              ...provided,
+              color: "black",
+              background: "white",
+              _hover: { background: "gray.100" },
+              _active: { background: "gray.100" },
             }),
             multiValue: (provided, state) => ({
               ...provided,

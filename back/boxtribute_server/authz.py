@@ -386,9 +386,9 @@ MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
 )
 
 # ### BETA-LEVEL 7 ###
-# In addition to level 4,
+# In addition to level 6,
 # - create-box-from-box prototype
-MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[4] + ("createBoxFromBox",)
+MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6] + ("createBoxFromBox",)
 
 # ### BETA-LEVEL 98 ###
 # In addition to level 5,

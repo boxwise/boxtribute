@@ -122,8 +122,8 @@ jobs:
       - run:
           name: Run style checks
           command: |
-            pnpm lint:fix:all
-            pnpm format:write:all
+            pnpm lint:all
+            pnpm format:check:all
             pnpm -C .. graphql-gen
       - run:
           name: Build front
@@ -157,9 +157,12 @@ jobs:
       - run:
           name: Run style checks
           command: |
-            pnpm lint:fix:all
-            pnpm format:write:all
+            pnpm lint:all
+            pnpm format:check:all
             pnpm -C .. graphql-gen
+            cd ../shared-components
+            pnpm lint:all
+            pnpm format:check:all
       - run:
           name: Build shared-front
           command: |
@@ -368,7 +371,7 @@ jobs:
       - run:
           name: Deploy to GAE
           command: |
-            gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1}
+            gcloud app deploy app-<< parameters.serviceName >>.yaml --version ${CIRCLE_SHA1} --verbosity=info
       - slack/notify-on-failure:
           only_for_branches: master,production
 
