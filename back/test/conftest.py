@@ -19,11 +19,7 @@ from boxtribute_server.db import create_db_interface, db
 from boxtribute_server.models import MODELS
 
 # It's crucial to import the blueprints from the routes module (NOT the blueprints
-# module) because only then
-# a) they actually have routes registered
-# b) all data models are registered as Model subclasses (because the GraphQL schema
-#    is imported into the routes module which in turn imports all data models down the
-#    line); this is relevant for setup_models() to work
+# module) because only then they actually have routes registered.
 from boxtribute_server.routes import api_bp, app_bp, shared_bp
 
 # Imports fixtures into tests
@@ -72,9 +68,6 @@ def _create_app(database_interface, *blueprints):
     """On each invocation, create the Flask app and configure it to access the
     `database_interface`.
 
-    Adapted from
-    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton.
-
     The context manager allows to reuse the same fixture implementation with different
     scopes (cf. https://github.com/pytest-dev/pytest/issues/3425#issuecomment-383835876)
     """
@@ -104,7 +97,8 @@ def setup_testing_database(testing_database):
 
 @pytest.fixture
 def app(setup_testing_database):
-    """The fixture creates a web app on top of the given database fixture."""
+    """Function fixture to create the Flask back-end on top of the given database
+    fixture."""
     with _create_app(setup_testing_database, api_bp, app_bp, shared_bp) as app:
         yield app
 
