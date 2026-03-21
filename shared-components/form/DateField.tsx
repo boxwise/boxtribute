@@ -51,8 +51,8 @@ function DateField({
         render={({ field }) => (
           <Input
             border="2px"
-            borderColor="black"
-            focusBorderColor="blue.400"
+            borderColor="gray.300"
+            focusBorderColor="gray.300"
             type="date"
             borderRadius={0}
             mb={2}

@@ -1,6 +1,6 @@
 from ariadne import ObjectType
 
-from ....authz import authorize_for_reading_box, handle_unauthorized
+from ....authz import authorize_for_accessing_box, handle_unauthorized
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
 
@@ -17,7 +17,7 @@ def resolve_qr_code_box(qr_code_obj, _):
             .where(Box.qr_code == qr_code_obj.id)
             .get()
         )
-        authorize_for_reading_box(box)
+        authorize_for_accessing_box(box)
     except Box.DoesNotExist:
         box = None
     return box

@@ -1,13 +1,13 @@
 from peewee import CharField, DateTimeField, IntegerField, TextField
 
-from ...db import db
 from ...enums import TagType
 from ..fields import EnumCharField, UIntForeignKeyField, ZeroDateTimeField
+from . import Model
 from .base import Base
 from .user import User
 
 
-class Tag(db.Model):  # type: ignore
+class Tag(Model):
     base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",

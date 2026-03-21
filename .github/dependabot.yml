@@ -4,6 +4,8 @@ updates:
     directory: "/back/"
     schedule:
       interval: "weekly"
+      day: monday
+      time: "06:00"
     groups:
       back-dev:
         dependency-type: development
@@ -23,6 +25,8 @@ updates:
     directory: "/docs/graphql-api"
     schedule:
       interval: "weekly"
+      day: monday
+      time: "07:00"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
@@ -34,12 +38,17 @@ updates:
       - "/shared-front"
     schedule:
       interval: "weekly"
+      day: monday
+      time: "07:00"
     # Always increase the minimum version requirement to match the new version.
     # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#versioning-strategy
     versioning-strategy: "increase"
     ignore:
       # https://github.com/boxwise/boxtribute/pull/2408
       - dependency-name: "react-hook-form"
+      # https://github.com/boxwise/boxtribute/pull/2561
+      # v0.5 requires eslint flat config
+      - dependency-name: "eslint-plugin-react-refresh"
       # v4 requires Node 20.19+ or 22+
       - dependency-name: "@vitejs/plugin-react-swc"
         versions: ["4.x"]
@@ -58,3 +67,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
+        exclude-patterns:
+          # v4.3 brings new features and should be separately tested
+          - "zod"

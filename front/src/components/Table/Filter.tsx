@@ -174,3 +174,15 @@ export const includesSomeTagObjectFilterFn = (rows, ids, filterValue) =>
   );
 
 includesSomeTagObjectFilterFn.autoRemove = (val) => !val || !val.length;
+
+// This is a custom filter function to exclude rows that have any of the specified tags.
+export const excludesSomeTagObjectFilterFn = (rows, ids, filterValue) =>
+  rows.filter((row) =>
+    ids.every((id) => {
+      const rowTags = row.values[id];
+      // Keep the row only if it doesn't have any of the excluded tags
+      return !filterValue.some((tagId) => rowTags.some((tag) => tag.id === tagId));
+    }),
+  );
+
+excludesSomeTagObjectFilterFn.autoRemove = (val) => !val || !val.length;

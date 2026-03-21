@@ -2,7 +2,7 @@ from utils import assert_forbidden_request, assert_successful_request
 
 
 def test_organisation_query(
-    read_only_client,
+    client,
     default_bases,
     default_organisation,
     default_beneficiaries,
@@ -12,7 +12,7 @@ def test_organisation_query(
     # Test case 99.1.8
     organisation_id = str(inactive_organisation["id"])
     query = f"""query {{ organisation(id: {organisation_id}) {{ bases {{ id }} }} }}"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(client, query)
     assert response == {"bases": []}
 
     query = f"""query {{
@@ -20,7 +20,7 @@ def test_organisation_query(
                     bases(filterInput: {{ includeDeleted: true }}) {{ id }}
                 }}
             }}"""
-    response = assert_successful_request(read_only_client, query)
+    response = assert_successful_request(client, query)
     assert response == {"bases": [{"id": str(default_bases[4]["id"])}]}
 
     # The user is a member of base 1 for default_organisation. They can read name and ID
@@ -33,7 +33,7 @@ def test_organisation_query(
                     bases {{ id name beneficiaries {{ totalCount }} }}
                 }}
             }}"""
-    response = assert_forbidden_request(read_only_client, query, verify_response=False)
+    response = assert_forbidden_request(client, query, verify_response=False)
     assert response.json["data"]["organisation"] == {
         "id": organisation_id,
         "name": default_organisation["name"],
@@ -61,7 +61,7 @@ def test_organisation_query(
                 }}
             }}"""
     response = assert_forbidden_request(
-        read_only_client, query, error_count=2, verify_response=False
+        client, query, error_count=2, verify_response=False
     )
     assert response.json["data"]["organisation"] == {
         "id": organisation_id,
@@ -72,8 +72,8 @@ def test_organisation_query(
     }
 
 
-def test_organisations_query(read_only_client, organisations):
+def test_organisations_query(client, organisations):
     # Test case 99.1.7
     query = """query { organisations { name } }"""
-    queried_organisations = assert_successful_request(read_only_client, query)
+    queried_organisations = assert_successful_request(client, query)
     assert queried_organisations == [{"name": org["name"]} for org in organisations[:2]]

@@ -36,6 +36,7 @@ requirements-dev.txt
 requirements-deploy.txt
 test/
 scripts/
+fetch_token
 README.md
 minimal.sql
 # init.sql is required for /cron/reseed-db

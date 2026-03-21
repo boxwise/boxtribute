@@ -19,7 +19,7 @@ today = date.today().isoformat()
 
 
 def test_product_query(
-    read_only_client,
+    client,
     default_product,
     default_size,
     another_size,
@@ -55,7 +55,7 @@ def test_product_query(
                     deletedOn
                 }}
             }}"""
-    queried_product = assert_successful_request(read_only_client, query)
+    queried_product = assert_successful_request(client, query)
     assert queried_product == {
         "id": str(product_id),
         "name": default_product["name"],
@@ -120,7 +120,7 @@ def test_product_query(
                     type
                     standardProduct {{ id }}
                 }} }}"""
-    queried_product = assert_successful_request(read_only_client, query)
+    queried_product = assert_successful_request(client, query)
     assert queried_product == {
         "instockItemsCount": 0,
         "transferItemsCount": 0,
@@ -141,27 +141,27 @@ def test_product_query(
         ["includeDeleted: true, type: All", [1, 3, 4, 5, 6, 8, 9]],
     ],
 )
-def test_product_query_filtering(read_only_client, default_base, filter_input, ids):
+def test_product_query_filtering(client, default_base, filter_input, ids):
     base_id = default_base["id"]
     query = f"""query {{ base(id: {base_id}) {{
                     products(filterInput: {{ {filter_input} }}) {{ id }} }} }}"""
-    products = assert_successful_request(read_only_client, query)["products"]
+    products = assert_successful_request(client, query)["products"]
     assert products == [{"id": str(i)} for i in ids]
 
 
-def test_products_query(read_only_client, mocker, base1_products, base3_products):
+def test_products_query(client, mocker, base1_products, base3_products):
     # Test case 8.1.20
     query = """query { products { elements { name } } }"""
-    products = assert_successful_request(read_only_client, query)["elements"]
+    products = assert_successful_request(client, query)["elements"]
     assert products == [{"name": p["name"]} for p in base1_products]
 
     mock_user_for_request(mocker, base_ids=[1, 3])
     query = """query { products { totalCount } }"""
-    products = assert_successful_request(read_only_client, query)
+    products = assert_successful_request(client, query)
     assert products == {"totalCount": len(base1_products) + len(base3_products)}
 
     query = """query { products(baseId: 1) { totalCount } }"""
-    products = assert_successful_request(read_only_client, query)
+    products = assert_successful_request(client, query)
     assert products == {"totalCount": len(base1_products)}
 
 

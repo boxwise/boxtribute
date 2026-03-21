@@ -29,6 +29,7 @@
   },
 
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
-  // "eslint.useFlatConfig": false
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+
+  "git.enableCommitSigning": true
 }

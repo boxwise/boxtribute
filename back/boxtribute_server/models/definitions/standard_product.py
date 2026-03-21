@@ -1,15 +1,15 @@
 from peewee import CharField, DateTimeField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
 from ..utils import utcnow
+from . import Model
 from .product_category import ProductCategory
 from .product_gender import ProductGender
 from .size_range import SizeRange
 from .user import User
 
 
-class StandardProduct(db.Model):  # type: ignore
+class StandardProduct(Model):
     name = CharField()
     category = UIntForeignKeyField(
         model=ProductCategory,

@@ -1,9 +1,9 @@
 from peewee import CharField
 
-from ...db import db
+from . import Model
 
 
-class BoxState(db.Model):  # type: ignore
+class BoxState(Model):
     label = CharField(unique=True)
 
     class Meta:

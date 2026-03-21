@@ -113,9 +113,6 @@ describe("3.1.12 - Box HistoryOverlay on BoxView", () => {
     expect(may2023).toBeInTheDocument();
     expect(jan2023).toBeInTheDocument();
 
-    // Wait a moment to ensure DOM is fully settled before position checking
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
     // Verify that the 2024 entry appears before the 2023 entries
     // by checking the document position of the elements
     const march2024Position = march2024.compareDocumentPosition(may2023);

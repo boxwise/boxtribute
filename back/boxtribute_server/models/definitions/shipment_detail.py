@@ -1,8 +1,8 @@
 from peewee import DateTimeField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
 from ..utils import utcnow
+from . import Model
 from .box import Box
 from .location import Location
 from .product import Product
@@ -11,7 +11,7 @@ from .size import Size
 from .user import User
 
 
-class ShipmentDetail(db.Model):  # type: ignore
+class ShipmentDetail(Model):
     shipment = UIntForeignKeyField(model=Shipment, on_update="CASCADE")
     box = UIntForeignKeyField(model=Box, on_update="CASCADE")
     source_product = UIntForeignKeyField(model=Product, on_update="CASCADE")

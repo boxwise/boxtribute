@@ -20,12 +20,15 @@ import {
   categoryToFilterValue,
 } from "../../filter/GenderProductFilter";
 import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { tagFilterId, tagToFilterValue } from "../../filter/TagFilter";
+import { tagToFilterValue } from "../../filter/TagFilter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
 import {
   productFilterValuesVar,
-  tagFilterValuesVar,
+  tagFilterIncludedValuesVar,
+  tagFilterExcludedValuesVar,
   categoryFilterValuesVar,
 } from "../../../state/filter";
+import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
 
 interface ICreatedBoxesFilterContainerProps {
@@ -55,8 +58,15 @@ export default function CreatedBoxesFilterContainer({
     categoryFilterId,
   );
 
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
+    useMultiSelectFilter(
+      includedTagFilterValues,
+      tagFilterIncludedId,
+      excludedTagFilterValues,
+      tagFilterExcludedId,
+    );
 
   // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
   // Beneficiary and All Tags are merged inside the DemographicFilterContainer
@@ -79,9 +89,14 @@ export default function CreatedBoxesFilterContainer({
 
     const boxTags = createdBoxes?.dimensions!.tag!.map((e) => tagToFilterValue(e!));
     if (boxTags?.length) {
-      const distinctTagFilterValues = tidy([...tagFilterValues, ...boxTags], distinct(["id"]));
+      const distinctTagFilterValues = tidy(
+        [...includedTagFilterValues, ...boxTags],
+        distinct(["id"]),
+      );
 
-      tagFilterValuesVar(distinctTagFilterValues);
+      // Populate the tag filter values for both included and excluded
+      tagFilterIncludedValuesVar(distinctTagFilterValues);
+      tagFilterExcludedValuesVar(distinctTagFilterValues);
     }
     // we only need to update products if the product gender selection is updated
     // including filterProducts would cause unnecessary rerenders
@@ -128,20 +143,25 @@ export default function CreatedBoxesFilterContainer({
         ),
       );
     }
-    if (filteredTags.length > 0) {
-      filters.push(
-        filter((fact: CreatedBoxesResult) =>
-          filteredTags.some((fT) => fact.tagIds!.includes(fT.id)),
-        ),
-      );
-    }
 
+    let filtered = createdBoxesFacts;
     if (filters.length > 0) {
       // @ts-expect-error Filter Type cannot match
-      return tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
+      filtered = tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
-    return createdBoxesFacts satisfies CreatedBoxesResult[];
-  }, [createdBoxesFacts, filterProductGenders, filterProducts, filterCategories, filteredTags]);
+
+    // Apply tag filter (included/excluded)
+    filtered = filterByTags(filtered, includedTags, excludedTags);
+
+    return filtered;
+  }, [
+    createdBoxesFacts,
+    filterProductGenders,
+    filterProducts,
+    filterCategories,
+    includedTags,
+    excludedTags,
+  ]);
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,

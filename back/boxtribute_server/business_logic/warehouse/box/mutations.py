@@ -5,7 +5,12 @@ from ariadne import MutationType
 from flask import g
 from sentry_sdk import capture_message as emit_sentry_message
 
-from ....authz import authorize, authorized_bases_filter, handle_unauthorized
+from ....authz import (
+    authorize,
+    authorize_for_accessing_box,
+    authorized_bases_filter,
+    handle_unauthorized,
+)
 from ....enums import TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
@@ -20,11 +25,12 @@ from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.utils import execute_sql
-from ....utils import in_development_environment, in_staging_environment
 from .crud import (
     WAREHOUSE_BOX_STATES,
+    BoxesResult,
     assign_missing_tags_to_boxes,
     create_box,
+    create_box_from_box,
     create_boxes,
     delete_boxes,
     move_boxes_to_location,
@@ -37,36 +43,67 @@ mutation = MutationType()
 
 
 @dataclass(kw_only=True)
-class BoxesResult:
-    updated_boxes: list[Box]
-    invalid_box_label_identifiers: list[str]
-
-
-@dataclass(kw_only=True)
 class BoxesTagsOperationResult(BoxesResult):
     tag_error_info: list[dict[str, Any]]
 
 
 @mutation.field("createBox")
 def resolve_create_box(*_, creation_input):
-    requested_location = Location.get_by_id(creation_input["location_id"])
+    requested_location = Location.get_by_id(creation_input.pop("location_id"))
     authorize(permission="stock:write", base_id=requested_location.base_id)
     authorize(permission="location:read", base_id=requested_location.base_id)
-    requested_product = Product.get_by_id(creation_input["product_id"])
-    authorize(permission="product:read", base_id=requested_product.base_id)
-    authorize(permission="tag_relation:assign")
-    tag_ids = creation_input.get("tag_ids", [])
-    for t in Tag.select().where(Tag.id << tag_ids):
-        authorize(permission="tag:read", base_id=t.base_id)
 
-    return create_box(user_id=g.user.id, **creation_input)
+    requested_product = Product.get_by_id(creation_input.pop("product_id"))
+    authorize(permission="product:read", base_id=requested_product.base_id)
+
+    authorize(permission="tag_relation:assign")
+    tag_ids = creation_input.pop("tag_ids", [])
+    tags = list(Tag.select().where(Tag.id << tag_ids))
+    for tag in tags:
+        authorize(permission="tag:read", base_id=tag.base_id)
+
+    return create_box(
+        user_id=g.user.id,
+        product=requested_product,
+        location=requested_location,
+        tags=tags,
+        **creation_input,
+    )
+
+
+@mutation.field("createBoxFromBox")
+@handle_unauthorized
+def resolve_create_box_from_box(*_, creation_input):
+    location_id = creation_input["location_id"]
+    requested_location = Location.get_or_none(Location.id == location_id)
+    if requested_location is None:
+        return ResourceDoesNotExist(name="Location", id=location_id)
+    authorize(permission="stock:write", base_id=requested_location.base_id)
+
+    source_box_label_identifier = creation_input["source_box_label_identifier"]
+    source_box = (
+        Box.select(Box, Location, Product)
+        .join(Location)  # for box.location attribute in authorize_for_accessing_box()
+        .join(Product, src=Box)  # for box.product in CRUD function
+        .where(Box.label_identifier == source_box_label_identifier)
+        .get_or_none()
+    )
+    if source_box is None:
+        return ResourceDoesNotExist(name="Box", id=source_box_label_identifier)
+    authorize_for_accessing_box(source_box, action="write")
+
+    return create_box_from_box(
+        user_id=g.user.id,
+        source_box=source_box,
+        location=requested_location,
+        number_of_items=creation_input["number_of_items"],
+    )
 
 
 @mutation.field("createBoxes")
+@handle_unauthorized
 def resolve_create_boxes(*_, creation_input):
-    if not in_staging_environment() and not in_development_environment():
-        # Mutation has no effect in production due to missing authz and validation
-        return []
+    # Authz is complex and hence moved into the crud function
     return create_boxes(user_id=g.user.id, data=creation_input)
 
 
@@ -91,11 +128,14 @@ def resolve_update_box(*_, update_input):
         authorize(permission="product:read", base_id=requested_product.base_id)
 
     authorize(permission="tag_relation:assign")
-    tag_ids = update_input.get("tag_ids", [])
-    for t in Tag.select().where(Tag.id << tag_ids):
-        authorize(permission="tag:read", base_id=t.base_id)
+    tag_ids = update_input.pop("tag_ids", None)
+    tags = None
+    if tag_ids is not None:
+        tags = list(Tag.select().where(Tag.id << tag_ids))
+        for tag in tags:
+            authorize(permission="tag:read", base_id=tag.base_id)
 
-    return update_box(user_id=g.user.id, **update_input)
+    return update_box(user_id=g.user.id, tags=tags, **update_input)
 
 
 # Common logic for bulk-action resolvers:
@@ -220,7 +260,7 @@ def _validate_tags(tag_ids, for_unassigning=False):
 
         valid_tags.append(tag)
 
-    tag_base_ids = {t.base_id for t in valid_tags}
+    tag_base_ids = {tag.base_id for tag in valid_tags}
     # All requested tags must be registered in the same base
     if len(tag_base_ids) > 1:
         # None of the tags is valid; return errors for all of them

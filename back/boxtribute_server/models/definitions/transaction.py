@@ -1,13 +1,13 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .beneficiary import Beneficiary
 from .product import Product
 from .user import User
 
 
-class Transaction(db.Model):  # type: ignore
+class Transaction(Model):
     beneficiary = UIntForeignKeyField(
         column_name="people_id",
         field="id",

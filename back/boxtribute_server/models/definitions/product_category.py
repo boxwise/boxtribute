@@ -1,10 +1,10 @@
 from peewee import SQL, CharField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 
 
-class ProductCategory(db.Model):  # type: ignore
+class ProductCategory(Model):
     name = CharField(column_name="label")
     parent = UIntForeignKeyField(
         column_name="parent_id",

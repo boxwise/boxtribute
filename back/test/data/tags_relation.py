@@ -87,7 +87,7 @@ def data():
             "object_id": another_male_beneficiary_data()["id"],
             "object_type": TaggableObjectType.Beneficiary,
             "tag": tag_data()[0]["id"],
-            "created_on": date(2022, 1, 1),
+            "created_on": date(2023, 1, 1),
             "created_by": default_user_data()["id"],
             "deleted_on": None,
             "deleted_by": None,

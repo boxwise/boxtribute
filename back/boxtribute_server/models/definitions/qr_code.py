@@ -1,9 +1,9 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField
 
-from ...db import db
+from . import Model
 
 
-class QrCode(db.Model):  # type: ignore
+class QrCode(Model):
     code = CharField(null=True)
     created_on = DateTimeField(column_name="created", null=True)
     legacy = IntegerField(constraints=[SQL("DEFAULT 0")])

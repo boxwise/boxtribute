@@ -1,13 +1,13 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField, SmallIntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
 from ..utils import utcnow
+from . import Model
 from .organisation import Organisation
 from .user import User
 
 
-class Base(db.Model):  # type: ignore
+class Base(Model):
     name = CharField(null=True)
     currency_name = CharField(
         column_name="currencyname", constraints=[SQL("DEFAULT 'Tokens'")]

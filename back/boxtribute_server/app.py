@@ -9,6 +9,7 @@ from sentry_sdk.integrations.ariadne import AriadneIntegration
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
+from .models.definitions import Model
 
 
 def create_app():
@@ -19,7 +20,7 @@ def configure_app(
     app, *blueprints, database_interface=None, replica_socket=None, **mysql_kwargs
 ):
     """Register blueprints. Configure the app's database interface. `mysql_kwargs` are
-    forwarded.
+    forwarded. Make data models operate on the primary database.
     """
     for blueprint in blueprints:
         app.register_blueprint(blueprint)
@@ -34,6 +35,8 @@ def configure_app(
         app.config["DATABASE_REPLICA"] = create_db_interface(**mysql_kwargs)
 
     db.init_app(app)
+    # With a complete list of models no need to recursively bind dependencies
+    db.database.bind(Model.__subclasses__(), bind_refs=False, bind_backrefs=False)
 
 
 def main(*blueprints):

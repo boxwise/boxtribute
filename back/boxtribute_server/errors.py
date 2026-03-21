@@ -16,6 +16,16 @@ class InvalidPrice(UserError):
         self.value = value
 
 
+class InvalidBoxState(UserError):
+    def __init__(self, *, state):
+        self.state = state
+
+
+class InvalidNumberOfItems(UserError):
+    def __init__(self, *, number_of_items):
+        self.number_of_items = number_of_items
+
+
 class InvalidDate(UserError):
     def __init__(self, *, date):
         self.date = date
@@ -24,6 +34,11 @@ class InvalidDate(UserError):
 class InvalidColor(UserError):
     def __init__(self, *, color):
         self.color = color
+
+
+class InvalidBase(UserError):
+    def __init__(self, *, ids):
+        self.ids = ids
 
 
 class EmptyName(UserError):
@@ -72,6 +87,15 @@ class TagTypeMismatch(UserError):
 
 class TagBaseMismatch(UserError):
     _ = None
+
+
+class ProductLocationBaseMismatch(UserError):
+    _ = None
+
+
+class DeletedBox(UserError):
+    def __init__(self, *, label_identifier):
+        self.label_identifier = label_identifier
 
 
 class DeletedTag(UserError):

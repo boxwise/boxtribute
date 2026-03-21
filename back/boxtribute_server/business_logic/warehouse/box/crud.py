@@ -1,35 +1,50 @@
 import random
 import re
 from collections import defaultdict
+from dataclasses import dataclass
 from decimal import Decimal
 
 import peewee
 
+from ....authz import authorize
 from ....db import db
 from ....enums import BoxState, TaggableObjectType, TagType
+from ....errors import (
+    DeletedBase,
+    DeletedBox,
+    DeletedLocation,
+    InvalidBase,
+    InvalidBoxState,
+    InvalidNumberOfItems,
+    ProductLocationBaseMismatch,
+)
 from ....exceptions import (
     BoxCreationFailed,
     BoxDeleted,
     DisplayUnitProductMismatch,
     IncompatibleSizeAndMeasureInput,
     InputFieldIsNotNone,
-    InvalidBoxState,
+)
+from ....exceptions import InvalidBoxState as InvalidBoxStateExc
+from ....exceptions import (
     LocationBaseMismatch,
     LocationTagBaseMismatch,
     MissingInputField,
     NegativeMeasureValue,
     NegativeNumberOfItems,
-    ProductLocationBaseMismatch,
+)
+from ....exceptions import ProductLocationBaseMismatch as ProductLocationBaseMismatchExc
+from ....exceptions import (
     QrCodeAlreadyAssignedToBox,
     TagBaseMismatch,
 )
+from ....models.definitions.base import Base
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.size import Size
-from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
@@ -52,6 +67,12 @@ WAREHOUSE_BOX_STATES = {
 }
 
 
+@dataclass(kw_only=True)
+class BoxesResult:
+    updated_boxes: list[Box]
+    invalid_box_label_identifiers: list[str]
+
+
 def is_measure_product(product):
     """Return True if the product's size range is either Mass or Volume, False
     otherwise.
@@ -59,12 +80,12 @@ def is_measure_product(product):
     return product.size_range_id in [28, 29]
 
 
-def _validate_base_of_tags(*, tag_ids, location):
-    if len(tag_ids) == 0:
+def _validate_base_of_tags(*, tags, location):
+    if len(tags) == 0:
         # Handle empty list when removing all assigned tags via updateBox
         return
 
-    tag_base_ids = {t.base_id for t in Tag.select(Tag.base).where(Tag.id << tag_ids)}
+    tag_base_ids = {tag.base_id for tag in tags}
     if len(tag_base_ids) > 1:
         # All requested tags must be registered in the same base
         raise TagBaseMismatch()
@@ -76,8 +97,8 @@ def _validate_base_of_tags(*, tag_ids, location):
 
 @save_creation_to_history
 def create_box(
-    product_id,
-    location_id,
+    product,
+    location,
     user_id,
     now,
     size_id=None,
@@ -86,8 +107,9 @@ def create_box(
     comment="",
     number_of_items=None,
     qr_code=None,
-    tag_ids=None,
+    tags=None,
     new_tag_names=None,
+    source_box_id=None,
 ):
     """Insert information for a new Box in the database. Use current datetime
     and box state "InStock" by default. If a location with a box state is passed
@@ -99,23 +121,13 @@ def create_box(
     if number_of_items is not None and number_of_items < 0:
         raise NegativeNumberOfItems()
 
-    product = (
-        Product.select(Product.size_range, Product.base)
-        .where(Product.id == product_id)
-        .get()
-    )
-    location = (
-        Location.select(Location.box_state, Location.base)
-        .where(Location.id == location_id)
-        .get()
-    )
     if product.base_id != location.base_id:
-        raise ProductLocationBaseMismatch()
+        raise ProductLocationBaseMismatchExc()
 
-    if tag_ids is None:
-        tag_ids = []
-    if tag_ids:
-        _validate_base_of_tags(tag_ids=tag_ids, location=location)
+    if tags is None:
+        tags = []
+    if tags:
+        _validate_base_of_tags(tags=tags, location=location)
 
     # The inputs size_id and the pair (display_unit_id, measure_value) are mutually
     # exclusive.
@@ -145,7 +157,7 @@ def create_box(
                 base_id=location.base_id,
                 now=now,
             )
-            tag_ids.append(tag.id)
+            tags.append(tag)
 
     for _ in range(RANDOM_SEQUENCE_GENERATION_ATTEMPTS):
         try:
@@ -157,12 +169,13 @@ def create_box(
             new_box.label_identifier = "".join(random.choices("0123456789", k=8))
             new_box.last_modified_on = now
             new_box.last_modified_by = user_id
-            new_box.location = location_id
-            new_box.product = product_id
+            new_box.location = location.id
+            new_box.product = product.id
             new_box.size = size_id
             new_box.state = box_state
             new_box.qr_code = qr_id
             new_box.display_unit = display_unit_id
+            new_box.source_box = source_box_id
 
             if measure_value is not None:
                 # Convert from display unit to dimensional base unit
@@ -173,7 +186,7 @@ def create_box(
             with db.database.atomic():
                 new_box.save()
 
-                if tag_ids:
+                if tags:
                     # Don't use assign_tag() because it requires an existing Box object,
                     # however the Box creation has not yet been committed to the DB
                     tags_relations = [
@@ -184,7 +197,7 @@ def create_box(
                             "created_on": now,
                             "created_by": user_id,
                         }
-                        for tag_id in set(tag_ids)
+                        for tag_id in set(tag.id for tag in tags)
                     ]
                     TagsRelation.insert_many(tags_relations).execute()
                 return new_box
@@ -202,6 +215,59 @@ def create_box(
             ):
                 raise
     raise BoxCreationFailed()
+
+
+def create_box_from_box(*, user_id, source_box, location, number_of_items):
+    """Create a new box, derived from the specified source box, in the given location.
+    The box attributes (product, size, measure_value, display_unit) are copied, and the
+    given number of items are subtracted from the source box.
+
+    In order to obtain correct statistics, the new box is created in the source box'
+    location with 0 items at first.
+    - the new box is then moved to the new (possibly Donated) location which will be
+      tracked in the MovedBoxes statistic
+    - also, its number of items is then updated which avoid double-counting of items in
+      the CreatedBoxes statistic
+    """
+    if number_of_items < 0 or number_of_items > source_box.number_of_items:
+        return InvalidNumberOfItems(number_of_items=number_of_items)
+
+    if source_box.deleted_on is not None:
+        return DeletedBox(label_identifier=source_box.label_identifier)
+
+    if location.deleted_on is not None:
+        return DeletedLocation(name=location.name)
+
+    if source_box.state_id not in WAREHOUSE_BOX_STATES:
+        return InvalidBoxState(state=source_box.state_id)
+
+    now = utcnow()
+    # This is very unlikely to raise BoxCreationFailed, hence ignore handling it
+    new_box = create_box(
+        number_of_items=0,
+        product=source_box.product,
+        location=source_box.location,
+        size_id=source_box.size_id,
+        measure_value=source_box.measure_value,
+        display_unit_id=source_box.display_unit_id,
+        source_box_id=source_box.id,
+        user_id=user_id,
+        now=now,
+    )
+    update_box(
+        label_identifier=source_box.label_identifier,
+        number_of_items=source_box.number_of_items - number_of_items,
+        user_id=user_id,
+        now=now,
+    )
+    new_box = update_box(
+        label_identifier=new_box.label_identifier,
+        number_of_items=number_of_items,
+        location_id=location.id,
+        user_id=user_id,
+        now=now,
+    )
+    return new_box
 
 
 @save_update_to_history(
@@ -230,7 +296,7 @@ def update_box(
     display_unit_id=None,
     measure_value=None,
     state=None,
-    tag_ids=None,
+    tags=None,
     new_tag_names=None,
 ):
     """Look up an existing Box given a UUID, and update all requested fields.
@@ -242,7 +308,7 @@ def update_box(
         raise BoxDeleted(label_identifier=label_identifier)
 
     if box.state_id not in WAREHOUSE_BOX_STATES:
-        raise InvalidBoxState(
+        raise InvalidBoxStateExc(
             state=BoxState(box.state_id).name, label_identifier=label_identifier
         )
 
@@ -258,7 +324,7 @@ def update_box(
         raise LocationBaseMismatch()
 
     if new_product.base_id != new_location.base_id:
-        raise ProductLocationBaseMismatch()
+        raise ProductLocationBaseMismatchExc()
 
     if new_product_is_measure_product:
         if size_id is not None:
@@ -315,8 +381,8 @@ def update_box(
         box.measure_value = Decimal(measure_value) / display_unit.conversion_factor
     if state is not None:
         box.state = state
-    if tag_ids is not None:
-        _validate_base_of_tags(tag_ids=tag_ids, location=new_location)
+    if tags is not None:
+        _validate_base_of_tags(tags=tags, location=new_location)
 
         # Find all tag IDs that are currently assigned to the box
         assigned_tag_ids = set(
@@ -327,7 +393,7 @@ def update_box(
                 TagsRelation.deleted_on.is_null(),
             )
         )
-        updated_tag_ids = set(tag_ids)
+        updated_tag_ids = set(tag.id for tag in tags)
 
         # Unassign all tags that were previously assigned to the box but are not part
         # of the updated set of tags
@@ -359,7 +425,7 @@ def update_box(
             box.last_modified_on = now
             box.last_modified_by = user_id
     if new_tag_names:
-        # Add new tags only after processing tag_ids. Otherwise the new tags will be
+        # Add new tags only after processing 'tags'. Otherwise the new tags will be
         # added to and removed from the box immediately
         new_tag_ids = []
         for name in set(new_tag_names):
@@ -574,6 +640,9 @@ QUANTITY_REGEX = re.compile(
 
 
 def create_boxes(*, user_id, data):
+    if not data:
+        return BoxesResult(updated_boxes=[], invalid_box_label_identifiers=[])
+
     now = utcnow()
 
     # Find base corresponding to given locations
@@ -583,21 +652,39 @@ def create_boxes(*, user_id, data):
         for loc in Location.select(Location.base).where(Location.id << location_ids)
     }
     if len(base_ids) != 1:
-        raise ValueError(f"Invalid base IDs: {','.join([str(i) for i in base_ids])}")
+        return InvalidBase(ids=sorted(base_ids))
 
-    # Authz should happen now
+    # Authorization guards
+    base_id = list(base_ids)[0]
+    authorize(permission="stock:write", base_id=base_id)
+    authorize(permission="tag_relation:assign")
 
-    # More validation: product and location base ID matching? Deleted location/product?
+    # Validation: base must not be deleted
+    base = Base.select(Base.deleted_on, Base.name).where(Base.id == base_id).get()
+    if base.deleted_on is not None:
+        return DeletedBase(name=base.name)
+
+    # Validation: product and location base must match
+    product_ids = {row["product_id"] for row in data}
+    product_base_ids = {
+        p.base_id for p in Product.select(Product.base).where(Product.id << product_ids)
+    }
+    if len(product_base_ids) != 1:
+        return InvalidBase(ids=sorted(product_base_ids))
+    if base_id != list(product_base_ids)[0]:
+        return ProductLocationBaseMismatch()
+
+    # More validation: Deleted location/product?
 
     # Create new tags
-    new_tag_names = {n for row in data for n in row["new_tag_names"]}
+    new_tag_names = {n for row in data for n in row.get("new_tag_names", [])}
     new_tag_ids = {}
     for tag_name in new_tag_names:
         tag = create_tag(
             name=tag_name,
             type=TagType.Box,
             user_id=user_id,
-            base_id=list(base_ids)[0],
+            base_id=base_id,
             now=now,
         )
         new_tag_ids[tag_name] = tag.id
@@ -605,16 +692,19 @@ def create_boxes(*, user_id, data):
     # Data preparation
     sanitized_data, all_tag_ids = sanitize_input(data, new_tag_ids)
 
-    # Build look-ups for products with discrete size
-    product_ids = {row["product_id"] for row in data}
+    # Build look-ups for products and their sizes
     all_sizes = (
-        Product.select(Product.id, Size.id, Size.label)
-        .join(Size, on=(Product.size_range == Size.size_range))
+        Product.select(Product.id, Product.size_range, Size.id, Size.label)
+        .left_outer_join(Size, on=(Product.size_range == Size.size_range))
         .where(Product.id << product_ids)
     )
     sizes_for_product = defaultdict(dict)
+    products = {}
     for row in all_sizes:
-        sizes_for_product[row.id][row.size.label.lower()] = row.size.id
+        products[row.id] = row
+        size = getattr(row, "size", None)
+        if size is not None:
+            sizes_for_product[row.id][size.label.lower()] = size.id
 
     # Prepare units look-up
     units = {u.symbol: u for u in Unit.select()}
@@ -622,23 +712,29 @@ def create_boxes(*, user_id, data):
     # Bulk create
     complete_data = []
     for row in sanitized_data:
-        comment = row["comment"]
+        comment = row.get("comment", "")
         sizes = sizes_for_product[row["product_id"]]
         size_id = None
         display_unit_id = None
         measure_value = None
         quantity = QUANTITY_REGEX.match(row["size_name"].strip())
-        if quantity:
-            display_unit = units[quantity.group(2)]
-            measure_value = Decimal(quantity.group(1)) / display_unit.conversion_factor
-            display_unit_id = display_unit.id
+        if is_measure_product(products[row["product_id"]]):
+            if quantity:
+                display_unit = units[quantity.group(2)]
+                measure_value = (
+                    Decimal(quantity.group(1)) / display_unit.conversion_factor
+                )
+                display_unit_id = display_unit.id
+            else:
+                # If it's a measure product but the specified size does not match the
+                # value-unit regex, then keep size/display_unit/measure_value as None
+                size_comment = f"""original size: '{row["size_name"]}'"""
+                comment = f"{comment}; {size_comment}" if comment else size_comment
         else:
             size_id = sizes.get(row["size_name"])
             if size_id is None:
-                # Either it's a product with discrete size, and the specified size is
+                # If it's a product with discrete size, and the specified size is
                 # not available in the product's sizerange, then fallback to "Mixed".
-                # Or it's a measure product, and the specified size does not match the
-                # value-unit regex, then set size to None
                 size_id = sizes.get("mixed")
                 size_comment = f"""original size: '{row["size_name"]}'"""
                 comment = f"{comment}; {size_comment}" if comment else size_comment
@@ -648,7 +744,7 @@ def create_boxes(*, user_id, data):
                 "label_identifier": "".join(random.choices("0123456789", k=8)),
                 "product_id": row["product_id"],
                 "location_id": row["location_id"],
-                "number_of_items": row["number_of_items"],
+                "number_of_items": row.get("number_of_items", 0),
                 "comment": comment,
                 "size_id": size_id,
                 "display_unit": display_unit_id,
@@ -693,4 +789,4 @@ def create_boxes(*, user_id, data):
         if tags_relations:
             TagsRelation.insert_many(tags_relations).execute()
 
-        return boxes
+        return BoxesResult(updated_boxes=boxes, invalid_box_label_identifiers=[])

@@ -38,6 +38,10 @@ export const MOVE_BOXES_TO_LOCATION = graphql(`
             id
           }
           lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
         }
         invalidBoxLabelIdentifiers
       }

@@ -1,8 +1,11 @@
 # Database Schema Migrations
 
-`peewee-moves` was used to experiment with as a database schema migration tool in the past; it's not part of the tools we use in production.
+`peewee-moves` (version 2.1.0) was used to experiment with as a database schema migration tool in the past; it's not part of the tools we use in production.
 
 Currently we use [Phinx to run migrations](https://github.com/boxwise/dropapp/tree/master/db/migrations) via dropapp.
+
+> [!WARNING]
+> `peewee-moves` is not maintained any more (last update in Dec 2020). An alternative is [`peewee_migrate`](https://github.com/klen/peewee_migrate).
 
 ## Instructions
 

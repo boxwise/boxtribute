@@ -568,7 +568,7 @@ it("3.1.2 - Change Number of Items", async () => {
   // Test case 3.1.2.1.2	- Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "{backspace}");
   await user.type(screen.getByRole("spinbutton"), "-");
-  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("-"));
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue(""));
 
   await user.click(
     screen.getByRole("button", {
@@ -576,7 +576,7 @@ it("3.1.2 - Change Number of Items", async () => {
     }),
   );
 
-  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue("0"));
+  await waitFor(() => expect(screen.getByRole("spinbutton")).toHaveValue(""));
 
   // // // Test case 3.1.2.2 - Number of Item Validation
   await user.type(screen.getByRole("spinbutton"), "{backspace}");
@@ -749,7 +749,7 @@ it("3.1.7 - Error Shows Correctly When Trying to Remove (-) Items", async () => 
   // Test case 3.1.7.1 - Correct input is entered, but there is a processing error (item mutation query returns and error message)
   const takeItemsButton = screen.getByTestId("decrease-items");
   await user.click(takeItemsButton);
-  expect(await screen.findByText(/take items from the box/i)).toBeInTheDocument();
+  expect(await screen.findByText(/remove items/i)).toBeInTheDocument();
 
   await user.type(screen.getByRole("spinbutton"), "1");
   await user.click(screen.getByText(/Submit/i));

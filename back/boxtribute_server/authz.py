@@ -186,7 +186,7 @@ def authorize_for_organisation_bases() -> None:
     _authorize(permission="base:read", ignore_missing_base_info=True)
 
 
-def authorize_for_reading_box(box) -> None:
+def authorize_for_accessing_box(box, *, action="read") -> None:
     """Authorize current user for accessing the given box.
     For a box in InTransit, Receiving, or NotDelivered state, users of both source and
     target base of the underlying shipment are allowed to view it.
@@ -197,7 +197,7 @@ def authorize_for_reading_box(box) -> None:
             ShipmentDetail.select(Shipment)
             .join(Shipment)
             .where(
-                ShipmentDetail.box_id == box.id,
+                ShipmentDetail.box == box.id,
                 ShipmentDetail.removed_on.is_null(),
                 ShipmentDetail.received_on.is_null(),
             )
@@ -207,7 +207,7 @@ def authorize_for_reading_box(box) -> None:
         }
     else:
         authz_kwargs = {"base_id": box.location.base_id}
-    authorize(permission="stock:read", **authz_kwargs)
+    authorize(permission=f"stock:{action}", **authz_kwargs)
 
 
 def authorize_cross_organisation_access(
@@ -240,7 +240,7 @@ def authorize_cross_organisation_access(
     # Validate input: it's possible that the specified base does not exist in the
     # database. Still the user is told they're trying to access something they're not
     # permitted to
-    base = Base.select(Base.organisation_id).where(Base.id == base_id).get_or_none()
+    base = Base.select(Base.organisation).where(Base.id == base_id).get_or_none()
     if base is None:
         raise Forbidden(resource="base", value=base_id)
 
@@ -307,7 +307,7 @@ def authorize_cross_organisation_access(
 # functionality, while each of the larger levels additively builds up on the previous
 # one. The user's maximum beta-level defines the functionality range that the user can
 # access.
-DEFAULT_MAX_BETA_LEVEL = 4
+DEFAULT_MAX_BETA_LEVEL = 4  # update authz spec ADR when bumping
 MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
     # ### BETA-LEVEL 0 ###
     # - actions for BoxView/BoxEdit pages
@@ -385,6 +385,11 @@ MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
     "createBoxes",
 )
 
+# ### BETA-LEVEL 7 ###
+# In addition to level 6,
+# - create-box-from-box prototype
+MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6] + ("createBoxFromBox",)
+
 # ### BETA-LEVEL 98 ###
 # In addition to level 5,
 # - actions for managing beneficiaries
@@ -399,6 +404,7 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     "assignTag",
     "unassignTag",
     "createBoxes",
+    "createBoxFromBox",
 )
 
 # ### BETA-LEVEL 99 ###

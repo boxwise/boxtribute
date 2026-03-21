@@ -1,13 +1,13 @@
 from peewee import DateTimeField, IntegerField
 
-from ...db import db
 from ...enums import TaggableObjectType
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .tag import Tag
 from .user import User
 
 
-class TagsRelation(db.Model):  # type: ignore
+class TagsRelation(Model):
     object_id = IntegerField()
     object_type = EnumCharField(
         choices=TaggableObjectType,

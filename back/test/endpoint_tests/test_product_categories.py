@@ -1,7 +1,7 @@
 from utils import assert_successful_request
 
 
-def test_product_category_query(read_only_client, default_product_category):
+def test_product_category_query(client, default_product_category):
     # Test case 99.1.11
     category_id = str(default_product_category["id"])
     query = f"""query {{ productCategory(id: {category_id}) {{
@@ -9,7 +9,7 @@ def test_product_category_query(read_only_client, default_product_category):
                 name
                 hasGender
             }} }}"""
-    category = assert_successful_request(read_only_client, query)
+    category = assert_successful_request(client, query)
     assert category == {
         "id": category_id,
         "name": default_product_category["name"],
@@ -17,7 +17,7 @@ def test_product_category_query(read_only_client, default_product_category):
     }
 
 
-def test_product_categories_query(read_only_client):
+def test_product_categories_query(client):
     # Test case 99.1.10
     query = """query {
                 productCategories {
@@ -28,6 +28,6 @@ def test_product_categories_query(read_only_client):
                     hasGender
                 }
             }"""
-    queried_categories = assert_successful_request(read_only_client, query)
+    queried_categories = assert_successful_request(client, query)
     assert len(queried_categories) == 5
     assert len([c for c in queried_categories if c["hasGender"]]) == 2

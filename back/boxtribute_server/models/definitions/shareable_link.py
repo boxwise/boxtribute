@@ -1,13 +1,13 @@
 from peewee import CharField, DateTimeField
 
-from ...db import db
 from ...enums import ShareableView
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .base import Base
 from .user import User
 
 
-class ShareableLink(db.Model):  # type: ignore
+class ShareableLink(Model):
     code = CharField(unique=True, max_length=255)
     valid_until = DateTimeField(null=True)
     view = EnumCharField(choices=ShareableView, max_length=255)

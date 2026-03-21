@@ -1,11 +1,11 @@
 from peewee import CharField, DateTimeField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .user import User
 
 
-class Organisation(db.Model):  # type: ignore
+class Organisation(Model):
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         model=User,

@@ -86,6 +86,13 @@ def yet_another_location_data():
     return data
 
 
+def location_in_deleted_base_data():
+    data = default_location_data()
+    data["id"] = 9
+    data["base"] = base_data()[4]["id"]
+    return data
+
+
 @pytest.fixture
 def another_location():
     return another_location_data()
@@ -109,6 +116,11 @@ def non_default_box_state_location():
 @pytest.fixture
 def deleted_location():
     return deleted_location_data()
+
+
+@pytest.fixture
+def location_in_deleted_base():
+    return location_in_deleted_base_data()
 
 
 @pytest.fixture
@@ -146,5 +158,6 @@ def create():
             another_distribution_spot_data(),
             deleted_location_data(),
             yet_another_location_data(),
+            location_in_deleted_base_data(),
         ]
     ).execute()

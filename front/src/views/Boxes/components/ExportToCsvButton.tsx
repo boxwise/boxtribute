@@ -74,7 +74,7 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
           ]}
           key="export-csv"
         >
-          Export/Download
+          Export .csv
         </CSVLink>
       </Button>
     </>

@@ -1,11 +1,11 @@
 from peewee import CharField, DateTimeField, FloatField, IntegerField, TextField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .user import User
 
 
-class DbChangeHistory(db.Model):  # type: ignore
+class DbChangeHistory(Model):
     change_date = DateTimeField(column_name="changedate", null=True)
     changes = TextField()
     from_float = FloatField(null=True)

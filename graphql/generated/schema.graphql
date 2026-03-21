@@ -357,6 +357,12 @@ input BoxUpdateInput {
   newTagNames: [String!]
 }
 
+input BoxFromBoxCreationInput {
+  sourceBoxLabelIdentifier: String!
+  numberOfItems: Int!
+  locationId: Int!
+}
+
 input BoxMoveInput {
   labelIdentifiers: [String!]!
   locationId: Int!
@@ -588,7 +594,9 @@ type Mutation {
   " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
   " Create boxes by importing raw data. Prototypical! "
-  createBoxes(creationInput: [BoxBulkCreationInput!]): [Box!]
+  createBoxes(creationInput: [BoxBulkCreationInput!]): CreateBoxesResult
+  " Create box in a location by taking out items from an existing box "
+  createBoxFromBox(creationInput: BoxFromBoxCreationInput!): CreateBoxFromBoxResult
 
   " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
   createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
@@ -838,11 +846,14 @@ type Box implements ItemsCollection {
   lastModifiedOn: Datetime
   deletedOn: Datetime
   comment: String
+  " List of all non-deleted [`Tags`]({{Types.Tag}}) assigned to the box "
   tags: [Tag!]
   " Sorted by date, newest first "
   history: [HistoryEntry!]
   " Returns null if box is not part of an active shipment "
   shipmentDetail: ShipmentDetail
+  " The box that the current box was created from "
+  sourceBox: Box
 }
 
 type HistoryEntry {
@@ -977,6 +988,8 @@ type Tag {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  " The most recent time the tag was applied to a box or beneficiary "
+  lastUsedOn: Datetime
   deletedOn: Datetime
 }
 
@@ -1489,6 +1502,10 @@ type TagBaseMismatchError {
   " Dummy field since type definitions without fields are not possible "
   _: Boolean
 }
+type ProductLocationBaseMismatchError {
+  " Dummy field since type definitions without fields are not possible "
+  _: Boolean
+}
 type DeletedLocationError {
   name: String!
 }
@@ -1498,15 +1515,28 @@ type DeletedTagError {
 type DeletedBaseError {
   name: String!
 }
+type DeletedBoxError {
+  labelIdentifier: String!
+}
+type InvalidBoxStateError {
+  state: BoxState!
+}
 type InvalidDateError {
   date: Datetime!
 }
 type InvalidColorError {
   color: String!
 }
+type InvalidNumberOfItemsError {
+  numberOfItems: Int!
+}
+type InvalidBaseError {
+  ids: [Int!]!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union CreateBoxFromBoxResult = Box | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | DeletedBoxError | InvalidBoxStateError | InvalidNumberOfItemsError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
 union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
 union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
@@ -1519,6 +1549,7 @@ union EnableStandardProductsResult = ProductsResult | InsufficientPermissionErro
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union CreateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ResourceDoesNotExistError
+union CreateBoxesResult = BoxesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ProductLocationBaseMismatchError | InvalidBaseError
 
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError
 union StandardProductsResult = StandardProductPage | InsufficientPermissionError | UnauthorizedForBaseError
@@ -1539,12 +1570,6 @@ type Metrics {
   See `numberOfFamiliesServed` about using the `after` and `before` parameters.
   """
   numberOfSales(after: Date, before: Date): Int
-}
-
-type StockOverview {
-  productCategoryName: String
-  numberOfBoxes: Int
-  numberOfItems: Int
 }
 type ResolvedLink {
   id: ID!

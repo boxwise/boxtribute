@@ -1,15 +1,15 @@
 from peewee import DateTimeField, IntegerField
 
-from ...db import db
 from ...enums import PackingListEntryState
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .distribution_event import DistributionEvent
 from .product import Product
 from .size import Size
 from .user import User
 
 
-class PackingListEntry(db.Model):  # type: ignore
+class PackingListEntry(Model):
     product = UIntForeignKeyField(
         column_name="product_id",
         field="id",

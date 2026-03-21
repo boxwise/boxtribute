@@ -1,11 +1,11 @@
 from peewee import CharField, DecimalField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .size_range import SizeRange
 
 
-class Unit(db.Model):  # type: ignore
+class Unit(Model):
     name = CharField()
     symbol = CharField()
     conversion_factor = DecimalField(max_digits=36, decimal_places=18)

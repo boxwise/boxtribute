@@ -1,10 +1,10 @@
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .base import Base
 from .transfer_agreement import TransferAgreement
 
 
-class TransferAgreementDetail(db.Model):  # type: ignore
+class TransferAgreementDetail(Model):
     transfer_agreement = UIntForeignKeyField(
         model=TransferAgreement, on_update="CASCADE"
     )

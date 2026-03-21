@@ -2,7 +2,7 @@ import importlib
 import os
 import pathlib
 
-from boxtribute_server.db import db
+from boxtribute_server.models.definitions import Model
 
 from .base import another_base, default_base, default_bases, deleted_base
 from .beneficiary import (
@@ -45,11 +45,11 @@ from .location import (
     default_location,
     deleted_location,
     distribution_spot,
+    location_in_deleted_base,
     non_default_box_state_location,
     null_box_state_location,
     yet_another_location,
 )
-from .log import default_log
 from .organisation import (
     another_organisation,
     default_organisation,
@@ -79,6 +79,7 @@ from .qr_code import (
 from .service import english_lesson_service
 from .services_relation import default_service_relation
 from .shareable_link import (
+    another_tagged_stock_overview_link,
     expired_link,
     shareable_link,
     stock_overview_link,
@@ -141,6 +142,7 @@ __all__ = [
     "another_size",
     "another_size_range",
     "another_standard_product",
+    "another_tagged_stock_overview_link",
     "another_transaction",
     "another_user",
     "base1_active_tags",
@@ -163,7 +165,6 @@ __all__ = [
     "default_history",
     "default_location",
     "default_location_boxes",
-    "default_log",
     "default_organisation",
     "default_product",
     "default_product_category",
@@ -196,6 +197,7 @@ __all__ = [
     "inactive_organisation",
     "intra_org_shipment",
     "liter_unit",
+    "location_in_deleted_base",
     "lost_box",
     "marked_for_shipment_box",
     "mass_product",
@@ -295,4 +297,4 @@ def setup_models():
 
 
 # List of all Models in the database, cf. https://stackoverflow.com/a/43820902/3865876
-MODELS = db.Model.__subclasses__()
+MODELS = Model.__subclasses__()

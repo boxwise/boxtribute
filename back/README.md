@@ -231,9 +231,13 @@ Most tests require a running MySQL server. Before executing tests for the first 
 
     docker compose up -d db
 
-Run the test suite on your machine by executing
+Run the full test suite on your machine by executing
 
     pytest
+
+Since this includes long-running integration tests, you can run the endpoint tests only, which takes only about one minute, and should already cover more than 80% of the code base:
+
+    pytest back/test/endpoint_tests
 
 Add `-x` to stop at the first failure, and `-v` or `-vv` for increased verbosity.
 

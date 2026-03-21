@@ -12,7 +12,7 @@ WITH recursive ValidBoxes AS (
         ROUND(s.measure_value, 3 - FLOOR(LOG10(s.measure_value) + 1)) AS measure_value,
         s.product_id
     FROM stock s
-    JOIN locations l ON s.location_id = l.id AND l.camp_id = %s
+    JOIN locations l ON s.location_id = l.id AND l.camp_id IN %s
 ),
 BoxHistory AS (
     -- CTE to retrieve box history (only include changes in FK fields such as
@@ -227,6 +227,7 @@ CreatedDonatedBoxes AS (
 -- Collect information about deleted/undeleted boxes. Stats are labeled as "Deleted",
 -- with deleted boxes/items containing positive, and undeleted ones counting negative.
 select
+    p.camp_id AS base_id,
     t.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
@@ -244,11 +245,12 @@ FROM DeletedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
 LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
+GROUP BY p.camp_id, moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
 
 UNION ALL
 
 select
+    p.camp_id AS base_id,
     t.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
@@ -266,12 +268,13 @@ FROM UndeletedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
 LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
+GROUP BY p.camp_id, moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
 
 UNION ALL
 
 -- Collect information about boxes created in donated state
 SELECT
+    p.camp_id AS base_id,
     t.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
@@ -289,12 +292,13 @@ FROM CreatedDonatedBoxes t
 JOIN products p ON p.id = t.product
 JOIN locations loc ON loc.id = t.location_id
 LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
+GROUP BY p.camp_id, moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
 
 UNION ALL
 
 -- Collect information about boxes being moved between states InStock and Donated
 SELECT
+    p.camp_id AS base_id,
     t.moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
@@ -326,13 +330,14 @@ JOIN locations loc ON loc.id = t.location_id
 LEFT OUTER JOIN units u ON u.id = t.stock_display_unit_id
 WHERE (t.prev_box_state_id = 1 AND t.box_state_id = 5) OR
       (t.prev_box_state_id = 5 AND t.box_state_id = 1)
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
+GROUP BY p.camp_id, moved_on, p.category_id, p.name, p.gender_id, t.size_id, loc.label, absolute_measure_value, dimension_id, t.tag_ids
 
 UNION ALL
 
 -- Collect information about all boxes sent from the specified base as source, that
 -- were not removed from the shipment during preparation
 SELECT
+    sh.source_base_id AS base_id,
     DATE(sh.sent_on) AS moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
@@ -364,14 +369,14 @@ JOIN
     shipment sh
 ON
     t.shipment_id = sh.id AND
-    sh.source_base_id = %s AND
+    sh.source_base_id IN %s AND
     sh.sent_on IS NOT NULL
 JOIN camps c ON c.id = sh.target_base_id
 JOIN organisations o on o.id = c.organisation_id
 JOIN products p ON p.id = t.source_product_id
 JOIN stock b ON b.id = t.box_id
 LEFT OUTER JOIN units u ON u.id = b.display_unit_id
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.source_size_id, c.name, absolute_measure_value, dimension_id, tag_ids
+GROUP BY sh.source_base_id, moved_on, p.category_id, p.name, p.gender_id, t.source_size_id, c.name, absolute_measure_value, dimension_id, tag_ids
 
 UNION ALL
 
@@ -379,6 +384,7 @@ UNION ALL
 -- assumed that these boxes have not been further moved but still are part of the
 -- specified base
 SELECT
+    p.camp_id AS base_id,
     DATE(t.changedate) AS moved_on,
     p.category_id,
     TRIM(LOWER(p.name)) AS product_name,
@@ -413,9 +419,84 @@ FROM (
     LEFT OUTER JOIN tags_relations tr ON tr.object_id = b.id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
     GROUP BY h.id, h.changedate, h.record_id, h.to_int, b.product_id, b.size_id, b.measure_value, b.display_unit_id, b.items
 ) t
-JOIN products p ON p.id = t.product_id AND p.camp_id = %s
+JOIN products p ON p.id = t.product_id AND p.camp_id IN %s
 JOIN box_state bs on bs.id = t.to_int
 LEFT OUTER JOIN units u ON u.id = t.display_unit_id
-GROUP BY moved_on, p.category_id, p.name, p.gender_id, t.size_id, bs.label, absolute_measure_value, dimension_id, tag_ids
+GROUP BY p.camp_id, moved_on, p.category_id, p.name, p.gender_id, t.size_id, bs.label, absolute_measure_value, dimension_id, tag_ids
+;
+"""
+
+STOCK_OVERVIEW_QUERY = """\
+WITH non_deleted_boxes_with_tags AS (
+    SELECT
+         s.id as box_id,
+         tr.tag_id
+    FROM stock s
+    JOIN locations l
+      ON l.id = s.location_id
+     AND l.camp_id = %s
+    LEFT JOIN tags_relations tr
+      ON tr.object_id = s.id
+     AND tr.object_type = 'Stock'
+     AND tr.deleted_on IS null
+    LEFT JOIN tags t
+      ON t.id = tr.tag_id
+   WHERE (s.deleted IS NULL OR s.deleted = 0)
+     AND (l.deleted IS NULL OR l.deleted = 0)
+     AND (t.deleted IS NULL OR t.deleted = 0)
+),
+box_tag_agg AS (
+    SELECT
+        box_id,
+        GROUP_CONCAT(DISTINCT tag_id ORDER BY tag_id) AS tag_ids,
+        -- count box tags that are part of in/excluded_tag_ids
+        IF(
+            %s,  -- include_filter_active
+            SUM(tag_id IN %s),
+            1
+        ) AS has_include_tags,
+        IF(
+            %s,  -- exclude_filter_active
+            -- don't exclude boxes without tags if include filter inactive
+            COALESCE(SUM(tag_id IN %s), 0),
+            0
+        ) AS has_exclude_tags
+    FROM non_deleted_boxes_with_tags
+    GROUP BY box_id
+)
+-- Aggregate box and items count by pulling in all dimensions
+SELECT
+    s.size_id,
+    s.location_id,
+    s.box_state_id AS box_state,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    ROUND(
+       s.measure_value, 3 - FLOOR(LOG10(s.measure_value) + 1)
+    ) AS absolute_measure_value,
+    u.dimension_id,
+    p.gender_id AS gender,
+    bta.tag_ids,
+    COUNT(bta.box_id) AS boxes_count,
+    SUM(s.items) AS items_count
+FROM box_tag_agg bta
+JOIN stock s ON s.id = bta.box_id
+JOIN products p ON p.id = s.product_id
+LEFT OUTER JOIN units u ON u.id = s.display_unit_id
+WHERE
+    -- If filters are active, include boxes that have at least one of the included tags,
+    -- and none of the excluded tags. Otherwise, this evaluates to True
+    (NOT %s OR bta.has_include_tags > 0)
+    AND (NOT %s OR bta.has_exclude_tags = 0)
+GROUP BY
+    size_id,
+    location_id,
+    s.box_state_id,
+    category_id,
+    TRIM(LOWER(p.name)),
+    ROUND(s.measure_value, 3 - FLOOR(LOG10(s.measure_value) + 1)),
+    u.dimension_id,
+    gender_id,
+    tag_ids
 ;
 """

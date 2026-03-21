@@ -1,13 +1,13 @@
 from peewee import DateTimeField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .beneficiary import Beneficiary
 from .service import Service
 from .user import User
 
 
-class ServicesRelation(db.Model):  # type: ignore
+class ServicesRelation(Model):
     beneficiary = UIntForeignKeyField(
         column_name="people_id",
         field="id",

@@ -124,6 +124,7 @@ const assignTagsMutation = ({
                   __typename: "Box",
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
+                  lastModifiedBy: { id: "2", name: "coordinator" },
                   tags: tagIds.map((id) => ({ id: id.toString(), __typename: "Tag" })),
                 })),
                 invalidBoxLabelIdentifiers: [],
@@ -156,6 +157,7 @@ const unassignTagsMutation = ({
                   __typename: "Box",
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
+                  lastModifiedBy: { id: "2", name: "coordinator" },
                   tags: [],
                 })),
                 invalidBoxLabelIdentifiers: [],
@@ -201,6 +203,10 @@ const unassignFromShipmentGQLRequest = graphql(`
             __typename
           }
           lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
           __typename
         }
         __typename
@@ -268,6 +274,7 @@ const moveBoxesMutation = ({
                             id: locationId.toString(),
                           },
                           lastModifiedOn: new Date().toISOString(),
+                          lastModifiedBy: { id: "2", name: "coordinator" },
                         })),
                         invalidBoxLabelIdentifiers,
                       },
@@ -306,6 +313,7 @@ const deleteBoxesMutation = ({
                   updatedBoxes: labelIdentifiers.map((id) => ({
                     labelIdentifier: id,
                     deletedOn: new Date().toISOString(),
+                    product: { id: 10, transferItemsCount: 1, instockItemsCount: 3 },
                   })),
                   invalidBoxLabelIdentifiers: invalidBoxLabelIdentifiers,
                 },
@@ -777,7 +785,8 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
       expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
       if (clicks.length > 0) {
-        await screen.findByText(/1 box/i, {}, { timeout: 15000 });
+        const boxesCountTd = await screen.findByTestId("boxes-count", {}, { timeout: 15000 });
+        await waitFor(() => expect(boxesCountTd).toHaveTextContent(/1 box/i), { timeout: 15000 });
 
         // Select the first box - wait for table to be fully loaded
         const row1 = await screen.findByRole("row", { name: /snow trousers/i }, { timeout: 10000 });
@@ -788,8 +797,14 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         await user.click(checkbox1);
         await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
 
-        // Add a delay to ensure state propagation in CI environments
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Ensure state propagation in CI environments
+        await waitFor(
+          () =>
+            expect(screen.getByTestId("floating-selected-counter")).toHaveTextContent(
+              /one box selected/i,
+            ),
+          { timeout: 2000 },
+        );
 
         // Clicks logic
         if (name.toLowerCase().includes("deleteboxes")) {
@@ -817,7 +832,12 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           );
           await user.click(addTagsButton);
 
-          const selectInput = await screen.findByRole("combobox", {}, { timeout: 10000 });
+          const selectContainer = await screen.findByTestId(
+            "assign-tags-select-container",
+            {},
+            { timeout: 10000 },
+          );
+          const selectInput = within(selectContainer).getByRole("combobox");
           await user.click(selectInput);
 
           const tagOption = await screen.findByText(clicks[1], {}, { timeout: 10000 });
@@ -837,7 +857,12 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           );
           await user.click(removeTagsButton);
 
-          const selectInput = await screen.findByRole("combobox", {}, { timeout: 10000 });
+          const selectContainer = await screen.findByTestId(
+            "remove-tags-select-container",
+            {},
+            { timeout: 10000 },
+          );
+          const selectInput = within(selectContainer).getByRole("combobox");
           await user.click(selectInput);
 
           const tagBadgeToRemove = await screen.findByLabelText(
@@ -853,6 +878,23 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
             { timeout: 10000 },
           );
           await user.click(applyButton);
+        } else if (name.toLowerCase().includes("unassign from shipment")) {
+          // First, open the box-actions menu (SlOptions icon button)
+          const boxActionsMenuButton = await screen.findByTestId(
+            "box-actions-menu-button",
+            {},
+            { timeout: 10000 },
+          );
+          await user.click(boxActionsMenuButton);
+
+          // Then click the "Remove from Shipment" button
+          const actionButton = await screen.findByRole(
+            "button",
+            { name: clicks[0] },
+            { timeout: 10000 },
+          );
+          expect(actionButton).toBeInTheDocument();
+          await user.click(actionButton);
         } else {
           // Perform action based on the `clicks` parameter
           const actionButton = await screen.findByRole(
@@ -864,11 +906,8 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           await user.click(actionButton);
 
           if (clicks[1]) {
-            // Add a delay to ensure menu is fully rendered before clicking sub-action
-            await new Promise((resolve) => setTimeout(resolve, 300));
-
-            // For other actions, click the sub-action button if specified
-            const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });
+            // Wait until the sub-action is present, ensuring all Menu updates are flushed
+            const subButton = await screen.findByText(clicks[1]);
             expect(subButton).toBeInTheDocument();
             await user.click(subButton);
           }

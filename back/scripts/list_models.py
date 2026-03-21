@@ -25,13 +25,11 @@ def main():
     print(f"Writing to {output_filepath}...")
 
     with (output_filepath).open("w") as file:
-        file.write(
-            f"""List of Peewee models and corresponding MySQL tables
+        file.write(f"""List of Peewee models and corresponding MySQL tables
 version: {commit}
 MODEL (table)
 
-"""
-        )
+""")
         for model in MODELS:
             file.write(f"{model._meta.name:32} " f"({model._meta.table_name})\n")
 

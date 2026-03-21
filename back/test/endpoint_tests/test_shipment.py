@@ -27,9 +27,7 @@ def mock_default_target_base_user(mocker, another_base, another_organisation):
     )
 
 
-def test_shipment_query(
-    read_only_client, default_shipment, prepared_shipment_detail, products
-):
+def test_shipment_query(client, default_shipment, prepared_shipment_detail, products):
     # Test case 3.1.2
     shipment_id = str(default_shipment["id"])
     query = f"""query {{
@@ -53,7 +51,7 @@ def test_shipment_query(
                     details {{ id autoMatchingTargetProduct {{ id }} }}
                 }}
             }}"""
-    shipment = assert_successful_request(read_only_client, query)
+    shipment = assert_successful_request(client, query)
     start_timestamp = datetime.strftime(default_shipment["started_on"], "%y%m%d")
     assert shipment == {
         "id": shipment_id,
@@ -82,7 +80,7 @@ def test_shipment_query(
 
 
 def test_shipments_query(
-    read_only_client,
+    client,
     default_shipment,
     canceled_shipment,
     another_shipment,
@@ -93,7 +91,7 @@ def test_shipments_query(
 ):
     # Test case 3.1.1
     query = "query { shipments { id } }"
-    shipments = assert_successful_request(read_only_client, query)
+    shipments = assert_successful_request(client, query)
     assert shipments == [
         {"id": str(s["id"])}
         for s in [
@@ -108,7 +106,7 @@ def test_shipments_query(
     ]
 
     query = "query { shipments(states: [Preparing]) { id } }"
-    shipments = assert_successful_request(read_only_client, query)
+    shipments = assert_successful_request(client, query)
     assert shipments == [
         {"id": str(s["id"])}
         for s in [
@@ -119,14 +117,14 @@ def test_shipments_query(
     ]
 
     query = "query { shipments(states: [Canceled, Sent]) { id } }"
-    shipments = assert_successful_request(read_only_client, query)
+    shipments = assert_successful_request(client, query)
     assert shipments == [
         {"id": str(s["id"])} for s in [canceled_shipment, sent_shipment]
     ]
 
 
 def test_source_base_box_product_as_null_for_target_side(
-    read_only_client, another_shipment, another_box
+    client, another_shipment, another_box
 ):
     # Test case 8.1.12a, 8.1.12b
     shipment_id = str(another_shipment["id"])
@@ -141,7 +139,7 @@ def test_source_base_box_product_as_null_for_target_side(
                         sourceProduct {{ id }}
                         sourceLocation {{ id }}
                     }} }} }}"""
-    shipment = assert_successful_request(read_only_client, query)
+    shipment = assert_successful_request(client, query)
     assert shipment == {
         "details": [
             {
@@ -1304,11 +1302,11 @@ def assert_bad_user_input_when_updating_shipment(client, **kwargs):
 
 
 def test_shipment_mutations_create_with_non_accepted_agreement(
-    read_only_client, default_base, another_base, expired_transfer_agreement
+    client, default_base, another_base, expired_transfer_agreement
 ):
     # Test case 3.2.2
     assert_bad_user_input_when_creating_shipment(
-        read_only_client,
+        client,
         # base IDs don't matter because validation for agreement state comes first
         source_base=default_base,
         target_base=another_base,
@@ -1317,31 +1315,31 @@ def test_shipment_mutations_create_with_non_accepted_agreement(
 
 
 def test_shipment_mutations_create_with_invalid_base(
-    read_only_client, default_bases, default_transfer_agreement
+    client, default_bases, default_transfer_agreement
 ):
     # Test case 3.2.3
     assert_bad_user_input_when_creating_shipment(
-        read_only_client,
+        client,
         source_base=default_bases[0],
         target_base=default_bases[3],  # not part of agreement
         agreement=default_transfer_agreement,
     )
 
 
-def test_shipment_mutations_intra_org_invalid_input(read_only_client, default_bases):
+def test_shipment_mutations_intra_org_invalid_input(client, default_bases):
     # Test case 3.2.3a
     assert_bad_user_input_when_creating_shipment(
-        read_only_client, source_base=default_bases[0], target_base=default_bases[0]
+        client, source_base=default_bases[0], target_base=default_bases[0]
     )
 
     # Test case 3.2.3b
     assert_bad_user_input_when_creating_shipment(
-        read_only_client, source_base=default_bases[0], target_base=default_bases[2]
+        client, source_base=default_bases[0], target_base=default_bases[2]
     )
 
 
 def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreement(
-    read_only_client, default_bases, unidirectional_transfer_agreement
+    client, default_bases, unidirectional_transfer_agreement
 ):
     # Test case 3.2.4a
     # The default user (see auth_service fixture) is member of organisation 1 which is
@@ -1351,11 +1349,11 @@ def test_shipment_mutations_create_as_target_org_member_in_unidirectional_agreem
         target_base=default_bases[1],
         agreement=unidirectional_transfer_agreement,
     )
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_shipment_mutations_create_as_member_of_neither_org(
-    read_only_client, mocker, default_transfer_agreement
+    client, mocker, default_transfer_agreement
 ):
     # Test case 3.2.4b
     mock_user_for_request(mocker, organisation_id=3, user_id=2)
@@ -1364,80 +1362,76 @@ def test_shipment_mutations_create_as_member_of_neither_org(
         target_base={"id": 0},
         agreement=default_transfer_agreement,
     )
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_shipment_mutations_send_as_member_of_non_creating_org(
-    read_only_client, another_shipment
+    client, another_shipment
 ):
     # Test case 3.2.14
     mutation = f"mutation {{ sendShipment(id: {another_shipment['id']}) {{ id }} }}"
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
-def test_shipment_mutations_receive_as_member_of_creating_org(
-    read_only_client, default_shipment
-):
+def test_shipment_mutations_receive_as_member_of_creating_org(client, default_shipment):
     # Test case 3.2.14d
     mutation = (
         f"mutation {{ startReceivingShipment(id: {default_shipment['id']}) {{ id }} }}"
     )
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 @pytest.mark.parametrize("act", ["cancel", "send"])
-def test_shipment_mutations_in_non_preparing_state(
-    read_only_client, canceled_shipment, act
-):
+def test_shipment_mutations_in_non_preparing_state(client, canceled_shipment, act):
     # Test cases 3.2.9, 3.2.13
     mutation = f"mutation {{ {act}Shipment(id: {canceled_shipment['id']}) {{ id }} }}"
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 @pytest.mark.parametrize("action", ["startReceivingShipment", "markShipmentAsLost"])
 def test_shipment_mutations_receive_when_not_in_sent_state(
-    read_only_client, another_shipment, action
+    client, another_shipment, action
 ):
     # Test case 3.2.14c
     mutation = f"mutation {{ {action}(id: {another_shipment['id']}) {{ id }} }}"
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 def test_shipment_mutations_cancel_as_member_of_neither_org(
-    read_only_client, mocker, default_shipment
+    client, mocker, default_shipment
 ):
     # Test case 3.2.10
     mock_user_for_request(mocker, organisation_id=3, user_id=2, base_ids=[5])
     mutation = f"mutation {{ cancelShipment(id: {default_shipment['id']}) {{ id }} }}"
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_shipment_mutations_update_with_invalid_target_base(
-    read_only_client, default_bases, default_shipment
+    client, default_bases, default_shipment
 ):
     # Test case 3.2.24
     # This will use updateShipmentWhenPreparing
     assert_bad_user_input_when_updating_shipment(
-        read_only_client,
+        client,
         target_base=default_bases[3],  # not part of agreement
         shipment=default_shipment,
     )
 
 
 def test_shipment_mutations_update_in_non_preparing_state(
-    read_only_client, canceled_shipment, default_bases
+    client, canceled_shipment, default_bases
 ):
     # Test case 3.2.23
     # This will use updateShipmentWhenPreparing
     assert_bad_user_input_when_updating_shipment(
-        read_only_client,
+        client,
         shipment=canceled_shipment,
         target_base=default_bases[1],
     )
 
 
 def test_shipment_mutations_update_as_member_of_non_creating_org(
-    read_only_client, another_shipment, default_bases
+    client, another_shipment, default_bases
 ):
     # Test case 3.2.25
     # The default user (see auth_service fixture) is member of organisation 1 but
@@ -1447,11 +1441,11 @@ def test_shipment_mutations_update_as_member_of_non_creating_org(
         shipment=another_shipment,
         target_base=default_bases[1],
     )
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
-    read_only_client,
+    client,
     sent_shipment,
     default_shipment_detail,
     another_location,
@@ -1468,11 +1462,11 @@ def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(
         target_size=another_size,
         target_quantity=1,
     )
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
-    read_only_client,
+    client,
     sent_shipment,
     marked_for_shipment_box,
 ):
@@ -1482,20 +1476,18 @@ def test_shipment_mutations_update_mark_lost_boxes_as_member_of_creating_org(
         shipment=sent_shipment,
         lost_boxes=[marked_for_shipment_box],
     )
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
-def test_shipment_mutations_update_without_arguments(
-    read_only_client, default_shipment
-):
+def test_shipment_mutations_update_without_arguments(client, default_shipment):
     # Test case 3.2.33
     mutation = _generate_update_shipment_mutation(shipment=default_shipment)
-    shipment = assert_successful_request(read_only_client, mutation)
+    shipment = assert_successful_request(client, mutation)
     assert shipment == {"id": str(default_shipment["id"])}
 
 
 def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_state(
-    read_only_client,
+    client,
     mock_default_target_base_user,
     default_shipment,
     prepared_shipment_detail,
@@ -1506,7 +1498,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
     # Test case 3.2.36
     # This will use updateShipmentWhenReceiving
     assert_bad_user_input_when_updating_shipment(
-        read_only_client,
+        client,
         shipment=default_shipment,
         received_details=[prepared_shipment_detail],
         target_location=another_location,
@@ -1517,7 +1509,7 @@ def test_shipment_mutations_update_checked_in_boxes_when_shipment_in_non_sent_st
 
 
 def test_shipment_mutations_create_non_existent_resource(
-    read_only_client, default_base, another_base
+    client, default_base, another_base
 ):
     # Test case 3.2.5
     mutation = _generate_create_shipment_mutation(
@@ -1525,7 +1517,7 @@ def test_shipment_mutations_create_non_existent_resource(
         target_base=another_base,
         agreement={"id": 0},
     )
-    assert_bad_user_input(read_only_client, mutation)
+    assert_bad_user_input(client, mutation)
 
 
 def _create_move_not_delivered_boxes_in_stock_mutation(box_id):
@@ -1704,14 +1696,14 @@ def test_move_not_delivered_box_instock_in_target_base(
 
 
 def test_move_not_delivered_box_as_member_of_neither_org(
-    read_only_client,
+    client,
     mocker,
     not_delivered_box,
 ):
     mock_user_for_request(mocker, base_ids=[4], organisation_id=2, user_id=3)
     box_id = str(not_delivered_box["id"])
     mutation = _create_move_not_delivered_boxes_in_stock_mutation(box_id)
-    assert_forbidden_request(read_only_client, mutation)
+    assert_forbidden_request(client, mutation)
 
 
 def test_shipment_mutations_intra_org(

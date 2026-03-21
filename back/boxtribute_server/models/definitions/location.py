@@ -1,14 +1,14 @@
 from peewee import SQL, CharField, DateTimeField, DoubleField, IntegerField
 
-from ...db import db
 from ...enums import LocationType
 from ..fields import EnumCharField, UIntForeignKeyField
+from . import Model
 from .base import Base
 from .box_state import BoxState
 from .user import User
 
 
-class Location(db.Model):  # type: ignore
+class Location(Model):
     box_state = UIntForeignKeyField(
         column_name="box_state_id",
         constraints=[SQL("DEFAULT 1")],

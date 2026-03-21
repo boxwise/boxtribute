@@ -9,6 +9,7 @@ export interface IDropdownOption extends OptionBase {
   subTitle?: string | undefined | null;
   color?: string | undefined | null;
   data?: object | undefined | null;
+  urlId?: string;
   /** Whether this option should be styled as a special action. Defaults to false. */
   isSpecial?: boolean;
 }
@@ -28,6 +29,7 @@ export interface ISelectFieldProps {
   isDisabled?: boolean;
   isReadOnly?: boolean;
   creatable?: boolean;
+  isClearable?: boolean;
   onChangeProp?: ((event) => void) | undefined;
   formatOptionLabel?: (
     data: IDropdownOption,
@@ -51,6 +53,7 @@ function SelectField({
   isDisabled = false,
   isReadOnly = false,
   isRequired = true,
+  isClearable = false,
   onChangeProp = undefined,
   formatOptionLabel,
   creatable,
@@ -73,6 +76,7 @@ function SelectField({
             ref,
             isReadOnly,
             isDisabled,
+            isClearable,
             onChange: onChangeProp
               ? (event) => {
                   onChange(event);

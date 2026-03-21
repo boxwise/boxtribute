@@ -24,3 +24,8 @@ def resolve_tag_created_by(tag_obj, info):
 @tag.field("lastModifiedBy")
 def resolve_tag_last_modified_by(tag_obj, info):
     return info.context["user_loader"].load(tag_obj.last_modified_by_id)
+
+
+@tag.field("lastUsedOn")
+def resolve_tag_last_used_on(tag_obj, info):
+    return info.context["tag_last_used_on_loader"].load(tag_obj.id)

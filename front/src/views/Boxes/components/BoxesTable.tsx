@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo, useTransition, useCallback } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -12,6 +12,7 @@ import {
   IconButton,
   HStack,
   Box,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   Column,
@@ -22,6 +23,7 @@ import {
   useRowSelect,
   usePagination,
   CellProps,
+  Filters,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { useAtomValue } from "jotai";
@@ -30,10 +32,11 @@ import {
   includesOneOfMultipleStringsFilterFn,
   includesSomeObjectFilterFn,
   includesSomeTagObjectFilterFn,
+  excludesSomeTagObjectFilterFn,
 } from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
-import { GlobalFilter } from "./GlobalFilter";
+import { GlobalFilter } from "components/Table/GlobalFilter";
 import { BoxRow } from "./types";
 import {
   boxesRawDataToTableDataTransformer,
@@ -45,6 +48,10 @@ import ColumnSelector from "components/Table/ColumnSelector";
 import useBoxesActions from "../hooks/useBoxesActions";
 import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
+import { BoxesFilter } from "./BoxesFilter";
+import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import { FilterChips } from "./FilterChips";
+import { FilterPanel } from "components/Table/FilterPanel";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -53,9 +60,9 @@ interface IBoxesTableProps {
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
   columns: Column<BoxRow>[];
-  locationOptions: { label: string; value: string }[];
-  tagOptions: IDropdownOption[];
-  shipmentOptions: { label: string; value: string }[];
+  locationOptions: IFilterValue[];
+  tagOptions: IFilterValue[];
+  shipmentOptions: IDropdownOption[];
 }
 
 function BoxesTable({
@@ -81,6 +88,7 @@ function BoxesTable({
       includesSomeObject: includesSomeObjectFilterFn,
       includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
       includesSomeTagObject: includesSomeTagObjectFilterFn,
+      excludesSomeTagObject: excludesSomeTagObjectFilterFn,
     }),
     [],
   );
@@ -125,6 +133,7 @@ function BoxesTable({
     setGlobalFilter,
     page,
     rows,
+    setAllFilters,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -186,10 +195,30 @@ function BoxesTable({
   } = useBoxesActions(selectedFlatRows, toggleRowSelected);
 
   useEffect(() => {
-    // refetch
+    // Helper to compare filter values (deep equality for arrays)
+    const areFilterValuesEqual = (
+      filter1: { id: string; value: any } | undefined,
+      filter2: { id: string; value: any } | undefined,
+    ): boolean => {
+      if (!filter1 && !filter2) return true;
+      if (!filter1 || !filter2) return false;
+
+      const val1 = Array.isArray(filter1.value) ? filter1.value : [filter1.value];
+      const val2 = Array.isArray(filter2.value) ? filter2.value : [filter2.value];
+
+      if (val1.length !== val2.length) return false;
+
+      // Sort and compare arrays
+      const sorted1 = [...val1].sort();
+      const sorted2 = [...val2].sort();
+      return sorted1.every((v, i) => v === sorted2[i]);
+    };
+
+    // refetch only if state filter actually changed
     const newStateFilter = filters.find((filter) => filter.id === "state");
     const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-    if (newStateFilter !== oldStateFilter) {
+
+    if (!areFilterValuesEqual(newStateFilter, oldStateFilter)) {
       startRefetchBoxes(() => {
         onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
       });
@@ -209,6 +238,90 @@ function BoxesTable({
       tableConfig.setHiddenColumns(hiddenColumns);
     }
   }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
+
+  const filterDisclosure = useDisclosure();
+
+  const productOptions = useMemo(() => {
+    const uniqueProducts = new Map<string, { id: string; name: string; gender: string }>();
+    tableData.forEach((row) => {
+      if (row.product && row.product.id && row.product.name) {
+        const key = row.product.id;
+        if (!uniqueProducts.has(key)) {
+          uniqueProducts.set(key, {
+            id: row.product.id,
+            name: row.product.name,
+            gender: row.gender?.name || "",
+          });
+        }
+      }
+    });
+    return Array.from(uniqueProducts.values())
+      .map((p) => ({
+        label: `${p.name} (${p.gender})`,
+        value: p.id,
+        urlId: p.id,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const genderOptions = useMemo(() => {
+    const uniqueGenders = new Map<string, { id: string; name: string }>();
+    tableData.forEach((row) => {
+      if (row.gender && row.gender.name) {
+        uniqueGenders.set(row.gender.id, { id: row.gender.id, name: row.gender.name });
+      }
+    });
+    return Array.from(uniqueGenders.values())
+      .map((g) => ({ label: g.name, value: g.id, urlId: g.id }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const sizeOptions = useMemo(() => {
+    const uniqueSizes = new Map<string, { id: string; name: string }>();
+    tableData.forEach((row) => {
+      if (row.size && row.size.name) {
+        uniqueSizes.set(row.size.id, { id: row.size.id, name: row.size.name });
+      }
+    });
+    return Array.from(uniqueSizes.values())
+      .map((s) => ({ label: s.name, value: s.id, urlId: s.id }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const handleApplyFilters = useCallback(
+    (newFilters: Filters<any>) => {
+      setAllFilters(newFilters);
+    },
+    [setAllFilters],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    setAllFilters([]);
+  }, [setAllFilters]);
+
+  const handleRemoveFilter = useCallback(
+    (filterId: string, valueToRemove?: string) => {
+      const updatedFilters = filters
+        .map((filter) => {
+          if (filter.id === filterId) {
+            if (!valueToRemove) {
+              // Remove entire filter
+              return null;
+            }
+            // Remove specific value from filter
+            const remainingValues = Array.isArray(filter.value)
+              ? filter.value.filter((v: string) => v !== valueToRemove)
+              : [];
+            return remainingValues.length > 0 ? { ...filter, value: remainingValues } : null;
+          }
+          return filter;
+        })
+        .filter((f) => f !== null) as Filters<any>;
+
+      setAllFilters(updatedFilters);
+    },
+    [filters, setAllFilters],
+  );
 
   return (
     <Flex direction="column" height="100%">
@@ -230,45 +343,69 @@ function BoxesTable({
         <HStack spacing={2} mb={2}>
           <ColumnSelector
             availableColumns={allColumns.filter(
-              (column) => column.id !== "shipment" && column.id !== "selection",
+              (column) =>
+                column.id !== "shipment" && column.id !== "selection" && column.id !== "no_tags",
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+          <FilterPanel
+            isOpen={filterDisclosure.isOpen}
+            onOpen={filterDisclosure.onOpen}
+            onClose={filterDisclosure.onClose}
+          >
+            <BoxesFilter
+              isOpen={filterDisclosure.isOpen}
+              onClose={filterDisclosure.onClose}
+              columnFilters={filters}
+              onApplyFilters={handleApplyFilters}
+              productOptions={productOptions}
+              genderOptions={genderOptions}
+              sizeOptions={sizeOptions}
+              locationOptions={locationOptions}
+              tagOptions={tagOptions}
+            />
+          </FilterPanel>
         </HStack>
       </Flex>
+      <FilterChips
+        filters={filters}
+        productOptions={productOptions}
+        genderOptions={genderOptions}
+        sizeOptions={sizeOptions}
+        locationOptions={locationOptions}
+        tagOptions={tagOptions}
+        onRemoveFilter={handleRemoveFilter}
+        onClearAllFilters={handleClearFilters}
+      />
+      <Box bg="gray.100" px={4} py={2} mb={2} width="100%" data-testid="total-summary">
+        {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
+          <HStack spacing={2}>
+            <Text fontWeight="bold">Total</Text>
+            <Skeleton height={5} width={20} />
+          </HStack>
+        ) : hasExecutedInitialFetchOfBoxes.current ? (
+          <HStack spacing={10} data-testid="boxes-count">
+            <Text fontWeight="bold">Total</Text>
+            <Text>
+              <Text as="span" fontWeight="bold">
+                {boxCount}
+              </Text>{" "}
+              box{boxCount === 1 ? "" : "es"}
+            </Text>
+            <Text>
+              <Text as="span" fontWeight="bold">
+                {itemsCount}
+              </Text>{" "}
+              items
+            </Text>
+          </HStack>
+        ) : (
+          <Text>Data unavailable</Text>
+        )}
+      </Box>
       <Table key="boxes-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} />
+        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
-          <Tr key={"boxes-count-row"} bg={"gray.100"}>
-            <Td fontWeight="bold" key={"product-total"}>
-              Total
-            </Td>
-            <Td fontWeight="bold" key={"boxes-count"}>
-              {isBackgroundFetchOfBoxesLoading ||
-              refetchBoxesIsPending ||
-              tableConfig.isNotMounted ? (
-                <Skeleton height={5} width={10} mr={2} />
-              ) : hasExecutedInitialFetchOfBoxes.current ? (
-                <Text as="span">
-                  {boxCount} box{boxCount === 1 ? "" : "es"}
-                </Text>
-              ) : (
-                <Text as="span">Data unavailable</Text>
-              )}
-            </Td>
-            <Td fontWeight="bold" key={"item-count"}>
-              {isBackgroundFetchOfBoxesLoading ||
-              refetchBoxesIsPending ||
-              tableConfig.isNotMounted ? (
-                <Skeleton height={5} width={10} mr={2} />
-              ) : hasExecutedInitialFetchOfBoxes.current ? (
-                <Text as="span">{itemsCount} items</Text>
-              ) : (
-                <Text as="span">Data unavailable</Text>
-              )}
-            </Td>
-            <Td colSpan={20}></Td>
-          </Tr>
           {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
             <Tr key="refetchIsPending1">
               <Td colSpan={columns.length + 1}>

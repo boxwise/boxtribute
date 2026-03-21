@@ -12,8 +12,8 @@ import {
   defaultBoxesOrItems,
   IBoxesOrItemsFilter,
 } from "../components/filter/BoxesOrItemsSelect";
-import { tagFilterId } from "../components/filter/TagFilter";
-import { tagFilterValuesVar } from "../state/filter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../components/filter/TabbedTagFilter";
+import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../state/filter";
 import useMultiSelectFilter from "./useMultiSelectFilter";
 
 const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
@@ -54,8 +54,15 @@ export default function useShareableLink({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
-  const { filterValue: filteredTags } = useMultiSelectFilter(tagFilterValues, tagFilterId);
+  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
+  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
+  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
+    useMultiSelectFilter(
+      includedTagFilterValues,
+      tagFilterIncludedId,
+      excludedTagFilterValues,
+      tagFilterExcludedId,
+    );
   const [expirationDate, setExpirationDate] = useState<string | undefined>();
 
   // Remove the JSX from the hook
@@ -129,7 +136,8 @@ export default function useShareableLink({
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-    filteredTags,
+    includedTags,
+    excludedTags,
     boi,
     expirationDate,
   };

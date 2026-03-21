@@ -1,12 +1,12 @@
 from peewee import CharField, DateTimeField, IntegerField
 
-from ...db import db
 from ..fields import UIntForeignKeyField
+from . import Model
 from .size_range import SizeRange
 from .user import User
 
 
-class Size(db.Model):  # type: ignore
+class Size(Model):
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         column_name="created_by",

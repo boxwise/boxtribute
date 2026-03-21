@@ -1,15 +1,25 @@
 """Computation of various metrics"""
 
-from datetime import datetime, timedelta, timezone
+import os
+from collections import Counter
+from datetime import date, datetime, timedelta, timezone
 
-from peewee import fn
+from peewee import SQL, NodeList, fn
+from sentry_sdk import capture_message as emit_sentry_message
 
+from ...cli.service import ServiceBase
+from ...enums import TaggableObjectType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
+from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
+from ...models.definitions.location import Location
+from ...models.definitions.organisation import Organisation
 from ...models.definitions.services_relation import ServicesRelation
+from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import HISTORY_DELETION_MESSAGE, utcnow
+from ...models.utils import HISTORY_CREATION_MESSAGE, HISTORY_DELETION_MESSAGE, utcnow
+from ...utils import in_production_environment
 
 
 def _build_range_filter(field, *, low, high):
@@ -69,15 +79,76 @@ def compute_number_of_sales(*, organisation_id, after, before):
     )
 
 
-def number_of_created_records_between(model, start, end):
+def exclude_test_organisation():
+    if in_production_environment():
+        return (Organisation.id != 1) | Organisation.id.is_null()
+    return True
+
+
+def number_of_boxes_created_between(start, end):
     return (
-        model.select()
-        .where((model.created_on >= start) & (model.created_on <= end))
-        .count()
+        Box.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COUNT(Box.id).alias("number"),
+        )
+        .join(Location)
+        .join(Base)
+        .join(Organisation)
+        .where(
+            Box.created_on >= start,
+            Box.created_on <= end,
+            exclude_test_organisation(),
+        )
+        .group_by(Organisation.id, Base.id)
+    ).dicts()
+
+
+def number_of_beneficiaries_registered_between(start, end):
+    # Beneficiaries might be hard-deleted from the people table, hence we have to use
+    # the history table for reliable information about their creation. However some
+    # beneficiaries might have been directly imported into the DB without creating
+    # history entries, we then fallback to using Beneficiary.created_on. Unfortunately,
+    # if these beneficiaries are fully-deleted, we lose their information and the
+    # statistic becomes imprecise. A fix will come with https://trello.com/c/SYHi6Rj8
+    RegisteredBeneficiaries = (
+        DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
+            DbChangeHistory.table_name == Beneficiary._meta.table_name,
+            DbChangeHistory.change_date >= start,
+            DbChangeHistory.change_date <= end,
+            DbChangeHistory.changes == HISTORY_CREATION_MESSAGE,
+        )
+    ) | (
+        # created acc. to people table (contains info for some beneficiaries
+        # directly imported to the DB but misses permanently deleted beneficiaries)
+        Beneficiary.select(Beneficiary.id).where(
+            Beneficiary.created_on >= start,
+            Beneficiary.created_on <= end,
+        )
     )
+    return (
+        Beneficiary.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COUNT(RegisteredBeneficiaries.c.id).alias("number"),
+        )
+        .from_(RegisteredBeneficiaries)
+        .left_outer_join(
+            Beneficiary, on=(Beneficiary.id == RegisteredBeneficiaries.c.id)
+        )
+        .left_outer_join(Base)
+        .left_outer_join(Organisation)
+        .where(exclude_test_organisation())
+        .group_by(Organisation.id, Base.id)
+        .order_by(Organisation.id, Base.id)
+    ).dicts()
 
 
-def reached_beneficiaries_numbers(start, end):
+def number_of_beneficiaries_reached_between(start, end):
     # Return UNION of five sources of beneficiaries reached in given time span
     # Known issues with this statistic as of 2025.12.15:
     # - Deleted bene's create issues in the transactions table (NULL people_id for free
@@ -91,7 +162,7 @@ def reached_beneficiaries_numbers(start, end):
     # Though the DbChangeHistory, Transaction, ServicesRelation models have one-to-many
     # relationships with Beneficiary we don't have to use DISTINCT because UNION takes
     # care of removing the duplicates
-    return (
+    ReachedBeneficiaries = (
         (
             # created/edited (persistently logged in history table)
             DbChangeHistory.select(DbChangeHistory.record_id.alias("id")).where(
@@ -144,14 +215,40 @@ def reached_beneficiaries_numbers(start, end):
                 ServicesRelation.created_on <= end,
             )
         )
-    ).count()
+        | (
+            TagsRelation.select(TagsRelation.object_id.alias("id")).where(
+                TagsRelation.object_type == TaggableObjectType.Beneficiary,
+                TagsRelation.created_on >= start,
+                TagsRelation.created_on <= end,
+            )
+        )
+    )
+    return (
+        Beneficiary.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COUNT(ReachedBeneficiaries.c.id).alias("number"),
+        )
+        .from_(ReachedBeneficiaries)
+        .left_outer_join(Beneficiary, on=(Beneficiary.id == ReachedBeneficiaries.c.id))
+        .left_outer_join(Base)
+        .left_outer_join(Organisation)
+        .where(exclude_test_organisation())
+        .group_by(Organisation.id, Base.id)
+    ).dicts()
+
+
+def compute_total(data):
+    return sum(row["number"] for row in data)
 
 
 def get_time_span(
     *,
     start_date: datetime | None = None,
     end_date: datetime | None = None,
-    duration_days: int | None = None
+    duration_days: int | None = None,
 ) -> tuple[datetime, datetime]:
     """
     Calculates a time span (start_date, end_date) given one or two of three possible
@@ -202,3 +299,95 @@ def get_time_span(
     # 5. Insufficient parameters
     else:
         raise ValueError("Insufficient arguments")
+
+
+def get_data_for_number_of_active_users():
+    """Find users who logged in within the last two years by querying the Auth0
+    management API.
+    Prepare users data and corresponding organisation data.
+    Returns:
+        tuple[list, list]: A tuple (users, org_base_info) where:
+            - `users` is a list of user dictionaries returned by Auth0, each
+              containing "last_login" (as a datetime) and "organisation_id"
+            - `org_base_info` is a list of dictionaries with organisation and base
+              information for the organisations referenced by the users.
+        On error while querying Auth0, returns empty lists to allow callers to
+        safely skip processing in that iteration without failing the cron job.
+    """
+    domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
+    client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
+    secret = os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"]
+
+    auth0_service = ServiceBase.connect(
+        domain=domain, client_id=client_id, secret=secret
+    )
+
+    two_years_ago = date.today() - timedelta(days=2 * 365)
+    query = f"last_login:[{two_years_ago.isoformat()} TO *]"
+    fields = ["app_metadata", "last_login"]
+    try:
+        users = auth0_service.get_users(query=query, fields=fields)
+    except Exception as e:
+        emit_sentry_message(f"Error querying Auth0 user data: {e}", level="warning")
+        return [], []
+
+    org_ids = set()
+    valid_users = []
+    for user in users:
+        last_login = user.get("last_login")
+        # Parse ISO 8601 datetime string
+        login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
+
+        app_metadata = user.get("app_metadata", {})
+        org_id = app_metadata.get("organisation_id")
+        if org_id:
+            org_ids.add(org_id)
+            valid_users.append({"last_login": login_date, "organisation_id": org_id})
+
+    # Load organisation and base data from database
+    # For multi-base organisations, it's not possible to determine the base which the
+    # user logged in onto (also, they might switch base while using the app). In this
+    # case we use all bases of the organisation that were active in the last year (the
+    # base with smallest ID serves as base_id, and the concatenated base names are
+    # base_name)
+    one_year_ago = date.today() - timedelta(days=365)
+    org_base_info = (
+        Organisation.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            fn.MIN(Base.id).alias("base_id"),
+            fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
+                "base_name"
+            ),
+        )
+        .left_outer_join(Base)
+        .where(
+            Organisation.id << org_ids,
+            Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
+            exclude_test_organisation(),
+        )
+        .group_by(Organisation.id)
+    ).dicts()
+
+    return valid_users, list(org_base_info)
+
+
+def number_of_active_users_between(start, end, users, org_base_info):
+    """Compute number of active users per organisation between start and end dates.
+
+    Returns a list of dicts with organisation ID, organisation name, base ID,
+    base name, and number of users logged in.
+    """
+    # Filter users by last_login date range
+    filtered_users = [user for user in users if start <= user["last_login"] <= end]
+
+    # Count users by organisation ID
+    user_counts = Counter(user["organisation_id"] for user in filtered_users)
+
+    # Build result with user counts (default to 0 for organisations not present among
+    # filtered users)
+    result = []
+    for row in org_base_info:
+        org_id = row["organisation_id"]
+        result.append(row | {"number": user_counts[org_id]})
+    return result

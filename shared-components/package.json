@@ -10,9 +10,13 @@
     "test:coverage": "vitest run --coverage",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
-    "lint": "eslint --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
     "lint:all": "pnpm lint .",
     "lint:fix": "pnpm lint --fix",
-    "lint:fix:all": "pnpm lint:fix ."
+    "lint:fix:all": "pnpm lint:fix .",
+    "format:check:all": "pnpm format:check \"./**/*.{js,jsx,json,scss,md,ts,tsx}\" ",
+    "format:check": "prettier --check --ignore-path ../.eslintignore",
+    "format:write:all": "pnpm format:write \"./**/*.{js,jsx,json,scss,md,ts,tsx}\"",
+    "format:write": "prettier --write --ignore-path ../.eslintignore"
   }
 }
