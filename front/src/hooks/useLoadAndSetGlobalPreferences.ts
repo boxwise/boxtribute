@@ -154,5 +154,5 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   const isInitialized = selectedBaseId !== "0";
 
-  return { isLoading, finalError, isInitialized };
+  return { isLoading, error: finalError, isInitialized };
 };
