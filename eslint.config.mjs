@@ -1,18 +1,22 @@
-const path = require("path");
-const js = require("@eslint/js");
-const tsParser = require("@typescript-eslint/parser");
-const tsPlugin = require("@typescript-eslint/eslint-plugin");
-const reactPlugin = require("eslint-plugin-react");
-const hooksPlugin = require("eslint-plugin-react-hooks");
-const jsxA11yPlugin = require("eslint-plugin-jsx-a11y");
-const importPlugin = require("eslint-plugin-import");
-const testingLibraryPlugin = require("eslint-plugin-testing-library");
-const prettierConfig = require("eslint-config-prettier");
-const globals = require("globals");
-const { fixupPluginRules } = require("@eslint/compat");
-const { reactRefresh } = require("eslint-plugin-react-refresh");
+import path from "path";
+import { fileURLToPath } from "url";
+import js from "@eslint/js";
+import tsParser from "@typescript-eslint/parser";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import reactPlugin from "eslint-plugin-react";
+import hooksPlugin from "eslint-plugin-react-hooks";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
+import importPlugin from "eslint-plugin-import";
+import testingLibraryPlugin from "eslint-plugin-testing-library";
+import prettierConfig from "eslint-config-prettier";
+import globals from "globals";
+import { fixupPluginRules } from "@eslint/compat";
+import { reactRefresh } from "eslint-plugin-react-refresh";
 
-module.exports = [
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default [
   // 1. Global Ignores (Replaces ignorePatterns)
   {
     ignores: [
@@ -27,7 +31,7 @@ module.exports = [
       "back/scripts/**",
       "front/public/**",
       "shared-front/public/**",
-      "eslint.config.js",
+      "eslint.config.mjs",
     ],
   },
 
