@@ -112,14 +112,18 @@ function CreateTransferAgreementView() {
             (a) => a.id === createdTransferAgreementId,
           );
 
-          if (index !== undefined && index > -1) {
+          if (
+            index !== undefined &&
+            index > -1 &&
+            existingAcceptedTransferAgreementsData?.transferAgreements
+          ) {
             existingAcceptedTransferAgreementsData?.transferAgreements.splice(index, 1);
 
             cache.writeQuery({
               query: ALL_ACCEPTED_TRANSFER_AGREEMENTS_QUERY,
               variables: { baseId },
               data: {
-                transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements!,
+                transferAgreements: existingAcceptedTransferAgreementsData?.transferAgreements,
                 base: null,
               },
             });

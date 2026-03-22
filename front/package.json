@@ -32,7 +32,7 @@
     "upload:test-report": "./node_modules/.bin/codecov",
     "tsc:check": "tsc --noEmit",
     "tsc:precommit": "tsc-files --noEmit",
-    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --ignore-path ../.eslintignore",
+    "lint": "eslint --ext ts,tsx --report-unused-disable-directives --max-warnings 0 ../.eslintignore",
     "lint:all": "pnpm lint .",
     "lint:fix": "pnpm lint --fix",
     "lint:fix:all": "pnpm lint:fix .",
