@@ -30,7 +30,7 @@ export interface IShipmentContent {
 interface IShipmentContentProps {
   shipmentState: ShipmentState | undefined;
   items: IShipmentContent[];
-  showRemoveIcon: Boolean;
+  showRemoveIcon: boolean;
   isLoadingMutation: boolean | undefined;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
@@ -125,7 +125,7 @@ function ShipmentContent({
                       }}
                       onClick={
                         !isExpanded && !isLoadingMutation
-                          ? () => onBulkRemoveBox(item.boxes.map((b) => b?.labelIdentifier!))
+                          ? () => onBulkRemoveBox(item.boxes.map((b) => b?.labelIdentifier ?? ""))
                           : undefined
                       }
                     />

@@ -72,15 +72,15 @@ export default function SankeyChart(chart: ISankeyChart) {
   const layers: SankeyLayerId[] = ["labels", "legends", "nodes", "links"];
 
   if (includeHeading) {
-    // @ts-ignore incomplete typedef by Nivo
+    // @ts-expect-error incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.heading}>{chart.heading}</text>);
   }
   if (typeof chart.timerange === "string") {
-    // @ts-ignore incomplete typedef by Nivo
+    // @ts-expect-error incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.timerange}>{chart.timerange}</text>);
   }
   if (typeof chart.timestamp === "string") {
-    // @ts-ignore incomplete typedef by Nivo
+    // @ts-expect-error incomplete typedef by Nivo
     layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
 

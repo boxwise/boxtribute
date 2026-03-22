@@ -25,9 +25,9 @@ import ShipmentColoredStatus from "./ShipmentColoredStatus";
 import { Shipment } from "queries/types";
 
 export interface IShipmentProps {
-  canCancelShipment: Boolean;
-  canUpdateShipment: Boolean;
-  canLooseShipment: Boolean;
+  canCancelShipment: boolean;
+  canUpdateShipment: boolean;
+  canLooseShipment: boolean;
   isLoadingMutation: boolean | undefined;
   shipment: Shipment;
   onRemove: () => void;

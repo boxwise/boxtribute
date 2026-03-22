@@ -17,7 +17,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import APILoadingIndicator from "components/APILoadingIndicator";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { DISTRIBUTION_EVENTS_FOR_BASE_ID } from "../queries";
@@ -44,11 +44,9 @@ const DistrosDashboardView = () => {
   // Also then set the initial state value of currentTabIndex based on the search param.
   // This way, even in (unlikely) cases of incompatible browsers etc, the switching of the tab
   // will be supported via the UI.
-  useEffect(() => {
-    if (tabIndexSearchParamAsNumber !== currentTabIndex) {
-      setCurrentTabIndex(tabIndexSearchParamAsNumber!);
-    }
-  }, [currentTabIndex, tabIndexSearchParamAsNumber]);
+  if (tabIndexSearchParamAsNumber !== currentTabIndex) {
+    setCurrentTabIndex(tabIndexSearchParamAsNumber);
+  }
 
   // TODO: consider to move this into a container (so this view file only extracts the baseId from the url params)
   const { data, error, loading } = useQuery(DISTRIBUTION_EVENTS_FOR_BASE_ID, {
