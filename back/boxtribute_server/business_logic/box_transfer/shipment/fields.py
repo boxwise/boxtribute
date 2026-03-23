@@ -1,8 +1,10 @@
 from datetime import datetime
 
 from ariadne import ObjectType
+from flask import g
 
 from ....authz import authorize
+from ....enums import ShipmentDirection
 
 shipment = ObjectType("Shipment")
 shipment_detail = ObjectType("ShipmentDetail")
@@ -66,9 +68,13 @@ def resolve_shipment_direction(shipment_obj, info, base_id):
     Determine the direction of a shipment relative to a specific base.
 
     Returns:
-    - Outgoing: if the shipment is sent FROM the specified base
-    - Incoming: if the shipment is sent TO the specified base
-    - Indeterminate: if the shipment is between two other bases
+    - Outgoing: if the shipment is sent FROM the specified base OR from another
+                base the user has access to (but not the target)
+    - Incoming: if the shipment is sent TO the specified base OR to another
+                base the user has access to (but not the source)
+    - Indeterminate: if the shipment is between two bases the user doesn't have
+                     access to, OR between two of the user's bases (neither being
+                     the specified base)
     """
     # Authorize that the user has access to the specified base
     authorize(permission="base:read", base_id=int(base_id))
@@ -76,13 +82,28 @@ def resolve_shipment_direction(shipment_obj, info, base_id):
     # Convert base_id to int for comparison
     base_id_int = int(base_id)
 
-    # Determine direction based on source and target bases
+    # Get the user's authorized bases for base:read permission
+    user_base_ids = g.user.authorized_base_ids("base:read")
+
+    # First priority: Check if source or target is the specified base
     if shipment_obj.source_base_id == base_id_int:
-        return "Outgoing"
+        return ShipmentDirection.Outgoing.value
     elif shipment_obj.target_base_id == base_id_int:
-        return "Incoming"
+        return ShipmentDirection.Incoming.value
+
+    # Second priority: Check if shipment involves user's other bases
+    source_is_user_base = shipment_obj.source_base_id in user_base_ids
+    target_is_user_base = shipment_obj.target_base_id in user_base_ids
+
+    if source_is_user_base and not target_is_user_base:
+        # Shipment from user's base to external base
+        return ShipmentDirection.Outgoing.value
+    elif target_is_user_base and not source_is_user_base:
+        # Shipment from external base to user's base
+        return ShipmentDirection.Incoming.value
     else:
-        return "Indeterminate"
+        # Either both are user's bases or neither is user's base
+        return ShipmentDirection.Indeterminate.value
 
 
 @shipment.field("startedBy")
