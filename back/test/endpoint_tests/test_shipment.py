@@ -1792,3 +1792,120 @@ def test_shipment_mutations_intra_org(
                     state }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment == {"state": ShipmentState.Completed.name}
+
+
+def test_shipment_direction_outgoing(client, default_shipment):
+    """Test that direction is 'Outgoing' when shipment is sent FROM the specified base."""
+    # default_shipment: source_base=1, target_base=3
+    # User is logged into base 1 (source)
+    shipment_id = str(default_shipment["id"])
+    source_base_id = str(default_shipment["source_base"])
+    
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    id
+                    direction(baseId: "{source_base_id}")
+                }}
+            }}"""
+    shipment = assert_successful_request(client, query)
+    assert shipment == {
+        "id": shipment_id,
+        "direction": "Outgoing",
+    }
+
+
+def test_shipment_direction_incoming(client, default_shipment, mock_default_target_base_user):
+    """Test that direction is 'Incoming' when shipment is sent TO the specified base."""
+    # default_shipment: source_base=1, target_base=3
+    # User is logged into base 3 (target)
+    shipment_id = str(default_shipment["id"])
+    target_base_id = str(default_shipment["target_base"])
+    
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    id
+                    direction(baseId: "{target_base_id}")
+                }}
+            }}"""
+    shipment = assert_successful_request(client, query)
+    assert shipment == {
+        "id": shipment_id,
+        "direction": "Incoming",
+    }
+
+
+def test_shipment_direction_indeterminate(client, another_shipment, mocker):
+    """Test that direction is 'Indeterminate' when shipment is between two other bases."""
+    # another_shipment: source_base=3, target_base=1
+    # User has access to bases 1, 2, 3 but is logged into base 2
+    # Shipment is between bases 3 and 1, so direction relative to base 2 is indeterminate
+    
+    # Mock user with access to bases 1, 2, 3 (all bases in org 1)
+    mock_user_for_request(
+        mocker,
+        base_ids=[1, 2, 3],
+        organisation_id=1,
+        user_id=source_base_user_id,
+    )
+    
+    shipment_id = str(another_shipment["id"])
+    # Use base 2 which is neither source nor target
+    base_id = "2"
+    
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    id
+                    direction(baseId: "{base_id}")
+                }}
+            }}"""
+    shipment = assert_successful_request(client, query)
+    assert shipment == {
+        "id": shipment_id,
+        "direction": "Indeterminate",
+    }
+
+
+def test_shipment_direction_unauthorized_base(client, default_shipment):
+    """Test that querying direction for an unauthorized base returns Forbidden."""
+    # default_shipment: source_base=1, target_base=3
+    # User only has access to base 1 (default in fixtures)
+    # Trying to get direction for base 4 (which user doesn't have access to)
+    shipment_id = str(default_shipment["id"])
+    unauthorized_base_id = "4"  # Base 4 belongs to org 2
+    
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    id
+                    direction(baseId: "{unauthorized_base_id}")
+                }}
+            }}"""
+    assert_forbidden_request(client, query)
+
+
+def test_shipments_query_with_direction(client, default_shipment, intra_org_shipment):
+    """Test that direction can be queried in the shipments list query."""
+    # Test that direction field works in list queries
+    source_base_id = str(default_shipment["source_base"])
+    
+    query = f"""query {{
+                shipments {{
+                    id
+                    direction(baseId: "{source_base_id}")
+                }}
+            }}"""
+    shipments = assert_successful_request(client, query)
+    
+    # Find our test shipments in the results
+    default_shipment_result = next(
+        (s for s in shipments if s["id"] == str(default_shipment["id"])),
+        None,
+    )
+    intra_org_shipment_result = next(
+        (s for s in shipments if s["id"] == str(intra_org_shipment["id"])),
+        None,
+    )
+    
+    # default_shipment: source=1, target=3 -> direction from base 1 is Outgoing
+    assert default_shipment_result["direction"] == "Outgoing"
+    # intra_org_shipment: source=1, target=2 -> direction from base 1 is Outgoing
+    assert intra_org_shipment_result["direction"] == "Outgoing"

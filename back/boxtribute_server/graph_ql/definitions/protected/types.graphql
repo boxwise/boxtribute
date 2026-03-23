@@ -588,6 +588,8 @@ type Shipment {
   labelIdentifier: String!
   sourceBase: Base!
   targetBase: Base!
+  " Direction of the shipment relative to the specified base. Requires baseId parameter to determine direction. "
+  direction(baseId: ID!): ShipmentDirection!
   state: ShipmentState
   startedBy: User!
   startedOn: Datetime!

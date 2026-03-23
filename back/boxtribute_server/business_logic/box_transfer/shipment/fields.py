@@ -60,6 +60,31 @@ def resolve_shipment_target_base(shipment_obj, info):
     return info.context["base_loader"].load(shipment_obj.target_base_id)
 
 
+@shipment.field("direction")
+def resolve_shipment_direction(shipment_obj, info, base_id):
+    """
+    Determine the direction of a shipment relative to a specific base.
+    
+    Returns:
+    - Outgoing: if the shipment is sent FROM the specified base
+    - Incoming: if the shipment is sent TO the specified base
+    - Indeterminate: if the shipment is between two other bases
+    """
+    # Authorize that the user has access to the specified base
+    authorize(permission="base:read", base_id=int(base_id))
+    
+    # Convert base_id to int for comparison
+    base_id_int = int(base_id)
+    
+    # Determine direction based on source and target bases
+    if shipment_obj.source_base_id == base_id_int:
+        return "Outgoing"
+    elif shipment_obj.target_base_id == base_id_int:
+        return "Incoming"
+    else:
+        return "Indeterminate"
+
+
 @shipment.field("startedBy")
 def resolve_shipment_started_by(shipment_obj, info):
     return info.context["user_loader"].load(shipment_obj.started_by_id)
