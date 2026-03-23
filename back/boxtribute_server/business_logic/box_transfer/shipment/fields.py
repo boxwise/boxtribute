@@ -64,7 +64,7 @@ def resolve_shipment_target_base(shipment_obj, info):
 def resolve_shipment_direction(shipment_obj, info, base_id):
     """
     Determine the direction of a shipment relative to a specific base.
-    
+
     Returns:
     - Outgoing: if the shipment is sent FROM the specified base
     - Incoming: if the shipment is sent TO the specified base
@@ -72,10 +72,10 @@ def resolve_shipment_direction(shipment_obj, info, base_id):
     """
     # Authorize that the user has access to the specified base
     authorize(permission="base:read", base_id=int(base_id))
-    
+
     # Convert base_id to int for comparison
     base_id_int = int(base_id)
-    
+
     # Determine direction based on source and target bases
     if shipment_obj.source_base_id == base_id_int:
         return "Outgoing"
