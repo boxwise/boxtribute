@@ -54,6 +54,8 @@ function ShipmentsOverviewView() {
       .filter((shipment) => shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId)
       .map((element) => {
         // Map GraphQL direction to UI direction
+        // Note: Since we filter to only shipments involving the current base,
+        // we should never see "Indeterminate" here. But handle it defensively.
         const uiDirection = element.direction === "Outgoing" ? "Sending" : "Receiving";
         
         const shipmentRow: ShipmentRow = {
