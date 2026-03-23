@@ -57,14 +57,17 @@ function ShipmentsOverviewView() {
         // Note: Since we filter to only shipments involving the current base,
         // we should never see "Indeterminate" here. But handle it defensively.
         const uiDirection = element.direction === "Outgoing" ? "Sending" : "Receiving";
-        
+
         const shipmentRow: ShipmentRow = {
           id: element.id,
           labelIdentifier: element.labelIdentifier,
           direction: uiDirection,
           partnerBaseOrg: {
             base: uiDirection === "Sending" ? element.targetBase.name : element.sourceBase.name,
-            organisation: uiDirection === "Sending" ? element.targetBase.organisation.name : element.sourceBase.organisation.name,
+            organisation:
+              uiDirection === "Sending"
+                ? element.targetBase.organisation.name
+                : element.sourceBase.organisation.name,
           },
           state: element.state,
           boxes: 0,
