@@ -21,7 +21,7 @@
     "@types/react-table": "^7.7.20",
     "msw": "^2.12.14",
     "mutationobserver-shim": "^0.3.7",
-    "vite-plugin-static-copy": "^3.3.0"
+    "vite-plugin-static-copy": "^4.0.0"
   },
   "scripts": {
     "build": "tsc && vite build",
