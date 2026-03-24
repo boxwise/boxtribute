@@ -25,7 +25,6 @@ import {
 } from "./components/TableCells";
 import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
 import { SelectBoxStateFilter } from "./components/Filter";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   Heading,
   Popover,
@@ -172,6 +171,7 @@ function Boxes({
       "lastModifiedBy",
       "createdBy",
       "productCategory",
+      "no_tags", // Hidden column for excluded tags filter
     ];
 
     const filterIds: string[] = [];
@@ -383,6 +383,16 @@ function Boxes({
         filter: "includesSomeTagObject",
       },
       {
+        // Hidden column for excluded tags filter
+        Header: "Exclude Tags",
+        accessor: "tags",
+        id: "no_tags",
+        filter: "excludesSomeTagObject",
+        // This column should not be shown in the table or column selector
+        disableSortBy: true,
+        disableFilters: false,
+      },
+      {
         Header: "Shipment",
         accessor: "shipment",
         id: "shipment",
@@ -459,7 +469,6 @@ function Boxes({
 
   return (
     <>
-      <BreadcrumbNavigation items={[{ label: "Aid Inventory" }, { label: "Manage Boxes" }]} />
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Boxes
       </Heading>

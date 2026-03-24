@@ -3,7 +3,7 @@ import { useReactiveVar } from "@apollo/client";
 import { ResultOf } from "gql.tada";
 import MultiSelectFilter from "./MultiSelectFilter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
-import { ITagFilterValue, tagFilterValuesVar } from "../../state/filter";
+import { ITagFilterValue, tagFilterIncludedValuesVar } from "../../state/filter";
 import { TAG_DIMENSION_INFO_FRAGMENT } from "../../queries/fragments";
 
 export const tagFilterId = "tags";
@@ -19,7 +19,7 @@ export const tagToFilterValue = (
 });
 
 export default function TagFilter() {
-  const tagFilterValues = useReactiveVar(tagFilterValuesVar);
+  const tagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const { onFilterChange, filterValue } = useMultiSelectFilter<ITagFilterValue>(
     tagFilterValues,
     tagFilterId,

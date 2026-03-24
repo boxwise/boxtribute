@@ -63,6 +63,12 @@ class ShipmentState(enum.IntEnum):
     Lost = enum.auto()
 
 
+class ShipmentDirection(enum.Enum):
+    Outgoing = "Outgoing"
+    Incoming = "Incoming"
+    Indeterminate = "Indeterminate"
+
+
 class BoxState(enum.IntEnum):
     """Representation of values of the `BoxState` data model."""
 

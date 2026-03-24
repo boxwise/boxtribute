@@ -88,11 +88,12 @@ export const CHECK_IF_QR_EXISTS_IN_DB = graphql(`
 
 export const ALL_SHIPMENTS_QUERY = graphql(
   `
-    query Shipments {
+    query Shipments($baseId: ID!) {
       shipments {
         id
         labelIdentifier
         state
+        direction(baseId: $baseId)
         details {
           id
           box {
@@ -116,6 +117,17 @@ export const ALL_SHIPMENTS_QUERY = graphql(
     }
   `,
   [BASE_ORG_FIELDS_FRAGMENT],
+);
+
+export const SHIPMENT_DATA_FOR_EXPORT_QUERY = graphql(
+  `
+    query ShipmentDataForExport {
+      shipments {
+        ...ShipmentFields
+      }
+    }
+  `,
+  [SHIPMENT_FIELDS_FRAGMENT],
 );
 
 export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(

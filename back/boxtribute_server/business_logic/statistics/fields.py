@@ -27,12 +27,25 @@ def resolve_resolved_link_data(resolved_link_obj, _):
 
     elif resolved_link_obj.view == ShareableView.StockOverview:
         tag_ids = None
+        excluded_tag_ids = None
+
         # parse_qs returns empty dict if url_parameters is None
-        raw_tag_ids = up.parse_qs(resolved_link_obj.url_parameters).get("tags")
+        url_params = up.parse_qs(resolved_link_obj.url_parameters)
+        raw_tag_ids = url_params.get("tags")
+        raw_excluded_tag_ids = url_params.get("notags")
+
+        # parse_qs returns a list with one element; decode the IDs
         if raw_tag_ids:
-            # parse_qs returns a list with one element; decode the IDs
             tag_ids = [int(i) for i in raw_tag_ids[0].split(",")]
-        return [compute_stock_overview(resolved_link_obj.base_id, tag_ids=tag_ids)]
+        if raw_excluded_tag_ids:
+            excluded_tag_ids = [int(i) for i in raw_excluded_tag_ids[0].split(",")]
+        return [
+            compute_stock_overview(
+                resolved_link_obj.base_id,
+                tag_ids=tag_ids,
+                excluded_tag_ids=excluded_tag_ids,
+            )
+        ]
 
     else:  # pragma: no cover
         raise ValueError("Invalid value for ShareableView")

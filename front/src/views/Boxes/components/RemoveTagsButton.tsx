@@ -75,7 +75,7 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
       </Box>
       {isInputOpen && (
         <>
-          <Box maxWidth={230}>
+          <Box maxWidth={230} data-testid="remove-tags-select-container">
             <Select
               placeholder="Type to find tags"
               isSearchable

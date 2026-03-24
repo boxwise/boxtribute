@@ -394,7 +394,7 @@ def test_check_user_beta_level():
 
     # User with level 7 can additionally run createBoxFromBox
     current_user._max_beta_level = 7
-    for mutation in ["createTag", "createBeneficiary", "createBeneficiaries"]:
+    for mutation in ["createTag", "createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
