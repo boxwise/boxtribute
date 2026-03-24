@@ -1830,7 +1830,7 @@ def test_shipment_direction_indeterminate(client, mocker):
                 }
             }"""
     shipment_result = assert_successful_request(client, query)
-    assert shipment_result["direction"] == "Indeterminate"
+    assert shipment_result["direction"] == ShipmentDirection.Indeterminate.name
 
 
 def test_shipment_direction_unauthorized_base(client, default_shipment):
