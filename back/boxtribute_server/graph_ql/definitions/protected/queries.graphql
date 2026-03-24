@@ -13,7 +13,7 @@ type Query {
   users: [User!]!
   " Return [`Box`]({{Types.Box}}) with specified label identifier. For a box in InTransit, Receiving, or NotDelivered state, clients of both source and target base of the underlying shipment are allowed to view it. Otherwise the client must be permitted to access the base of the box location "
   box(labelIdentifier: String!): Box
-  " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
+  " Return page of non-deleted [`Boxes`]({{Types.Box}}) in non-deleted [`Locations`]({{Types.ClassicLocation}}) in base with specified ID. Optionally pass filters "
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
   " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource. "
   qrCode(code: String!): QrCodeResult!

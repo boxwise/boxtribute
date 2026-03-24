@@ -31,6 +31,7 @@ def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
             (Box.location == Location.id)
             & (Location.base == base_id)
             & ((Box.deleted_on == 0) | (Box.deleted_on.is_null()))
+            & ((Location.deleted_on == 0) | (Location.deleted_on.is_null()))
         ),
     )
     filter_condition, selection = derive_box_filter(filter_input, selection=selection)
