@@ -15,7 +15,6 @@ import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 
 vi.mock("@auth0/auth0-react");
-// @ts-ignore
 window.scrollTo = vi.fn();
 
 // .mocked() is a nice helper function from jest for typescript support

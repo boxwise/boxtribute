@@ -30,6 +30,7 @@ import {
 } from "../../../state/filter";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
+import useIncludeExcludeFilter from "../../../hooks/useIncludeExcludeFilter";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxes;
@@ -61,7 +62,7 @@ export default function CreatedBoxesFilterContainer({
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
+    useIncludeExcludeFilter(
       includedTagFilterValues,
       tagFilterIncludedId,
       excludedTagFilterValues,
@@ -110,7 +111,7 @@ export default function CreatedBoxesFilterContainer({
         "createdOn",
         interval,
       );
-    } catch (error) {
+    } catch {
       // TODO useError
     }
     return [];
@@ -145,7 +146,7 @@ export default function CreatedBoxesFilterContainer({
 
     let filtered = createdBoxesFacts;
     if (filters.length > 0) {
-      // @ts-expect-error
+      // @ts-expect-error spread of tidy filter functions not fully typed
       filtered = tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
 

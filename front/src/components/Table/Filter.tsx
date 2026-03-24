@@ -20,7 +20,7 @@ interface ISelectOption {
 }
 
 // Utility Function to show Objects in filter in a more readible way
-function ObjectToString(object: Object) {
+function ObjectToString(object: object) {
   return Object.values(object).join(" - ");
 }
 

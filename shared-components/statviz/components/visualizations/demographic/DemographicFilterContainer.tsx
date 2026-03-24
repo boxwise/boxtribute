@@ -7,12 +7,12 @@ import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTag
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
-import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { filterByTags } from "../../../utils/filterByTags";
 import {
   BeneficiaryDemographics,
   BeneficiaryDemographicsResult,
 } from "../../../../../graphql/types";
+import useIncludeExcludeFilter from "../../../hooks/useIncludeExcludeFilter";
 
 interface IDemographicFilterContainerProps {
   demographics: BeneficiaryDemographics;
@@ -26,7 +26,7 @@ export default function DemographicFilterContainer({
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
+    useIncludeExcludeFilter(
       includedTagFilterValues,
       tagFilterIncludedId,
       excludedTagFilterValues,
@@ -35,11 +35,11 @@ export default function DemographicFilterContainer({
 
   // merge Beneficiary tags to Box and All tags
   useEffect(() => {
-    const beneficiaryTagFilterValues = demographics?.dimensions!.tag!.map((e) =>
+    const beneficiaryTagFilterValues = demographics?.dimensions?.tag?.map((e) =>
       tagToFilterValue(e!),
     );
 
-    if (beneficiaryTagFilterValues?.length! > 0) {
+    if ((beneficiaryTagFilterValues?.length ?? 0) > 0) {
       const distinctTagFilterValues = tidy(
         [...includedTagFilterValues, ...beneficiaryTagFilterValues!],
         distinct(["id"]),
@@ -61,7 +61,7 @@ export default function DemographicFilterContainer({
         "createdOn",
         interval,
       ) as BeneficiaryDemographicsResult[];
-    } catch (error) {
+    } catch {
       // TODO useError
     }
     return [];

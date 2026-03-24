@@ -10,13 +10,13 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { ResultOf } from "gql.tada";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
@@ -168,46 +168,39 @@ function BoxEdit({
     register,
     resetField,
     setError,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<IBoxEditFormDataInput>({
     resolver: zodResolver(BoxEditFormDataSchema),
     defaultValues,
   });
 
-  // sizes reset depending on selected product
-  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
-    IDropdownOption[]
-  >([]);
-
   // needed for updating size select field for new product
-  const productId = watch("productId");
+  const productId = useWatch({ control, name: "productId" });
   const productRef = useRef<string | undefined>(boxData?.product?.id);
 
-  useEffect(() => {
-    if (productId != null) {
-      const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === productId.value,
-      );
-      const prepSizesOptionsForCurrentProduct =
-        productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
-          label: s.label,
-          value: s.id,
-        })) || [];
-      setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
+  // sizes derived from selected product
+  const sizesOptionsForCurrentProduct: IDropdownOption[] = useMemo(
+    () =>
+      (productId != null
+        ? productAndSizesData
+            .find((p) => p.id === productId.value)
+            ?.sizeRange?.sizes?.map((s) => ({ label: s.label, value: s.id }))
+        : undefined) ?? [],
+    [productId, productAndSizesData],
+  );
 
-      // Reset size if the product referenec is different than the currently selected product
-      if (productRef.current !== productId.value) {
-        productRef.current = productId.value;
-        // if there is only one option select it directly
-        if (prepSizesOptionsForCurrentProduct.length === 1) {
-          resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
-        } else {
-          resetField("sizeId", { defaultValue: null });
-        }
+  useEffect(() => {
+    if (productId != null && productRef.current !== productId.value) {
+      // Reset size if the product reference is different than the currently selected product
+      productRef.current = productId.value;
+      // if there is only one option select it directly
+      if (sizesOptionsForCurrentProduct.length === 1) {
+        resetField("sizeId", { defaultValue: sizesOptionsForCurrentProduct[0] });
+      } else {
+        resetField("sizeId", { defaultValue: null });
       }
     }
-  }, [productId, productAndSizesData, boxData, resetField]);
+  }, [productId, sizesOptionsForCurrentProduct, resetField]);
 
   // If the product is deleted show a custom error message for productId
   useEffect(() => {

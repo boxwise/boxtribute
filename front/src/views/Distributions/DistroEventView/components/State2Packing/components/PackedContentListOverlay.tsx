@@ -31,7 +31,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { BoxData, IPackingListEntry, UnboxedItemsCollectionData } from "views/Distributions/types";
 import { useGetUrlForResourceHelpers } from "hooks/hooks";
 import { DistroEventDetailsForPackingStateContext } from "../DistroEventDetailsForPackingStateContainer";
@@ -53,12 +53,14 @@ function UnboxedItemsCollectionListEntry({
 }) {
   const removeUnboxedItemsOverlayState = useDisclosure();
   const [numberOfItemsToRemove, setNumberOfItemsToRemove] = useState<number | undefined>();
+  const [prevIsOpen, setPrevIsOpen] = useState(removeUnboxedItemsOverlayState.isOpen);
+
+  if (removeUnboxedItemsOverlayState.isOpen !== prevIsOpen) {
+    setPrevIsOpen(removeUnboxedItemsOverlayState.isOpen);
+    setNumberOfItemsToRemove(undefined);
+  }
 
   const ctx = useContext(DistroEventDetailsForPackingStateContext);
-
-  useEffect(() => {
-    setNumberOfItemsToRemove(undefined);
-  }, [removeUnboxedItemsOverlayState.isOpen]);
 
   return (
     <>
@@ -219,7 +221,7 @@ PackedContentListOverlayProps) {
             <BoxesList boxesData={boxesData} />
           </Box>
         )}
-        {unboxedItemsCollectionData.length > 0 && (
+        {unboxedItemsCollectionData.length > 0 && packingListEntry.size?.id && (
           <Box my={5}>
             <UnboxedItemsCollectionList
               unboxedItemsCollectionData={unboxedItemsCollectionData}
@@ -227,7 +229,7 @@ PackedContentListOverlayProps) {
               // TODO: check/align why size.id is nullable atm
               // assumption so far: each box / unboxed items collection needs
               // a sizeId
-              sizeId={packingListEntry.size?.id!}
+              sizeId={packingListEntry.size?.id}
             />
           </Box>
         )}

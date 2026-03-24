@@ -1,7 +1,7 @@
 import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useAtomValue } from "jotai";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -102,71 +102,65 @@ function CreateTransferAgreement({
     control,
     register,
     resetField,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(TransferAgreementFormDataSchema),
+    defaultValues: {
+      // @ts-expect-error TODO: Dates might not be validated properly.
+      validFrom: new Date().toISOString().substring(0, 10),
+    },
   });
 
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const [basesOptionsForPartnerOrg, setBasesOptionsForPartnerOrg] = useState<IDropdownOption[]>([]);
-  const [validUntilMinDate, setValidUntilMinDate] = useState("");
-  const partnerOrganisation = watch("partnerOrganisation");
-  const validFrom = watch("validFrom");
+  const partnerOrganisation = useWatch({ control, name: "partnerOrganisation" });
+  const validFrom = useWatch({ control, name: "validFrom" });
+
+  // Use primitive id as dep to avoid new object reference from useWatch causing a loop
+  const partnerOrgId = partnerOrganisation?.value;
+
+  const basesOptionsForPartnerOrg = useMemo<IDropdownOption[]>(() => {
+    if (!partnerOrgId) return [];
+    const partnerOrg = partnerOrganisationsWithTheirBasesData.find(
+      (organisation) => organisation.id === partnerOrgId,
+    );
+    return partnerOrg?.bases?.map((base) => ({ label: base.name, value: base.id })) ?? [];
+  }, [partnerOrgId, partnerOrganisationsWithTheirBasesData]);
+
+  const validUntilMinDate = useMemo(
+    () => (validFrom ? addDays(new Date(validFrom), 1).toJSON().split("T")[0] : ""),
+    [validFrom],
+  );
 
   useEffect(() => {
-    if (partnerOrganisation != null) {
-      const partnerBasesDataForCurrentOrganisation = partnerOrganisationsWithTheirBasesData.find(
-        (organisation) => organisation.id === partnerOrganisation.value,
-      );
-
-      setBasesOptionsForPartnerOrg(
-        () =>
-          partnerBasesDataForCurrentOrganisation?.bases?.map((base) => ({
-            label: base.name,
-            value: base.id,
-          })) || [],
+    if (partnerOrgId != null) {
+      const partnerOrg = partnerOrganisationsWithTheirBasesData.find(
+        (organisation) => organisation.id === partnerOrgId,
       );
 
       resetField("partnerOrganisationSelectedBases");
       // Put a default value for partnerOrganisationSelectedBases when there's only one option
-      if (partnerBasesDataForCurrentOrganisation?.bases.length === 1) {
+      if (partnerOrg?.bases.length === 1) {
         setValue("partnerOrganisationSelectedBases", [
-          {
-            label: partnerBasesDataForCurrentOrganisation?.bases[0].name,
-            value: partnerBasesDataForCurrentOrganisation?.bases[0].id,
-          },
+          { label: partnerOrg.bases[0].name, value: partnerOrg.bases[0].id },
         ]);
       }
     }
     if (currentOrganisation?.bases.length === 1) {
       setValue("currentOrganisationSelectedBases", [
         {
-          label: currentOrganisation?.bases[0].name,
-          value: currentOrganisation?.bases[0].id,
+          label: currentOrganisation.bases[0].name,
+          value: currentOrganisation.bases[0].id,
         },
       ]);
     }
-
-    if (validFrom) {
-      setValidUntilMinDate(
-        // Add one day to valid from date and make it the minimum valid until date
-        addDays(new Date(validFrom), 1).toJSON().split("T")[0],
-      );
-    } else {
-      // Use today as default for "validFrom"
-      // @ts-expect-error TODO: Dates might not be validated properly.
-      setValue("validFrom", new Date().toISOString().substring(0, 10));
-    }
   }, [
-    partnerOrganisation,
+    partnerOrgId,
     resetField,
     setValue,
     partnerOrganisationsWithTheirBasesData,
     currentOrganisation?.bases,
-    validFrom,
   ]);
 
   return (
