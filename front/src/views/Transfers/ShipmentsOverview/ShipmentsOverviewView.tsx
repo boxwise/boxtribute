@@ -51,11 +51,13 @@ function ShipmentsOverviewView() {
   // transform shipments data for UI
   const rowData =
     data?.shipments
-      .filter((shipment) => shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId)
+      .filter(
+        (shipment) =>
+          (shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId) &&
+          shipment.direction !== "Indeterminate",
+      )
       .map((element) => {
         // Map GraphQL direction to UI direction
-        // Note: Since we filter to only shipments involving the current base,
-        // we should never see "Indeterminate" here. But handle it defensively.
         const uiDirection = element.direction === "Outgoing" ? "Sending" : "Receiving";
 
         const shipmentRow: ShipmentRow = {
