@@ -85,6 +85,9 @@ def resolve_shipment_direction(shipment_obj, _, base_id):
     elif shipment_obj.target_base_id == base_id_int:
         return ShipmentDirection.Incoming
 
+    if g.user.is_god:
+        return ShipmentDirection.Indeterminate
+
     # Second priority: Check if shipment involves user's other bases
     user_base_ids = g.user.authorized_base_ids("base:read")
     source_is_user_base = shipment_obj.source_base_id in user_base_ids

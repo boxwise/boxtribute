@@ -1832,6 +1832,10 @@ def test_shipment_direction_indeterminate(client, mocker):
     shipment_result = assert_successful_request(client, query)
     assert shipment_result["direction"] == ShipmentDirection.Indeterminate.name
 
+    mock_user_for_request(mocker, is_god=True)
+    shipment_result = assert_successful_request(client, query)
+    assert shipment_result["direction"] == ShipmentDirection.Indeterminate.name
+
 
 def test_shipment_direction_unauthorized_base(client, default_shipment):
     """Test that querying direction for an unauthorized base returns Forbidden."""
