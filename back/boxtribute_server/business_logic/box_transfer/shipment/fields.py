@@ -1,8 +1,11 @@
 from datetime import datetime
 
 from ariadne import ObjectType
+from flask import g
 
 from ....authz import authorize
+from ....enums import ShipmentDirection
+from ....exceptions import Forbidden
 
 shipment = ObjectType("Shipment")
 shipment_detail = ObjectType("ShipmentDetail")
@@ -58,6 +61,51 @@ def resolve_shipment_target_base(shipment_obj, info):
         base_ids=[shipment_obj.source_base_id, shipment_obj.target_base_id],
     )
     return info.context["base_loader"].load(shipment_obj.target_base_id)
+
+
+@shipment.field("direction")
+def resolve_shipment_direction(shipment_obj, _, base_id):
+    """
+    Determine the direction of a shipment relative to a specific base.
+
+    Returns:
+    - Outgoing: if the shipment is sent FROM the specified base OR from another
+                base the user has access to (but not the target)
+    - Incoming: if the shipment is sent TO the specified base OR to another
+                base the user has access to (but not the source)
+    - Indeterminate: if the shipment is between two of the user's bases (neither being
+                the specified base; this is for intra-org shipments)
+    """
+    base_id_int = int(base_id)
+    authorize(permission="base:read", base_id=base_id_int)
+
+    # First priority: Check if source or target is the specified base
+    if shipment_obj.source_base_id == base_id_int:
+        return ShipmentDirection.Outgoing
+    elif shipment_obj.target_base_id == base_id_int:
+        return ShipmentDirection.Incoming
+
+    if g.user.is_god:
+        return ShipmentDirection.Indeterminate
+
+    # Second priority: Check if shipment involves user's other bases
+    user_base_ids = g.user.authorized_base_ids("base:read")
+    source_is_user_base = shipment_obj.source_base_id in user_base_ids
+    target_is_user_base = shipment_obj.target_base_id in user_base_ids
+
+    if source_is_user_base and target_is_user_base:
+        return ShipmentDirection.Indeterminate
+    elif source_is_user_base:
+        return ShipmentDirection.Outgoing
+    elif target_is_user_base:
+        return ShipmentDirection.Incoming
+    else:  # pragma: no cover
+        # Unreachable (implies viewing a shipment with bases that the user has access to
+        # neither; this is prohibited in the parent resolver)
+        raise Forbidden(
+            resource="bases",
+            value=[shipment_obj.source_base_id, shipment_obj.target_base_id],
+        )
 
 
 @shipment.field("startedBy")

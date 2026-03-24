@@ -11,7 +11,7 @@ import { SelectColumnFilter } from "components/Table/Filter";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
-import { selectedBaseIdAtom, selectedBaseAtom } from "stores/globalPreferenceStore";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { ShipmentState } from "queries/types";
@@ -37,57 +37,46 @@ type ShipmentRow =
 function ShipmentsOverviewView() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const selectedBase = useAtomValue(selectedBaseAtom);
   // If forwarded from AgreementsOverview
   const location = useLocation();
-  const currentBaseName = selectedBase?.name || "";
   const [direction, setDirection] = useState<"Receiving" | "Sending">("Receiving");
 
   // fetch shipments data
   const { loading, error, data } = useQuery(ALL_SHIPMENTS_QUERY, {
     // returns cache first, but syncs with server in background
     fetchPolicy: "cache-and-network",
+    variables: { baseId },
+    skip: isGlobalStateLoading || baseId === "0",
   });
 
   // transform shipments data for UI
   const rowData =
     data?.shipments
-      .filter((shipment) => shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId)
+      .filter(
+        (shipment) =>
+          (shipment.sourceBase.id === baseId || shipment.targetBase.id === baseId) &&
+          shipment.direction !== "Indeterminate",
+      )
       .map((element) => {
+        // Map GraphQL direction to UI direction
+        const uiDirection = element.direction === "Outgoing" ? "Sending" : "Receiving";
+
         const shipmentRow: ShipmentRow = {
           id: element.id,
           labelIdentifier: element.labelIdentifier,
-          direction: "Receiving",
+          direction: uiDirection,
           partnerBaseOrg: {
-            base: element.targetBase.name,
-            organisation: element.targetBase.organisation.name,
+            base: uiDirection === "Sending" ? element.targetBase.name : element.sourceBase.name,
+            organisation:
+              uiDirection === "Sending"
+                ? element.targetBase.organisation.name
+                : element.sourceBase.organisation.name,
           },
           state: element.state,
           boxes: 0,
           lastUpdated: undefined,
           href: element.id,
         };
-
-        // Calculating direction.
-        // The last part of the labelIdentifier means 2 first letters of Sending base X 2 first letters of Receiving base.
-        // Since now we support intra org shipments (shipments between bases of the same organization), this is the most reliable way to tell who's sending or receiving a shipment.
-        if (
-          shipmentRow.labelIdentifier
-            .slice(-5)
-            .startsWith(currentBaseName.slice(0, 2).toUpperCase())
-        ) {
-          shipmentRow.direction = "Sending";
-          shipmentRow.partnerBaseOrg = {
-            base: element.targetBase.name,
-            organisation: element.targetBase.organisation.name,
-          };
-        } else {
-          shipmentRow.direction = "Receiving";
-          shipmentRow.partnerBaseOrg = {
-            base: element.sourceBase.name,
-            organisation: element.sourceBase.organisation.name,
-          };
-        }
 
         // counting of boxes from details
         const uniqueBoxIds = element.details.reduce((accumulator, detail) => {
