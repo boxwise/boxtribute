@@ -91,19 +91,16 @@ def resolve_shipment_direction(shipment_obj, _, base_id):
     target_is_user_base = shipment_obj.target_base_id in user_base_ids
 
     if source_is_user_base and target_is_user_base:
-        # both are user's bases
         return ShipmentDirection.Indeterminate
     elif source_is_user_base:
-        # Shipment from user's base to external base
         return ShipmentDirection.Outgoing
     elif target_is_user_base:
-        # Shipment from external base to user's base
         return ShipmentDirection.Incoming
     else:  # pragma: no cover
-        # Unreachable (implies viewing a shipment with bases that neither the user has
-        # access to; this is prohibited in the parent resolver)
+        # Unreachable (implies viewing a shipment with bases that the user has access to
+        # neither; this is prohibited in the parent resolver)
         raise Forbidden(
-            resource="base",
+            resource="bases",
             value=[shipment_obj.source_base_id, shipment_obj.target_base_id],
         )
 
