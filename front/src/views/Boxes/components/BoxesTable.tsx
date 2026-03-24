@@ -36,7 +36,7 @@ import {
 } from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
-import { GlobalFilter } from "./GlobalFilter";
+import { GlobalFilter } from "components/Table/GlobalFilter";
 import { BoxRow } from "./types";
 import {
   boxesRawDataToTableDataTransformer,

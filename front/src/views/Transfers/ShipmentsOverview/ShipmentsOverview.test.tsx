@@ -25,6 +25,7 @@ const mockSuccessfulShipmentsQuery = ({
 }) => ({
   request: {
     query,
+    variables: { baseId: "1" },
   },
   result: {
     data: {
@@ -36,11 +37,11 @@ const mockSuccessfulShipmentsQuery = ({
 const failedQueryTests = [
   {
     name: "4.4.1.2a - Accept Transfer Agreement fails due to GraphQLError",
-    mocks: [mockGraphQLError(ALL_SHIPMENTS_QUERY)],
+    mocks: [mockGraphQLError(ALL_SHIPMENTS_QUERY, { baseId: "1" })],
   },
   {
     name: "4.4.1.2b - Accept Transfer Agreement fails due to NetworkError",
-    mocks: [mockNetworkError(ALL_SHIPMENTS_QUERY)],
+    mocks: [mockNetworkError(ALL_SHIPMENTS_QUERY, { baseId: "1" })],
   },
 ];
 

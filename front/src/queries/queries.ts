@@ -88,11 +88,12 @@ export const CHECK_IF_QR_EXISTS_IN_DB = graphql(`
 
 export const ALL_SHIPMENTS_QUERY = graphql(
   `
-    query Shipments {
+    query Shipments($baseId: ID!) {
       shipments {
         id
         labelIdentifier
         state
+        direction(baseId: $baseId)
         details {
           id
           box {
