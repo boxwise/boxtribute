@@ -64,8 +64,6 @@ class ShipmentState(enum.IntEnum):
 
 
 class ShipmentDirection(enum.Enum):
-    """Direction of a shipment relative to a specific base."""
-
     Outgoing = "Outgoing"
     Incoming = "Incoming"
     Indeterminate = "Indeterminate"
