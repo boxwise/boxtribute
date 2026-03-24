@@ -46,6 +46,7 @@ function ShipmentsOverviewView() {
     // returns cache first, but syncs with server in background
     fetchPolicy: "cache-and-network",
     variables: { baseId },
+    skip: isGlobalStateLoading || baseId === "0",
   });
 
   // transform shipments data for UI
