@@ -588,7 +588,7 @@ type Shipment {
   labelIdentifier: String!
   sourceBase: Base!
   targetBase: Base!
-  " Direction of the shipment relative to the specified base. Requires baseId parameter to determine direction. "
+  " Direction of the shipment. If `baseId` matches `sourceBase` or `targetBase`, the value is relative to that base. If it does not, the resolver falls back to bases involved in the shipment that the current user is authorised for to determine `Outgoing`/`Incoming`. Returns `Indeterminate` when no single applicable base can be determined. "
   direction(baseId: ID!): ShipmentDirection!
   state: ShipmentState
   startedBy: User!

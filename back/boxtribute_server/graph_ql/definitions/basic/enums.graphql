@@ -110,7 +110,7 @@ enum ShipmentDirection {
   Outgoing
   " Shipment being received by the specified base "
   Incoming
-  " Shipment between two other bases of the same organisation (user has access to both but neither is the specified base) "
+  " Shipment between bases the user is authorized to access, where neither is the specified base "
   Indeterminate
 }
 
