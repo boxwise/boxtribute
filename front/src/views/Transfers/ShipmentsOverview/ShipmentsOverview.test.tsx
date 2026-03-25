@@ -154,8 +154,10 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
 
   // Check if checkboxes are present and checked by default
   const popoverContent = await screen.findByTestId("export-popover-content");
-  const receivingCheckbox = within(popoverContent).getByRole("checkbox", { name: /receiving/i });
-  const sendingCheckbox = within(popoverContent).getByRole("checkbox", { name: /sending/i });
+  const receivingCheckbox = await within(popoverContent).findByRole("checkbox", {
+    name: /receiving/i,
+  });
+  const sendingCheckbox = await within(popoverContent).findByRole("checkbox", { name: /sending/i });
   expect(receivingCheckbox).toBeInTheDocument();
   expect(sendingCheckbox).toBeInTheDocument();
   expect(receivingCheckbox).toBeChecked();
@@ -267,7 +269,7 @@ it("4.4.1.7 - Warning When No Shipments Match Filters", async () => {
   await user.click(exportButton);
 
   const popoverContent = await screen.findByTestId("export-popover-content");
-  const sendingCheckbox = within(popoverContent).getByRole("checkbox", { name: /sending/i });
+  const sendingCheckbox = await within(popoverContent).findByRole("checkbox", { name: /sending/i });
 
   // Uncheck the sending checkbox so no shipments match
   await user.click(sendingCheckbox);
