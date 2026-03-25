@@ -154,7 +154,9 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
 
   // Check if checkboxes are present and checked by default
   const popoverContent = await screen.findByTestId("export-popover-content");
-  const receivingCheckbox = await within(popoverContent).findByRole("checkbox", { name: /receiving/i });
+  const receivingCheckbox = await within(popoverContent).findByRole("checkbox", {
+    name: /receiving/i,
+  });
   const sendingCheckbox = await within(popoverContent).findByRole("checkbox", { name: /sending/i });
   expect(receivingCheckbox).toBeInTheDocument();
   expect(sendingCheckbox).toBeInTheDocument();

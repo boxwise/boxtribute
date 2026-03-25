@@ -786,7 +786,9 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
 
       if (clicks.length > 0) {
         // Wait for loading to complete - the TableSkeleton should disappear
-        await waitFor(() => expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument(), { timeout: 15000 });
+        await waitFor(() => expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument(), {
+          timeout: 15000,
+        });
 
         const boxesCountTd = await screen.findByTestId("boxes-count", {}, { timeout: 15000 });
         await waitFor(() => expect(boxesCountTd).toHaveTextContent(/1 box/i), { timeout: 15000 });
