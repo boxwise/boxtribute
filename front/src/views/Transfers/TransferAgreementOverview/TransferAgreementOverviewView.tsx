@@ -244,6 +244,7 @@ function TransferAgreementOverviewView() {
           id: element.id,
           direction: "Bidirectional",
           partnerOrg: element.targetOrganisation.name,
+          partnerBases: [],
           state: element.state as IExtendedTransferAgreementState,
           shipments: {},
           comment: element.comment,
@@ -259,8 +260,10 @@ function TransferAgreementOverviewView() {
           agreementRow.direction = "Bidirectional";
           if (currentOrgId === sourceOrgId) {
             agreementRow.partnerOrg = element.targetOrganisation.name;
+            agreementRow.partnerBases = element.targetBases.map((base) => base.name);
           } else if (currentOrgId === targetOrgId) {
             agreementRow.partnerOrg = element.sourceOrganisation.name;
+            agreementRow.partnerBases = element.sourceBases.map((base) => base.name);
           }
         } else if (currentOrgId === sourceOrgId) {
           // we are can only send stock to the partner
