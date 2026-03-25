@@ -307,7 +307,7 @@ def authorize_cross_organisation_access(
 # functionality, while each of the larger levels additively builds up on the previous
 # one. The user's maximum beta-level defines the functionality range that the user can
 # access.
-DEFAULT_MAX_BETA_LEVEL = 4  # update authz spec ADR when bumping
+DEFAULT_MAX_BETA_LEVEL = 5  # update authz spec ADR when bumping
 MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
     # ### BETA-LEVEL 0 ###
     # - actions for BoxView/BoxEdit pages
@@ -378,9 +378,9 @@ MUTATIONS_FOR_BETA_LEVEL[5] = MUTATIONS_FOR_BETA_LEVEL[4] + (
 )
 
 # ### BETA-LEVEL 6 ###
-# In addition to level 4,
-# - bulk-create beneficiaries (esp. for Google-Sheets add-on)
-MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
+# In addition to level 5,
+# - bulk-create beneficiaries/boxes (esp. for Google-Sheets add-on)
+MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[5] + (
     "createBeneficiaries",
     "createBoxes",
 )
@@ -391,20 +391,17 @@ MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[4] + (
 MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6] + ("createBoxFromBox",)
 
 # ### BETA-LEVEL 98 ###
-# In addition to level 5,
+# In addition to level 7,
 # - actions for managing beneficiaries
 # !!!
 # Any new mutation should be added here
 # !!!
-MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[5] + (
+MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[7] + (
     "createBeneficiary",
-    "createBeneficiaries",
     "updateBeneficiary",
     "deactivateBeneficiary",
     "assignTag",
     "unassignTag",
-    "createBoxes",
-    "createBoxFromBox",
 )
 
 # ### BETA-LEVEL 99 ###
