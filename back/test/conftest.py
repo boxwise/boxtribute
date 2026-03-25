@@ -92,7 +92,7 @@ def setup_testing_database(testing_database):
         testing_database.create_tables(MODELS)
         setup_models()
         testing_database.close()
-        yield testing_database
+    yield testing_database
 
 
 @pytest.fixture
@@ -111,6 +111,7 @@ def client(app, setup_testing_database):
     After each test, the applied database changes are rolled back.
     The client's authentication and authorization may be separately defined or patched.
     """
-    with setup_testing_database.atomic() as txn:
-        yield app.test_client()
-        txn.rollback()
+    with setup_testing_database.bind_ctx(MODELS, False, False):
+        with setup_testing_database.atomic() as txn:
+            yield app.test_client()
+            txn.rollback()
