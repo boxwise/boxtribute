@@ -75,7 +75,7 @@ The ground truth for permissions management are the Auth0 Action scripts. Any up
 
 There are two scenarios that require an additional guarding mechanism in boxtribute v2. We introduce a series of levels, each associated with certain available app functionality. The lowest level provides the least functionality, while each of the larger levels additively builds up on the previous one. We can now assign beta-level values to individual users to control their access to certain functionality because a user can only access functionality of a beta-level smaller or equal to the user's beta-level value.
 
-**The default beta-level value is 4 (June 2025)**. On the back-end side, this is controlled in the `authz` module:
+**The default beta-level value is 5 (April 2026)**. On the back-end side, this is controlled in the `authz` module:
 - on [staging](https://github.com/boxwise/boxtribute/blob/master/back/boxtribute_server/authz.py#L310)
 - on [production](https://github.com/boxwise/boxtribute/blob/production/back/boxtribute_server/authz.py#L310)
 
