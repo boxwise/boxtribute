@@ -97,7 +97,6 @@ def safely_handle_deletion(f):
 
 
 def _save_to_history(f, changes):
-    """Execute given function in a `db.database.atomic` context manager."""
 
     @wraps(f)
     def inner(*args, **kwargs):

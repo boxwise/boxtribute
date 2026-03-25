@@ -83,6 +83,8 @@ def main(*blueprints):
     # In deployed environment: replica_socket is set
     # In integration tests: connect to same host/port as primary database
     # In endpoint tests, no replica connection is used
+    # Note: for production, a replica MUST be configured via MYSQL_REPLICA_SOCKET or
+    # MYSQL_HOST/MYSQL_PORT
     db.replica = create_db_interface(
         unix_socket=replica_socket, **db_connection_parameters
     )

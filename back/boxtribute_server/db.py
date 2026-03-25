@@ -113,7 +113,7 @@ def create_db_interface(**mysql_kwargs):
 
 def current_database() -> MySQLDatabase:
     """Return the database object that the data models currently are bound to.
-    Return None if run without prior Database.bind() or Database.bind_ctx() call.
+    Raise RuntimeError if run without prior Database.bind() or Database.bind_ctx() call.
     """
     database = MODELS[0]._meta.database
     if database is None:
@@ -126,9 +126,9 @@ def execute_sql(*params, query):
     Use the database that the data models currently are bound to. If execute_sql() is
     called wrapped in use_db_replica(), the replica database is used. Any `params` are
     passed into peewee's `execute_sql` method as values for query parameters.
+    Raise RuntimeError if run without prior Database.bind() or Database.bind_ctx() call.
     """
-    database = MODELS[0]._meta.database
-    cursor = database.execute_sql(query, params=params)
+    cursor = current_database().execute_sql(query, params=params)
     if cursor.description is None:
         # For e.g. UPDATE statements no description is available
         return

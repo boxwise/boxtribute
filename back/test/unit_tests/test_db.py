@@ -1,5 +1,5 @@
 import pytest
-from boxtribute_server.db import create_db_interface, current_database
+from boxtribute_server.db import create_db_interface, current_database, execute_sql
 
 
 @pytest.mark.parametrize(
@@ -20,3 +20,8 @@ def test_create_db_interface_with_none_fields(kwargs):
 def test_current_database_without_binding():
     with pytest.raises(RuntimeError):
         current_database()
+
+
+def test_execute_sql_without_binding():
+    with pytest.raises(RuntimeError):
+        execute_sql(query="SELECT 1")
