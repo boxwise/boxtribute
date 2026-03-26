@@ -18,7 +18,7 @@ import getpass
 import logging
 
 from ..db import create_db_interface
-from ..models.definitions import Model
+from ..models import MODELS
 from ..models.definitions.base import Base
 from ..models.definitions.organisation import Organisation
 from .remove_base_access import LOGGER as RBA_LOGGER
@@ -146,7 +146,7 @@ def main(args=None):
     database = _create_db_interface(
         **{n: options.pop(n) for n in ["host", "port", "password", "database", "user"]}
     )
-    database.bind(Model.__subclasses__())
+    database.bind(MODELS, False, False)
 
     command = options.pop("command")
     try:
