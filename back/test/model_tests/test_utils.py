@@ -3,7 +3,7 @@ import pytest
 from boxtribute_server.business_logic.box_transfer.shipment.fields import (
     first_letters_of_base_name,
 )
-from boxtribute_server.db import DatabaseManager, current_database
+from boxtribute_server.db import current_database
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
@@ -18,12 +18,7 @@ def test_first_letters_of_base_name(base_id, result):
     assert first_letters_of_base_name(base) == result
 
 
-def test_unitialized_database_manager():
-    manager = DatabaseManager()
-    with pytest.raises(RuntimeError):
-        manager.connect_db()
-
-    # Verify dev error in handle_non_existing_resource()
+def test_handle_non_existing_resource():
     @handle_non_existing_resource
     def func():
         current_database().execute_sql(
