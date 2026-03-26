@@ -53,7 +53,8 @@ def app(setup_testing_database):
 def client(app, setup_testing_database):
     """Function fixture for any tests that include arbitrary operations on the database.
     Use for testing GraphQL queries and mutations, and data model insertions/updates.
-    The fixture returns an app client that simulates sending requests to the app.
+    The fixture binds all data models to the testing database for the duration of the
+    test, and returns an app client that simulates sending requests to the app.
     After each test, the applied database changes are rolled back.
     The client's authentication and authorization may be separately defined or patched.
     """

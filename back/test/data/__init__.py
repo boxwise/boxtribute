@@ -269,7 +269,7 @@ _NAMES = [
 ]
 
 
-def setup_models():
+def create_test_data():
     """Import all submodules of the `data` module and execute their `create()` functions
     to create test data.
     """

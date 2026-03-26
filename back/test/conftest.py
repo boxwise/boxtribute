@@ -18,7 +18,7 @@ from boxtribute_server.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data import setup_models
+from data import create_test_data
 
 
 @pytest.fixture(scope="session")
@@ -53,10 +53,10 @@ def testing_database(connection_parameters):
 
 @pytest.fixture(scope="session")
 def setup_testing_database(testing_database):
-    """Bind all data models to the testing database and populate it with test data."""
+    """Create tables in testing database and populate them with test data."""
     with testing_database.bind_ctx(MODELS, False, False):
         testing_database.drop_tables(MODELS)
         testing_database.create_tables(MODELS)
-        setup_models()
+        create_test_data()
         testing_database.close()
     yield testing_database
