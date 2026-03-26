@@ -10,7 +10,6 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 """
 
 import os
-from contextlib import contextmanager
 
 import pymysql
 import pytest
@@ -38,24 +37,18 @@ def connection_parameters():
     )
 
 
-@contextmanager
-def _create_database(database_name, params):
-    """Create database with given name, and return interface to access it.
-    Requires running MySQL server (see connection_parameters docstring).
-    """
-    with pymysql.connect(**params) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-    database = create_db_interface(**params, database=database_name)
-    yield database
-    database.execute_sql(f"DROP DATABASE IF EXISTS {database_name}")
-
-
 @pytest.fixture(scope="session")
 def testing_database(connection_parameters):
-    """Create the testing database."""
-    with _create_database("testing", connection_parameters) as database:
-        yield database
+    """Create testing database, and return interface to access it.
+    Requires running MySQL server (see connection_parameters docstring).
+    """
+    database_name = "testing"
+    with pymysql.connect(**connection_parameters) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
+    database = create_db_interface(**connection_parameters, database=database_name)
+    yield database
+    database.execute_sql(f"DROP DATABASE IF EXISTS {database_name}")
 
 
 @pytest.fixture(scope="session")
