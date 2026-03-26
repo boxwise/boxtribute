@@ -3,7 +3,7 @@ from datetime import date, datetime
 
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.enums import BoxState, ShipmentState
+from boxtribute_server.enums import BoxState, ShipmentDirection, ShipmentState
 from utils import (
     assert_bad_user_input,
     assert_forbidden_request,
@@ -30,12 +30,14 @@ def mock_default_target_base_user(mocker, another_base, another_organisation):
 def test_shipment_query(client, default_shipment, prepared_shipment_detail, products):
     # Test case 3.1.2
     shipment_id = str(default_shipment["id"])
+    source_base_id = str(default_shipment["source_base"])
     query = f"""query {{
                 shipment(id: {shipment_id}) {{
                     id
                     labelIdentifier
                     sourceBase {{ id }}
                     targetBase {{ id }}
+                    direction(baseId: "{source_base_id}")
                     state
                     startedBy {{ id }}
                     startedOn
@@ -59,6 +61,7 @@ def test_shipment_query(client, default_shipment, prepared_shipment_detail, prod
         "sourceBase": {"id": str(default_shipment["source_base"])},
         "targetBase": {"id": str(default_shipment["target_base"])},
         "state": default_shipment["state"].name,
+        "direction": ShipmentDirection.Outgoing.name,
         "startedBy": {"id": str(default_shipment["started_by"])},
         "startedOn": default_shipment["started_on"].isoformat() + "+00:00",
         "sentBy": None,
@@ -105,15 +108,26 @@ def test_shipments_query(
         ]
     ]
 
-    query = "query { shipments(states: [Preparing]) { id } }"
+    source_base_id = str(default_shipment["source_base"])
+    query = f"""query {{ shipments(states: [Preparing]) {{
+            id
+            direction(baseId: "{source_base_id}")
+            }} }}"""
     shipments = assert_successful_request(client, query)
     assert shipments == [
-        {"id": str(s["id"])}
-        for s in [
-            default_shipment,
-            another_shipment,
-            intra_org_shipment,
-        ]
+        {"id": str(s["id"]), "direction": d.name}
+        for s, d in zip(
+            [
+                default_shipment,
+                another_shipment,
+                intra_org_shipment,
+            ],
+            [
+                ShipmentDirection.Outgoing,
+                ShipmentDirection.Incoming,
+                ShipmentDirection.Outgoing,
+            ],
+        )
     ]
 
     query = "query { shipments(states: [Canceled, Sent]) { id } }"
@@ -1792,3 +1806,87 @@ def test_shipment_mutations_intra_org(
                     state }} }}"""
     shipment = assert_successful_request(client, mutation)
     assert shipment == {"state": ShipmentState.Completed.name}
+
+
+def test_shipment_direction_indeterminate(client, mocker):
+    """Test that direction is 'Indeterminate' when shipment is between two
+    of the user's bases, neither being the specified/current base.
+
+    Scenario: User has access to bases 1, 2, 3; logged into base 2
+    Shipment is between bases 1 and 3 (both user's bases, but not the current base 2)
+    """
+    mock_user_for_request(
+        mocker,
+        base_ids=[1, 2, 3],
+        organisation_id=1,
+        user_id=source_base_user_id,
+    )
+
+    # Query from base 2's perspective (which is not involved in the shipment)
+    query = """query {
+                shipment(id: 3) {
+                    id
+                    direction(baseId: "2")
+                }
+            }"""
+    shipment_result = assert_successful_request(client, query)
+    assert shipment_result["direction"] == ShipmentDirection.Indeterminate.name
+
+    mock_user_for_request(mocker, is_god=True)
+    shipment_result = assert_successful_request(client, query)
+    assert shipment_result["direction"] == ShipmentDirection.Indeterminate.name
+
+
+def test_shipment_direction_unauthorized_base(client, default_shipment):
+    """Test that querying direction for an unauthorized base returns Forbidden."""
+    # default_shipment: source_base=1, target_base=3
+    # User only has access to base 1 (default in fixtures)
+    # Trying to get direction for base 3 (which user doesn't have access to)
+    shipment_id = str(default_shipment["id"])
+    unauthorized_base_id = "3"  # Base 3 belongs to org 2
+
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    id
+                    direction(baseId: "{unauthorized_base_id}")
+                }}
+            }}"""
+    assert_forbidden_request(client, query)
+
+
+def test_shipment_direction_from_uninvolved_user_base(client, default_shipment, mocker):
+    """Test direction when shipment goes TO a user's base from an external base but NOT
+    to the current base (and vice versa).
+    """
+    # default_shipment: source_base=1, target_base=3
+    mock_user_for_request(
+        mocker,
+        base_ids=[3, 4],
+        organisation_id=2,
+        user_id=target_base_user_id,
+    )
+
+    shipment_id = str(default_shipment["id"])
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    id
+                    direction(baseId: "4")
+                }}
+            }}"""
+    shipment = assert_successful_request(client, query)
+    assert shipment == {"id": shipment_id, "direction": ShipmentDirection.Incoming.name}
+
+    mock_user_for_request(
+        mocker,
+        base_ids=[1, 2],
+        organisation_id=1,
+        user_id=source_base_user_id,
+    )
+    query = f"""query {{
+                shipment(id: {shipment_id}) {{
+                    id
+                    direction(baseId: "2")
+                }}
+            }}"""
+    shipment = assert_successful_request(client, query)
+    assert shipment == {"id": shipment_id, "direction": ShipmentDirection.Outgoing.name}
