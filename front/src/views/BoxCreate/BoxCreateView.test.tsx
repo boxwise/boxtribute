@@ -332,11 +332,27 @@ describe("BoxCreateView", () => {
     const createBoxButton = screen.getByRole("button", { name: /^save$/i });
     await user.click(createBoxButton);
 
-    // Check for validation errors
-    expect(await screen.findByText(/please select a product/i)).toBeInTheDocument();
-    expect(screen.getByText(/please select a size/i)).toBeInTheDocument();
-    expect(screen.getByText(/please select a location/i)).toBeInTheDocument();
-    expect(screen.getByText(/please enter a number of items/i)).toBeInTheDocument();
+    // Check for validation errors only (ignore same placeholder text in fields)
+    expect(
+      await screen.findByText(/please select a product/i, {
+        selector: ".chakra-form__error-message",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/please select a size/i, {
+        selector: ".chakra-form__error-message",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/please select a location/i, {
+        selector: ".chakra-form__error-message",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/please enter a number of items/i, {
+        selector: ".chakra-form__error-message",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("handles API errors during box creation", async () => {
