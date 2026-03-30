@@ -38,14 +38,14 @@ function TransferAgreementsOverlay({
     body = (
       <VStack align="start" spacing={8}>
         <chakra.span>
-          <Text as="b">{data.partnerOrg}</Text> (involved base(s): {data.partnerBases.join(", ")})
-          has a transfer request OPEN with you with the following details:
+          <Text as="b">{data.partnerOrg}</Text> has a transfer request <Text as="b">OPEN</Text> with
+          you with the following details:
         </chakra.span>
         <chakra.span>
           Created By: <Text as="b">{data.requestedBy}</Text> on{" "}
           <Text as="b">{data.requestedOn}</Text>
           <br />
-          From <Text as="b">{data.partnerOrg}</Text>
+          Involved base(s): {data.partnerBases.join(", ")}
         </chakra.span>
       </VStack>
     );
