@@ -48,8 +48,6 @@ const singleSelectOptionSchema = {
 };
 
 export const CreateBoxFormDataSchema = z.object({
-  // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
-  // It is based on this example https://codesandbox.io/s/chakra-react-select-single-react-hook-form-with-zod-validation-typescript-m1dqme?file=/app.tsx
   productId: z.object(singleSelectOptionSchema, {
     error: (iss) => (iss.input === undefined ? "Please select a product" : "Invalid input."),
   }),
