@@ -38,14 +38,14 @@ function TransferAgreementsOverlay({
     body = (
       <VStack align="start" spacing={8}>
         <chakra.span>
-          <Text as="b">{data.partnerOrg}</Text> has a transfer request OPEN with you with the
-          following details:
+          <Text as="b">{data.partnerOrg}</Text> has a transfer request <Text as="b">OPEN</Text> with
+          you with the following details:
         </chakra.span>
         <chakra.span>
           Created By: <Text as="b">{data.requestedBy}</Text> on{" "}
           <Text as="b">{data.requestedOn}</Text>
           <br />
-          From <Text as="b">{data.partnerOrg}</Text>
+          Involved base(s): {data.partnerBases.join(", ")}
         </chakra.span>
       </VStack>
     );
@@ -66,7 +66,8 @@ function TransferAgreementsOverlay({
     body = (
       <VStack align="start" spacing={8}>
         <chakra.span>
-          Your transfer agreement with {data.partnerOrg} is currently <Text as="b">ACCEPTED</Text>.
+          Your transfer agreement with {data.partnerOrg} (involved base(s):{" "}
+          {data.partnerBases.join(", ")}) is currently <Text as="b">ACCEPTED</Text>.
         </chakra.span>
         <chakra.span>
           Do you want to <Text as="b">TERMINATE</Text> your transfer agreement with them?
@@ -87,7 +88,8 @@ function TransferAgreementsOverlay({
     body = (
       <VStack align="start" spacing={8}>
         <chakra.span>
-          Your transfer agreement with {data.partnerOrg} is currently <Text as="b">DECLINED</Text>.
+          Your transfer agreement with {data.partnerOrg} (involved base(s):{" "}
+          {data.partnerBases.join(", ")}) is currently <Text as="b">DECLINED</Text>.
         </chakra.span>
         <chakra.span>
           Do you want to <Text as="b">RETRY</Text> your transfer agreement request with them?
@@ -105,7 +107,8 @@ function TransferAgreementsOverlay({
     body = (
       <VStack align="start" spacing={8}>
         <chakra.span>
-          Your transfer agreement with {data.partnerOrg} is currently <Text as="b">ENDED</Text>.
+          Your transfer agreement with {data.partnerOrg} (involved base(s):{" "}
+          {data.partnerBases.join(", ")}) is currently <Text as="b">ENDED</Text>.
         </chakra.span>
         <chakra.span>
           Do you want to <Text as="b">RENEW</Text> your transfer agreement with them?
