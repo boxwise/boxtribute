@@ -41,7 +41,7 @@ interface ILocationData {
   seq?: number | null | undefined;
 }
 
-const singleSelectOptionObject = {
+const singleSelectOptionSchema = {
   label: z.string(),
   value: z.string(),
   __isNew__: z.boolean().optional(),
@@ -50,17 +50,17 @@ const singleSelectOptionObject = {
 export const CreateBoxFormDataSchema = z.object({
   // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
   // It is based on this example https://codesandbox.io/s/chakra-react-select-single-react-hook-form-with-zod-validation-typescript-m1dqme?file=/app.tsx
-  productId: z.object(singleSelectOptionObject, {
+  productId: z.object(singleSelectOptionSchema, {
     error: (iss) => (iss.input === undefined ? "Please select a product" : "Invalid input."),
   }),
-  sizeId: z.object(singleSelectOptionObject, {
+  sizeId: z.object(singleSelectOptionSchema, {
     error: (iss) => (iss.input === undefined ? "Please select a size" : "Invalid input."),
   }),
   numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
-  locationId: z.object(singleSelectOptionObject, {
+  locationId: z.object(singleSelectOptionSchema, {
     error: (iss) => (iss.input === undefined ? "Please select a location" : "Invalid input."),
   }),
-  tags: z.object(singleSelectOptionObject).array().optional(),
+  tags: z.object(singleSelectOptionSchema).array().optional(),
   comment: z.string().optional(),
 });
 
