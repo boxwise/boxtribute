@@ -43,7 +43,7 @@ export interface IOrganisationBaseData {
 }
 
 // Define schema of the form
-const singleSelectOptionSchema = {
+const singleSelectOptionShape = {
   label: z.string(),
   value: z.string(),
 };
@@ -53,10 +53,10 @@ const shipmentTargetSchema = z.union([z.literal("partners"), z.literal("currentO
 // Define validation checks on form by defining the form schema
 export const ShipmentFormSchema = z.object({
   shipmentTarget: shipmentTargetSchema,
-  receivingOrganisation: z.object(singleSelectOptionSchema, {
+  receivingOrganisation: z.object(singleSelectOptionShape, {
     error: (iss) => (iss.input === undefined ? "Please select an organisation" : "Invalid input."),
   }),
-  receivingBase: z.object(singleSelectOptionSchema, {
+  receivingBase: z.object(singleSelectOptionShape, {
     error: (iss) => (iss.input === undefined ? "Please select a base" : "Invalid input."),
   }),
 });

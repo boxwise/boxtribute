@@ -41,24 +41,24 @@ interface ILocationData {
   seq?: number | null | undefined;
 }
 
-const singleSelectOptionSchema = {
+const singleSelectOptionShape = {
   label: z.string(),
   value: z.string(),
   __isNew__: z.boolean().optional(),
 };
 
 export const CreateBoxFormDataSchema = z.object({
-  productId: z.object(singleSelectOptionSchema, {
+  productId: z.object(singleSelectOptionShape, {
     error: (iss) => (iss.input === undefined ? "Please select a product" : "Invalid input."),
   }),
-  sizeId: z.object(singleSelectOptionSchema, {
+  sizeId: z.object(singleSelectOptionShape, {
     error: (iss) => (iss.input === undefined ? "Please select a size" : "Invalid input."),
   }),
   numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
-  locationId: z.object(singleSelectOptionSchema, {
+  locationId: z.object(singleSelectOptionShape, {
     error: (iss) => (iss.input === undefined ? "Please select a location" : "Invalid input."),
   }),
-  tags: z.object(singleSelectOptionSchema).array().optional(),
+  tags: z.object(singleSelectOptionShape).array().optional(),
   comment: z.string().optional(),
 });
 
