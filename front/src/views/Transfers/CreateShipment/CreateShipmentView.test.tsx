@@ -205,10 +205,18 @@ it("4.3.2 - Input Validations", async () => {
   await user.click(submitButton);
   // Test case 4.3.2.1 - Partner Organisation SELECT field cannot be empty
   expect((screen.getByLabelText(/organisation/i) as HTMLInputElement).value).toEqual("");
-  expect(await screen.findByText(/please select an organisation/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/please select an organisation/i, {
+      selector: ".chakra-form__error-message",
+    }),
+  ).toBeInTheDocument();
   // Test case 4.3.2.2 - Partner Organisation Base SELECT field cannot be empty
   expect((screen.getByLabelText(/base/i) as HTMLInputElement).value).toEqual("");
-  expect((await screen.findAllByText(/please select a base/i))[0]).toBeInTheDocument();
+  expect(
+    await screen.findByText(/please select a base/i, {
+      selector: ".chakra-form__error-message",
+    }),
+  ).toBeInTheDocument();
 });
 
 // Test case 4.3.3
