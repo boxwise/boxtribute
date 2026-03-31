@@ -885,6 +885,8 @@ TOTAL: 80–135 hours
 ## Scenario 3: Targeted Gender-Decoupled Extension
 
 > **Built on top of Scenario 2.** All additive changes from Scenario 2 are included. Two additional structural changes are applied: (a) gender is moved from a mandatory product attribute to an optional box-level attribute, and (b) the `product_acquisition_log` table is omitted — acquisition value history is derived from the existing `history` table.
+>
+> **Note on `hasGender` vs `is_gendered`:** The backend already exposes a `ProductCategory.hasGender: Boolean!` GraphQL field, currently implemented as a computed property (`parent_id == 12`). Scenario 3 replaces this hardcoded derivation with an actual `is_gendered TINYINT(1)` DB column, allowing category-level gender applicability to be queryable in SQL, overridable per category, and extensible without code changes.
 
 ### ERD Diagram
 
@@ -894,9 +896,11 @@ TOTAL: 80–135 hours
 erDiagram
     PRODUCTS ||--o{ BOXES : "contains"
     PRODUCT_CATEGORIES ||--o{ PRODUCTS : "classifies"
-    PRODUCT_GENDERS |o--o{ PRODUCTS : "🟡 now nullable"
+    PRODUCT_GENDERS |o--o{ PRODUCTS : "🟡 now nullable defaultGender"
     PRODUCT_GENDERS |o--o{ BOXES : "🟢 box-level gender"
-    SIZE_RANGES ||--o{ PRODUCTS : "size_dimension"
+    PRODUCTS ||--o{ PRODUCT_GENDER_SIZE_RANGES : "🟢 per-gender size mapping"
+    PRODUCT_GENDERS |o--o{ PRODUCT_GENDER_SIZE_RANGES : "🟢 gender dimension"
+    SIZE_RANGES ||--o{ PRODUCT_GENDER_SIZE_RANGES : "🟢 size range per gender"
     SIZE_RANGES ||--o{ SIZES : "contains"
     BOXES ||--o| SIZES : "discrete_size"
     BOXES ||--o| UNITS : "display_unit"
@@ -913,8 +917,7 @@ erDiagram
         int id PK
         int base_id FK
         int category_id FK
-        int gender_id FK "🟡 NOW NULLABLE - no more NoGender sentinel"
-        int size_range_id FK
+        int gender_id FK "🟡 NOW NULLABLE - defaultGender, no sentinel"
         int standard_product_id FK "nullable"
         varchar name
         int price "distribution price"
@@ -924,11 +927,18 @@ erDiagram
         datetime deleted_on
     }
 
+    PRODUCT_GENDER_SIZE_RANGES {
+        int id PK "🟢 NEW TABLE"
+        int product_id FK
+        int gender_id FK "nullable = fallback / ungendered"
+        int size_range_id FK
+    }
+
     PRODUCT_CATEGORIES {
         int id PK
         varchar name
         int parent_id FK
-        bool is_gendered "🟢 NEW TINYINT(1) DEFAULT 1"
+        tinyint is_gendered "🟢 NEW TINYINT(1) DEFAULT 1 (backs hasGender field)"
         int seq
     }
 
@@ -1001,7 +1011,7 @@ erDiagram
 
 The key structural change in Scenario 3 is moving gender from a mandatory, non-nullable attribute of `products` to an optional attribute of `stock` (boxes). This decoupling has three concrete effects:
 
-1. **Products become gender-neutral definitions.** A product named "T-Shirt" is created once without a required gender. The product's `gender_id` becomes nullable — it may still be set for backwards compatibility or as a product-level default, but it is no longer the authoritative source.
+1. **Products become gender-neutral definitions.** A product named "T-Shirt" is created once without a required gender. The product's `gender_id` becomes nullable — it may still be set as a `defaultGender` (coordinator's convenience for pre-filling the box form), but it is no longer the authoritative source.
 
 2. **Boxes carry gender as an optional inventory attribute.** When creating a box of T-Shirts, the coordinator specifies the gender (Men, Women, etc.) on the box itself. For food or hygiene products, `stock.gender_id` is NULL and `products.gender_id` is NULL — no sentinel `NoGender` row required.
 
@@ -1009,25 +1019,122 @@ The key structural change in Scenario 3 is moving gender from a mandatory, non-n
    ```sql
    COALESCE(stock.gender_id, products.gender_id)
    ```
-   Box-level gender takes precedence; if absent, the product-level gender (if any) acts as a default. This provides full backwards compatibility: existing products with `gender_id` set continue to work without any data migration.
+   Box-level gender takes precedence; if absent, the product-level default gender acts as a fallback. This provides full backwards compatibility: existing products with `gender_id` set continue to work without any data migration.
+
+#### Required: `product_gender_size_ranges` Junction Table
+
+The `sizegroup` table (ORM: `SizeRange`) has **no `gender_id` column**. Instead, separate sizegroup rows already encode gender semantics by naming convention:
+
+| sizegroup.id | label | sizes |
+|---|---|---|
+| 3 | Shoe sizes Female | 34, 35, 36, 37, 38, 39, 40, 41, "42+" |
+| 8 | Shoe sizes Male | "38-", 39, 40, 41, 42, 43, 44, 45, "46+" |
+| 9 | Shoe sizes children | 20–36+ |
+
+Currently this is encoded in the product rows: `products("Shoes Men", gender_id=2, size_range_id=8)` and `products("Shoes Women", gender_id=1, size_range_id=3)`. After merging these into a single "Shoes" product, the link between gender and the correct size range would be lost.
+
+The `product_gender_size_ranges` junction table preserves this mapping explicitly:
+
+```sql
+CREATE TABLE `product_gender_size_ranges` (
+  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_id`    INT UNSIGNED NOT NULL,
+  `gender_id`     INT UNSIGNED DEFAULT NULL  -- NULL = default / ungendered
+                  COMMENT 'NULL row is the fallback when no gender matches',
+  `size_range_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_product_gender` (`product_id`, `gender_id`),
+  FOREIGN KEY (`product_id`)    REFERENCES `products`(`id`),
+  FOREIGN KEY (`gender_id`)     REFERENCES `genders`(`id`)  ON UPDATE CASCADE,
+  FOREIGN KEY (`size_range_id`) REFERENCES `sizegroup`(`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB;
+```
+
+**Size-range resolution logic (used by BoxCreate/BoxEdit):**
+
+```sql
+-- Returns the most specific size range for a (product, gender) combination.
+-- Exact gender match takes priority; NULL row is the fallback.
+SELECT pgsr.size_range_id
+FROM product_gender_size_ranges pgsr
+WHERE pgsr.product_id = :product_id
+  AND (pgsr.gender_id = :box_gender_id OR pgsr.gender_id IS NULL)
+ORDER BY pgsr.gender_id IS NULL ASC   -- exact match first
+LIMIT 1;
+```
+
+**Backfill migration** — every existing product maps to exactly one row:
+
+```sql
+INSERT INTO product_gender_size_ranges (product_id, gender_id, size_range_id)
+SELECT id, gender_id, size_range_id FROM products WHERE deleted_on IS NULL;
+```
+
+After backfill, `products.size_range_id` is kept as a legacy column (not dropped) to avoid foreign key cascade complexity; it can be deprecated at leisure.
+
+**GraphQL API change:**
+
+```graphql
+type Product {
+  defaultGender: ProductGender           # was: gender (nullable)
+  sizeRanges: [ProductGenderSizeRange!]! # NEW: replaces single sizeRange
+  sizeRange: SizeRange                   # kept for backwards compat; returns fallback row
+}
+
+type ProductGenderSizeRange {
+  gender: ProductGender   # null = default/ungendered
+  sizeRange: SizeRange!
+}
+```
+
+#### `product_categories.is_gendered` — Backing the existing `hasGender` field
+
+The backend already exposes `ProductCategory.hasGender: Boolean!` via this resolver:
+
+```python
+@product_category.field("hasGender")
+def resolve_product_category_has_gender(product_category_obj, _):
+    return product_category_obj.parent_id == 12   # hardcoded to Clothing subtree
+```
+
+Scenario 3 replaces the hardcoded `parent_id == 12` with a real DB column `is_gendered TINYINT(1)`. The resolver body becomes `return product_category_obj.is_gendered`. The GraphQL field name `hasGender` is unchanged — this is a purely internal refactor.
+
+**Why a DB column matters:**
+
+- Statistics SQL queries can `JOIN product_categories ON pc.is_gendered = 1` to exclude non-gendered rows from gender aggregations, instead of post-processing a NoGender sentinel group.
+- BoxCreate/BoxEdit can hide the gender selector for food/hygiene products using `category.hasGender` without a hardcoded client-side mapping.
+- `GenderProductFilter` (statistics) can be hidden automatically when all queried categories have `is_gendered = 0`.
+- New categories (e.g. "Sporting Goods") can be flagged `is_gendered = 1` with a data change, not a code change.
+
+**Backfill migration:**
+
+```sql
+ALTER TABLE product_categories ADD COLUMN is_gendered TINYINT(1) NOT NULL DEFAULT 0;
+-- Set all existing clothing subcategories (parent_id=12) as gendered:
+UPDATE product_categories SET is_gendered = 1 WHERE parent_id = 12;
+```
 
 #### Acquisition Value History via the Existing `history` Table
 
-Boxtribute already maintains a generic `history` table (`DbChangeHistory` ORM model) that records field-level changes to any table. The existing pattern writes entries like:
+Boxtribute already maintains a generic `history` table (`DbChangeHistory` ORM model) that records field-level changes to any table. The existing `save_update_to_history` decorator (already wrapping `edit_custom_product`, tracking `Product.gender`, `Product.name`, etc.) automatically writes a `history` row on every change. No new code is needed for the audit trail mechanism — only `acquisition_value` needs to be added to the tracked fields list.
 
 ```python
-DbChangeHistory(
-    table_name="products",
-    record_id=product.id,
-    changes="acquisition_value",   # column name being changed
-    from_float=old_value,
-    to_float=new_value,
-    user=user_id,
-    change_date=now,
+@save_update_to_history(
+    fields=[
+        Product.category,
+        Product.size_range,
+        Product.gender,
+        Product.name,
+        Product.price,
+        Product.comment,
+        Product.in_shop,
+        Product.acquisition_value,   # ADD: tracked automatically via decorator
+    ]
 )
+def edit_custom_product(...): ...
 ```
 
-This is exactly the same pattern used for box location changes (using `from_int`/`to_int` for FK IDs). Acquisition value history requires no new table: every update to `products.acquisition_value` simply writes a history row. Querying the audit trail is then:
+Query the audit trail:
 
 ```sql
 SELECT changedate, from_float AS previous_value, to_float AS new_value, user_id
@@ -1038,11 +1145,13 @@ WHERE tablename = 'products'
 ORDER BY changedate;
 ```
 
-**Precision note**: `history.from_float` and `to_float` are MySQL `FLOAT` (single-precision, ~7 significant decimal digits). For acquisition values such as €0.75/kg or €1.20/item this is fully adequate. The only limitation versus a dedicated `DECIMAL(12,4)` column is in values requiring more than 7 significant digits, which is not a realistic humanitarian-aid use case.
+**Precision note**: `history.from_float`/`to_float` are MySQL `FLOAT` (single-precision, ~7 significant digits). For acquisition values such as €0.75/kg or €1.20/item this is fully adequate. The limitation versus `DECIMAL(12,4)` is relevant only for values requiring more than 7 significant digits, which is not a realistic humanitarian-aid use case.
 
 #### ShipmentDetail Gender Tracking
 
-When a box with a box-level gender is added to a shipment, the `source_gender_id` is captured as a snapshot in `shipment_detail` (mirroring the existing `source_size_id` / `target_size_id` pattern). This prevents ambiguity if a box's gender attribute is later edited, and maintains a complete picture of what was sent versus what was received.
+When a box is added to a shipment, the `source_gender_id` is captured as a snapshot in `shipment_detail` (mirroring the existing `source_size_id`/`target_size_id` pattern). This prevents ambiguity if a box's gender attribute is later edited and maintains a complete picture of what was sent vs. received. In the reconciliation UI (`MatchProductsForm`), the currently combined "Sender Product & Gender" block is split into separate "Sender Product" and "Sender Gender" fields, and a `targetGender` selector is added for the receiving base — exactly mirroring the existing `targetProduct` selector pattern.
+
+For pre-migration shipments, `sourceGender` is NULL; the UI falls back to `sourceProduct.defaultGender` transparently.
 
 ### Sample Data Mappings
 
@@ -1051,9 +1160,11 @@ When a box with a box-level gender is added to a shipment, the `source_gender_id
 Gender moves from the product to the box:
 
 ```
+product_gender_size_ranges: (product_id=1, gender_id=NULL, size_range_id=1)
+  -- T-Shirt uses XS–XXL for all genders; one fallback row is enough
+
 products:  id=1, name="T-Shirt", gender_id=NULL,  ← no longer coupled
-           category_id=1 (Clothing), size_range_id=2 (S,M,L,XL),
-           acquisition_value=2.50
+           category_id=3 (Tops), acquisition_value=2.50
 
 stock:     id=100, product_id=1,
            gender_id=2 (Men),       ← NEW: gender at box level
@@ -1061,6 +1172,26 @@ stock:     id=100, product_id=1,
            measure_value=NULL, display_unit_id=NULL,
            package_spec_id=NULL, expiration_date=NULL, box_weight_kg=NULL
 ```
+
+#### Shoes: 1 pair, size 42, men's
+
+The per-gender size range mapping is now explicit:
+
+```
+product_gender_size_ranges: (product_id=10, gender_id=1 [Female], size_range_id=3)
+                            (product_id=10, gender_id=2 [Male],   size_range_id=8)
+                            (product_id=10, gender_id=6 [Kid],    size_range_id=9)
+
+products:  id=10, name="Shoes", gender_id=NULL,   ← no longer coupled
+           category_id=5 (Shoes), acquisition_value=5.00
+
+stock:     id=102, product_id=10,
+           gender_id=2 (Men),       ← box-level gender
+           size_id=60 (42),         ← resolved via size range for Male (sizegroup 8)
+           number_of_items=1
+```
+
+When BoxCreate loads this product with gender "Men" selected, the size options come from sizegroup 8 (Male shoe sizes 38–46). With gender "Women" selected, options come from sizegroup 3 (34–42). The `product_gender_size_ranges` table drives this lookup.
 
 #### Rice: 40 bags of 25 kg each
 
@@ -1140,28 +1271,51 @@ stock: id=500, product_id=50,
 
 #### Migration steps
 
-All schema changes are additive except making `gender_id` nullable. No row deletions are required.
+All schema changes are additive except making `gender_id` nullable. No row deletions are required. Steps 1–2 are the forward migration script; steps 3–5 are optional data cleanup that can run as background jobs.
 
 **Step 1 — Schema changes** (single migration script, < 5 min):
 ```sql
--- Make products.gender_id nullable (remove NOT NULL constraint)
+-- Scenario 2 changes first (acquisition_value, package_specs, is_gendered on categories,
+-- expiration_date, box_weight_kg, package_spec_id on stock)
+
+-- S3: Make products.gender_id nullable
 ALTER TABLE products MODIFY COLUMN gender_id INT UNSIGNED DEFAULT NULL;
 
--- Add gender_id to stock (box level)
+-- S3: Add is_gendered to product_categories (backs hasGender GraphQL field)
+ALTER TABLE product_categories ADD COLUMN is_gendered TINYINT(1) NOT NULL DEFAULT 0;
+UPDATE product_categories SET is_gendered = 1 WHERE parent_id = 12;
+
+-- S3: Create product_gender_size_ranges junction table
+CREATE TABLE product_gender_size_ranges (
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  product_id    INT UNSIGNED NOT NULL,
+  gender_id     INT UNSIGNED DEFAULT NULL,
+  size_range_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY ux_product_gender (product_id, gender_id),
+  FOREIGN KEY (product_id)    REFERENCES products(id)  ON UPDATE CASCADE,
+  FOREIGN KEY (gender_id)     REFERENCES genders(id)   ON UPDATE CASCADE,
+  FOREIGN KEY (size_range_id) REFERENCES sizegroup(id) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Backfill from existing products (one row per product)
+INSERT INTO product_gender_size_ranges (product_id, gender_id, size_range_id)
+SELECT id, gender_id, size_range_id FROM products WHERE deleted_on IS NULL;
+
+-- S3: Add gender_id to stock (box level)
 ALTER TABLE stock ADD COLUMN gender_id INT UNSIGNED DEFAULT NULL AFTER product_id;
 ALTER TABLE stock ADD KEY gender_id (gender_id);
-ALTER TABLE stock ADD CONSTRAINT fk_stock_gender FOREIGN KEY (gender_id) REFERENCES genders (id);
+ALTER TABLE stock ADD CONSTRAINT fk_stock_gender FOREIGN KEY (gender_id) REFERENCES genders(id);
 
--- Add gender columns to shipment_detail
+-- S3: Add gender columns to shipment_detail
 ALTER TABLE shipment_detail
   ADD COLUMN source_gender_id INT UNSIGNED DEFAULT NULL,
   ADD COLUMN target_gender_id INT UNSIGNED DEFAULT NULL;
 ALTER TABLE shipment_detail
   ADD KEY source_gender_id (source_gender_id),
-  ADD KEY target_gender_id (target_gender_id);
-
--- All Scenario 2 changes (package_specs, acquisition_value, is_gendered,
--- expiration_date, box_weight_kg, package_spec_id) applied in same script
+  ADD KEY target_gender_id (target_gender_id),
+  ADD CONSTRAINT fk_sd_src_gender FOREIGN KEY (source_gender_id) REFERENCES genders(id),
+  ADD CONSTRAINT fk_sd_tgt_gender FOREIGN KEY (target_gender_id) REFERENCES genders(id);
 ```
 
 **Step 2 — Data backfill of NoGender sentinel** (optional, zero-risk):
@@ -1198,18 +1352,55 @@ All Scenario 2 ALTERs apply first. Scenario 3 adds the following:
 
 ```sql
 -- ─────────────────────────────────────────────────────────────────────────────
--- S3-1. Remove NOT NULL constraint from products.gender_id
---       (MySQL requires MODIFY COLUMN to change nullability)
+-- S3-1. Back product_categories.hasGender with a real DB column
+-- ─────────────────────────────────────────────────────────────────────────────
+ALTER TABLE `product_categories`
+  ADD COLUMN `is_gendered` TINYINT(1) NOT NULL DEFAULT 0
+  COMMENT 'Backs the hasGender GraphQL field; replaces hardcoded parent_id==12 check';
+
+-- Seed: all Clothing subcategories (parent_id=12) are gendered
+UPDATE `product_categories` SET `is_gendered` = 1 WHERE `parent_id` = 12;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- S3-2. Remove NOT NULL constraint from products.gender_id
 -- ─────────────────────────────────────────────────────────────────────────────
 ALTER TABLE `products`
   MODIFY COLUMN `gender_id` INT UNSIGNED DEFAULT NULL
-  COMMENT 'Optional gender; NULL for non-gendered products (food, hygiene)';
+  COMMENT 'Optional defaultGender; NULL for non-gendered products (food, hygiene)';
 
--- Optional: clear NoGender sentinel (genders.id=10, label="-")
+-- Recommended: clear NoGender sentinel (genders.id=10, label="-")
 UPDATE `products` SET `gender_id` = NULL WHERE `gender_id` = 10;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- S3-2. Add gender_id to stock (box-level gender)
+-- S3-3. Create product_gender_size_ranges junction table
+--       Maps each (product, gender) pair to the correct size range.
+--       gender_id = NULL means "default / ungendered" (fallback row).
+-- ─────────────────────────────────────────────────────────────────────────────
+CREATE TABLE `product_gender_size_ranges` (
+  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_id`    INT UNSIGNED NOT NULL,
+  `gender_id`     INT UNSIGNED DEFAULT NULL
+                  COMMENT 'NULL = fallback row used when no gender-specific row exists',
+  `size_range_id` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_product_gender` (`product_id`, `gender_id`),
+  KEY `size_range_id` (`size_range_id`),
+  CONSTRAINT `fk_pgsr_product`
+    FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_pgsr_gender`
+    FOREIGN KEY (`gender_id`) REFERENCES `genders` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_pgsr_sizerange`
+    FOREIGN KEY (`size_range_id`) REFERENCES `sizegroup` (`id`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Backfill: every existing product maps to exactly one row
+INSERT INTO `product_gender_size_ranges` (`product_id`, `gender_id`, `size_range_id`)
+SELECT `id`, `gender_id`, `size_range_id`
+FROM `products`
+WHERE `deleted_on` IS NULL;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- S3-4. Add gender_id to stock (box-level gender)
 -- ─────────────────────────────────────────────────────────────────────────────
 ALTER TABLE `stock`
   ADD COLUMN `gender_id` INT UNSIGNED DEFAULT NULL
@@ -1222,11 +1413,11 @@ ALTER TABLE `stock`
     FOREIGN KEY (`gender_id`) REFERENCES `genders` (`id`) ON UPDATE CASCADE;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- S3-3. Add gender snapshot columns to shipment_detail
+-- S3-5. Add gender snapshot columns to shipment_detail
 -- ─────────────────────────────────────────────────────────────────────────────
 ALTER TABLE `shipment_detail`
   ADD COLUMN `source_gender_id` INT UNSIGNED DEFAULT NULL
-    COMMENT 'Gender of box at time of shipment creation'
+    COMMENT 'Gender of box at time of shipment creation (COALESCE snapshot)'
     AFTER `source_size_id`,
   ADD COLUMN `target_gender_id` INT UNSIGNED DEFAULT NULL
     COMMENT 'Gender assigned at receiving base'
@@ -1241,17 +1432,16 @@ ALTER TABLE `shipment_detail`
     FOREIGN KEY (`target_gender_id`) REFERENCES `genders` (`id`) ON UPDATE CASCADE;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- S3-4. Acquisition value change tracking: no new table needed.
---       The existing `history` table captures changes automatically when
---       the application writes DbChangeHistory entries on product updates.
---       Example query to retrieve acquisition value history for a product:
+-- S3-6. Acquisition value change tracking: no new table needed.
+--       Add acquisition_value to the fields tracked by save_update_to_history.
+--       Example query to retrieve history for a product:
+--   SELECT changedate, from_float AS previous_value, to_float AS new_value, user_id
+--   FROM history
+--   WHERE tablename = 'products'
+--     AND record_id = :product_id
+--     AND changes = 'acquisition_value'
+--   ORDER BY changedate;
 -- ─────────────────────────────────────────────────────────────────────────────
--- SELECT changedate, from_float AS previous_value, to_float AS new_value, user_id
--- FROM history
--- WHERE tablename = 'products'
---   AND record_id = :product_id
---   AND changes = 'acquisition_value'
--- ORDER BY changedate;
 ```
 
 #### Indexing strategy
@@ -1260,6 +1450,7 @@ Inherits all Scenario 2 indexes, plus:
 
 | Table | New index | Rationale |
 |---|---|---|
+| `product_gender_size_ranges` | `(product_id, gender_id)` UNIQUE | Size range lookup by (product, gender) |
 | `stock` | `gender_id` | Box-level gender filter in statistics and box listing |
 | `stock` | `(product_id, gender_id, state_id)` | Composite for aggregation queries |
 | `shipment_detail` | `source_gender_id`, `target_gender_id` | Reconciliation queries by gender |
@@ -1267,13 +1458,18 @@ Inherits all Scenario 2 indexes, plus:
 #### GraphQL schema evolution
 
 ```graphql
-# Product.gender becomes nullable (non-null relaxation)
-# Old: gender: ProductGender!
-# New:
+# Product.gender renamed to defaultGender (nullable)
 type Product {
-  gender: ProductGender          # nullable; null for non-gendered products
-  # ... all other fields unchanged
+  defaultGender: ProductGender          # was: gender
+  sizeRanges: [ProductGenderSizeRange!]! # NEW: replaces single sizeRange
+  sizeRange: SizeRange                   # kept for backwards compat; returns fallback row
+  acquisitionValue: Float                # NEW
   acquisitionValueHistory: [AcquisitionValueHistoryEntry!]!  # NEW - from history table
+}
+
+type ProductGenderSizeRange {
+  gender: ProductGender   # null = default/ungendered fallback
+  sizeRange: SizeRange!
 }
 
 # New type for history-derived acquisition value entries
@@ -1301,6 +1497,25 @@ input BoxUpdateInput {
   # ... all other fields unchanged
 }
 
+# Product creation/edit: gender renamed to defaultGender, now optional
+input CustomProductCreationInput {
+  defaultGender: ProductGender   # was: gender: ProductGender! (required)
+  genderSizeRanges: [ProductGenderSizeRangeInput!]!  # replaces sizeRangeId
+  # ... all other fields unchanged
+}
+
+input ProductGenderSizeRangeInput {
+  genderId: Int       # null = fallback / ungendered
+  sizeRangeId: Int!
+}
+
+# ShipmentDetail gains gender snapshots
+type ShipmentDetail {
+  sourceGender: ProductGender    # NEW nullable snapshot
+  targetGender: ProductGender    # NEW nullable
+  # ... all other fields unchanged
+}
+
 # Existing filter continues to work; backend now checks COALESCE(stock.gender_id, products.gender_id)
 input FilterBoxInput {
   productGender: ProductGender   # unchanged; semantics extended to cover box-level gender
@@ -1308,77 +1523,90 @@ input FilterBoxInput {
 }
 ```
 
-The only non-additive change is relaxing `Product.gender` from `ProductGender!` to `ProductGender` (removing the non-null marker). Clients that check for null (which is standard practice) will handle this gracefully. Clients that assume non-null will receive the same values as before for all products that still have `gender_id` set.
+### Implementation Effort (Scenario 3) — Four Independent Packages
 
-### Implementation Effort (Scenario 3)
+Scenario 3 decomposes naturally into four packages that can be implemented, tested, and shipped independently in any order. Package 2 (gender decoupling) is the largest; the remaining three are one-sprint deliverables.
 
-```
-Backend Changes (includes all Scenario 2 backend changes):
-- Modified models: 3 (Box: add gender_id field; Product: gender_id nullable;
-  ShipmentDetail: add source/target gender_id)
-- New models: 1 (PackageSpec, same as Scenario 2)
-- Modified GraphQL types: 3 (Box type gains gender field; Product.gender nullable;
-  BoxCreationInput/BoxUpdateInput gain genderId)
-- New GraphQL types: 2 (PackageSpec, AcquisitionValueHistoryEntry)
-- New GraphQL resolvers: 2 (packageSpec CRUD, acquisitionValueHistory on Product)
-- Modified GraphQL resolvers: 6 (box create/update to handle gender; product
-  create/update for acquisition_value + nullable gender; statistics COALESCE logic;
-  shipment detail gender capture; FilterBoxInput gender logic)
-- Modified business logic modules: 3 (box service for gender + new fields,
-  product service for nullable gender + acquisition_value, statistics aggregation)
-Backend estimated hours: 45–70  (confidence: high)
+#### Package 1 — Acquisition Value Tracking
 
-Frontend Changes (includes all Scenario 2 frontend changes):
-- Modified components: BoxCreate (add optional gender selector + expiration/weight),
-  BoxEdit (same), BoxesFilter (gender filter now also works at box level),
-  BoxesTable (show box-level gender), ProductsContainer (show acquisition value;
-  gender column becomes optional), CreateCustomProductForm (gender becomes optional,
-  add acquisition value input)  (~6 files)
-- New components: PackageSpecInput (~1 component)
-- Updated GraphQL queries/fragments: ~10 files (Box fragments gain gender field;
-  Product fragments update gender nullability; new acquisitionValueHistory field)
-Frontend estimated hours: 30–50  (confidence: high)
+*Schema:* `products.acquisition_value DECIMAL(12,4) DEFAULT NULL`; no new table. The `save_update_to_history` decorator already wrapping `edit_custom_product` automatically produces `history` rows — adding `Product.acquisition_value` to the tracked-fields list is the only change to the audit mechanism.
 
-Migration:
-- Migration scripts: 1 (all ALTERs in a single forward script; MODIFY COLUMN
-  for nullable gender + ADD COLUMN for stock.gender_id + shipment_detail gender
-  + all Scenario 2 additions)
-- Estimated downtime: < 5 min (InnoDB instant ADD COLUMN; MODIFY COLUMN for
-  nullability change is near-instant on all-NULL path)
-- Rollback complexity: LOW - DROP COLUMN for new columns; MODIFY COLUMN to
-  restore NOT NULL on products.gender_id (requires no NoGender sentinel rows)
-Migration estimated hours: 8–12  (confidence: high)
+| Area | Work items | Hours |
+|---|---|---|
+| BE | ALTER TABLE; ORM field; `acquisitionValue` GraphQL field; `acquisitionValueHistory` resolver (SQL query on `history` table); update `create_custom_product` + `edit_custom_product` inputs | 10–14 |
+| FE | Optional numeric input in CreateCustomProductForm and EditProduct; product list display; fragment update; `acquisitionValueHistory` lazy query | 8–12 |
+| Testing | BE: unit + endpoint tests for new field and history query; FE: form validation tests | 5–8 |
+| **Package 1 total** | | **23–34 h** |
 
-Testing & QA:
-- Backend test updates: ~20 hours (gender logic in statistics + box CRUD)
-- Frontend test updates: ~12 hours
-- Manual QA: ~8 hours
-Testing estimated hours: 30–40  (confidence: high)
+#### Package 2 — Gender Decoupling
 
-TOTAL: 113–172 hours
-```
+This package includes the `product_gender_size_ranges` junction table, which is a **required addition** — without it, gendered size ranges (shoe sizes, bra sizes) would be silently broken after product consolidation.
+
+| Area | Work items | Hours |
+|---|---|---|
+| BE schema | `products.gender_id` → nullable; `stock.gender_id` nullable FK; `shipment_detail.source_gender_id`/`target_gender_id`; new `product_gender_size_ranges` table; `product_categories.is_gendered` column; backfill migrations | 10–14 |
+| BE logic | `create_custom_product`/`edit_custom_product`: `gender` → `defaultGender` optional; `enable_standard_product`/`enable_standard_products`: nullable gender copy; `Product.sizeRanges` resolver (queries `product_gender_size_ranges`); statistics SQL × 8: `p.gender_id` → `COALESCE(s.gender_id, p.gender_id)`; `derive_box_filter` COALESCE condition; `create_box`/`update_box`: accept+store `stock.gender_id`; shipment detail creation: capture `source_gender_id` from `COALESCE(stock.gender_id, product.gender_id)`; `hasGender` resolver: `parent_id == 12` → `is_gendered` column | 20–28 |
+| BE GraphQL | `Product.gender` → `Product.defaultGender` nullable; add `Product.sizeRanges: [ProductGenderSizeRange!]!`; `Box.gender`; `BoxCreationInput.genderId`; `BoxUpdateInput.genderId`; `ShipmentDetail.sourceGender`/`targetGender`; `CustomProductCreationInput`/`EditInput` updated; `FilterBoxInput.productGender` semantics updated | 8–12 |
+| FE | BoxCreate: add gender selector, dynamic size-range loading via `sizeRanges`; BoxEdit: same; BoxReconciliation `MatchProductsForm`: split "Sender Product & Gender" block, add `targetGender` selector; `ShipmentReceivingTable`: read `sourceGender`; `CreateCustomProductForm`: gender → `defaultGender` optional, hidden when `!category.hasGender`, per-gender size range inputs; fragment updates | 28–38 |
+| Testing | BE: product CRUD, statistics query, shipment detail, filter, `product_gender_size_ranges` lookup; FE: BoxCreate/BoxEdit gender × size interaction, reconciliation flow | 18–25 |
+| **Package 2 total** | | **84–117 h** |
+
+#### Package 3 — Package Specifications for Boxes
+
+*Schema:* New `package_specs` table; `stock.package_spec_id INT UNSIGNED DEFAULT NULL FK`.
+
+| Area | Work items | Hours |
+|---|---|---|
+| BE | CREATE TABLE migration; ORM model; `PackageSpec` GraphQL type; `createPackageSpec` mutation resolver; `BoxCreationInput.packageSpecId`, `BoxUpdateInput.packageSpecId`; `Box.packageSpec` field resolver | 12–16 |
+| FE | PackageSpec compound input widget in BoxCreate/BoxEdit (outer qty + unit, inner qty + unit); fragment update; populate units dropdown | 10–14 |
+| Testing | BE: CRUD tests, Box mutation tests; FE: form validation | 6–9 |
+| **Package 3 total** | | **28–39 h** |
+
+#### Package 4 — New Box Attributes (Expiration Date, Box Weight)
+
+*Schema:* `stock.expiration_date DATE DEFAULT NULL`; `stock.box_weight_kg DECIMAL(8,3) DEFAULT NULL`.
+
+| Area | Work items | Hours |
+|---|---|---|
+| BE | ALTER TABLE migration; ORM fields; `Box.expirationDate`, `Box.boxWeightKg` GraphQL fields; `BoxCreationInput`/`BoxUpdateInput` updates; optional `FilterBoxInput.expirationDateFrom/Until` | 8–12 |
+| FE | Date picker for expiration + numeric weight input in BoxCreate/BoxEdit; optional filter UI in BoxesFilter | 8–12 |
+| Testing | BE: Box mutation tests; FE: form validation | 5–7 |
+| **Package 4 total** | | **21–31 h** |
+
+#### Combined Scenario 3 Effort
+
+| Package | BE | FE | Testing | Total |
+|---|---|---|---|---|
+| 1 — Acquisition value | 10–14 h | 8–12 h | 5–8 h | 23–34 h |
+| 2 — Gender decoupling | 38–54 h | 28–38 h | 18–25 h | 84–117 h |
+| 3 — Package specifications | 12–16 h | 10–14 h | 6–9 h | 28–39 h |
+| 4 — Box attributes | 8–12 h | 8–12 h | 5–7 h | 21–31 h |
+| **Total** | **68–96 h** | **54–76 h** | **34–49 h** | **156–221 h** |
+
+> ℹ️ The previous total of 113–172 h did not account for the `product_gender_size_ranges` junction table and its related BoxCreate/BoxEdit size-loading logic, which is the primary driver of the Package 2 estimate.
 
 ### Advantages
 
 - ✅ **Gender decoupling resolved**: Products no longer require a gender attribute. A single "T-Shirt" product can have boxes of men's, women's, or kids' — no more "T-Shirt Men"/"T-Shirt Women" product duplication. Non-apparel products have NULL gender throughout with no sentinel rows.
-- ✅ **No new audit table**: Acquisition value history is derived from the existing `history` table, which already has the correct ORM model (`DbChangeHistory`), indexes, and application-level writing pattern. Zero new schema objects for this feature.
-- ✅ **Additive migration only** (except nullable relaxation): New columns are all nullable with defaults; the MODIFY COLUMN to make `gender_id` nullable carries zero data loss risk and is near-instant on InnoDB.
-- ✅ **Backwards-compatible API with gradual migration path**: The COALESCE fallback means all existing boxes and products continue to work without any data transformation. Product consolidation (merging "T-Shirt Men"/"T-Shirt Women") can happen at the organisation's own pace, product by product.
-- ✅ **Reuses existing infrastructure**: `history` table is already in production, already has composite indexes on `(tablename, record_id, changedate)`, and the `DbChangeHistory` ORM model is already imported across the codebase. No new maintenance burden.
+- ✅ **Correct size options for every gender via `product_gender_size_ranges`**: Shoe boxes automatically get Male shoe sizes (38–46) vs Female shoe sizes (34–42) based on the gender selected at box creation. The per-gender size range mapping is explicit and queryable.
+- ✅ **No new audit table**: Acquisition value history reuses the existing `history` table and the `save_update_to_history` decorator. Zero new schema objects or ORM models required for the audit feature.
+- ✅ **`hasGender` backed by real DB column**: The existing `ProductCategory.hasGender` GraphQL field is now backed by `is_gendered` in the DB, making it SQL-filterable. Statistics queries can exclude non-gendered categories natively; BoxCreate can hide the gender selector without client-side category ID lists.
+- ✅ **Additive migration only** (except nullable relaxation): New columns are all nullable with defaults; `MODIFY COLUMN` to make `gender_id` nullable is near-instant on InnoDB.
+- ✅ **Backwards-compatible API with gradual migration path**: The COALESCE fallback means all existing boxes and products continue to work without any data transformation. Product consolidation (merging "T-Shirt Men"/"T-Shirt Women") can happen at the organisation's own pace.
 
 ### Drawbacks
 
-- ⚠️ **GraphQL non-null relaxation is a technically breaking change**: Removing `!` from `Product.gender` is a breaking change per the GraphQL spec. Well-written clients handle null gracefully; clients with rigid type generation (e.g., strict TypeScript generated types asserting non-null) will need updates. In practice Boxtribute's frontend already guards `gender !== "none"` which implies null-awareness.
-- ⚠️ **Dual-location gender creates query complexity**: Statistics and filter resolvers must handle COALESCE logic (`stock.gender_id` ?? `products.gender_id`) instead of a single JOIN. Box listing queries need an additional LEFT JOIN to `genders` on the stock table. This is manageable but adds cognitive overhead.
-- ⚠️ **Acquisition value history has float precision**: `history.from_float`/`to_float` are MySQL `FLOAT` (single-precision). Adequate for humanitarian aid values but would not meet financial-system precision requirements (e.g., central bank reporting). If high-precision audit is later required, a `DECIMAL`-typed column cannot be backfilled from history.
-- ⚠️ **ShipmentDetail gender columns are additive cost**: The `source_gender_id`/`target_gender_id` columns on `shipment_detail` require updates to the shipment creation logic to capture gender at assignment time. Existing shipments will have NULL gender in these columns — reconciliation reports for pre-migration shipments still derive gender via product FK.
-- ⚠️ **`is_gendered` category flag still needed for aggregation**: Even with gender decoupled from products, the `is_gendered` flag on `product_categories` (from Scenario 2) is still useful to drive UI logic (e.g., hide gender selector in box creation form for food products). Without it, coordinators creating rice boxes would see an unnecessary gender dropdown.
+- ⚠️ **`Product.defaultGender` rename is a technically breaking change**: Renaming `Product.gender` → `Product.defaultGender` (even though the underlying nullability was already allowed) is a breaking change per the GraphQL spec. `CustomProductCreationInput.gender` → `defaultGender` is also breaking. A transition period with both names (deprecated `gender` field + new `defaultGender`) is advisable.
+- ⚠️ **`product_gender_size_ranges` adds product creation complexity**: The product creation form must now capture per-gender size range mappings instead of a single size range. For categories with `hasGender = false` this is a single entry with `gender_id = NULL`; for shoes it requires up to three entries. This makes the CreateCustomProduct form noticeably more complex.
+- ⚠️ **Dual-location gender creates query complexity**: Statistics and filter resolvers must handle COALESCE logic instead of a single JOIN. All 8 statistics SQL queries in `sql.py` require a one-line change from `p.gender_id` to `COALESCE(s.gender_id, p.gender_id)`.
+- ⚠️ **Acquisition value history has float precision**: `history.from_float`/`to_float` are MySQL `FLOAT` (single-precision). Adequate for humanitarian aid values but would not meet financial-system precision requirements.
+- ⚠️ **Existing shipments lose gender snapshot**: Pre-migration `shipment_detail` rows have NULL in `source_gender_id`/`target_gender_id`. The reconciliation UI must fall back to `sourceProduct.defaultGender` for these rows.
 
 ### Tradeoffs
 
-- 🔄 **You gain** structural gender decoupling without the full Greenfield effort. **You sacrifice** the full cleanness of Scenario 1's ProductVariant model (size is still on the product, not a variant dimension).
+- 🔄 **You gain** structural gender decoupling and correct size options for all product types. **You sacrifice** simplicity in product creation and a more complex migration path than Scenario 2.
 - 🔄 **You gain** zero new tables for audit history by reusing the history mechanism. **You sacrifice** DECIMAL precision and the ability to add currency or "reason" metadata to individual acquisition value changes.
-- 🔄 **You gain** a gradual consolidation path (existing data stays valid; orgs clean up at their own pace). **You sacrifice** a clean break — the COALESCE logic and dual-location gender will exist in the codebase for years until consolidation is complete.
+- 🔄 **You gain** a gradual consolidation path. **You sacrifice** a clean break — the COALESCE logic and dual-location gender will exist in the codebase for years until consolidation is complete.
 
 ---
 
@@ -1394,26 +1622,27 @@ TOTAL: 113–172 hours
 | Acquisition value audit trail | ✓ (dedicated temporal table, DECIMAL) | ✓ (dedicated temporal table, DECIMAL) | ✓ (history table, FLOAT precision) |
 | Expiration dates | ✓ | ✓ | ✓ |
 | Box weight | ✓ | ✓ | ✓ |
-| Gender decoupled from product | ✓ (NULL gender_id on variant) | ✗ (sentinel required; coupling persists) | ✓ (nullable product gender + box-level gender) |
-| Non-gendered aggregation | ✓ (NULL gender_id, clean) | ✓ (is_gendered flag, pragmatic) | ✓ (COALESCE + is_gendered flag) |
-| Product consolidation (e.g. T-Shirt Men → T-Shirt) | ✓ (variant model enables this) | ✗ (separate products remain) | ✓ (optional gradual merge path) |
+| Gender decoupled from product | ✓ (NULL gender_id on variant) | ✗ (sentinel required; coupling persists) | ✓ (nullable defaultGender + box-level gender) |
+| Correct size options per gender | ✓ (ProductVariant.sizeRange per variant) | ✗ (product has single sizeRange) | ✓ (product_gender_size_ranges table) |
+| Non-gendered aggregation | ✓ (NULL gender_id, clean) | ✓ (is_gendered flag, pragmatic) | ✓ (COALESCE + is_gendered DB column) |
+| Product consolidation (e.g. "T-Shirt Men" → "T-Shirt") | ✓ (variant model enables this) | ✗ (separate products remain) | ✓ (optional gradual merge path) |
 | Financial audit trail | ✓ (full temporal log) | ✓ (full temporal log) | ✓ (history table; less structured) |
 | Standard product lifecycle | ✓ (redesigned) | ✗ (unchanged) | ✗ (unchanged) |
 | "Mixed" size UX fix | ✓ (no Mixed size in measured variants) | ✗ (unchanged) | ✗ (unchanged) |
 | **Implementation Complexity** | | | |
-| Backend effort (hours) | 180–260 | 30–50 | 45–70 |
-| Frontend effort (hours) | 100–160 | 25–45 | 30–50 |
-| Migration effort (hours) | 40–60 | 5–10 | 8–12 |
-| Testing effort (hours) | 40–60 | 20–30 | 30–40 |
-| API breaking changes | Yes (deprecated fields + new shape) | No | Minimal (Product.gender! → nullable) |
+| Backend effort (hours) | 180–260 | 30–50 | 68–96 |
+| Frontend effort (hours) | 100–160 | 25–45 | 54–76 |
+| Migration effort (hours) | 40–60 | 5–10 | included above |
+| Testing effort (hours) | 40–60 | 20–30 | 34–49 |
+| API breaking changes | Yes (deprecated fields + new shape) | No | Minimal (`Product.gender` → `defaultGender`; nullable) |
 | **Migration Risk** | | | |
 | Data loss risk | Low (with dual-write period) | None | None |
 | Rollback feasibility | Hard (core table restructure) | Easy (DROP COLUMN/TABLE) | Easy (DROP COLUMN; MODIFY gender_id back) |
 | Downtime required | 30–60 min | < 5 min | < 5 min |
-| Existing mobile clients broken | Yes (during transition) | No | No (COALESCE preserves behaviour) |
+| Existing mobile clients broken | Yes (during transition) | No | No (COALESCE preserves behaviour; deprecated field kept) |
 | **Long-term Maintainability** | | | |
 | Extensibility | 5/5 (variant layer absorbs new dimensions) | 3/5 (requires schema change per new dimension) | 4/5 (gender clean; size still on product) |
-| Code complexity | 3/5 (extra JOIN layer) | 4/5 (minimal extra complexity) | 3/5 (COALESCE logic in resolvers + extra JOIN) |
+| Code complexity | 3/5 (extra JOIN layer) | 4/5 (minimal extra complexity) | 3/5 (COALESCE logic + product_gender_size_ranges lookup) |
 | Query performance impact | Neutral (extra JOIN offset by cleaner indexes) | Positive (additive indexes only) | Neutral (one extra LEFT JOIN on stock gender) |
 | Architectural cleanliness | 5/5 | 3/5 | 4/5 |
 | Technical debt accrual | Low | Medium (gender-product coupling grows) | Low–Medium (dual-location gender until consolidation) |
@@ -1452,8 +1681,12 @@ TOTAL: 113–172 hours
 
 7. **ShipmentDetail and acquisition value**: When a box is shipped cross-base, should the receiving base inherit the sender's `acquisition_value`, record their own, or capture both? The current `ShipmentDetail` model could be extended with `acquisition_value_at_transfer` as a snapshot field to prevent value drift during reconciliation.
 
-8. **Standard product gender** (Scenarios 2 & 3): `StandardProduct` still carries `gender_id`. When a base enables a standard product in Scenario 3, the gender flows into the `products` table but is now nullable. For non-gendered standard products (food), the instantiation would set `gender_id = NULL`. A `StandardProduct.gender_id` nullable constraint (mirroring the product change) is needed to keep the two tables consistent.
+8. **Standard product gender** (Scenarios 2 & 3): `StandardProduct` still carries `gender_id` and a single `size_range_id`. When a base enables a standard product in Scenario 3, `gender_id` is nullable and the gender flows as `defaultGender` into `products`. A corresponding `standard_product_gender_size_ranges` junction table (or at minimum `StandardProduct.gender_id` made nullable) is needed for consistency. Standard products for food should have `gender_id = NULL` and a single fallback size range.
 
-9. **COALESCE performance** (Scenario 3 specific): Statistics queries that currently filter by `Box.product.gender` must be updated to `COALESCE(stock.gender_id, products.gender_id)`. For large result sets this adds a LEFT JOIN. The composite index `(product_id, gender_id, state_id)` on `stock` mitigates this. Should the application materialise effective gender as a denormalised column on `stock` once consolidation is complete?
+9. **COALESCE performance** (Scenario 3 specific): Statistics queries that currently use `p.gender_id AS gender` in 8 SQL queries must be updated to `COALESCE(s.gender_id, p.gender_id)`. The composite index `(product_id, gender_id, state_id)` on `stock` mitigates the extra lookup. Should the application materialise effective gender as a denormalised column on `stock` once product consolidation is complete to remove the COALESCE permanently?
 
-10. **Precision of float audit** (Scenario 3 specific): If any organisation later requires high-precision acquisition value tracking (e.g., for financial audits requiring 4+ decimal places), the `history.from_float`/`to_float` columns cannot be retroactively changed to DECIMAL without a table rebuild. Is float precision (±0.000001 for values under 100) acceptable for the foreseeable use cases?
+10. **Precision of float audit** (Scenario 3 specific): `history.from_float`/`to_float` are MySQL `FLOAT` (single-precision, ~7 significant digits). Is this precision acceptable for acquisition value audit? If not, a `products.acquisition_value_history` dedicated table with `DECIMAL(12,4)` would be needed.
+
+11. **`product_gender_size_ranges` for standard products**: When `enable_standard_product` runs, it copies the single `(gender_id, size_range_id)` from `StandardProduct` into one row in `product_gender_size_ranges`. If a standard product is defined without gendered size ranges (e.g., food), that row has `gender_id = NULL`. Is this sufficient, or should the standard product catalogue itself carry a `product_gender_size_ranges`-style mapping for products like shoes that need different size ranges per gender?
+
+12. **`defaultGender` in BoxCreate pre-fill**: When the `defaultGender` is set on a product (e.g., "T-Shirt" with `defaultGender = Women`), should BoxCreate pre-select Women in the gender dropdown? This is a UX convenience but may confuse coordinators who expect to select any gender freely. Should `defaultGender` be visible to coordinators or treated as a backend-only hint?
