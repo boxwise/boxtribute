@@ -20,17 +20,17 @@ from boxtribute_server.routes import api_bp
     ],
 )
 def test_create_db_interface_with_none_fields(kwargs):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="database configuration must not be None"):
         create_db_interface(**kwargs)
 
 
 def test_current_database_without_binding():
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="models not bound"):
         current_database()
 
 
 def test_execute_sql_without_binding():
-    with pytest.raises(RuntimeError):
+    with pytest.raises(RuntimeError, match="models not bound"):
         execute_sql(query="SELECT 1")
 
 
