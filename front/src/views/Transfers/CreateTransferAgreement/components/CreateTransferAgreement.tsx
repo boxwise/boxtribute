@@ -21,21 +21,23 @@ export interface IBasesForOrganisationData {
   bases: IBaseData[];
 }
 
-const singleSelectOptionSchema = z.object({
+const singleSelectOptionShape = {
   label: z.string(),
   value: z.string(),
-});
+};
 
 export const TransferAgreementFormDataSchema = z
   .object({
-    currentOrganisationSelectedBases: singleSelectOptionSchema
+    currentOrganisationSelectedBases: z
+      .object(singleSelectOptionShape)
       .array()
       .min(1, "Please select at least one base"),
 
-    partnerOrganisation: singleSelectOptionSchema
-      .refine(Boolean, { error: "Please select a partner organisation" })
-      .transform((selectedOption) => selectedOption || { label: "", value: "" }),
-    partnerOrganisationSelectedBases: singleSelectOptionSchema.array().optional(),
+    partnerOrganisation: z.object(singleSelectOptionShape, {
+      error: (iss) =>
+        iss.input === undefined ? "Please select a partner organisation" : "Invalid input.",
+    }),
+    partnerOrganisationSelectedBases: z.object(singleSelectOptionShape).array().optional(),
     validFrom: z
       .date({
         error: (issue) =>
