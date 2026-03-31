@@ -3,7 +3,7 @@ import pytest
 from boxtribute_server.business_logic.box_transfer.shipment.fields import (
     first_letters_of_base_name,
 )
-from boxtribute_server.db import current_database
+from boxtribute_server.db import execute_sql
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
@@ -21,9 +21,7 @@ def test_first_letters_of_base_name(base_id, result):
 def test_handle_non_existing_resource():
     @handle_non_existing_resource
     def func():
-        current_database().execute_sql(
-            "UPDATE stock SET box_state_id = 0 WHERE id = 2;"
-        )
+        execute_sql(query="UPDATE stock SET box_state_id = 0 WHERE id = 2;")
 
     with pytest.raises(peewee.IntegrityError, match="REFERENCES `box_state`"):
         func()
@@ -43,5 +41,5 @@ def test_format_sql():
         == 'SELECT IF((`t1`.`changedate` > 0), "new", NULL) AS `x` FROM `history` AS `t1` WHERE (((`t1`.`tablename` = "stock") AND (`t1`.`changes` = "product_id")) AND (`t1`.`from_int` = 1))'  # noqa
     )
     # Validate the formatted SQL
-    result = Base._meta.database.execute_sql(formatted_query).fetchall()
-    assert result == ()
+    result = execute_sql(query=formatted_query)
+    assert result == []
