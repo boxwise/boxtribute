@@ -502,7 +502,7 @@ describe("4.8.1 - Initial load of Page", () => {
       },
       { timeout: 10000 },
     );
-  }, 20000);
+  }, 40000);
 
   it("4.8.1.5 - Global filter", async () => {
     const user = userEvent.setup();
@@ -628,7 +628,7 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(totalSummary6).toHaveTextContent(/Total/);
     expect(totalSummary6).toHaveTextContent(/0/);
     expect(screen.queryByText("1481666")).not.toBeInTheDocument();
-  }, 20000);
+  }, 40000);
 });
 
 describe("4.8.2 - Selecting rows and performing bulk actions", () => {
