@@ -236,7 +236,7 @@ class Generator:
         org_ids = {b.id: b.organisation_id for b in bases}
 
         result = execute_sql(
-            (self.base_ids,),
+            self.base_ids,
             query="""\
     SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) AS user_ids
     FROM cms_users u
