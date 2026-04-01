@@ -519,11 +519,15 @@ input FilterBoxInput {
   " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
   lastModifiedUntil: Date
   productGender: ProductGender
+  productGenders: [ProductGender!]
   productCategoryId: Int
+  productCategoryIds: [Int!]
   productId: Int
+  productIds: [Int!]
   sizeId: Int
   " Filter for all boxes that have *at least one* of the specified tags. "
   tagIds: [Int!]
+  locationIds: [Int!]
 }
 
 input FilterProductInput {
