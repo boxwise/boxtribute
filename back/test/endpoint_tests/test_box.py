@@ -1565,6 +1565,8 @@ def _format(parameter):
         [[{"productCategoryIds": "[12]"}], 2],
         [[{"locationIds": "[1]"}], 14],
         [[{"locationIds": "[2]"}], 0],
+        [[{"productGenders": "[Women]"}, {"productIds": "[1]"}], 10],
+        [[{"locationIds": "[1]"}, {"states": "[InStock]"}], 2],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],
     ],
