@@ -138,6 +138,16 @@ def test_boxes_query(client, default_location_boxes):
     boxes = assert_successful_request(client, query)
     assert boxes == {"totalCount": 0}
 
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{locationIds: []}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(client, query)
+    assert boxes == {"totalCount": 14}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{locationIds: [1]}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(client, query)
+    assert boxes == {"totalCount": 14}
+
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2]}})
                         {{ totalCount }} }}"""
     boxes = assert_successful_request(client, query)

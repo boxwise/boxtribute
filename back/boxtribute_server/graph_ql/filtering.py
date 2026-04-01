@@ -84,7 +84,7 @@ def derive_box_filter(filter_input, selection=None):
         join_with_product_required = True
 
     product_genders = filter_input.get("product_genders")
-    if product_genders is not None:
+    if product_genders:
         condition &= Box.product.gender << product_genders
         join_with_product_required = True
 
@@ -94,7 +94,7 @@ def derive_box_filter(filter_input, selection=None):
         join_with_product_required = True
 
     product_category_ids = filter_input.get("product_category_ids")
-    if product_category_ids is not None:
+    if product_category_ids:
         condition &= Box.product.category << product_category_ids
         join_with_product_required = True
 
@@ -103,7 +103,7 @@ def derive_box_filter(filter_input, selection=None):
         condition &= Box.product == product_id
 
     product_ids = filter_input.get("product_ids")
-    if product_ids is not None:
+    if product_ids:
         condition &= Box.product << product_ids
 
     size_id = filter_input.get("size_id")
@@ -124,7 +124,7 @@ def derive_box_filter(filter_input, selection=None):
         ).distinct()
 
     location_ids = filter_input.get("location_ids")
-    if location_ids is not None:
+    if location_ids:
         condition &= Box.location << location_ids
 
     if join_with_product_required:

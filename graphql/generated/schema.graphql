@@ -1321,7 +1321,7 @@ input FilterBeneficiaryInput {
 
 """
 Optional filter values when retrieving [`Boxes`]({{Types.Box}}).
-If several fields are defined (not null), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
+If several fields are defined (not null/empty), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
 """
 input FilterBoxInput {
   " Filter for all boxes that have *one* of the specified states. "
@@ -1331,11 +1331,19 @@ input FilterBoxInput {
   " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
   lastModifiedUntil: Date
   productGender: ProductGender
+  " Filter for all boxes that have *one* of the specified product genders. "
+  productGenders: [ProductGender!]
   productCategoryId: Int
+  " Filter for all boxes that have *one* of the specified product categories. "
+  productCategoryIds: [Int!]
   productId: Int
+  " Filter for all boxes that have *one* of the specified products. "
+  productIds: [Int!]
   sizeId: Int
   " Filter for all boxes that have *at least one* of the specified tags. "
   tagIds: [Int!]
+  " Filter for all boxes that are in *one* of the specified locations. "
+  locationIds: [Int!]
 }
 
 input FilterProductInput {
