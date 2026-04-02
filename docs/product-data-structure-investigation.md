@@ -4,11 +4,74 @@
 
 Boxtribute's current data model was designed for clothing distribution and encodes several assumptions that limit its use for food, hygiene, and non-apparel humanitarian aid: gender is a first-class attribute of every product (not of the box or a variant), compound packaging (e.g. "40 bags of 25 kg") cannot be expressed, acquisition value and expiration dates are missing, and the gender-coupled product design makes statistical aggregation cumbersome.
 
-Two designs are presented below. **Scenario 1 (Greenfield)** rebuilds the model from first principles, introduces a `ProductVariant` layer that decouples gender and size from the base product, adds full packaging metadata, audit-trail value history, and expiration tracking. It is the architecturally superior choice but requires ~380–560 hours of end-to-end work and carries higher migration risk. **Scenario 2 (Least Expensive Extension)** reaches the same functional goals through additive SQL changes—five new columns spread across two existing tables, two new tables, and no column renames—requiring ~80–130 hours and posing minimal migration risk. **The recommendation is Scenario 2 for the near term**, with Scenario 1's ProductVariant concept identified as the natural evolution target once Scenario 2 is stable.
+Three designs are presented below. **Scenario 1 (Greenfield / ERP-Lite)** rebuilds the model from first principles using ERP-inspired patterns: a `ProductVariant` layer as the individually-priced SKU, a `ProductVariantDefinitions` table enforcing valid gender × size-range combinations per product, and a Box modelled explicitly as a *bundle* of identical variant items. Acquisition value lives per variant with a reference unit; no separate audit-history table is needed. It handles all product types (clothing, shoes, food, packaged goods) cleanly but requires ~320–485 hours and a controlled migration window. **Scenario 2 (Least Expensive Extension)** reaches the same functional goals through additive SQL changes—five new columns spread across two existing tables, two new tables, and no column renames—requiring ~80–130 hours and posing minimal migration risk. **Scenario 3 (Gender-Decoupled Extension)** builds directly on Scenario 2 by moving gender to the box level (~156–221 hours, four independent packages). **The recommendation is Scenario 2 or 3 for the near term**, with Scenario 1's ProductVariant concept identified as the natural evolution target once the additive changes are stable.
 
 ---
 
-## Scenario 1: Greenfield Approach
+## Scenario 1: Greenfield / ERP-Lite Approach
+
+### Design Principles
+
+This scenario rebuilds the product model from first principles, drawing on patterns from open-source ERP systems (Odoo, ERPNext). Three ERP concepts map directly onto Boxtribute's needs:
+
+1. **Product Template** (→ `products`): defines *what the item is* — name, category, base. No gender, no size. The product is the natural grouping unit for statistics: "how many kg of Rice do we have?" queries `products`, not `product_variants`.
+
+2. **Product Variant (SKU)** (→ `product_variants`): the smallest independently-priced and stocked configuration. A Shoes product has three variants: Male/38–46, Female/34–42, Kid/17–36. A Rice product has one variant with no gender or discrete size. Every variant has its own `acquisition_value` expressed against a `ref_unit`.
+
+3. **Bundle** (→ `boxes`/`stock`): a physical collection of *N identical items of one product variant* stored together in one warehouse location. The bundle tracks quantity (by count or by mass/volume), packaging structure, expiration, weight, and logistics metadata.
+
+The **standard product concept is out of scope** for this redesign. Acquisition value **history is not tracked in a dedicated table**: the existing `save_update_to_history` decorator on the service layer automatically writes changes to the `history` table, providing an implicit change log at zero schema cost. If a full audit trail with DECIMAL precision or currency annotation is later required, a dedicated table can be added additively.
+
+### Variant Dimension Model
+
+Products declare their valid variant axes in a `product_variant_definitions` table. This table serves two purposes:
+- **UI driver**: which selectors (gender, size/pack format) to show when creating a variant or box.
+- **Validator**: prevents creating, e.g., a Shoes-Male variant paired with the Female size range.
+
+The two optional orthogonal dimensions are **gender** and **size range / pack format**:
+
+| Product | Gender options | Size range |
+|---|---|---|
+| T-Shirt | Male, Female, Boy, Girl | S, M, L, XL (shared across genders) |
+| Shoes | Male | Shoe sizes Male (38–46) |
+| Shoes | Female | Shoe sizes Female (34–42) |
+| Shoes | Kid | Shoe sizes Kid (17–36) |
+| Second-hand clothing | Male, Female, Unisex | Mass (kg) |
+| Water | *(none)* | Water packs: 6×500ml, 10L |
+| Peas | *(none)* | Pea packs: 12×300g tin, 1kg bag |
+| Toothbrushes | *(none)* | Toothbrush packs: single, pack of 3 |
+| Rice | *(none)* | Mass (kg) |
+
+For Shoes, the three rows (Male×ShoesMale, Female×ShoesFemale, Kid×ShoesKid) make the gender-specific size-range constraint explicit and queryable. The UI dynamically loads the correct size options as soon as the coordinator selects a gender — no client-side category ID list required.
+
+### Reference Unit and Acquisition Value
+
+Every product variant optionally carries a `ref_unit_id` pointing to the `units` table. The `acquisition_value` is expressed per one `ref_unit`. Choosing a shared ref_unit across packaging formats (e.g., `kg` for all Peas variants, `liter` for all Water variants) enables cross-format cost comparisons. Choosing a format-native unit (e.g., `pack`) simplifies procurement tracking.
+
+| Variant | ref_unit | acquisition_value | Total bundle value |
+|---|---|---|---|
+| T-Shirt Male | piece | 1.20 | `number_of_items × 1.20` |
+| Shoes Male | pair | 3.50 | `number_of_items × 3.50` |
+| Rice | kg | 0.75 | `measure_value × 0.75` |
+| Second-hand clothing (Unisex) | kg | 0.50 | `measure_value × 0.50` |
+| Water 6×500ml | pack | 2.40 | `number_of_items × 2.40` |
+| Water 10L | liter | 0.70 | `measure_value × 0.70` |
+| Peas 12×300g tin | kg | 1.80 | `measure_value × 1.80` |
+| Peas 1kg bag | kg | 1.80 | `number_of_items × 1.80` |
+| Toothbrush single | piece | 0.60 | `number_of_items × 0.60` |
+| Toothbrush pack of 3 | pack | 1.50 | `number_of_items × 1.50` |
+
+### Bundle (Box) Abstraction
+
+A box is a **bundle**: N identical items of one product variant co-located. The bundle quantity is expressed in one of three modes:
+
+| Mode | When used | Fields |
+|---|---|---|
+| **Discrete count** | clothing, shoes, packaged goods | `number_of_items + size_id` |
+| **Mass/volume measurement** | rice, bulk clothing, liquid | `measure_value + display_unit_id` |
+| **Compound packaging** | pallets of packs, cartons of tins | `package_spec_id + number_of_items` |
+
+`box_weight_kg` is **computed** for mass-measured bundles (`measure_value` in kg ≈ `box_weight_kg` modulo tare). For discrete-count bundles it is manually entered or left NULL.
 
 ### ERD Diagram
 
@@ -16,15 +79,17 @@ Two designs are presented below. **Scenario 1 (Greenfield)** rebuilds the model 
 erDiagram
     ORGANISATIONS ||--o{ BASES : "runs"
     BASES ||--o{ PRODUCTS : "owns"
-    STANDARD_PRODUCTS ||--o{ PRODUCTS : "instantiated_as"
     PRODUCT_CATEGORIES ||--o{ PRODUCTS : "classifies"
+    PRODUCT_CATEGORIES ||--o{ PRODUCT_CATEGORIES : "parent"
+    PRODUCTS ||--o{ PRODUCT_VARIANT_DEFINITIONS : "declares_axes"
+    PRODUCT_VARIANT_DEFINITIONS }|--o| PRODUCT_GENDERS : "gender_axis"
+    PRODUCT_VARIANT_DEFINITIONS }|--o| SIZE_RANGES : "size_axis"
     PRODUCTS ||--o{ PRODUCT_VARIANTS : "has"
-    PRODUCT_GENDERS ||--o{ PRODUCT_VARIANTS : "dimension"
+    PRODUCT_GENDERS |o--o{ PRODUCT_VARIANTS : "dimension"
     SIZE_RANGES ||--o{ PRODUCT_VARIANTS : "size_dimension"
     SIZE_RANGES ||--o{ SIZES : "contains"
     UNITS ||--o{ PRODUCT_VARIANTS : "ref_unit"
     PRODUCT_VARIANTS ||--o{ BOXES : "stocked_as"
-    PRODUCT_VARIANTS ||--o{ PRODUCT_VALUE_HISTORY : "audit"
     BOXES ||--o| SIZES : "discrete_size"
     BOXES ||--o| UNITS : "display_unit"
     BOXES ||--o| PACKAGE_SPECS : "packaging"
@@ -40,15 +105,20 @@ erDiagram
         int id PK
         int base_id FK
         int category_id FK
-        int standard_product_id FK "nullable"
         varchar name
         bool in_shop
         text comment
         datetime created_on
         int created_by FK
-        datetime last_modified_on
-        int last_modified_by FK
         datetime deleted_on "nullable"
+    }
+
+    PRODUCT_VARIANT_DEFINITIONS {
+        int id PK
+        int product_id FK
+        int gender_id FK "nullable - NULL for non-gendered axis"
+        int size_range_id FK "nullable - NULL if unmeasured/unstructured"
+        int seq "display order in UI"
     }
 
     PRODUCT_VARIANTS {
@@ -61,28 +131,15 @@ erDiagram
         int distribution_price "existing value field"
         datetime deprecated_on "nullable"
         int deprecated_by FK "nullable"
-        int preceded_by_variant FK "nullable - replaces StandardProduct lifecycle"
-    }
-
-    PRODUCT_VALUE_HISTORY {
-        int id PK
-        int product_variant_id FK
-        decimal acquisition_value "DECIMAL(12,4)"
-        int distribution_price
-        varchar currency "ISO 4217 e.g. EUR"
-        datetime effective_from
-        datetime effective_to "nullable = current"
-        int created_by FK
-        datetime created_on
-        text reason "nullable"
+        int preceded_by_variant FK "nullable"
     }
 
     BOXES {
         int id PK
         varchar label_identifier "11 chars UNIQUE"
         int product_variant_id FK
-        int size_id FK "nullable - discrete size"
-        int display_unit_id FK "nullable - measured quantity"
+        int size_id FK "nullable - discrete size from variant range"
+        int display_unit_id FK "nullable - mass/volume unit"
         decimal measure_value "nullable DECIMAL(36,18)"
         int package_spec_id FK "nullable - compound packaging"
         int number_of_items "nullable"
@@ -91,36 +148,47 @@ erDiagram
         int qr_code_id FK "UNIQUE"
         int source_box_id FK "nullable self-ref for splits"
         date expiration_date "nullable"
-        decimal box_weight_kg "nullable DECIMAL(8,3)"
+        decimal box_weight_kg "nullable DECIMAL(8,3) - computed for mass bundles"
         text comment
         datetime created_on
-        int created_by FK
-        datetime last_modified_on
-        int last_modified_by FK
         datetime deleted_on "nullable"
     }
 
     PACKAGE_SPECS {
         int id PK
         int outer_quantity "e.g. 40"
-        int outer_unit_id FK "e.g. bag"
+        int outer_unit_id FK "e.g. bag, pack, tin"
         decimal inner_quantity "e.g. 25.0 DECIMAL(12,4)"
-        int inner_unit_id FK "e.g. kg"
+        int inner_unit_id FK "e.g. kg, g, ml, piece"
         datetime created_on
     }
 
     UNIT_DIMENSIONS {
         int id PK
-        varchar name "mass / volume / length"
-        varchar base_symbol "kg / L / m"
+        varchar name "mass / volume / count"
+        varchar base_symbol "kg / L / pc"
     }
 
     UNITS {
         int id PK
         int dimension_id FK
-        varchar name "kilogram / gram / liter"
-        varchar symbol "kg / g / L"
+        varchar name "kilogram / gram / liter / piece / pair / pack"
+        varchar symbol "kg / g / L / pc / pr / pk"
         decimal conversion_factor "DECIMAL(36,18) to base unit"
+    }
+
+    SIZE_RANGES {
+        int id PK
+        varchar name "S-M-L-XL / Shoe sizes Male / Water packs / Mass"
+        int dimension_id FK "nullable - links to UNIT_DIMENSIONS for measured ranges"
+        int seq
+    }
+
+    SIZES {
+        int id PK
+        varchar label "S / 42 / 6x500ml / single"
+        int size_range_id FK
+        int seq
     }
 
     PRODUCT_GENDERS {
@@ -139,170 +207,300 @@ erDiagram
         int id PK
         varchar name
         int parent_id FK "nullable"
-        bool is_gendered "NEW: drives aggregation logic"
+        bool is_gendered "drives aggregation + UI"
         int seq
-    }
-
-    STANDARD_PRODUCTS {
-        int id PK
-        varchar name
-        int category_id FK
-        int gender_id FK "nullable"
-        int size_range_id FK "nullable"
-        int version
-        datetime added_on
-        datetime deprecated_on "nullable"
-        int preceded_by FK "nullable"
-        int superceded_by FK "nullable"
     }
 ```
 
 ### Data Structure Design
 
-#### Core Concept: Product → ProductVariant → Box
+#### Product → ProductVariantDefinitions → ProductVariant → Box
 
-The central restructuring is the introduction of **ProductVariant** as the intermediate layer between the product definition and individual box inventory:
+```
+PRODUCT (template: "what is this item?")
+  ↓ declared via PRODUCT_VARIANT_DEFINITIONS (which gender × size_range combos are valid)
+PRODUCT_VARIANT (SKU: one per valid combo, with acquisition_value + ref_unit)
+  ↓ stocked as
+BOX / BUNDLE (N identical items of one variant, at one location, with quantity + expiry + weight)
+```
 
-- **Product**: "What is the thing?" — name, category, base, standard product linkage. No gender, no size range.
-- **ProductVariant**: "Which specific variation?" — gender dimension, size range dimension, acquisition value, distribution price. A non-gendered product (rice) has one variant with `gender_id = NULL`. A gendered product (t-shirt) has multiple variants: men's, women's, boys'.
-- **Box**: "Where is it and how much?" — links to a specific variant, records size (for discrete) or measure/package (for measured), expiration, weight.
+The `product_variant_definitions` table acts as the "product attribute lines" in ERP terminology. It defines the variant matrix without pre-creating all variants. Coordinators create only the variants they actually need; the definition table enforces they cannot create invalid combinations (e.g., Shoes-Male paired with the Female size range).
 
-This separation resolves the aggregation problem: statistics sum by `product_id` or `product_variant_id` as needed, no longer requiring a `GenderProductFilter` hack.
+#### Pack formats as sizes
 
-#### Package Specifications
+Products like Water, Peas, and Toothbrushes have no gender dimension but DO have a pack-format dimension. Pack formats are modelled as regular `sizes` within a named `size_range`:
 
-A new `package_specs` table captures compound packaging:
+```sql
+-- Size range for Water pack formats
+INSERT INTO sizegroup VALUES (30, 'Water pack formats', NULL);
+INSERT INTO sizes VALUES (200, '6×500ml pack', 30, 1, ...), (201, '10L container', 30, 2, ...);
 
-| Field | Purpose |
-|---|---|
-| `outer_quantity` | How many outer containers (e.g., 40) |
-| `outer_unit_id` | Container type (e.g., "bag", "tin", "bottle") |
-| `inner_quantity` | Amount in each container (e.g., 25.0) |
-| `inner_unit_id` | Inner unit (e.g., "kg", "g", "ml") |
+-- Size range for Pea pack formats
+INSERT INTO sizegroup VALUES (31, 'Pea pack formats', NULL);
+INSERT INTO sizes VALUES (210, '12×300g tin pack', 31, 1, ...), (211, '1kg bag', 31, 2, ...);
 
-"40 bags of 25 kg rice" → `outer_quantity=40, outer_unit=bag, inner_quantity=25, inner_unit=kg`.
+-- Size range for Toothbrush packs
+INSERT INTO sizegroup VALUES (32, 'Toothbrush packs', NULL);
+INSERT INTO sizes VALUES (220, 'single', 32, 1, ...), (221, 'pack of 3', 32, 2, ...);
+```
 
-A box with `package_spec_id` set would typically have `number_of_items = outer_quantity` and `measure_value = outer_quantity × inner_quantity` (in base units) for aggregation convenience.
+When pack formats require different acquisition values (e.g., Water 6×500ml vs. 10L at different $/liter), they become separate variants, each pointing to a size_range containing only their format. When the unit cost is uniform per base unit (e.g., same $/kg across all pea pack formats), one variant covering both pack formats is sufficient and the box's `size_id` captures which format it is.
 
-#### Expiration and Weight on Box
+#### Mass/volume measured bundles
 
-- `expiration_date DATE` on `boxes` – nullable; required by business rule for food/hygiene categories.
-- `box_weight_kg DECIMAL(8,3)` on `boxes` – nullable; can be computed from `measure_value` when dimension is "mass", otherwise manually entered.
+Products distributed in bulk (Rice, second-hand clothing) use `measure_value + display_unit_id` on the box instead of `size_id`. The size_range for such variants uses a measurement dimension (Mass, Volume). `box_weight_kg` is automatically derivable from `measure_value` when `display_unit_id` is a mass unit — the application computes this rather than requiring manual entry.
 
-When a box is split (via `source_box_id`), the child boxes inherit the parent's `expiration_date` at application layer, since the physical batch does not change.
+#### Package specifications at bundle level
 
-#### Financial Audit Trail
+`package_spec_id` on the box describes the physical outer packaging when it matters for logistics:
 
-`product_value_history` keeps a temporal log of both acquisition value and distribution price changes. The current row has `effective_to = NULL`. When a price changes, the current row is closed (`effective_to = NOW()`) and a new row is inserted. This supports point-in-time queries: "What was the acquisition value of product X in shipment S that occurred on date D?"
+| Scenario | package_spec | number_of_items | measure_value |
+|---|---|---|---|
+| Pallet of 24×(6×500ml water packs) | outer=24 pack, inner=6 bottle × 500ml | 24 | 72 (L) |
+| T-shirt carton of 48 pieces | outer=48 piece | 48 | NULL |
+| Sack of 25 kg rice | outer=1 bag × 25 kg | NULL | 25 (kg) |
+| Shoe box of 6 pairs | outer=6 pair | 6 | NULL |
+
+The package spec is **optional**. Simple bundles omit it; compound logistics units use it.
 
 ### Sample Data Mappings
 
-#### T-shirts: 20 pieces, size M, men's
+#### T-Shirt: 20 pieces, size M, Men's
 
 ```
-products: id=1, base_id=3, name="T-Shirt", category_id=1 (Clothing)
+products:                     id=1, base_id=3, name='T-Shirt', category_id=1 (Clothing)
 
-product_variants: id=10, product_id=1, gender_id=1 (Men), size_range_id=2 (S,M,L,XL),
-                  ref_unit_id=NULL, acquisition_value=NULL, distribution_price=3
+-- Valid variant axes for T-Shirt (all genders share S-M-L-XL size range)
+product_variant_definitions:  (product=1, gender=Male,   size_range=1 [XS,S,M,L,XL,XXL], seq=1)
+                              (product=1, gender=Female, size_range=1, seq=2)
+                              (product=1, gender=Boy,    size_range=4 [Children by year], seq=3)
+                              (product=1, gender=Girl,   size_range=4, seq=4)
 
-boxes: id=100, product_variant_id=10, size_id=5 (M), number_of_items=20,
-       measure_value=NULL, display_unit_id=NULL, package_spec_id=NULL,
-       expiration_date=NULL, box_weight_kg=NULL, location_id=12
+-- The Men's T-Shirt SKU
+product_variants:             id=10, product_id=1, gender_id=2 (Male), size_range_id=1 (XS-XL),
+                              ref_unit_id=<piece>, acquisition_value=1.20, distribution_price=0
+
+-- Bundle: 20 pieces of Men's T-Shirt, size M
+boxes:                        id=100, product_variant_id=10, size_id=2 (M), number_of_items=20,
+                              measure_value=NULL, display_unit_id=NULL, package_spec_id=NULL,
+                              expiration_date=NULL, box_weight_kg=NULL, location_id=12
 ```
 
-#### Rice: 40 bags of 25 kg each
+Acquisition total: 20 × €1.20 = **€24.00**
+
+#### Shoes: Men's size 42 / Women's size 36 / Kids' size 25
+
+Correct size options are guaranteed: selecting gender=Male loads size_range_id=8 (38–46), not 34–42.
 
 ```
-package_specs: id=1, outer_quantity=40, outer_unit_id=7 (bag), inner_quantity=25, inner_unit_id=1 (kg)
+products:                     id=2, base_id=3, name='Shoes', category_id=2 (Shoes)
 
-products: id=50, base_id=3, name="Rice", category_id=4 (Food)
+-- Each gender maps to its own gender-specific size range
+product_variant_definitions:  (product=2, gender=Male,   size_range=8 [Shoe sizes Male: 38–46], seq=1)
+                              (product=2, gender=Female, size_range=3 [Shoe sizes Female: 34–42], seq=2)
+                              (product=2, gender=Kid,    size_range=9 [Shoe sizes children: 17–36], seq=3)
 
-product_variants: id=200, product_id=50, gender_id=NULL, size_range_id=NULL,
-                  ref_unit_id=1 (kg), acquisition_value=0.75, distribution_price=0
+product_variants:             id=20, product_id=2, gender_id=2 (Male),   size_range_id=8,
+                                     ref_unit_id=<pair>, acquisition_value=3.50
+                              id=21, product_id=2, gender_id=1 (Female), size_range_id=3,
+                                     ref_unit_id=<pair>, acquisition_value=3.50
+                              id=22, product_id=2, gender_id=6 (Kid),    size_range_id=9,
+                                     ref_unit_id=<pair>, acquisition_value=2.80
 
-boxes: id=500, product_variant_id=200, size_id=NULL,
-       display_unit_id=1 (kg), measure_value=1000.0,    -- 40 × 25 kg = 1000 kg stored in base unit
-       package_spec_id=1, number_of_items=40,
-       expiration_date='2025-09-01', box_weight_kg=1000.3, location_id=12
+boxes:                        id=200, product_variant_id=20, size_id=<42 from range 8>, number_of_items=1
+                              id=201, product_variant_id=21, size_id=<36 from range 3>, number_of_items=1
+                              id=202, product_variant_id=22, size_id=<25 from range 9>, number_of_items=1
 ```
 
-#### Wet wipes: 112 packages, ~1344 items (variable pack sizes)
-
-Because pack sizes vary, there is no single `inner_quantity`. The package_spec captures the nominal outer container count; a note field records the variation:
+#### Second-hand clothing: 200 kg mixed, Unisex
 
 ```
-package_specs: id=2, outer_quantity=112, outer_unit_id=8 (package),
-               inner_quantity=12, inner_unit_id=9 (item)   -- nominal; actual varies
+products:                     id=3, name='Second-Hand Clothing', category_id=1
 
-products: id=51, name="Wet Wipes"
+product_variant_definitions:  (product=3, gender=Male,        size_range=28 [Mass], seq=1)
+                              (product=3, gender=Female,      size_range=28, seq=2)
+                              (product=3, gender=Unisex Adult,size_range=28, seq=3)
 
-product_variants: id=201, product_id=51, gender_id=NULL, size_range_id=NULL,
-                  acquisition_value=1.20, ref_unit_id=9 (item), distribution_price=0
+product_variants:             id=30, product_id=3, gender_id=3 (Unisex Adult), size_range_id=28 (Mass),
+                              ref_unit_id=<kg>, acquisition_value=0.50
 
-boxes: id=501, product_variant_id=201, package_spec_id=2,
-       number_of_items=1344,    -- actual total items counted
-       measure_value=NULL, display_unit_id=NULL, size_id=NULL,
-       comment="112 packages, sizes vary (10–14 wipes each)"
+boxes:                        id=300, product_variant_id=30, size_id=NULL,
+                              display_unit_id=<kg>, measure_value=200.0,
+                              box_weight_kg=200.0,  -- computed: measure_value already in kg
+                              number_of_items=NULL, expiration_date=NULL, location_id=12
 ```
 
-#### Second-hand clothing: 200 kg mixed sizes
+Acquisition total: 200 × €0.50 = **€100.00**
+
+#### Rice: 40 bags × 25 kg each
 
 ```
-products: id=2, name="Second-Hand Clothing (Mixed)", category_id=1
+package_specs:                id=1, outer_quantity=40, outer_unit_id=<bag>,
+                              inner_quantity=25.0, inner_unit_id=<kg>
 
-product_variants: id=11, product_id=2, gender_id=5 (Mixed),
-                  size_range_id=3 (Mass),    -- SizeRange with unit dimension = mass
-                  ref_unit_id=1 (kg), acquisition_value=0.50, distribution_price=0
+products:                     id=50, name='Rice', category_id=4 (Food)
 
-boxes: id=101, product_variant_id=11, size_id=NULL,
-       display_unit_id=1 (kg), measure_value=200.0,
-       number_of_items=NULL, package_spec_id=NULL
+product_variant_definitions:  (product=50, gender=NULL, size_range=28 [Mass], seq=1)
+
+product_variants:             id=200, product_id=50, gender_id=NULL, size_range_id=28 (Mass),
+                              ref_unit_id=<kg>, acquisition_value=0.75
+
+boxes:                        id=500, product_variant_id=200, size_id=NULL,
+                              display_unit_id=<kg>, measure_value=1000.0,  -- 40 × 25 kg
+                              package_spec_id=1, number_of_items=40,
+                              expiration_date='2025-09-01',
+                              box_weight_kg=1000.3  -- computed from measure_value + tare
 ```
+
+Acquisition total: 1000 kg × €0.75 = **€750.00**
+
+#### Water: 24 packs of 6×500ml
+
+When Water 6×500ml and 10L are procured at the same $/liter rate, one variant covers both formats and the box's `size_id` captures which format it is:
+
+```
+-- Pack formats as sizes within one size range
+size_ranges:  id=30, name='Water pack formats'
+sizes:        (id=200, label='6×500ml pack', sizegroup_id=30, seq=1)
+              (id=201, label='10L container', sizegroup_id=30, seq=2)
+
+package_specs:  id=2, outer_quantity=24, outer_unit_id=<pack>,
+                inner_quantity=6.0, inner_unit_id=<bottle>
+
+products:       id=60, name='Water', category_id=5 (Drinks)
+
+product_variant_definitions:  (product=60, gender=NULL, size_range=30, seq=1)
+
+-- Single variant; acquisition value expressed per liter (base unit)
+product_variants:  id=210, product_id=60, gender_id=NULL, size_range_id=30,
+                   ref_unit_id=<liter>, acquisition_value=0.70
+
+boxes:  id=600, product_variant_id=210, size_id=200 (6×500ml pack),
+        number_of_items=24,                              -- 24 packs
+        measure_value=72.0, display_unit_id=<liter>,     -- 24 × 3 L = 72 L
+        package_spec_id=2,
+        expiration_date='2025-12-31', box_weight_kg=72.5
+```
+
+Acquisition total: 72 L × €0.70 = **€50.40**
+
+If 6×500ml and 10L packs are procured at different per-liter rates, each becomes its own variant with a single-entry size range.
+
+#### Peas: 5 cases × (12 tins × 300g)
+
+```
+size_ranges:   id=31, name='Pea pack formats'
+sizes:         (id=210, label='12×300g tin pack', sizegroup_id=31, seq=1)
+               (id=211, label='1kg bag', sizegroup_id=31, seq=2)
+
+package_specs: id=3, outer_quantity=5, outer_unit_id=<case>,
+               inner_quantity=12.0, inner_unit_id=<tin>
+
+products:       id=61, name='Peas', category_id=4 (Food)
+
+product_variant_definitions:  (product=61, gender=NULL, size_range=31, seq=1)
+
+-- One variant; cost normalised to kg across both pack formats
+product_variants:  id=220, product_id=61, gender_id=NULL, size_range_id=31,
+                   ref_unit_id=<kg>, acquisition_value=1.80
+
+boxes:  id=610, product_variant_id=220, size_id=210 (12×300g tin pack),
+        number_of_items=5,                              -- 5 cases
+        measure_value=18.0, display_unit_id=<kg>,       -- 5 × 12 × 0.3 kg = 18 kg
+        package_spec_id=3,
+        expiration_date='2026-01-01', box_weight_kg=19.2
+```
+
+Acquisition total: 18 kg × €1.80 = **€32.40**
+
+#### Toothbrushes: 200 singles + 50 packs-of-3
+
+Separate variants are used because the per-piece cost differs between formats:
+
+```
+size_ranges:  id=32, name='Toothbrush packs'
+sizes:        (id=220, label='single',     sizegroup_id=32, seq=1)
+              (id=221, label='pack of 3',  sizegroup_id=32, seq=2)
+
+products:       id=62, name='Toothbrush', category_id=6 (Hygiene)
+
+product_variant_definitions:  (product=62, gender=NULL, size_range=32, seq=1)
+
+-- Two variants sharing the same size range; each picks a distinct size_id on the box
+product_variants:
+  id=230, product_id=62, gender_id=NULL, size_range_id=32,
+          ref_unit_id=<piece>, acquisition_value=0.60  -- single: €0.60/piece
+  id=231, product_id=62, gender_id=NULL, size_range_id=32,
+          ref_unit_id=<pack>,  acquisition_value=1.50  -- pack of 3: €1.50/pack (€0.50/piece)
+
+boxes:
+  id=700, product_variant_id=230, size_id=220 (single),    number_of_items=200
+  id=701, product_variant_id=231, size_id=221 (pack of 3), number_of_items=50
+```
+
+Acquisition totals: 200 × €0.60 + 50 × €1.50 = **€195.00**
 
 ### Migration from Legacy
 
 #### Conceptual transformation
 
 ```
--- LEGACY Product (gender tightly coupled):
-products: id=10, name="Rice", gender_id=8 (none/NoGender), size_range_id=20 (Mass),
-          value=0, camp_id=3, category_id=4
+-- LEGACY: Product with gender tightly coupled
+products: id=10, name='Shoes Male', gender_id=2 (Male), sizegroup_id=8 (Shoe sizes Male),
+          value=0, camp_id=3, category_id=2
 
--- NEW Product (no gender):
-products_new: id=10, base_id=3, name="Rice", category_id=4, standard_product_id=NULL, in_shop=0
+-- STEP 1: Create products_new row (strip gender/size_range)
+products_new: id=10, base_id=3, name='Shoes', category_id=2
 
--- NEW ProductVariant (gender is a nullable dimension):
-product_variants: id=auto, product_id=10, gender_id=NULL, size_range_id=20,
+-- STEP 2: Create product_variant_definition rows (all gender variants for this product)
+product_variant_definitions: (product=10, gender=Male,   size_range=8)
+                             (product=10, gender=Female, size_range=3)  -- from paired female product
+                             (product=10, gender=Kid,    size_range=9)  -- from paired kid product
+
+-- STEP 3: Create product_variant for the existing legacy product
+product_variants: id=auto, product_id=10, gender_id=2, size_range_id=8,
                   ref_unit_id=NULL, acquisition_value=NULL, distribution_price=0
 
----
-
--- LEGACY Box (gendered product, measured):
-stock: id=500, product_id=10, size_id=22 (Mixed), measure_value=1000,
-       display_unit_id=1 (kg), items=NULL
-
--- NEW Box (variant + no size needed for mass-measured box):
-boxes: id=500, product_variant_id=<new_variant_id>, size_id=NULL,
-       measure_value=1000, display_unit_id=1, number_of_items=NULL,
-       package_spec_id=NULL, expiration_date=NULL, box_weight_kg=NULL
+-- STEP 4: Repoint legacy boxes
+stock.product_variant_id = <new_variant_id>   (product_id column removed)
 ```
+
+Product consolidation (merging "Shoes Male" + "Shoes Female" + "Shoes Kids" into one "Shoes" product) is **optional** and can happen per-organisation at their own pace. The migration can be run product-by-product with zero downtime.
 
 #### Migration steps
 
-1. **Create new schema** alongside existing (no drops until cutover).
-2. **Migrate ProductCategories**: add `is_gendered` column, populate from known categories (clothing=true, food/hygiene=false).
-3. **Migrate Products**: for each legacy product, insert into `products_new` (strip gender/size_range), then create one `product_variant` row with the legacy gender and size_range. Map `value` → `distribution_price`. Map legacy "NoGender"/"Mixed gender" → `gender_id = NULL`.
-4. **Migrate Boxes**: repoint `product_variant_id` using the mapping table from step 3. For boxes with `size_id` pointing to a "Mixed" size in a mass/volume range, set `size_id = NULL` (the `measure_value` is sufficient).
-5. **Update ShipmentDetail**: add `source_product_variant_id` / `target_product_variant_id` columns; populate from product→variant mapping.
-6. **Run dual-write period** (both old and new columns populated) until all consumers updated.
-7. **Drop legacy columns** after validation.
+1. **Create new tables**: `product_variant_definitions`, `product_variants` alongside existing `products`. No drops yet.
+2. **Backfill categories**: add `is_gendered` column; food/hygiene categories → 0, clothing → 1.
+3. **Migrate products**: for each legacy product, insert into `products_new` (strip gender/sizegroup), then create one `product_variant` row with the legacy gender and size_range. Map `value` → `distribution_price`. Map "NoGender"/"-" → `gender_id = NULL`.
+4. **Create variant definitions**: from each migrated variant, create one `product_variant_definitions` row.
+5. **Repoint boxes**: set `product_variant_id` on all `stock` rows using the mapping table from step 3.
+6. **Dual-write period**: keep both `product_id` and `product_variant_id` populated until all consumers are updated.
+7. **Update ShipmentDetail**: add `source_product_variant_id` / `target_product_variant_id` columns; populate from product → variant mapping.
+8. **Drop legacy columns**: `stock.product_id`, `products.gender_id`, `products.sizegroup_id` after validation.
 
-### Database Schema (Greenfield — CREATE TABLE statements)
+Estimated downtime: near-zero during migration; 5–10 min cutover window.
+
+### Database Schema (Greenfield — key CREATE TABLE statements)
 
 ```sql
 -- NOTE: Existing unchanged tables are omitted for brevity.
--- New/significantly modified tables only.
 
+-- New table: defines valid variant axes per product
+CREATE TABLE `product_variant_definitions` (
+  `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `product_id`     INT UNSIGNED NOT NULL,
+  `gender_id`      INT UNSIGNED DEFAULT NULL,
+  `size_range_id`  INT UNSIGNED DEFAULT NULL,
+  `seq`            INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_pvd` (`product_id`, `gender_id`, `size_range_id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `fk_pvd_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  CONSTRAINT `fk_pvd_gender`  FOREIGN KEY (`gender_id`)  REFERENCES `genders` (`id`),
+  CONSTRAINT `fk_pvd_range`   FOREIGN KEY (`size_range_id`) REFERENCES `sizegroup` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- New table: individual SKUs with acquisition value
 CREATE TABLE `product_variants` (
   `id`                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `product_id`          INT UNSIGNED NOT NULL,
@@ -315,38 +513,34 @@ CREATE TABLE `product_variants` (
   `deprecated_by`       INT UNSIGNED DEFAULT NULL,
   `preceded_by_variant` INT UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_pv` (`product_id`, `gender_id`, `size_range_id`),
   KEY `product_id` (`product_id`),
   KEY `gender_id` (`gender_id`),
   KEY `size_range_id` (`size_range_id`),
-  KEY `ref_unit_id` (`ref_unit_id`),
-  CONSTRAINT `fk_pv_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
-  CONSTRAINT `fk_pv_gender` FOREIGN KEY (`gender_id`) REFERENCES `genders` (`id`),
+  CONSTRAINT `fk_pv_product`   FOREIGN KEY (`product_id`)   REFERENCES `products` (`id`),
+  CONSTRAINT `fk_pv_gender`    FOREIGN KEY (`gender_id`)    REFERENCES `genders` (`id`),
   CONSTRAINT `fk_pv_sizerange` FOREIGN KEY (`size_range_id`) REFERENCES `sizegroup` (`id`),
-  CONSTRAINT `fk_pv_refunit` FOREIGN KEY (`ref_unit_id`) REFERENCES `units` (`id`),
-  CONSTRAINT `fk_pv_preceded` FOREIGN KEY (`preceded_by_variant`) REFERENCES `product_variants` (`id`)
+  CONSTRAINT `fk_pv_refunit`   FOREIGN KEY (`ref_unit_id`)  REFERENCES `units` (`id`),
+  CONSTRAINT `fk_pv_preceded`  FOREIGN KEY (`preceded_by_variant`) REFERENCES `product_variants` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Modified products table (gender_id and sizegroup_id REMOVED, others preserved)
--- Shown here as a new table; migration would ALTER or CREATE-SELECT-DROP-RENAME
+-- Modified products table (gender_id and sizegroup_id REMOVED, standard_product_id REMOVED)
 CREATE TABLE `products_v2` (
-  `id`                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `base_id`             INT UNSIGNED NOT NULL,
-  `category_id`         INT UNSIGNED NOT NULL,
-  `standard_product_id` INT UNSIGNED DEFAULT NULL,
-  `name`                VARCHAR(255) NOT NULL,
-  `in_shop`             TINYINT NOT NULL DEFAULT 0,
-  `comment`             VARCHAR(255) DEFAULT NULL,
-  `created_on`          DATETIME DEFAULT NULL,
-  `created_by`          INT UNSIGNED DEFAULT NULL,
-  `last_modified_on`    DATETIME DEFAULT NULL,
-  `last_modified_by`    INT UNSIGNED DEFAULT NULL,
-  `deleted_on`          DATETIME DEFAULT NULL,
+  `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `base_id`     INT UNSIGNED NOT NULL,
+  `category_id` INT UNSIGNED NOT NULL,
+  `name`        VARCHAR(255) NOT NULL,
+  `in_shop`     TINYINT NOT NULL DEFAULT 0,
+  `comment`     VARCHAR(255) DEFAULT NULL,
+  `created_on`  DATETIME DEFAULT NULL,
+  `created_by`  INT UNSIGNED DEFAULT NULL,
+  `deleted_on`  DATETIME DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `base_id` (`base_id`),
-  KEY `category_id` (`category_id`),
-  KEY `standard_product_id` (`standard_product_id`)
+  KEY `category_id` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Package specs (compound packaging metadata)
 CREATE TABLE `package_specs` (
   `id`              INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `outer_quantity`  INT UNSIGNED NOT NULL,
@@ -357,150 +551,138 @@ CREATE TABLE `package_specs` (
   PRIMARY KEY (`id`),
   KEY `outer_unit_id` (`outer_unit_id`),
   KEY `inner_unit_id` (`inner_unit_id`),
-  CONSTRAINT `fk_ps_outer_unit` FOREIGN KEY (`outer_unit_id`) REFERENCES `units` (`id`),
-  CONSTRAINT `fk_ps_inner_unit` FOREIGN KEY (`inner_unit_id`) REFERENCES `units` (`id`)
+  CONSTRAINT `fk_ps_outer` FOREIGN KEY (`outer_unit_id`) REFERENCES `units` (`id`),
+  CONSTRAINT `fk_ps_inner` FOREIGN KEY (`inner_unit_id`) REFERENCES `units` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Modified boxes/stock table
+-- Modified stock/boxes table
 CREATE TABLE `stock_v2` (
   `id`                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `label_identifier`    VARCHAR(11) NOT NULL DEFAULT '',
-  `product_variant_id`  INT UNSIGNED NOT NULL,        -- replaces product_id + gender coupling
+  `product_variant_id`  INT UNSIGNED NOT NULL,         -- replaces product_id
   `size_id`             INT UNSIGNED DEFAULT NULL,
   `display_unit_id`     INT UNSIGNED DEFAULT NULL,
   `measure_value`       DECIMAL(36,18) DEFAULT NULL,
-  `package_spec_id`     INT UNSIGNED DEFAULT NULL,    -- NEW: compound packaging
+  `package_spec_id`     INT UNSIGNED DEFAULT NULL,
   `number_of_items`     INT DEFAULT NULL,
   `location_id`         INT UNSIGNED NOT NULL,
   `state_id`            INT UNSIGNED NOT NULL DEFAULT 1,
   `qr_id`               INT UNSIGNED DEFAULT NULL,
   `source_box_id`       INT UNSIGNED DEFAULT NULL,
-  `expiration_date`     DATE DEFAULT NULL,            -- NEW
-  `box_weight_kg`       DECIMAL(8,3) DEFAULT NULL,    -- NEW
+  `expiration_date`     DATE DEFAULT NULL,
+  `box_weight_kg`       DECIMAL(8,3) DEFAULT NULL,
   `distro_event_id`     INT UNSIGNED DEFAULT NULL,
   `comment`             TEXT,
   `created_on`          DATETIME DEFAULT NULL,
   `created_by`          INT UNSIGNED DEFAULT NULL,
-  `last_modified_on`    DATETIME DEFAULT NULL,
-  `last_modified_by`    INT UNSIGNED DEFAULT NULL,
   `deleted_on`          DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `label_identifier_unique` (`label_identifier`),
-  UNIQUE KEY `qr_id_unique` (`qr_id`),
+  UNIQUE KEY `label_identifier` (`label_identifier`),
+  UNIQUE KEY `qr_id` (`qr_id`),
   KEY `product_variant_id` (`product_variant_id`),
   KEY `location_id` (`location_id`),
   KEY `size_id` (`size_id`),
   KEY `state_id` (`state_id`),
-  KEY `package_spec_id` (`package_spec_id`),
   KEY `expiration_date` (`expiration_date`),
-  KEY `source_box_id` (`source_box_id`),
   CONSTRAINT `fk_stock_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`),
-  CONSTRAINT `fk_stock_ps` FOREIGN KEY (`package_spec_id`) REFERENCES `package_specs` (`id`)
+  CONSTRAINT `fk_stock_ps`      FOREIGN KEY (`package_spec_id`)    REFERENCES `package_specs` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `product_value_history` (
-  `id`                  INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `product_variant_id`  INT UNSIGNED NOT NULL,
-  `acquisition_value`   DECIMAL(12,4) DEFAULT NULL,
-  `distribution_price`  INT NOT NULL DEFAULT 0,
-  `currency`            CHAR(3) NOT NULL DEFAULT 'EUR',  -- ISO 4217
-  `effective_from`      DATETIME NOT NULL,
-  `effective_to`        DATETIME DEFAULT NULL,           -- NULL = current row
-  `created_by`          INT UNSIGNED NOT NULL,
-  `created_on`          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `reason`              TEXT DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `product_variant_id_eff` (`product_variant_id`, `effective_from`),
-  KEY `effective_to` (`effective_to`),
-  CONSTRAINT `fk_pvh_variant` FOREIGN KEY (`product_variant_id`) REFERENCES `product_variants` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- New column on product_categories
+-- product_categories gains is_gendered flag
 ALTER TABLE `product_categories`
   ADD COLUMN `is_gendered` TINYINT(1) NOT NULL DEFAULT 1 AFTER `parent_id`;
--- Backfill: food, hygiene, non-apparel categories set to 0
+-- Backfill: food, hygiene, non-apparel categories → 0
 
--- New unit_dimensions table (currently SizeRange doubles as dimension; separate cleanly)
+-- unit_dimensions: cleanly separates measured dimension types from sizegroups
 CREATE TABLE `unit_dimensions` (
   `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name`         VARCHAR(50) NOT NULL,  -- 'mass', 'volume', 'length'
-  `base_symbol`  VARCHAR(10) NOT NULL,  -- 'kg', 'L', 'm'
+  `name`         VARCHAR(50) NOT NULL,   -- 'mass', 'volume', 'count'
+  `base_symbol`  VARCHAR(10) NOT NULL,  -- 'kg', 'L', 'pc'
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
--- Migrate: units.dimension_id currently FK to sizegroup; point to unit_dimensions instead
+INSERT INTO `unit_dimensions` VALUES (1,'mass','kg'), (2,'volume','L'), (3,'count','pc');
+
+-- sizegroup gains optional dimension_id for mass/volume ranges
+ALTER TABLE `sizegroup`
+  ADD COLUMN `dimension_id` INT UNSIGNED DEFAULT NULL AFTER `name`,
+  ADD CONSTRAINT `fk_sg_dim` FOREIGN KEY (`dimension_id`) REFERENCES `unit_dimensions` (`id`);
+-- Backfill: sizegroup 28 (Mass) → dimension_id=1; sizegroup 29 (Volume) → dimension_id=2
 ```
 
 #### Indexing strategy
 
 | Table | Index | Rationale |
 |---|---|---|
-| `product_variants` | `(product_id, gender_id)` | Product variant lookup with gender filter |
+| `product_variant_definitions` | `(product_id)` | UI variant-axis lookup per product |
+| `product_variants` | `(product_id, gender_id)` | Variant lookup by product + gender |
+| `product_variants` | `(product_id, size_range_id)` | Variant lookup by product + size range |
 | `stock_v2` | `(product_variant_id, state_id)` | InStock count aggregations |
 | `stock_v2` | `(location_id, state_id)` | Location-level stock views |
 | `stock_v2` | `expiration_date` | Expiry alerts and food safety queries |
-| `product_value_history` | `(product_variant_id, effective_from)` | Point-in-time value lookups |
 | `package_specs` | `(outer_unit_id, inner_unit_id)` | Unit-based filtering |
 
 ### Implementation Effort (Scenario 1)
 
 ```
 Backend Changes:
-- New/modified models: 6 (ProductVariant NEW, Box MODIFIED, Product MODIFIED,
-  PackageSpec NEW, ProductValueHistory NEW, UnitDimension NEW)
-- New/modified GraphQL types: 3 new (ProductVariant, PackageSpec, ProductValueHistory),
-  ~12 modified (Box, Product, ShipmentDetail, all inputs)
-- Modified GraphQL resolvers: ~25 (box CRUD, product CRUD, statistics, shipment)
-- New GraphQL resolvers: ~6 (productVariant queries, value history, package spec CRUD)
-- New/modified business logic modules: 5 (box service, product service,
-  statistics aggregation, shipment reconciliation, value audit)
-- Modified authorization rules: ~8 (all product/box scopes gain variant check)
-Backend estimated hours: 180–260  (confidence: medium)
+- New/modified models: 5 (ProductVariant NEW, ProductVariantDefinition NEW,
+  Box MODIFIED, Product MODIFIED, PackageSpec NEW)
+- New/modified GraphQL types: 3 new (ProductVariant, ProductVariantDefinition, PackageSpec),
+  ~10 modified (Box, Product, ShipmentDetail, all inputs)
+- Modified GraphQL resolvers: ~20 (box CRUD, product CRUD, statistics, shipment)
+- New GraphQL resolvers: ~5 (productVariant queries, productVariantDefinitions, package spec CRUD)
+- New/modified business logic modules: 4 (box service, product service,
+  statistics aggregation, shipment reconciliation)
+- Modified authorization rules: ~6 (product/box scopes gain variant check)
+Backend estimated hours: 160–240  (confidence: medium)
 
 Frontend Changes:
 - Modified components: BoxCreate, BoxEdit, BoxesFilter, BoxesTable, ProductsContainer,
-  CreateCustomProductForm, all statistics/filter views using GenderProductFilter (~18 files)
+  CreateCustomProductForm, all statistics/filter views (~16 files)
 - New components: PackageSpecInput, AcquisitionValueInput, ExpirationDateInput,
-  ProductVariantSelector (~5 components)
-- Updated GraphQL queries/fragments: ~20 files
-Frontend estimated hours: 100–160  (confidence: medium)
+  ProductVariantSelector, VariantDefinitionEditor (~5 components)
+- Updated GraphQL queries/fragments: ~18 files
+Frontend estimated hours: 90–140  (confidence: medium)
 
 Migration:
-- Migration scripts needed: 5 (category backfill, product split, variant creation,
-  box repoint, shipment_detail update)
-- Estimated downtime: 30–60 min (dependent on row count; ~1M boxes worst case)
-- Rollback complexity: HIGH – schema changes to core tables require restoring
-  from backup or maintaining parallel tables during transition period
-Migration estimated hours: 40–60  (confidence: low)
+- Migration scripts: 4 (category backfill, product split + variant creation,
+  box repoint, ShipmentDetail update)
+- Estimated downtime: near-zero (dual-write) + 5–10 min cutover window
+- Rollback complexity: MEDIUM — parallel table approach limits risk vs. in-place ALTER
+Migration estimated hours: 30–50  (confidence: medium)
 
 Testing & QA:
-- Unit/integration tests: ~40 hours
-- Manual QA of all affected flows: ~20 hours
-Testing estimated hours: 40–60  (confidence: medium)
+- Unit/integration tests: ~35 hours
+- Manual QA of all affected flows: ~15 hours
+Testing estimated hours: 40–55  (confidence: medium)
 
-TOTAL: 360–540 hours
+TOTAL: 320–485 hours
 ```
 
 ### Advantages
 
-- ✅ **Clean aggregation**: Statistics group by `product_id` naturally. Non-gendered products (food, hygiene) aggregate without filter gymnastics because `gender_id` is NULL rather than a sentinel value.
-- ✅ **Extensible variants**: Adding new product dimensions (e.g., color, material, condition) requires only new columns on `product_variants`, not schema redesign.
-- ✅ **Rich financial tracking**: `product_value_history` provides a complete audit log of acquisition and distribution price changes, enabling cost-of-aid reports and donor reporting.
-- ✅ **Full compound unit support**: `package_specs` handles nested packaging (bags of kg, tins of g, bottles of ml) with precision and queryable structure.
-- ✅ **Future-proof for food safety**: `expiration_date` on the box and `box_weight_kg` enable logistics weight calculations and food safety recalls.
+- ✅ **Clean aggregation by product**: Statistics group by `product_id` naturally. Non-gendered products (food, hygiene) aggregate without filter gymnastics — `gender_id` is NULL on the variant, not a sentinel value.
+- ✅ **Correct size options guaranteed by `product_variant_definitions`**: Selecting gender=Male for Shoes loads `size_range_id=8` (38–46). The constraint is DB-enforced, not a client-side category-ID list.
+- ✅ **All example product types handled cleanly**: Gendered clothing (T-Shirts), gender-differentiated size ranges (Shoes), bulk measured items (Rice, second-hand clothing), and pack-format products (Water, Peas, Toothbrushes) all fit the same (variant, size) model.
+- ✅ **Reference unit enables cross-format cost comparison**: Normalising Water variants to $/liter lets procurement compare 6×500ml packs vs. 10L jugs in one query.
+- ✅ **No value history table overhead**: `acquisition_value` lives directly on `product_variants`. The existing `history` decorator captures changes automatically without a new schema object.
+- ✅ **Standard product concept cleanly removed**: No `standard_product_id` FK or associated lifecycle coupling.
+- ✅ **Bundle abstraction is intuitive**: A box IS-A bundle of N identical variant items. The three quantity modes (count, measure, compound packaging) cover all real-world scenarios.
 
 ### Drawbacks
 
-- ⚠️ **Large migration scope**: The `products → product_variants → boxes` refactor touches every consumer: API, frontend, statistics, shipments, distribution events.
-- ⚠️ **GraphQL breaking changes**: All resolvers returning `Product` fields (`gender`, `sizeRange`) change shape. Deprecation wrappers are needed for backwards compatibility during transition.
-- ⚠️ **ShipmentDetail complexity**: `source_product_id`/`target_product_id` must become `source_product_variant_id`/`target_product_variant_id`, affecting cross-base product reconciliation logic.
-- ⚠️ **Higher ongoing complexity**: Developers must understand the Product/ProductVariant distinction. Queries that were simple product-gender joins become slightly more layered.
-- ⚠️ **Risk of partial migration failures**: A failed mid-migration leaves data in an inconsistent state; rollback from a partial ProductVariant population is complex.
+- ⚠️ **Large migration scope**: The `products → product_variants → boxes` refactor touches every consumer: API, frontend, statistics, shipments, distribution events. ~320–485 hours total.
+- ⚠️ **GraphQL breaking changes**: All resolvers returning `Product` fields (`gender`, `sizeRange`) change shape. A deprecation and transition period is required.
+- ⚠️ **ShipmentDetail complexity**: `source_product_id`/`target_product_id` must become `source_product_variant_id`/`target_product_variant_id`, affecting cross-base reconciliation UI.
+- ⚠️ **Product creation flow is more complex**: Creating a product now requires at minimum one variant definition and one variant. A guided creation wizard is needed.
+- ⚠️ **Two variants sharing one size range** (Toothbrushes): Two variants with different acquisition values but the same `size_range_id` is valid but slightly counterintuitive without documentation.
 
 ### Tradeoffs
 
-- 🔄 **You gain** a clean, scalable model where gender and size are true dimensions rather than forced attributes. **You sacrifice** ~6 months of development velocity during migration.
-- 🔄 **You gain** first-class financial audit capability. **You sacrifice** backwards-compatible GraphQL responses (deprecated fields must be maintained for ~1 release cycle).
-- 🔄 **You gain** the ability to add new product dimensions without schema changes. **You sacrifice** simplicity: every box lookup now requires a JOIN through `product_variants`.
+- 🔄 **You gain** a clean, scalable model where gender and size are true orthogonal dimensions. **You sacrifice** ~6 months of development velocity during migration.
+- 🔄 **You gain** correct size options per gender, enforced at DB level by `product_variant_definitions`. **You sacrifice** the simplicity of the existing single-product / single-size-range model.
+- 🔄 **You gain** the reference unit concept enabling cross-format acquisition value comparison. **You sacrifice** a single canonical "price" field on the product (it is now per variant).
+- 🔄 **You gain** a future-proof model where adding new product dimensions (condition, color) requires no schema change. **You sacrifice** simplicity: every box lookup now requires a JOIN through `product_variants`.
 
 ---
 
@@ -1612,33 +1794,34 @@ This package includes the `product_gender_size_ranges` junction table, which is 
 
 ## Comparison Matrix
 
-| Dimension | Greenfield | Least Expensive | Gender-Decoupled |
+| Dimension | Greenfield / ERP-Lite | Least Expensive | Gender-Decoupled |
 |-----------|-----------|-----------------|-----------------|
 | **Feature Coverage** | | | |
 | Compound units support | ✓ (PackageSpec table) | ✓ (PackageSpec table) | ✓ (PackageSpec table) |
 | Variable package sizes within box | Partial (nominal spec + comment) | Partial (nominal spec + comment) | Partial (nominal spec + comment) |
-| Monetary acquisition value | ✓ (per variant, with audit log) | ✓ (per product, with audit log) | ✓ (per product, via history table) |
+| Monetary acquisition value | ✓ (per variant, via history decorator) | ✓ (per product, with audit log) | ✓ (per product, via history table) |
 | Acquisition value per size/gender | ✓ (ProductVariant level) | ✗ (product-level only) | ✗ (product-level only) |
-| Acquisition value audit trail | ✓ (dedicated temporal table, DECIMAL) | ✓ (dedicated temporal table, DECIMAL) | ✓ (history table, FLOAT precision) |
+| Acquisition value audit trail | ✓ (implicit via history decorator, FLOAT precision) | ✓ (dedicated temporal table, DECIMAL) | ✓ (history table, FLOAT precision) |
 | Expiration dates | ✓ | ✓ | ✓ |
-| Box weight | ✓ | ✓ | ✓ |
+| Box weight (computed for mass bundles) | ✓ | ✓ | ✓ |
 | Gender decoupled from product | ✓ (NULL gender_id on variant) | ✗ (sentinel required; coupling persists) | ✓ (nullable defaultGender + box-level gender) |
-| Correct size options per gender | ✓ (ProductVariant.sizeRange per variant) | ✗ (product has single sizeRange) | ✓ (product_gender_size_ranges table) |
+| Correct size options per gender | ✓ (product_variant_definitions table per variant) | ✗ (product has single sizeRange) | ✓ (product_gender_size_ranges table) |
 | Non-gendered aggregation | ✓ (NULL gender_id, clean) | ✓ (is_gendered flag, pragmatic) | ✓ (COALESCE + is_gendered DB column) |
-| Product consolidation (e.g. "T-Shirt Men" → "T-Shirt") | ✓ (variant model enables this) | ✗ (separate products remain) | ✓ (optional gradual merge path) |
-| Financial audit trail | ✓ (full temporal log) | ✓ (full temporal log) | ✓ (history table; less structured) |
-| Standard product lifecycle | ✓ (redesigned) | ✗ (unchanged) | ✗ (unchanged) |
+| Pack-format products (Water, Peas, Toothbrushes) | ✓ (pack format as size within size range) | ✓ (pack format as size; no structural change) | ✓ (pack format as size; no structural change) |
+| Product consolidation ("T-Shirt Men" → "T-Shirt") | ✓ (variant model enables this) | ✗ (separate products remain) | ✓ (optional gradual merge path) |
+| Financial audit trail | ✓ (implicit via history; no dedicated table) | ✓ (full temporal log, DECIMAL) | ✓ (history table; less structured) |
+| Standard product lifecycle | N/A (out of scope) | ✗ (unchanged) | ✗ (unchanged) |
 | "Mixed" size UX fix | ✓ (no Mixed size in measured variants) | ✗ (unchanged) | ✗ (unchanged) |
 | **Implementation Complexity** | | | |
-| Backend effort (hours) | 180–260 | 30–50 | 68–96 |
-| Frontend effort (hours) | 100–160 | 25–45 | 54–76 |
-| Migration effort (hours) | 40–60 | 5–10 | included above |
-| Testing effort (hours) | 40–60 | 20–30 | 34–49 |
+| Backend effort (hours) | 160–240 | 30–50 | 68–96 |
+| Frontend effort (hours) | 90–140 | 25–45 | 54–76 |
+| Migration effort (hours) | 30–50 | 5–10 | included above |
+| Testing effort (hours) | 40–55 | 20–30 | 34–49 |
 | API breaking changes | Yes (deprecated fields + new shape) | No | Minimal (`Product.gender` → `defaultGender`; nullable) |
 | **Migration Risk** | | | |
 | Data loss risk | Low (with dual-write period) | None | None |
-| Rollback feasibility | Hard (core table restructure) | Easy (DROP COLUMN/TABLE) | Easy (DROP COLUMN; MODIFY gender_id back) |
-| Downtime required | 30–60 min | < 5 min | < 5 min |
+| Rollback feasibility | Medium (parallel table approach) | Easy (DROP COLUMN/TABLE) | Easy (DROP COLUMN; MODIFY gender_id back) |
+| Downtime required | near-zero migration + 5–10 min cutover | < 5 min | < 5 min |
 | Existing mobile clients broken | Yes (during transition) | No | No (COALESCE preserves behaviour; deprecated field kept) |
 | **Long-term Maintainability** | | | |
 | Extensibility | 5/5 (variant layer absorbs new dimensions) | 3/5 (requires schema change per new dimension) | 4/5 (gender clean; size still on product) |
@@ -1653,15 +1836,15 @@ This package includes the `product_gender_size_ranges` junction table, which is 
 
 **For teams prioritizing shipping velocity and low risk:** implement **Scenario 2** now. It delivers all six of the "Must Support" requirements within a single sprint and introduces zero migration risk. The `is_gendered` flag on product categories is an honest, queryable solution to the aggregation problem even if it is not architecturally pure.
 
-**For teams that must resolve the gender-product coupling but cannot afford a full Greenfield migration:** implement **Scenario 3**. It builds directly on top of Scenario 2's additive approach, resolves the core coupling issue (NoGender sentinel, product duplication for gendered items) at a total cost of ~113–172 hours, with no data loss risk and a gradual product consolidation path. The COALESCE fallback preserves full backwards compatibility during the transition period.
+**For teams that must resolve the gender-product coupling but cannot afford a full Greenfield migration:** implement **Scenario 3**. It builds directly on top of Scenario 2's additive approach, resolves the core coupling issue (NoGender sentinel, product duplication for gendered items) at a total cost of ~156–221 hours, with no data loss risk and a gradual product consolidation path. The COALESCE fallback preserves full backwards compatibility during the transition period.
 
-**For teams with a 6-month roadmap and tolerance for a controlled migration window:** plan **Scenario 1** as the target architecture. The ProductVariant layer is the structural change that cleanly handles all dimensions (gender, size, future attributes) and positions Boxtribute well for expanding its product catalog beyond clothing.
+**For teams with a 6-month roadmap and tolerance for a controlled migration window:** plan **Scenario 1 (ERP-Lite)** as the target architecture. The `product_variants` + `product_variant_definitions` model cleanly handles all product types (gendered clothing, pack-format food/hygiene, bulk measured goods) and positions Boxtribute well for expanding its product catalog. The revised design removes `product_value_history` and `standard_product` complexity, bringing the total effort estimate down to ~320–485 hours with a near-zero-downtime dual-write migration.
 
 **Suggested sequencing:**
 
-1. **Sprint 1 (now)**: Ship **Scenario 3** (which is a strict superset of Scenario 2 except for `product_acquisition_log`). The gender decoupling delivers immediate value for food/hygiene onboarding and the effort delta over Scenario 2 is modest (~35–40 extra hours). The `package_specs` table and `history`-based acquisition value tracking are both directly reusable in a future Scenario 1 migration.
-2. **Sprint 2–3**: Add `package_specs` unit type entries to the `units` table (bags, tins, bottles) and expose them via the GraphQL Units query. Optionally run the product consolidation scripts to merge split gendered products organisation by organisation.
-3. **Major version (12–18 months)**: Execute Scenario 1 migration. At this point `package_specs`, `history`-tracked acquisition values, `is_gendered` on categories, and `stock.gender_id` survive the migration unchanged or with trivial renames.
+1. **Sprint 1 (now)**: Ship **Scenario 3** (which is a strict superset of Scenario 2 except for `product_acquisition_log`). The gender decoupling delivers immediate value for food/hygiene onboarding and the effort delta over Scenario 2 is modest (~35–40 extra hours). The `package_specs` table, `product_categories.is_gendered`, and `history`-based acquisition value tracking are all directly reusable in a future Scenario 1 migration.
+2. **Sprint 2–3**: Add `package_specs` unit type entries to the `units` table (bags, tins, bottles, packs) and expose them via the GraphQL Units query. Optionally run the product consolidation scripts to merge split gendered products organisation by organisation.
+3. **Major version (12–18 months)**: Execute Scenario 1 migration. At this point `package_specs`, `history`-tracked acquisition values, `is_gendered` on categories, and `stock.gender_id` survive the migration unchanged or with trivial renames. Add `product_variant_definitions` and `product_variants` tables; repoint `stock.product_id` → `stock.product_variant_id` over a dual-write window.
 
 ---
 
