@@ -152,6 +152,7 @@ function HeaderMenuContainer() {
             link: `/bases/${baseId}/tags`,
             name: "Manage Tags",
             requiredAbps: ["manage_tags"],
+            minBeta: 5,
           },
           {
             link: `/bases/${baseId}/products`,
