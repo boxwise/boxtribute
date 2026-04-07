@@ -8,7 +8,7 @@ export function useTagsActions(selectedTags: Row<TagRow>[]) {
   const { deleteTags, isLoading: isDeleteTagsLoading } = useDeleteTags();
   const onDeleteTags = useCallback(() => {
     deleteTags(
-      selectedTags.map((tagRow) => parseInt(tagRow.original.id)),
+      selectedTags.map((tagRow) => parseInt(tagRow.original.id, 10)),
       true,
       true,
     );

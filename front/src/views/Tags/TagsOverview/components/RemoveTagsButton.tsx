@@ -46,7 +46,7 @@ export const RemoveTagsButton = ({
         leftIcon={<BiTrash />}
         iconSpacing={2}
         isDisabled={actionsAreLoading}
-        data-testid="delete-boxes-button"
+        data-testid="delete-tags-button"
       >
         {labelIdentifier}
       </Button>

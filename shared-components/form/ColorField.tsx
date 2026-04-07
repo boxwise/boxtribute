@@ -273,6 +273,7 @@ export const ColorField = ({
               onOpen={() => {
                 setTempColor(currentColor);
                 updateColorFromTemp(currentColor);
+                setColorQuery(currentColor);
                 onOpen();
               }}
               onClose={() => {

@@ -152,7 +152,6 @@ export function TagsContainer() {
     <TagsTable
       tableConfig={tableConfig}
       tableData={tagsRawToTableDataTransformer(tagsRawData)}
-      refetchData={refetch}
       columns={availableColumns}
       onRowClick={onRowClick}
     />

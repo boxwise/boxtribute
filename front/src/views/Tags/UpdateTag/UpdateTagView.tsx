@@ -12,16 +12,9 @@ import { useNotification } from "hooks/useNotification";
 import { useMutation, useSuspenseQuery } from "@apollo/client";
 import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY } from "views/BoxCreate/BoxCreateView";
 import { graphql } from "../../../../../graphql/graphql";
-import { z } from "zod";
-import { TagForm, TagSchema } from "../components/TagForm";
+import { TagForm } from "../components/TagForm";
 import { ICreateTagFormOutput } from "../CreateTag/CreateTagView";
 import { TAG_QUERY } from "../TagsOverview/components/TagsContainer";
-
-const UpdateTagFormSchema = TagSchema.extend({
-  id: z.number(),
-});
-
-export type IUpdateTagFormOutput = z.output<typeof UpdateTagFormSchema>;
 
 const updateTagQueryErrorText = "Something went wrong! Please try reloading the page.";
 

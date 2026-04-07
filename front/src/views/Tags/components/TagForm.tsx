@@ -143,7 +143,7 @@ export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
               _focus={{ borderColor: "blue.500" }}
               _hover={{ borderColor: "gray.300" }}
               placeholder="Please enter a tag name."
-              type="string"
+              type="text"
               {...register("name")}
             />
             {!!errors.name && <FormErrorMessage>{errors.name.message}</FormErrorMessage>}

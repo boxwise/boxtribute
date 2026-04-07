@@ -16,12 +16,10 @@ import { TagRow } from "./transformers";
 import IndeterminateCheckbox from "views/Boxes/components/Checkbox";
 import { TagsActions } from "views/Tags/TagsOverview/components/TagsActions";
 import { useTagsActions } from "views/Tags/hooks/useTagsActions";
-import { TagsForTagsContainerVariables } from "./TagsContainer";
 
 type TagsTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData: TagRow[];
-  refetchData: (variables?: TagsForTagsContainerVariables) => void;
   columns: Column<TagRow>[];
   onRowClick: (tagId: string) => void;
 };
