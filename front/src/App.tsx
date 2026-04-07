@@ -30,8 +30,8 @@ import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProdu
 import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
 import EditStandardProductView from "views/EditStandardProduct/EditStandardProductView";
 import { TagsView } from "views/Tags/TagsOverview/TagsView";
-import { CreateTagView } from "views/Tags/CreateTagView";
-import { UpdateTagView } from "views/Tags/UpdateTagView";
+import { CreateTagView } from "views/Tags/CreateTag/CreateTagView";
+import { UpdateTagView } from "views/Tags/UpdateTag/UpdateTagView";
 
 type ProtectedRouteProps = {
   component: ReactElement;

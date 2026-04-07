@@ -4,7 +4,7 @@ import { userEvent } from "@testing-library/user-event";
 import { selectOptionInSelectField } from "tests/helpers";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import { UpdateTagView, UPDATE_TAG_MUTATION } from "./UpdateTagView";
-import { TAG_QUERY } from "./TagsOverview/components/TagsContainer";
+import { TAG_QUERY } from "../TagsOverview/components/TagsContainer";
 import { ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY } from "views/BoxCreate/BoxCreateView";
 import { FakeGraphQLError } from "mocks/functions";
 import { useAuth0 } from "@auth0/auth0-react";

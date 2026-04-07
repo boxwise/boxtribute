@@ -17,7 +17,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { ColorField } from "@boxtribute/shared-components/form/ColorField";
-import { ICreateTagFormOutput } from "./CreateTagView";
+import { ICreateTagFormOutput } from "../CreateTag/CreateTagView";
 
 export const nameErrorText = "Please select a name.";
 export const colorErrorText = "Please select a color.";
