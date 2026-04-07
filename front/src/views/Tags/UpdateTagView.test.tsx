@@ -140,41 +140,6 @@ const successfulUpdateTagMutation = {
   },
 };
 
-const successfulUpdateTagMutationAllFields = {
-  request: {
-    query: UPDATE_TAG_MUTATION,
-    variables: {
-      id: "1",
-      name: "Updated Tag Name",
-      type: "All",
-      color: "#123456",
-      description: "Updated description",
-    },
-  },
-  result: {
-    data: {
-      updateTag: {
-        __typename: "Tag",
-        id: "1",
-        name: "Updated Tag Name",
-        description: "Updated description",
-        color: "#123456",
-        type: "All",
-        lastUsedOn: null,
-        base: {
-          id: "1",
-          name: "Test Base",
-        },
-        createdBy: {
-          id: "1",
-          name: "Test User",
-        },
-        createdOn: "2023-11-09T17:24:29+00:00",
-      },
-    },
-  },
-};
-
 describe("UpdateTagView", () => {
   it("renders the update tag form with existing tag data", async () => {
     render(<UpdateTagView />, {
@@ -186,12 +151,12 @@ describe("UpdateTagView", () => {
 
     expect(await screen.findByRole("heading", { name: /update tag/i })).toBeInTheDocument();
     await waitForTagFormToBeReady();
-    // Wait for form to load with existing values
-    // const nameInput = await screen.findByDisplayValue("Existing Tag");
-    // expect(nameInput).toBeInTheDocument();
-
     const descriptionInput = screen.getByDisplayValue("An existing tag");
     expect(descriptionInput).toBeInTheDocument();
+
+    // Verify that the name input is populated with the existing tag's name
+    const nameInput = await screen.findByDisplayValue("Existing Tag");
+    expect(nameInput).toBeInTheDocument();
 
     const colorInput = screen.getByRole("textbox", { name: /color/i });
     expect(colorInput).toBeInTheDocument();

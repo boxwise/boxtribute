@@ -1,7 +1,6 @@
 import { vi, it, describe, expect, beforeEach } from "vitest";
 import { screen, render, waitFor, waitForElementToBeRemoved } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
-import { mockedCreateToast } from "tests/setupTests";
 import { TagsView } from "./TagsView";
 import { TAGS_QUERY } from "./components/TagsContainer";
 import { FakeGraphQLError } from "mocks/functions";
@@ -15,7 +14,7 @@ vi.setConfig({ testTimeout: 20_000 });
 vi.mock("@auth0/auth0-react");
 const mockedUseAuth0 = vi.mocked(useAuth0);
 
-// Mock useNavigate
+// Mock useNavigate and Link
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
@@ -211,6 +210,7 @@ describe("TagsView", () => {
   });
 
   it("navigates to create tag page when clicking Create Tag button", async () => {
+    const user = userEvent.setup();
     render(<TagsView />, {
       routePath: "/bases/:baseId/tags",
       initialUrl: "/bases/1/tags",
@@ -221,8 +221,14 @@ describe("TagsView", () => {
     await screen.findByRole("heading", { name: /manage tags/i });
     await waitForTableSkeletonToBeRemoved();
     const createButton = await screen.findByRole("button", { name: /create tag/i });
-    // Verify the create button is in the document
     expect(createButton).toBeInTheDocument();
+    await user.click(createButton);
+    // The Create Tag button is wrapped in a <Link to="create"> which renders as <a href="create">.
+    // Clicking a mocked Link anchor doesn't invoke the mocked useNavigate (the actual Link
+    // from vi.importActual has its own module-scoped binding to useNavigate). We verify the
+    // correct route by checking the anchor's href attribute instead.
+    const createLink = screen.getByRole("link", { name: /create tag/i });
+    expect(createLink).toHaveAttribute("href", "create");
   });
 
   it("navigates to tag detail when clicking on a row", async () => {
@@ -326,8 +332,11 @@ describe("TagsView", () => {
       expect(screen.getByText("Priority")).toBeInTheDocument();
     });
 
-    // Urgent and Family might be filtered out (depending on implementation)
-    // We verify the search input is functional
+    // Urgent and Family should be filtered out
+    await waitFor(() => {
+      expect(screen.queryByText("Urgent")).not.toBeInTheDocument();
+      expect(screen.queryByText("Family")).not.toBeInTheDocument();
+    });
     expect(searchInput).toHaveValue("Priority");
   });
 
@@ -397,25 +406,6 @@ describe("TagsView", () => {
     checkboxes.forEach((checkbox) => {
       expect(checkbox).toBeChecked();
     });
-  });
-
-  it("displays tag colors correctly", async () => {
-    render(<TagsView />, {
-      routePath: "/bases/:baseId/tags",
-      initialUrl: "/bases/1/tags",
-      mocks: [tagsQuery],
-      addTypename: true,
-    });
-
-    await screen.findByRole("heading", { name: /manage tags/i });
-    await waitForTableSkeletonToBeRemoved();
-    await waitFor(() => {
-      expect(screen.getByText("Priority")).toBeInTheDocument();
-    });
-
-    // Tags should render with their colors
-    const priorityTag = screen.getByText("Priority");
-    expect(priorityTag).toBeInTheDocument();
   });
 
   it("handles tags with null description", async () => {

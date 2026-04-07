@@ -16,7 +16,7 @@ import SelectField from "components/Form/SelectField";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { ColorField } from "@boxtribute/shared-components/form/ColorField";
+import { ColourField } from "@boxtribute/shared-components/form/ColorField";
 import { ICreateTagFormOutput } from "./CreateTagView";
 
 export const nameErrorText = "Please select a name.";
@@ -161,7 +161,7 @@ export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
                 : undefined
             }
           />
-          <ColorField
+          <ColourField
             fieldId="color"
             fieldLabel="Color"
             errors={errors}
