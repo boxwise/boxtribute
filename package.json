@@ -81,7 +81,7 @@
     "rollup": "^4.60.0",
     "tsc-files": "^1.1.4",
     "typescript": "^5.9.3",
-    "vite": "^6.4.1",
+    "vite": "^6.4.2",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^3.2.4"
   },
