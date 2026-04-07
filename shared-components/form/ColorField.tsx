@@ -18,7 +18,7 @@ import {
 import { Controller } from "react-hook-form";
 import { useState, useRef, useEffect, MouseEvent, useCallback } from "react";
 
-export interface ColourFieldProps {
+export interface ColorFieldProps {
   fieldId: string;
   fieldLabel: string;
   errors: object;
@@ -141,13 +141,13 @@ const hsvToHex = (h: number, s: number, v: number): string => {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
 
-export const ColourField = ({
+export const ColorField = ({
   fieldId,
   fieldLabel,
   errors,
   control,
   isRequired = true,
-}: ColourFieldProps) => {
+}: ColorFieldProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [showFullPicker, setShowFullPicker] = useState(false);
   const [colorQuery, setColorQuery] = useState("");
