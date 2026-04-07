@@ -231,6 +231,10 @@ describe("UpdateTagView", () => {
 
     // Submit the form
     const saveButton = screen.getByRole("button", { name: /save tag/i });
+
+    // Button should be enabled before submission
+    expect(saveButton).not.toBeDisabled();
+
     await user.click(saveButton);
 
     // Verify success toast is shown
@@ -510,53 +514,5 @@ describe("UpdateTagView", () => {
 
     // Verify navigation back
     expect(mockNavigate).toHaveBeenCalledWith("..");
-  }, 20000);
-
-  // Note: Component doesn't render when tagId is missing - this is expected behavior
-
-  it("displays loading state during submission", async () => {
-    const user = userEvent.setup();
-    render(<UpdateTagView />, {
-      routePath: "/bases/:baseId/tags/:tagId",
-      initialUrl: "/bases/1/tags/1",
-      mocks: [tagQuery, successfulUpdateTagMutationAllFields, ...refetchQueries],
-      addTypename: true,
-    });
-
-    await screen.findByRole("heading", { name: /update tag/i });
-    await waitForTagFormToBeReady();
-    // expect(await screen.findByDisplayValue("Existing Tag")).toBeInTheDocument();
-
-    // Update a field
-    const nameInput = screen.getByPlaceholderText(/please enter a tag name/i);
-    await user.clear(nameInput);
-    await user.type(nameInput, "Updated Tag Name");
-
-    await selectOptionInSelectField(user, /apply to/i, "Boxes + Beneficiaries", "");
-
-    const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.tripleClick(colorInput);
-    await user.keyboard("#123456");
-
-    const descriptionInput = screen.getByDisplayValue("An existing tag");
-    await user.clear(descriptionInput);
-    await user.type(descriptionInput, "Updated description");
-
-    // Submit the form
-    const saveButton = screen.getByRole("button", { name: /save tag/i });
-
-    // Button should be enabled before submission
-    expect(saveButton).not.toBeDisabled();
-
-    await user.click(saveButton);
-
-    // Verify the form eventually completes
-    await waitFor(() =>
-      expect(mockedCreateToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: "The tag was successfully updated.",
-        }),
-      ),
-    );
   }, 20000);
 });

@@ -428,27 +428,6 @@ describe("TagsView", () => {
     });
   });
 
-  it("shows column selector and allows toggling columns", async () => {
-    render(<TagsView />, {
-      routePath: "/bases/:baseId/tags",
-      initialUrl: "/bases/1/tags",
-      mocks: [tagsQuery],
-      addTypename: true,
-    });
-
-    await screen.findByRole("heading", { name: /manage tags/i });
-    await waitForTableSkeletonToBeRemoved();
-    await waitFor(() => {
-      expect(screen.getByText("Priority")).toBeInTheDocument();
-    });
-
-    // Look for column selector button (usually has an icon or specific label)
-    const columnSelectorButtons = screen.getAllByRole("button");
-
-    // Column selector should be present
-    expect(columnSelectorButtons.length).toBeGreaterThan(0);
-  });
-
   it("displays tag colors correctly", async () => {
     render(<TagsView />, {
       routePath: "/bases/:baseId/tags",

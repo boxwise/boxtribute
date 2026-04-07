@@ -171,6 +171,10 @@ describe("CreateTagView", () => {
 
     // Submit the form
     const saveButton = screen.getByRole("button", { name: /save tag/i });
+
+    // Button should be enabled before submission
+    expect(saveButton).not.toBeDisabled();
+
     await user.click(saveButton);
 
     // Verify success toast is shown
@@ -428,48 +432,5 @@ describe("CreateTagView", () => {
 
     // Verify navigation back
     expect(mockNavigate).toHaveBeenCalledWith("..");
-  });
-
-  it("displays loading state during submission", async () => {
-    const user = userEvent.setup();
-    render(<CreateTagView />, {
-      routePath: "/bases/:baseId/tags/create",
-      initialUrl: "/bases/1/tags/create",
-      mocks: [successfulCreateTagMutation, ...refetchQueries],
-      addTypename: true,
-    });
-
-    await screen.findByRole("heading", { name: /add new tag/i });
-
-    // Fill in the form
-    const nameInput = screen.getByPlaceholderText(/please enter a tag name/i);
-    await user.clear(nameInput);
-    await user.type(nameInput, "New Tag");
-
-    await selectOptionInSelectField(user, /apply to/i, "Boxes", "");
-
-    const colorInput = screen.getByRole("textbox", { name: /color/i });
-    await user.tripleClick(colorInput);
-    await user.keyboard("#FF5733");
-
-    const descriptionInput = screen.getByRole("textbox", { name: /description/i });
-    await user.type(descriptionInput, "A test tag description");
-
-    // Submit the form
-    const saveButton = screen.getByRole("button", { name: /save tag/i });
-
-    // Button should be enabled before submission
-    expect(saveButton).not.toBeDisabled();
-
-    await user.click(saveButton);
-
-    // Verify the form eventually completes
-    await waitFor(() =>
-      expect(mockedCreateToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message: "The tag was successfully created.",
-        }),
-      ),
-    );
   });
 });
