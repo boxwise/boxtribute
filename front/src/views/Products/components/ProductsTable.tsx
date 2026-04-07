@@ -18,10 +18,12 @@ import {
   Flex,
   Text,
   IconButton,
+  Button,
   HStack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { Link } from "react-router-dom";
+import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
@@ -150,6 +152,11 @@ function ProductsTable({
   return (
     <Flex direction="column" overflowX="auto">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
+        <Link to="create">
+          <Button leftIcon={<AddIcon />} borderRadius="0">
+            Add New Product
+          </Button>
+        </Link>
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
