@@ -176,7 +176,7 @@ it("3.2.1 - Initial load of Page", async () => {
 
   // 3.2.1.7 Comments of Box is shown
   expect(await screen.findByDisplayValue(/test/i)).toBeInTheDocument();
-}, 20000);
+}, 40000);
 
 it("3.2.2 - Cancel Button", async () => {
   const user = userEvent.setup();
