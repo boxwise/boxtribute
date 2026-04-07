@@ -1,5 +1,4 @@
 import { Heading, Skeleton, Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/react";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { useAtomValue } from "jotai";
 import { selectedBaseAtom } from "stores/globalPreferenceStore";
 import StandardProductsContainer from "./components/StandardProductsContainer";
@@ -15,9 +14,6 @@ function Products() {
 
   return (
     <>
-      <BreadcrumbNavigation
-        items={[{ label: "Coordinator Admin" }, { label: "Manage Products" }]}
-      />
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Products
       </Heading>
