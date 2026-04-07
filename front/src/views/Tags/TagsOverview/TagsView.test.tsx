@@ -159,7 +159,7 @@ describe("TagsView", () => {
     await waitForTableSkeletonToBeRemoved();
     // Wait for buttons to load (they're inside Suspense)
     expect(await screen.findByRole("button", { name: /create tag/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /delete tags/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /delete tags/i })).not.toBeInTheDocument();
   });
 
   it("displays tags in the table", async () => {
@@ -269,35 +269,6 @@ describe("TagsView", () => {
     // Select the first tag
     await user.click(checkboxes[1]); // Skip header checkbox (index 0)
     expect(checkboxes[1]).toBeChecked();
-  });
-
-  it("shows warning when trying to delete without selecting tags", async () => {
-    const user = userEvent.setup();
-    render(<TagsView />, {
-      routePath: "/bases/:baseId/tags",
-      initialUrl: "/bases/1/tags",
-      mocks: [tagsQuery],
-      addTypename: true,
-    });
-
-    await screen.findByRole("heading", { name: /manage tags/i });
-    await waitForTableSkeletonToBeRemoved();
-    await waitFor(() => {
-      expect(screen.getByText("Priority")).toBeInTheDocument();
-    });
-
-    const deleteButton = await screen.findByRole("button", { name: /delete tags/i });
-    await user.click(deleteButton);
-
-    // Should show warning toast
-    await waitFor(() =>
-      expect(mockedCreateToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "warning",
-          message: "Please select a tag to delete",
-        }),
-      ),
-    );
   });
 
   it("opens delete confirmation dialog when deleting selected tags", async () => {

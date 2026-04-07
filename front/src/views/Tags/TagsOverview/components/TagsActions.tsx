@@ -19,13 +19,15 @@ export function TagsActions({ selectedTags, onDeleteTags, actionsAreLoading }: T
           Create Tag
         </Button>
       </Link>
-      <RemoveTagsButton
-        labelIdentifier="Delete Tags"
-        onDeleteTags={onDeleteTags}
-        actionsAreLoading={actionsAreLoading}
-        selectedTags={selectedTags}
-        key="remove-tags"
-      />
+      {selectedTags.length > 0 && (
+        <RemoveTagsButton
+          labelIdentifier="Delete Tags"
+          onDeleteTags={onDeleteTags}
+          actionsAreLoading={actionsAreLoading}
+          selectedTags={selectedTags}
+          key="remove-tags"
+        />
+      )}
     </ButtonGroup>
   );
 }
