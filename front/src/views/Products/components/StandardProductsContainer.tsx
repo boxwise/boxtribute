@@ -243,23 +243,39 @@ function StandardProductsContainer() {
 
   if (error) throw error;
 
+  const tableData = useMemo(
+    () =>
+      standardProductsRawData
+        ? standardProductsRawDataToTableDataTransformer(standardProductsRawData)
+        : [],
+    [standardProductsRawData],
+  );
+
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(new Set(tableData.map((row) => row.category).filter(Boolean)))
+        .map((c) => ({ label: c, value: c, urlId: c }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [tableData],
+  );
+
+  const genderOptions = useMemo(
+    () =>
+      Array.from(new Set(tableData.map((row) => row.gender).filter(Boolean)))
+        .map((g) => ({ label: g, value: g, urlId: g }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [tableData],
+  );
+
+  const sizeRangeOptions = useMemo(
+    () =>
+      Array.from(new Set(tableData.map((row) => row.sizeRange).filter(Boolean)))
+        .map((s) => ({ label: s, value: s, urlId: s }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [tableData],
+  );
+
   if (!standardProductsRawData || isStandardProductsQueryLoading) return <TableSkeleton />;
-
-  const tableData = standardProductsRawDataToTableDataTransformer(standardProductsRawData);
-
-  const categoryOptions = Array.from(new Set(tableData.map((row) => row.category).filter(Boolean)))
-    .map((c) => ({ label: c, value: c, urlId: c }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-
-  const genderOptions = Array.from(new Set(tableData.map((row) => row.gender).filter(Boolean)))
-    .map((g) => ({ label: g, value: g, urlId: g }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-
-  const sizeRangeOptions = Array.from(
-    new Set(tableData.map((row) => row.sizeRange).filter(Boolean)),
-  )
-    .map((s) => ({ label: s, value: s, urlId: s }))
-    .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
     <StandardProductsTable
