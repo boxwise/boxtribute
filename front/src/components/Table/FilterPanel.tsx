@@ -29,7 +29,7 @@ export function FilterPanel({
   children,
 }: FilterPanelProps) {
   return (
-    <Popover placement={placement} isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+    <Popover placement={placement} isOpen={isOpen} onOpen={onOpen} onClose={onClose} isLazy>
       <PopoverTrigger>
         <IconButton
           icon={<MdFilterList color={"black"} size={25} />}
