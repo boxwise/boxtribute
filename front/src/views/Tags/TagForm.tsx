@@ -177,7 +177,7 @@ export function TagForm({ isLoading, onSubmit, defaultValues }: ITagFormProps) {
               borderRadius={0}
               _focus={{ borderColor: "blue.500" }}
               _hover={{ borderColor: "gray.300" }}
-              size="lg"
+              size="md"
               {...register("description")}
             />
           </FormControl>

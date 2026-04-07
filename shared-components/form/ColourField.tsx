@@ -285,7 +285,7 @@ export const ColourField = ({
                 <Box>
                   <HStack
                     spacing={0}
-                    border="2px"
+                    border="1px"
                     cursor="pointer"
                     _hover={{ borderColor: "gray.400" }}
                   >

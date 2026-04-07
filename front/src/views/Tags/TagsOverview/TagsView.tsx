@@ -1,5 +1,4 @@
 import { Heading } from "@chakra-ui/react";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
@@ -9,7 +8,6 @@ import { TagsContainer } from "./components/TagsContainer";
 export function TagsView() {
   return (
     <>
-      <BreadcrumbNavigation items={[{ label: "Coordinator Admin" }, { label: "Manage Tags" }]} />
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Tags
       </Heading>
