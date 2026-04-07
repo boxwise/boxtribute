@@ -20,7 +20,7 @@ import { ColorField } from "@boxtribute/shared-components/form/ColorField";
 import { ICreateTagFormOutput } from "../CreateTag/CreateTagView";
 
 export const nameErrorText = "Please select a name.";
-export const colorErrorText = "Please select a color.";
+export const colorErrorText = "Please select a valid color.";
 export const applicationErrorText = "Please select what this tag applies to.";
 
 export const TAG_APPLICATION_OPTIONS = ["All", "Beneficiary", "Box"] as const;

@@ -70,11 +70,7 @@ export function TagsContainer() {
   };
 
   // fetch Tags data
-  const {
-    data: tagsRawData,
-    error,
-    refetch,
-  } = useSuspenseQuery(TAGS_QUERY, {
+  const { data: tagsRawData, error } = useSuspenseQuery(TAGS_QUERY, {
     variables: { baseId },
   });
 
