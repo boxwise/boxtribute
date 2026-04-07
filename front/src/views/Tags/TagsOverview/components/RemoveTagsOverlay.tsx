@@ -20,6 +20,9 @@ export function RemoveTagsOverlay({
   onRemove,
 }: IRemoveTagsOverlayProps) {
   const title = `Delete Tag${selectedTags.length > 1 ? "s" : ""}`;
+  const tagsWithApplication = selectedTags.filter(
+    (tagRow) => tagRow.original.totalTaggedItemsCount > 0,
+  );
   const body = (
     <VStack align="start" spacing={8}>
       <chakra.span>
@@ -27,9 +30,10 @@ export function RemoveTagsOverlay({
         {selectedTags.length > 1 ? "s" : ""}?
       </chakra.span>
       <chakra.span>
-        <b>Note:</b> This action cannot be undone. This will also:
+        <b>Note:</b> This action cannot be undone.{" "}
+        {tagsWithApplication.length > 0 && "This will also:"}
         <ul style={{ marginTop: "8px", marginLeft: "20px", listStyleType: "disc" }}>
-          {selectedTags.map((tagRow) => (
+          {tagsWithApplication.map((tagRow) => (
             <li key={tagRow.original.id}>
               Remove the tag &quot;{tagRow.original.name}&quot; from{" "}
               {tagRow.original.totalTaggedItemsCount} items.
