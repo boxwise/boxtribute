@@ -141,17 +141,21 @@ const hsvToHex = (h: number, s: number, v: number): string => {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
 
-export const ColorField = ({
-  fieldId,
-  fieldLabel,
-  errors,
-  control,
-  isRequired = true,
-}: ColorFieldProps) => {
+const isCompleteValidHex = (v: string) =>
+  /^#[0-9A-Fa-f]{6}$/.test(v) || /^#[0-9A-Fa-f]{3}$/.test(v);
+
+const isPartialValidHex = (v: string) => /^#[0-9A-Fa-f]{0,6}$/.test(v);
+
+interface ColorPickerWidgetProps {
+  field: { value: string; onChange: (value: string) => void };
+}
+
+function ColorPickerWidget({ field }: ColorPickerWidgetProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [showFullPicker, setShowFullPicker] = useState(false);
   const [colorQuery, setColorQuery] = useState("");
   const [tempColor, setTempColor] = useState<string | undefined>(undefined);
+  const [triggerInput, setTriggerInput] = useState((field.value || "#7973e2").toUpperCase());
   const [hue, setHue] = useState(0);
   const [saturation, setSaturation] = useState(100);
   const [value, setValue] = useState(100);
@@ -159,6 +163,13 @@ export const ColorField = ({
   const hueRef = useRef<HTMLDivElement>(null);
   const [isDraggingGradient, setIsDraggingGradient] = useState(false);
   const [isDraggingHue, setIsDraggingHue] = useState(false);
+
+  const currentColor = field.value || "#7973e2";
+
+  // Sync trigger input display when the committed color changes (e.g. after Choose)
+  useEffect(() => {
+    setTriggerInput(currentColor.toUpperCase());
+  }, [currentColor]);
 
   const updateColorFromTemp = (color: string) => {
     const hsv = hexToHSV(color);
@@ -252,288 +263,276 @@ export const ColorField = ({
   }, [isDraggingGradient, isDraggingHue, updateGradientColor, updateHue]);
 
   return (
-    <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
-      <FormLabel htmlFor={fieldId}>
-        {fieldLabel}{" "}
-        {isRequired && (
-          <Text as="span" color="red.500">
-            *
-          </Text>
-        )}
-      </FormLabel>
-      <Controller
-        name={fieldId}
-        control={control}
-        render={({ field }) => {
-          const currentColor = field.value || "#7973e2";
-
-          return (
-            <Popover
-              isOpen={isOpen}
-              onOpen={() => {
-                setTempColor(currentColor);
-                updateColorFromTemp(currentColor);
-                setColorQuery(currentColor);
-                onOpen();
+    <Popover
+      isOpen={isOpen}
+      onOpen={() => {
+        setTempColor(currentColor);
+        updateColorFromTemp(currentColor);
+        setColorQuery(currentColor);
+        onOpen();
+      }}
+      onClose={() => {
+        setShowFullPicker(false);
+        onClose();
+      }}
+      placement="bottom-start"
+    >
+      <PopoverTrigger>
+        <Box>
+          <HStack spacing={0} border="1px" cursor="pointer" _hover={{ borderColor: "gray.400" }}>
+            <Box w="40px" h="40px" bg={currentColor} />
+            <Input
+              className="border-0 text-left outline-0 w-full"
+              value={triggerInput}
+              onChange={(e) => {
+                const v = e.target.value;
+                setTriggerInput(v);
+                // Only commit to form state when the hex is complete and valid;
+                // partial values (e.g. "#1") are kept in local state only so the
+                // swatch stays valid and Cancel still reverts correctly.
+                if (isCompleteValidHex(v)) {
+                  field.onChange(v);
+                }
               }}
-              onClose={() => {
-                setShowFullPicker(false);
+              onBlur={() => {
+                // If the user typed an incomplete hex and moved away, revert to
+                // the last committed color.
+                if (!isCompleteValidHex(triggerInput)) {
+                  setTriggerInput(currentColor.toUpperCase());
+                }
+              }}
+              onPaste={(e) => {
+                const pastedText = e.clipboardData.getData("text");
+                if (pastedText.startsWith("#")) {
+                  e.preventDefault();
+                  setTriggerInput(pastedText);
+                  if (isCompleteValidHex(pastedText)) {
+                    field.onChange(pastedText);
+                  }
+                }
+              }}
+              placeholder="Any hex color code (e.g., #FF5733)"
+              fontWeight="medium"
+            />
+          </HStack>
+        </Box>
+      </PopoverTrigger>
+      <PopoverContent width="auto" maxW="400px">
+        <PopoverBody p={4}>
+          <HStack align="stretch" spacing={4}>
+            <VStack h="full" w={showFullPicker ? "35%" : "100%"} spacing={3}>
+              <HStack spacing={2} flexWrap="wrap">
+                {PRESET_COLORS.map((color) => (
+                  <Box
+                    key={color}
+                    w="32px"
+                    h="32px"
+                    bg={color}
+                    borderRadius="md"
+                    cursor="pointer"
+                    border="2px solid"
+                    borderColor={tempColor === color ? "blue.500" : "gray.200"}
+                    onClick={() => {
+                      setTempColor(color);
+                      setColorQuery(color.toUpperCase());
+                      updateColorFromTemp(color);
+                    }}
+                    _hover={{ transform: "scale(1.1)" }}
+                    transition="all 0.2s"
+                  />
+                ))}
+              </HStack>
+
+              {/* Toggle Full Picker */}
+              {!showFullPicker ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFullPicker(true)}
+                  color="gray.600"
+                >
+                  More
+                </Button>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFullPicker(false)}
+                  color="gray.600"
+                >
+                  Less
+                </Button>
+              )}
+            </VStack>
+            {showFullPicker && (
+              <VStack w="65%" spacing={3}>
+                {/* Color Picker */}
+                <HStack spacing={3} align="stretch" w="full">
+                  {/* Saturation/Value Gradient */}
+                  <Box
+                    ref={gradientRef}
+                    position="relative"
+                    h="250px"
+                    w="full"
+                    borderRadius="md"
+                    cursor="crosshair"
+                    onMouseDown={handleGradientMouseDown}
+                    background={`
+                      linear-gradient(to top, #000, transparent),
+                      linear-gradient(to right, #fff, hsl(${hue}, 100%, 50%))
+                    `}
+                  >
+                    {/* Selector Circle */}
+                    <Box
+                      position="absolute"
+                      left={`${saturation}%`}
+                      top={`${100 - value}%`}
+                      w="16px"
+                      h="16px"
+                      border="2px solid white"
+                      borderRadius="50%"
+                      transform="translate(-50%, -50%)"
+                      pointerEvents="none"
+                      boxShadow="0 0 0 1px rgba(0,0,0,0.3)"
+                    />
+                  </Box>
+
+                  {/* Hue Slider */}
+                  <Box
+                    ref={hueRef}
+                    position="relative"
+                    w="30px"
+                    h="250px"
+                    borderRadius="md"
+                    cursor="pointer"
+                    onMouseDown={handleHueMouseDown}
+                    background="linear-gradient(to bottom,
+                      #ff0000 0%,
+                      #ffff00 17%,
+                      #00ff00 33%,
+                      #00ffff 50%,
+                      #0000ff 67%,
+                      #ff00ff 83%,
+                      #ff0000 100%
+                    )"
+                  >
+                    {/* Hue Selector */}
+                    <Box
+                      position="absolute"
+                      top={`${(hue / 360) * 100}%`}
+                      left="50%"
+                      w="36px"
+                      h="4px"
+                      bg="white"
+                      borderRadius="sm"
+                      transform="translate(-50%, -50%)"
+                      pointerEvents="none"
+                      boxShadow="0 0 2px rgba(0,0,0,0.5)"
+                    />
+                  </Box>
+                </HStack>
+
+                {/* Hex Input */}
+                <Input
+                  value={colorQuery.toUpperCase()}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setColorQuery(v);
+                    if (isPartialValidHex(v)) {
+                      setTempColor(v);
+                      updateColorFromTemp(v);
+                    } else {
+                      setTempColor(undefined);
+                    }
+                  }}
+                  onPaste={(e) => {
+                    const pastedText = e.clipboardData.getData("text");
+                    if (pastedText.startsWith("#")) {
+                      e.preventDefault();
+                      setColorQuery(pastedText);
+                      if (isPartialValidHex(pastedText)) {
+                        setTempColor(pastedText);
+                        updateColorFromTemp(pastedText);
+                      } else {
+                        setTempColor(undefined);
+                      }
+                    }
+                  }}
+                  placeholder="Any hex color code (e.g., #FF5733)"
+                  textAlign="center"
+                  fontWeight="medium"
+                />
+              </VStack>
+            )}
+          </HStack>
+        </PopoverBody>
+        <PopoverFooter display="flex" gap={2}>
+          {/* Color Preview */}
+          <HStack w="full" spacing={4} align="center">
+            <Box
+              w="50%"
+              h="50px"
+              bg={tempColor}
+              borderRadius="md"
+              border="1px solid"
+              borderColor="gray.300"
+            />
+          </HStack>
+          <HStack>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                // Cancel: close without committing tempColor; trigger display
+                // reverts to the last committed color via the useEffect above.
+                setTriggerInput(currentColor.toUpperCase());
                 onClose();
               }}
-              placement="bottom-start"
             >
-              <PopoverTrigger>
-                <Box>
-                  <HStack
-                    spacing={0}
-                    border="1px"
-                    cursor="pointer"
-                    _hover={{ borderColor: "gray.400" }}
-                  >
-                    <Box w="40px" h="40px" bg={currentColor} />
-                    <Input
-                      className="border-0 text-left outline-0 w-full"
-                      value={currentColor.toUpperCase()}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setColorQuery(value);
-                        if (
-                          /^#[0-9A-Fa-f]{0,6}$/.test(value) ||
-                          /^#[0-9A-Fa-f]{0,3}$/.test(value) ||
-                          /^#[0-9A-Fa-f]{0,4}$/.test(value)
-                        ) {
-                          setTempColor(value);
-                          field.onChange(value);
-                        } else {
-                          setTempColor(undefined);
-                        }
-                      }}
-                      onPaste={(e) => {
-                        const pastedText = e.clipboardData.getData("text");
-                        if (pastedText.startsWith("#")) {
-                          e.preventDefault();
-                          const valueWithoutHash = pastedText.slice(1);
-                          const newValue = "#" + valueWithoutHash;
-                          setColorQuery(newValue);
-                          if (
-                            /^#[0-9A-Fa-f]{0,6}$/.test(newValue) ||
-                            /^#[0-9A-Fa-f]{0,3}$/.test(newValue) ||
-                            /^#[0-9A-Fa-f]{0,4}$/.test(newValue)
-                          ) {
-                            setTempColor(newValue);
-                            field.onChange(newValue);
-                          } else {
-                            setTempColor(undefined);
-                          }
-                        }
-                      }}
-                      placeholder="Any hex color code (e.g., #FF5733)"
-                      fontWeight="medium"
-                    />
-                  </HStack>
-                </Box>
-              </PopoverTrigger>
-              <PopoverContent width="auto" maxW="400px">
-                <PopoverBody p={4}>
-                  <HStack align="stretch" spacing={4}>
-                    <VStack h="full" w={showFullPicker ? "35%" : "100%"} spacing={3}>
-                      <HStack spacing={2} flexWrap="wrap">
-                        {PRESET_COLORS.map((color) => (
-                          <Box
-                            key={color}
-                            w="32px"
-                            h="32px"
-                            bg={color}
-                            borderRadius="md"
-                            cursor="pointer"
-                            border="2px solid"
-                            borderColor={tempColor === color ? "blue.500" : "gray.200"}
-                            onClick={() => {
-                              setTempColor(color);
-                              setColorQuery(color.toUpperCase());
-                              updateColorFromTemp(color);
-                            }}
-                            _hover={{ transform: "scale(1.1)" }}
-                            transition="all 0.2s"
-                          />
-                        ))}
-                      </HStack>
-
-                      {/* Toggle Full Picker */}
-                      {!showFullPicker ? (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowFullPicker(true)}
-                          color="gray.600"
-                        >
-                          More
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setShowFullPicker(false)}
-                          color="gray.600"
-                        >
-                          Less
-                        </Button>
-                      )}
-                    </VStack>
-                    {showFullPicker && (
-                      <VStack w="65%" spacing={3}>
-                        {/* Color Picker */}
-                        <HStack spacing={3} align="stretch" w="full">
-                          {/* Saturation/Value Gradient */}
-                          <Box
-                            ref={gradientRef}
-                            position="relative"
-                            h="250px"
-                            w="full"
-                            borderRadius="md"
-                            cursor="crosshair"
-                            onMouseDown={handleGradientMouseDown}
-                            background={`
-                              linear-gradient(to top, #000, transparent),
-                              linear-gradient(to right, #fff, hsl(${hue}, 100%, 50%))
-                            `}
-                          >
-                            {/* Selector Circle */}
-                            <Box
-                              position="absolute"
-                              left={`${saturation}%`}
-                              top={`${100 - value}%`}
-                              w="16px"
-                              h="16px"
-                              border="2px solid white"
-                              borderRadius="50%"
-                              transform="translate(-50%, -50%)"
-                              pointerEvents="none"
-                              boxShadow="0 0 0 1px rgba(0,0,0,0.3)"
-                            />
-                          </Box>
-
-                          {/* Hue Slider */}
-                          <Box
-                            ref={hueRef}
-                            position="relative"
-                            w="30px"
-                            h="250px"
-                            borderRadius="md"
-                            cursor="pointer"
-                            onMouseDown={handleHueMouseDown}
-                            background="linear-gradient(to bottom,
-                              #ff0000 0%,
-                              #ffff00 17%,
-                              #00ff00 33%,
-                              #00ffff 50%,
-                              #0000ff 67%,
-                              #ff00ff 83%,
-                              #ff0000 100%
-                            )"
-                          >
-                            {/* Hue Selector */}
-                            <Box
-                              position="absolute"
-                              top={`${(hue / 360) * 100}%`}
-                              left="50%"
-                              w="36px"
-                              h="4px"
-                              bg="white"
-                              borderRadius="sm"
-                              transform="translate(-50%, -50%)"
-                              pointerEvents="none"
-                              boxShadow="0 0 2px rgba(0,0,0,0.5)"
-                            />
-                          </Box>
-                        </HStack>
-
-                        {/* Hex Input */}
-                        <Input
-                          value={colorQuery.toUpperCase()}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setColorQuery(value);
-                            if (
-                              /^#[0-9A-Fa-f]{0,6}$/.test(value) ||
-                              /^#[0-9A-Fa-f]{0,3}$/.test(value) ||
-                              /^#[0-9A-Fa-f]{0,4}$/.test(value)
-                            ) {
-                              setTempColor(value);
-                              updateColorFromTemp(value);
-                            } else {
-                              setTempColor(undefined);
-                            }
-                          }}
-                          onPaste={(e) => {
-                            const pastedText = e.clipboardData.getData("text");
-                            if (pastedText.startsWith("#")) {
-                              e.preventDefault();
-                              const valueWithoutHash = pastedText.slice(1);
-                              const newValue = "#" + valueWithoutHash;
-                              setColorQuery(newValue);
-                              if (
-                                /^#[0-9A-Fa-f]{0,6}$/.test(newValue) ||
-                                /^#[0-9A-Fa-f]{0,3}$/.test(newValue) ||
-                                /^#[0-9A-Fa-f]{0,4}$/.test(newValue)
-                              ) {
-                                setTempColor(newValue);
-                                updateColorFromTemp(newValue);
-                              } else {
-                                setTempColor(undefined);
-                              }
-                            }
-                          }}
-                          placeholder="Any hex color code (e.g., #FF5733)"
-                          textAlign="center"
-                          fontWeight="medium"
-                        />
-                      </VStack>
-                    )}
-                  </HStack>
-                </PopoverBody>
-                <PopoverFooter display="flex" gap={2}>
-                  {/* Color Preview */}
-                  <HStack w="full" spacing={4} align="center">
-                    <Box
-                      w="50%"
-                      h="50px"
-                      bg={tempColor}
-                      borderRadius="md"
-                      border="1px solid"
-                      borderColor="gray.300"
-                    />
-                  </HStack>
-                  <HStack>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        // setShowFullPicker(false);
-                        onClose();
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      colorScheme="green"
-                      onClick={() => {
-                        field.onChange(tempColor);
-                        // setShowFullPicker(false);
-                        onClose();
-                      }}
-                    >
-                      Choose
-                    </Button>
-                  </HStack>
-                </PopoverFooter>
-              </PopoverContent>
-            </Popover>
-          );
-        }}
-      />
-      <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
-    </FormControl>
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              colorScheme="green"
+              onClick={() => {
+                // Only commit when we have a complete, valid hex color.
+                if (tempColor && isCompleteValidHex(tempColor)) {
+                  field.onChange(tempColor);
+                  // triggerInput will sync via the useEffect on currentColor.
+                }
+                onClose();
+              }}
+            >
+              Choose
+            </Button>
+          </HStack>
+        </PopoverFooter>
+      </PopoverContent>
+    </Popover>
   );
-};
+}
+
+export const ColorField = ({
+  fieldId,
+  fieldLabel,
+  errors,
+  control,
+  isRequired = true,
+}: ColorFieldProps) => (
+  <FormControl isInvalid={!!errors[fieldId]} id={fieldId}>
+    <FormLabel htmlFor={fieldId}>
+      {fieldLabel}{" "}
+      {isRequired && (
+        <Text as="span" color="red.500">
+          *
+        </Text>
+      )}
+    </FormLabel>
+    <Controller
+      name={fieldId}
+      control={control}
+      render={({ field }) => <ColorPickerWidget field={field} />}
+    />
+    <FormErrorMessage>{!!errors[fieldId] && errors[fieldId].message}</FormErrorMessage>
+  </FormControl>
+);
