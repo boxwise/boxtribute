@@ -25,7 +25,7 @@ import {
 import { Link } from "react-router-dom";
 import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
-import { ProductRow } from "./transformers";
+import { ProductRow, removeFilter } from "./transformers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -129,22 +129,7 @@ function ProductsTable({
 
   const handleRemoveFilter = useCallback(
     (filterId: string, valueToRemove?: string) => {
-      const updatedFilters = filters
-        .map((filter) => {
-          if (filter.id === filterId) {
-            if (!valueToRemove) {
-              return null;
-            }
-            const remainingValues = Array.isArray(filter.value)
-              ? filter.value.filter((v: string) => v !== valueToRemove)
-              : [];
-            return remainingValues.length > 0 ? { ...filter, value: remainingValues } : null;
-          }
-          return filter;
-        })
-        .filter((f) => f !== null) as Filters<any>;
-
-      setAllFilters(updatedFilters);
+      removeFilter(filterId, valueToRemove, filters, setAllFilters);
     },
     [filters, setAllFilters],
   );

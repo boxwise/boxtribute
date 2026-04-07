@@ -15,7 +15,11 @@ import {
 } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { StandardProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
+import {
+  StandardProductRow,
+  standardProductsRawDataToTableDataTransformer,
+  createOptions,
+} from "./transformers";
 import StandardProductsTable from "./StandardProductsTable";
 import { DateCell } from "components/Table/Cells";
 import { useDisableOrDeleteProducts } from "../../../hooks/useDisableOrDeleteProducts";
@@ -251,29 +255,11 @@ function StandardProductsContainer() {
     [standardProductsRawData],
   );
 
-  const categoryOptions = useMemo(
-    () =>
-      Array.from(new Set(tableData.map((row) => row.category).filter(Boolean)))
-        .map((c) => ({ label: c, value: c, urlId: c }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    [tableData],
-  );
+  const categoryOptions = useMemo(() => createOptions(tableData, "category"), [tableData]);
 
-  const genderOptions = useMemo(
-    () =>
-      Array.from(new Set(tableData.map((row) => row.gender).filter(Boolean)))
-        .map((g) => ({ label: g, value: g, urlId: g }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    [tableData],
-  );
+  const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
 
-  const sizeRangeOptions = useMemo(
-    () =>
-      Array.from(new Set(tableData.map((row) => row.sizeRange).filter(Boolean)))
-        .map((s) => ({ label: s, value: s, urlId: s }))
-        .sort((a, b) => a.label.localeCompare(b.label)),
-    [tableData],
-  );
+  const sizeRangeOptions = useMemo(() => createOptions(tableData, "sizeRange"), [tableData]);
 
   if (!standardProductsRawData || isStandardProductsQueryLoading) return <TableSkeleton />;
 

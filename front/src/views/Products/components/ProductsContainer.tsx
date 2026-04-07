@@ -12,7 +12,7 @@ import {
 import { graphql } from "../../../../../graphql/graphql";
 import { useTableConfig } from "hooks/useTableConfig";
 import { useDisableOrDeleteProducts } from "hooks/useDisableOrDeleteProducts";
-import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
+import { ProductRow, productsRawToTableDataTransformer, createOptions } from "./transformers";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
@@ -226,35 +226,11 @@ function ProductsContainer() {
     [productsRawData],
   );
 
-  const categoryOptions = useMemo(() => {
-    const unique = new Set<string>();
-    tableData.forEach((row) => {
-      if (row.category) unique.add(row.category);
-    });
-    return Array.from(unique)
-      .map((c) => ({ label: c, value: c, urlId: c }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [tableData]);
+  const categoryOptions = useMemo(() => createOptions(tableData, "category"), [tableData]);
 
-  const genderOptions = useMemo(() => {
-    const unique = new Set<string>();
-    tableData.forEach((row) => {
-      if (row.gender) unique.add(row.gender);
-    });
-    return Array.from(unique)
-      .map((g) => ({ label: g, value: g, urlId: g }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [tableData]);
+  const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
 
-  const sizeRangeOptions = useMemo(() => {
-    const unique = new Set<string>();
-    tableData.forEach((row) => {
-      if (row.sizeRange) unique.add(row.sizeRange);
-    });
-    return Array.from(unique)
-      .map((s) => ({ label: s, value: s, urlId: s }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [tableData]);
+  const sizeRangeOptions = useMemo(() => createOptions(tableData, "sizeRange"), [tableData]);
 
   return (
     <>
