@@ -70,7 +70,7 @@ export function TagsContainer() {
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [],
-      sortBy: [{ id: "lastUsedOn", desc: false }],
+      sortBy: [{ id: "lastUsedOn", desc: true }],
       hiddenColumns: ["createdOn", "lastModifiedOn"],
     },
   });
