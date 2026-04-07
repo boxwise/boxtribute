@@ -135,7 +135,7 @@ function UpdateTagFormContainer(props: IUpdateTagFormContainerProps) {
               break;
             case "InvalidColorError":
               triggerError({
-                message: "Colour must be a valid color string.",
+                message: "Color must be a valid color string.",
               });
               break;
             default:

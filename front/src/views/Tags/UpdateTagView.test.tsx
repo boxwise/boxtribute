@@ -418,7 +418,7 @@ describe("UpdateTagView", () => {
     await waitFor(() =>
       expect(mockedTriggerError).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: "Colour must be a valid color string.",
+          message: "Color must be a valid color string.",
         }),
       ),
     );
