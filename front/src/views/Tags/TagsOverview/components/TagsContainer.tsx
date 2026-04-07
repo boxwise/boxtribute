@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 import { useTableConfig } from "hooks/useTableConfig";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { graphql, ResultOf, VariablesOf } from "../../../../../../graphql/graphql";
-import { BOX_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
+import { TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { TagRow, tagsRawToTableDataTransformer } from "./transformers";
 import { Tag, TagLabel } from "@chakra-ui/react";
 import { colorIsBright } from "utils/helpers";
@@ -21,14 +21,19 @@ export const TAGS_QUERY = graphql(
       base(id: $baseId) {
         tags {
           taggedResources {
-            ...BoxFields
+            ... on Beneficiary {
+              id
+            }
+            ... on Box {
+              labelIdentifier
+            }
           }
           ...TagBasicFields
         }
       }
     }
   `,
-  [TAG_BASIC_FIELDS_FRAGMENT, BOX_FIELDS_FRAGMENT],
+  [TAG_BASIC_FIELDS_FRAGMENT],
 );
 
 export const TAG_QUERY = graphql(

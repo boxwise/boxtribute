@@ -64,8 +64,8 @@ const mockTagsData = {
         lastUsedOn: "2023-01-02T00:00:00.000Z",
         deletedOn: null,
         taggedResources: [
-          { id: "1", __typename: "Box" },
-          { id: "2", __typename: "Box" },
+          { labelIdentifier: "1", __typename: "Box" },
+          { id: "2", __typename: "Beneficiary" },
         ],
         __typename: "Tag",
       },
@@ -79,7 +79,7 @@ const mockTagsData = {
         lastModifiedOn: "2023-01-04T00:00:00.000Z",
         lastUsedOn: "2023-01-02T00:00:00.000Z",
         deletedOn: null,
-        taggedResources: [{ id: "3", __typename: "Box" }],
+        taggedResources: [{ labelIdentifier: "3", __typename: "Box" }],
         __typename: "Tag",
       },
       {
