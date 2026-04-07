@@ -7,7 +7,7 @@ import {
   useRowSelect,
   CellProps,
 } from "react-table";
-import { Table, Tr, Tbody, Td, Spacer, Flex, HStack } from "@chakra-ui/react";
+import { Table, Tr, Tbody, Td, Spacer, Flex, HStack, Box } from "@chakra-ui/react";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import ColumnSelector from "components/Table/ColumnSelector";
@@ -69,7 +69,7 @@ export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsT
   const { onDeleteTags, actionsAreLoading } = useTagsActions(selectedFlatRows);
 
   return (
-    <Flex direction="column" overflowX="auto">
+    <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <TagsActions
           selectedTags={selectedFlatRows}
@@ -84,28 +84,30 @@ export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsT
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
         </HStack>
       </Flex>
-      <Table key="products-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
-        <Tbody>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr
-                {...row.getRowProps()}
-                key={row.original.id}
-                onClick={() => onRowClick(row.original.id)}
-                cursor="pointer"
-              >
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+      <Box overflowX="auto">
+        <Table key="products-table">
+          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+          <Tbody>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr
+                  {...row.getRowProps()}
+                  key={row.original.id}
+                  onClick={() => onRowClick(row.original.id)}
+                  cursor="pointer"
+                >
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
+                      {cell.render("Cell")}
+                    </Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </Box>
     </Flex>
   );
 }
