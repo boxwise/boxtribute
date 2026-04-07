@@ -221,13 +221,51 @@ function ProductsContainer() {
 
   if (error) throw error;
 
+  const tableData = useMemo(
+    () => productsRawToTableDataTransformer(productsRawData),
+    [productsRawData],
+  );
+
+  const categoryOptions = useMemo(() => {
+    const unique = new Set<string>();
+    tableData.forEach((row) => {
+      if (row.category) unique.add(row.category);
+    });
+    return Array.from(unique)
+      .map((c) => ({ label: c, value: c, urlId: c }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const genderOptions = useMemo(() => {
+    const unique = new Set<string>();
+    tableData.forEach((row) => {
+      if (row.gender) unique.add(row.gender);
+    });
+    return Array.from(unique)
+      .map((g) => ({ label: g, value: g, urlId: g }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
+  const sizeRangeOptions = useMemo(() => {
+    const unique = new Set<string>();
+    tableData.forEach((row) => {
+      if (row.sizeRange) unique.add(row.sizeRange);
+    });
+    return Array.from(unique)
+      .map((s) => ({ label: s, value: s, urlId: s }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [tableData]);
+
   return (
     <>
       <ProductsTable
         tableConfig={tableConfig}
-        tableData={productsRawToTableDataTransformer(productsRawData)}
+        tableData={tableData}
         columns={availableColumns}
         onRowClick={onRowClick}
+        categoryOptions={categoryOptions}
+        genderOptions={genderOptions}
+        sizeRangeOptions={sizeRangeOptions}
       />
     </>
   );

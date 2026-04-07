@@ -175,7 +175,7 @@ function StandardProductsContainer() {
       {
         Header: "Size Range",
         accessor: "sizeRange",
-        id: "size",
+        id: "sizeRange",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
@@ -245,11 +245,30 @@ function StandardProductsContainer() {
 
   if (!standardProductsRawData || isStandardProductsQueryLoading) return <TableSkeleton />;
 
+  const tableData = standardProductsRawDataToTableDataTransformer(standardProductsRawData);
+
+  const categoryOptions = Array.from(new Set(tableData.map((row) => row.category).filter(Boolean)))
+    .map((c) => ({ label: c, value: c, urlId: c }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const genderOptions = Array.from(new Set(tableData.map((row) => row.gender).filter(Boolean)))
+    .map((g) => ({ label: g, value: g, urlId: g }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  const sizeRangeOptions = Array.from(
+    new Set(tableData.map((row) => row.sizeRange).filter(Boolean)),
+  )
+    .map((s) => ({ label: s, value: s, urlId: s }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
   return (
     <StandardProductsTable
       tableConfig={tableConfig}
-      tableData={standardProductsRawDataToTableDataTransformer(standardProductsRawData)}
+      tableData={tableData}
       columns={availableColumns}
+      categoryOptions={categoryOptions}
+      genderOptions={genderOptions}
+      sizeRangeOptions={sizeRangeOptions}
     />
   );
 }
