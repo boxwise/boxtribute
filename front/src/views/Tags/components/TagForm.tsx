@@ -38,6 +38,9 @@ export const TagSchema = z.object({
     .trim()
     .refine((color) => !!color, {
       error: colorErrorText,
+    })
+    .refine((color) => /^#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(color), {
+      error: colorErrorText,
     }),
   // see https://github.com/colinhacks/zod?tab=readme-ov-file#validating-during-transform
   application: z
