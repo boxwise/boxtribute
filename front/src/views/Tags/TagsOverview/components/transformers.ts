@@ -39,7 +39,11 @@ export const tagsRawToTableDataTransformer = (tagsRawData: TagsQuery) => {
             color: color || "",
             totalTaggedItemsCount: taggedResources?.length || 0,
             createdOn: createdOn ? new Date(createdOn) : undefined,
-            lastModifiedOn: lastModifiedOn ? new Date(lastModifiedOn) : new Date(createdOn),
+            lastModifiedOn: lastModifiedOn
+              ? new Date(lastModifiedOn)
+              : createdOn
+                ? new Date(createdOn)
+                : undefined,
             deletedOn: deletedOn ? new Date(deletedOn) : undefined,
             lastUsedOn: lastUsedOn ? new Date(lastUsedOn) : undefined,
           } satisfies TagRow;

@@ -51,6 +51,16 @@ export type TagsForTagsContainerVariables = VariablesOf<typeof TAGS_QUERY>;
 
 export type TagsQuery = ResultOf<typeof TAGS_QUERY>;
 
+// Sort dates ascending, placing null/undefined values at the end.
+function nullableDateSortType(rowA: any, rowB: any, columnId: string) {
+  const a: Date | null | undefined = rowA.values[columnId];
+  const b: Date | null | undefined = rowB.values[columnId];
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+  return a.getTime() - b.getTime();
+}
+
 export function TagsContainer() {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
@@ -122,21 +132,21 @@ export function TagsContainer() {
         accessor: "createdOn",
         id: "createdOn",
         Cell: DateCell,
-        sortType: "datetime",
+        sortType: nullableDateSortType,
       },
       {
         Header: "Last Modified Date",
         accessor: "lastModifiedOn",
         id: "lastModifiedOn",
         Cell: DateCell,
-        sortType: "datetime",
+        sortType: nullableDateSortType,
       },
       {
         Header: "Last Used Date",
         accessor: "lastUsedOn",
         id: "lastUsedOn",
         Cell: DateCell,
-        sortType: "datetime",
+        sortType: nullableDateSortType,
       },
     ],
     [],
