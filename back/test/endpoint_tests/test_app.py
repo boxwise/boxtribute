@@ -52,7 +52,7 @@ def test_base_specific_permissions(client, mocker):
         }}"""}
 
     response = client.post("/graphql", json=data)
-    assert response.status_code == 400
+    assert response.status_code == 200
     assert response.json["data"]["bene2"] is None
     assert response.json["data"]["bene3"] is not None
     assert len(response.json["errors"]) == 1

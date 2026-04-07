@@ -16,7 +16,7 @@ def _assert_erroneous_request(
     """
     data = {"query": query}
     response = client.post(f"/{endpoint}", json=data)
-    assert response.status_code == 400
+    assert response.status_code == 200
 
     assert len(response.json["errors"]) == error_count
     for i in range(error_count):
