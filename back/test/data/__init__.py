@@ -2,8 +2,6 @@ import importlib
 import os
 import pathlib
 
-from boxtribute_server.models.definitions import Model
-
 from .base import another_base, default_base, default_bases, deleted_base
 from .beneficiary import (
     another_beneficiary,
@@ -271,7 +269,7 @@ _NAMES = [
 ]
 
 
-def setup_models():
+def create_test_data():
     """Import all submodules of the `data` module and execute their `create()` functions
     to create test data.
     """
@@ -294,7 +292,3 @@ def setup_models():
     for module_name in sorted(module_names):
         module = importlib.import_module(f"data.{module_name}")
         module.create()
-
-
-# List of all Models in the database, cf. https://stackoverflow.com/a/43820902/3865876
-MODELS = Model.__subclasses__()

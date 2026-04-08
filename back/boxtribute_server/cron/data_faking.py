@@ -45,7 +45,7 @@ from ..business_logic.warehouse.product.crud import (
     enable_standard_product,
 )
 from ..business_logic.warehouse.qr_code.crud import create_qr_code
-from ..db import db
+from ..db import execute_sql
 from ..enums import (
     BoxState,
     HumanGender,
@@ -235,26 +235,26 @@ class Generator:
 
         org_ids = {b.id: b.organisation_id for b in bases}
 
-        cursor = db.database.execute_sql(
-            """\
-    SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) FROM cms_users u
+        result = execute_sql(
+            self.base_ids,
+            query="""\
+    SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) AS user_ids
+    FROM cms_users u
     INNER JOIN cms_usergroups_camps cuc
     ON u.cms_usergroups_id = cuc.cms_usergroups_id
     AND cuc.camp_id in %s
     GROUP BY cuc.camp_id
     ;""",
-            (self.base_ids,),
         )
-        result = cursor.fetchall()
         for row in result:
-            base_id, user_ids = row
+            base_id = row["camp_id"]
             self.users[base_id] = [
                 CurrentUser(
                     id=int(i),
                     organisation_id=org_ids[base_id],
                     timezone=self.fake.timezone(),
                 )
-                for i in user_ids.split(",")
+                for i in row["user_ids"].split(",")
             ]
 
     def _user_id(self, base_id):
