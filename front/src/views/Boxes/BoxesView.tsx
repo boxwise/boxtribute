@@ -45,7 +45,6 @@ import BoxesTable from "./components/BoxesTable";
 import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
 import { useSearchParams } from "react-router-dom";
 
-// TODO: Implement Pagination and Filtering
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
   `
     fragment BoxesQueryElementField on Box @_unmask {
@@ -241,7 +240,7 @@ function Boxes({
           filterInput: {
             states: [state],
           },
-          paginationInput: 20,
+          paginationInput: 50,
         },
         fetchPolicy: "network-only",
       });

@@ -151,7 +151,7 @@ function BoxesTable({
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
-        pageSize: 20,
+        pageSize: 50,
         filters: tableConfig.getColumnFilters(),
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
