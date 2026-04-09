@@ -1,6 +1,6 @@
 import { Filters } from "react-table";
-import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { ProductsQuery, StandardProductsforProductsViewQuery } from "queries/types";
+export { createOptions } from "utils/transformers";
 
 export type StandardProductRow = {
   enabled: boolean;
@@ -129,12 +129,6 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
       },
     );
 };
-
-export function createOptions(data: Record<string, any>[], columnId: string): IFilterValue[] {
-  return Array.from(new Set(data.map((row) => row[columnId]).filter(Boolean)))
-    .map((v: string) => ({ label: v, value: v, urlId: v }))
-    .sort((a, b) => a.label.localeCompare(b.label));
-}
 
 export function removeFilter(
   filterId: string,
