@@ -41,7 +41,7 @@ import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
-import BoxesTable from "./components/BoxesTable";
+import { PAGE_SIZE, BoxesTable } from "./components/BoxesTable";
 import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
 import { useSearchParams } from "react-router-dom";
 
@@ -205,7 +205,11 @@ function Boxes({
   // The first 50 boxes to be shown are preloaded causing the suspense on the initial mount.
   // The rest of the boxes are fetched in the background in the following useEffect.
   const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
-    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters(), 50),
+    variables: prepareBoxesForBoxesViewQueryVariables(
+      baseId,
+      tableConfig.getColumnFilters(),
+      PAGE_SIZE,
+    ),
   });
   const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(
     !hasExecutedInitialFetchOfBoxes.current,
@@ -240,7 +244,7 @@ function Boxes({
           filterInput: {
             states: [state],
           },
-          paginationInput: 50,
+          paginationInput: PAGE_SIZE,
         },
         fetchPolicy: "network-only",
       });
