@@ -15,8 +15,8 @@ export function createOptions(
     .map((row) => row[columnId])
     .filter(Boolean)
     .forEach((v) => {
-      const key = typeof v === "object" && v !== null ? String(v.id) : String(v);
-      if (key && !uniqueMap.has(key)) {
+      const key = typeof v === "object" && v !== null && v.id != null ? String(v.id) : String(v);
+      if (key && key !== "undefined" && !uniqueMap.has(key)) {
         let label: string;
         if (labelFn) {
           label = labelFn(v);
