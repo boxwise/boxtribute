@@ -1,3 +1,5 @@
+import { Filters } from "react-table";
+import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { ProductsQuery, StandardProductsforProductsViewQuery } from "queries/types";
 
 export type StandardProductRow = {
@@ -127,3 +129,32 @@ export const productsRawToTableDataTransformer = (productsRawData: ProductsQuery
       },
     );
 };
+
+export function createOptions(data: Record<string, any>[], columnId: string): IFilterValue[] {
+  return Array.from(new Set(data.map((row) => row[columnId]).filter(Boolean)))
+    .map((v: string) => ({ label: v, value: v, urlId: v }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+export function removeFilter(
+  filterId: string,
+  valueToRemove: string | undefined,
+  filters: Filters<any>,
+  setAllFilters: (filters: Filters<any>) => void,
+): void {
+  const updatedFilters = filters
+    .map((filter) => {
+      if (filter.id === filterId) {
+        if (!valueToRemove) {
+          return null;
+        }
+        const remainingValues = Array.isArray(filter.value)
+          ? filter.value.filter((v: string) => v !== valueToRemove)
+          : [];
+        return remainingValues.length > 0 ? { ...filter, value: remainingValues } : null;
+      }
+      return filter;
+    })
+    .filter((f) => f !== null) as Filters<any>;
+  setAllFilters(updatedFilters);
+}

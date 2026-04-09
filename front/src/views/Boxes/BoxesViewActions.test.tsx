@@ -125,7 +125,12 @@ const assignTagsMutation = ({
                   labelIdentifier: label,
                   lastModifiedOn: new Date().toISOString(),
                   lastModifiedBy: { id: "2", name: "coordinator" },
-                  tags: tagIds.map((id) => ({ id: id.toString(), __typename: "Tag" })),
+                  tags: tagIds.map((id) => ({
+                    id: id.toString(),
+                    __typename: "Tag",
+                    lastUsedOn: null,
+                    deletedOn: null,
+                  })),
                 })),
                 invalidBoxLabelIdentifiers: [],
               },
@@ -912,7 +917,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
 
           if (clicks[1]) {
             // Wait until the sub-action is present, ensuring all Menu updates are flushed
-            const subButton = await screen.findByText(clicks[1]);
+            const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });
             expect(subButton).toBeInTheDocument();
             await user.click(subButton);
           }

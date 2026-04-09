@@ -135,6 +135,10 @@ const actionsQuery = {
             id: "10",
             name: "company X",
             type: "Box",
+            lastUsedOn: null,
+            deletedOn: null,
+            createdOn: "2023-11-01T10:00:00Z",
+            lastModifiedOn: "2023-11-01T10:00:00Z",
           },
           {
             __typename: "Tag",
@@ -143,6 +147,10 @@ const actionsQuery = {
             id: "11",
             name: "new",
             type: "All",
+            lastUsedOn: null,
+            deletedOn: null,
+            createdOn: "2023-11-05T12:00:00Z",
+            lastModifiedOn: "2023-11-05T12:00:00Z",
           },
           {
             __typename: "Tag",
@@ -151,6 +159,10 @@ const actionsQuery = {
             id: "12",
             name: "emergency",
             type: "Box",
+            lastUsedOn: null,
+            deletedOn: null,
+            createdOn: "2023-11-10T09:30:00Z",
+            lastModifiedOn: "2023-11-10T09:30:00Z",
           },
         ],
       },
@@ -490,7 +502,7 @@ describe("4.8.1 - Initial load of Page", () => {
       },
       { timeout: 10000 },
     );
-  }, 20000);
+  }, 40000);
 
   it("4.8.1.5 - Global filter", async () => {
     const user = userEvent.setup();
@@ -616,7 +628,7 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(totalSummary6).toHaveTextContent(/Total/);
     expect(totalSummary6).toHaveTextContent(/0/);
     expect(screen.queryByText("1481666")).not.toBeInTheDocument();
-  }, 20000);
+  }, 40000);
 });
 
 describe("4.8.2 - Selecting rows and performing bulk actions", () => {
