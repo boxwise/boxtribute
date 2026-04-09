@@ -41,7 +41,7 @@ import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import { BoxState } from "queries/types";
-import { PAGE_SIZE, BoxesTable } from "./components/BoxesTable";
+import BoxesTable, { PAGE_SIZE } from "./components/BoxesTable";
 import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
 import { useSearchParams } from "react-router-dom";
 
