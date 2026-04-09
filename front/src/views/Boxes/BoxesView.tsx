@@ -202,10 +202,10 @@ function Boxes({
     },
   });
 
-  // The first 20 boxes to be shown are preloaded causing the suspense on the initial mount.
+  // The first 50 boxes to be shown are preloaded causing the suspense on the initial mount.
   // The rest of the boxes are fetched in the background in the following useEffect.
   const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
-    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters(), 20),
+    variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters(), 50),
   });
   const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(
     !hasExecutedInitialFetchOfBoxes.current,
@@ -215,7 +215,7 @@ function Boxes({
       return;
     }
 
-    // Only on very initial mount, query 20 boxes of the most used states to preload the data into
+    // Only on very initial mount, query 50 boxes of the most used states to preload the data into
     // Apollo cache.
     // But skip preloading a state if the current table config already requests it via filters.
     // e.g. if tableConfig.getColumnFilters() already contains the id for "Donated" (boxStateIds.Donated),
