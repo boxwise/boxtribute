@@ -29,7 +29,7 @@ const boxesQuery = ({
   stateFilter = ["InStock"],
   shipmentDetail = null as any,
   labelIdentifier = "123",
-  paginationInput = 20,
+  paginationInput = 50,
 }) => ({
   request: {
     query: BOXES_FOR_BOXESVIEW_QUERY,
