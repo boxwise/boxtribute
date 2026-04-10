@@ -5,32 +5,6 @@ import { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
 import { LOCATION_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 
-export function createOptions(
-  data: Record<string, any>[],
-  columnId: string,
-  labelFn?: (value: any) => string,
-): IFilterValue[] {
-  const uniqueMap = new Map<string, IFilterValue>();
-  data
-    .map((row) => row[columnId])
-    .filter(Boolean)
-    .forEach((v) => {
-      const key = typeof v === "object" && v !== null && v.id != null ? String(v.id) : String(v);
-      if (key && key !== "undefined" && !uniqueMap.has(key)) {
-        let label: string;
-        if (labelFn) {
-          label = labelFn(v);
-        } else if (typeof v === "object" && v !== null) {
-          label = v.name;
-        } else {
-          label = String(v);
-        }
-        uniqueMap.set(key, { label, value: key, urlId: key });
-      }
-    });
-  return Array.from(uniqueMap.values()).sort((a, b) => a.label.localeCompare(b.label));
-}
-
 export function locationToDropdownOptionTransformer(
   locations: FragmentOf<typeof LOCATION_BASIC_FIELDS_FRAGMENT>[],
 ): IFilterValue[] {

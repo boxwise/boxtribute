@@ -52,7 +52,7 @@ import { BoxesFilter } from "./BoxesFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { FilterChips } from "./FilterChips";
 import { FilterPanel } from "components/Table/FilterPanel";
-import { createOptions } from "utils/transformers";
+import { createOptions } from "utils/filterOptions";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
