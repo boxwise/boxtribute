@@ -45,6 +45,11 @@ export function ShipmentFilterChips({
   // Only show chips for known filter dimensions (not direction)
   const visibleFilters = filters.filter((f) => f.id in FILTER_LABELS);
 
+  const totalFilterCount = visibleFilters.reduce(
+    (acc, f) => acc + (Array.isArray(f.value) ? f.value.length : 1),
+    0,
+  );
+
   if (visibleFilters.length === 0) {
     return null;
   }
@@ -85,8 +90,7 @@ export function ShipmentFilterChips({
         colorScheme="gray"
         data-testid="clear-all-filters-button"
       >
-        Clear filters (
-        {visibleFilters.reduce((acc, f) => acc + (Array.isArray(f.value) ? f.value.length : 1), 0)})
+        Clear filters ({totalFilterCount})
       </Button>
     </Flex>
   );

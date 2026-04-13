@@ -271,7 +271,7 @@ function ShipmentsOverviewView() {
   );
 
   const handleDirectionChange = useCallback(() => {
-    const newDir: "Receiving" | "Sending" = direction === "Receiving" ? "Sending" : "Receiving";
+    const newDir = direction === "Receiving" ? "Sending" : "Receiving";
     setDirection(newDir);
     setFilter("direction", [newDir]);
   }, [direction, setFilter]);

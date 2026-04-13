@@ -70,7 +70,7 @@ export function ShipmentFilter({
 
   return (
     <VStack spacing={4} align="stretch">
-      <SimpleGrid columns={{ base: 1, md: 1 }} spacing={4}>
+      <SimpleGrid spacing={4}>
         <MultiSelectFilter
           fieldLabel="Sent from (source base)"
           values={sourceBaseOptions}
