@@ -362,40 +362,35 @@ function ShipmentsOverviewView() {
   // Rows filtered by all active panel/column filters and global filter, but NOT by direction.
   // Passed to ShipmentExportButton so the export covers both Sending and Receiving shipments
   // that match the current filter state, with direction determined by the export popover checkboxes.
+  // Reuses the same filter functions as useTable (single source of truth for filter behavior).
   const nonDirectionFilteredData = useMemo(() => {
-    let result = rowData;
+    // Build minimal row-like objects compatible with the react-table filter function signatures.
+    // react-table filter functions operate on `row.values[id]`, which for ShipmentRow maps
+    // directly to the raw data fields since the column accessors are identical field names.
+    const rowShims = rowData.map((row) => ({ values: row, original: row }));
+
+    let filtered: typeof rowShims = rowShims;
 
     for (const filter of visibleFilters) {
       const filterValue = filter.value;
       if (!filterValue || (Array.isArray(filterValue) && filterValue.length === 0)) continue;
 
       if (filter.id === "sourceBaseOrg" || filter.id === "targetBaseOrg") {
-        const ids = filterValue as string[];
-        result = result.filter((row) => {
-          const field = row[filter.id as "sourceBaseOrg" | "targetBaseOrg"];
-          return ids.some((id) => field.id === id);
-        });
+        filtered = includesSomeObjectFilterFn(filtered, [filter.id], filterValue);
       } else if (filter.id === "state") {
-        const values = filterValue as string[];
-        result = result.filter((row) => values.includes(row.state as string));
+        filtered = includesOneOfMultipleStringsFilterFn(filtered, [filter.id], filterValue);
       }
     }
 
     if (globalFilter) {
-      const search = String(globalFilter).toLowerCase();
-      result = result.filter(
-        (row) =>
-          row.labelIdentifier.toLowerCase().includes(search) ||
-          row.sourceBaseOrg.base.toLowerCase().includes(search) ||
-          row.sourceBaseOrg.organisation.toLowerCase().includes(search) ||
-          row.targetBaseOrg.base.toLowerCase().includes(search) ||
-          row.targetBaseOrg.organisation.toLowerCase().includes(search) ||
-          (row.state ?? "").toLowerCase().includes(search) ||
-          (row.boxes === 1 ? "1 box" : row.boxes > 1 ? `${row.boxes} boxes` : "").includes(search),
-      );
+      filtered = shipmentGlobalFilterFn(
+        filtered as unknown as Row<ShipmentRow>[],
+        [],
+        globalFilter,
+      ) as unknown as typeof rowShims;
     }
 
-    return result;
+    return filtered.map((r) => r.original);
   }, [rowData, visibleFilters, globalFilter]);
 
   // Tab counts reflect all active column/search filters but exclude completed/canceled/lost states
