@@ -315,6 +315,44 @@ function ShipmentsOverviewView() {
   // Filters without the hidden direction dimension (shown in FilterChips and passed to ShipmentFilter)
   const visibleFilters = useMemo(() => filters.filter((f) => f.id !== "direction"), [filters]);
 
+  // Rows filtered by all active panel/column filters and global filter, but NOT by direction.
+  // Passed to ShipmentExportButton so the export covers both Sending and Receiving shipments
+  // that match the current filter state, with direction determined by the export popover checkboxes.
+  const nonDirectionFilteredData = useMemo(() => {
+    let result = rowData;
+
+    for (const filter of visibleFilters) {
+      const filterValue = filter.value;
+      if (!filterValue || (Array.isArray(filterValue) && filterValue.length === 0)) continue;
+
+      if (filter.id === "sourceBaseOrg" || filter.id === "targetBaseOrg") {
+        const ids = filterValue as string[];
+        result = result.filter((row) => {
+          const field = row[filter.id as "sourceBaseOrg" | "targetBaseOrg"];
+          return ids.some((id) => field.id === id);
+        });
+      } else if (filter.id === "state") {
+        const values = filterValue as string[];
+        result = result.filter((row) => values.includes(row.state as string));
+      }
+    }
+
+    if (globalFilter) {
+      const search = String(globalFilter).toLowerCase();
+      result = result.filter(
+        (row) =>
+          row.labelIdentifier.toLowerCase().includes(search) ||
+          row.sourceBaseOrg.base.toLowerCase().includes(search) ||
+          row.sourceBaseOrg.organisation.toLowerCase().includes(search) ||
+          row.targetBaseOrg.base.toLowerCase().includes(search) ||
+          row.targetBaseOrg.organisation.toLowerCase().includes(search) ||
+          (row.state ?? "").toLowerCase().includes(search),
+      );
+    }
+
+    return result;
+  }, [rowData, visibleFilters, globalFilter]);
+
   // error and loading handling
   let shipmentsTable: JSX.Element;
   if (error) {
@@ -375,7 +413,7 @@ function ShipmentsOverviewView() {
               Create Shipment
             </Button>
           </Link>
-          <ShipmentExportButton filteredRowData={rows.map((r) => r.original)} />
+          <ShipmentExportButton filteredRowData={nonDirectionFilteredData} />
         </Stack>
         <Spacer />
         <HStack spacing={2}>
