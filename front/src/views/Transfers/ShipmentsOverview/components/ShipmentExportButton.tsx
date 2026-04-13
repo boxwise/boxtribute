@@ -62,7 +62,13 @@ type ShipmentRow = {
   id: string;
   labelIdentifier: string;
   direction: "Sending" | "Receiving";
-  partnerBaseOrg: {
+  sourceBaseOrg: {
+    id: string;
+    base: string;
+    organisation: string;
+  };
+  targetBaseOrg: {
+    id: string;
     base: string;
     organisation: string;
   };
