@@ -343,8 +343,8 @@ function ShipmentsOverviewView() {
                   _hover={{ bg: "brandYellow.100" }}
                   cursor="pointer"
                 >
-                  {row.cells.map((cell, idx) => (
-                    <Td {...cell.getCellProps()} key={idx}>
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()} key={cell.column.id}>
                       {cell.render("Cell")}
                     </Td>
                   ))}
