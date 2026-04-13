@@ -50,6 +50,7 @@ import { DateCell } from "components/Table/Cells";
 import ShipmentExportButton from "./components/ShipmentExportButton";
 import { ShipmentFilter } from "./components/ShipmentFilter";
 import { ShipmentFilterChips } from "./components/ShipmentFilterChips";
+import type { ShipmentColumnFilter, ShipmentFilterId } from "./components/types";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 
 // TODO: Revisit this after gql.tada merge
@@ -318,17 +319,16 @@ function ShipmentsOverviewView() {
   }, [direction, setFilter]);
 
   const handleApplyFilters = useCallback(
-    (newFilters: Filters<ShipmentRow>) => {
+    (newFilters: ShipmentColumnFilter[]) => {
       // Preserve the direction filter when applying panel filters
-      const directionFilter = { id: "direction", value: [direction] };
-      const panelFilters = newFilters.filter((f) => f.id !== "direction");
-      setAllFilters([directionFilter, ...panelFilters]);
+      const directionFilter = { id: "direction" as const, value: [direction] };
+      setAllFilters([directionFilter, ...newFilters]);
     },
     [direction, setAllFilters],
   );
 
   const handleRemoveFilter = useCallback(
-    (filterId: string, valueToRemove?: string) => {
+    (filterId: ShipmentFilterId, valueToRemove?: string) => {
       const updatedFilters = filters
         .map((filter) => {
           if (filter.id === filterId) {
@@ -354,7 +354,10 @@ function ShipmentsOverviewView() {
   }, [direction, setAllFilters]);
 
   // Filters without the hidden direction dimension (shown in FilterChips and passed to ShipmentFilter)
-  const visibleFilters = useMemo(() => filters.filter((f) => f.id !== "direction"), [filters]);
+  const visibleFilters = useMemo<ShipmentColumnFilter[]>(
+    () => filters.filter((f) => f.id !== "direction") as ShipmentColumnFilter[],
+    [filters],
+  );
 
   // Rows filtered by all active panel/column filters and global filter, but NOT by direction.
   // Passed to ShipmentExportButton so the export covers both Sending and Receiving shipments

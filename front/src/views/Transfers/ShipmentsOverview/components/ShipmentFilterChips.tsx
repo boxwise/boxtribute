@@ -1,17 +1,17 @@
 import { useCallback } from "react";
 import { Flex, Tag, TagLabel, TagCloseButton, Button } from "@chakra-ui/react";
-import { Filters } from "react-table";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import type { ShipmentColumnFilter, ShipmentFilterId } from "./types";
 
 interface ShipmentFilterChipsProps {
-  filters: Filters<any>;
+  filters: ShipmentColumnFilter[];
   sourceBaseOptions: IFilterValue[];
   targetBaseOptions: IFilterValue[];
-  onRemoveFilter: (filterId: string, valueToRemove?: string) => void;
+  onRemoveFilter: (filterId: ShipmentFilterId, valueToRemove?: string) => void;
   onClearAllFilters: () => void;
 }
 
-const FILTER_LABELS: Record<string, string> = {
+const FILTER_LABELS: Record<ShipmentFilterId, string> = {
   sourceBaseOrg: "Sent from",
   targetBaseOrg: "Sent to",
   state: "Status",
@@ -25,7 +25,7 @@ export function ShipmentFilterChips({
   onClearAllFilters,
 }: ShipmentFilterChipsProps) {
   const getValueLabel = useCallback(
-    (filterId: string, value: string): string => {
+    (filterId: ShipmentFilterId, value: string): string => {
       if (filterId === "state") {
         return value;
       }

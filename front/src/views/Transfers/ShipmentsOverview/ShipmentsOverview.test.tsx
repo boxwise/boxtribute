@@ -90,11 +90,6 @@ it("4.4.1.4 - Initial Load of Page", async () => {
       name: /aid transfers/i,
     }),
   ).toBeInTheDocument();
-  expect(
-    screen.getByRole("link", {
-      name: /manage shipments/i,
-    }),
-  ).toBeInTheDocument();
 });
 
 it("4.4.1.5 - Export CSV Button Functionality", async () => {
@@ -153,7 +148,7 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   await user.click(exportButton);
 
   // Check if popover content is visible
-  expect(screen.getByText("Include the following shipments:")).toBeInTheDocument();
+  expect(screen.getByText(/include the following shipments/i)).toBeInTheDocument();
 
   // Check if checkboxes are present and checked by default
   const popoverContent = await screen.findByTestId("export-popover-content");

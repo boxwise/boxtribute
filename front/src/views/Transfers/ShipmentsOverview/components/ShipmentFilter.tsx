@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { VStack, Button, Box, SimpleGrid } from "@chakra-ui/react";
-import { Filters } from "react-table";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import type { ShipmentColumnFilter, ShipmentFilterId } from "./types";
 
 const shipmentStateOptions: IFilterValue[] = [
   { label: "Preparing", value: "Preparing", urlId: "Preparing" },
@@ -16,8 +16,8 @@ const shipmentStateOptions: IFilterValue[] = [
 interface ShipmentFilterProps {
   isOpen: boolean;
   onClose: () => void;
-  columnFilters: Filters<any>;
-  onApplyFilters: (filters: Filters<any>) => void;
+  columnFilters: ShipmentColumnFilter[];
+  onApplyFilters: (filters: ShipmentColumnFilter[]) => void;
   sourceBaseOptions: IFilterValue[];
   targetBaseOptions: IFilterValue[];
 }
@@ -30,26 +30,26 @@ export function ShipmentFilter({
   sourceBaseOptions,
   targetBaseOptions,
 }: ShipmentFilterProps) {
-  const [stagedFilters, setStagedFilters] = useState<Record<string, string[]>>({});
+  const [stagedFilters, setStagedFilters] = useState<Partial<Record<ShipmentFilterId, string[]>>>(
+    {},
+  );
 
   useEffect(() => {
     if (isOpen) {
-      const filtersMap: Record<string, string[]> = {};
+      const filtersMap: Partial<Record<ShipmentFilterId, string[]>> = {};
       columnFilters.forEach((filter) => {
         if (filter.value == null) {
           return;
         }
-        if (Array.isArray(filter.value)) {
-          filtersMap[filter.id] = filter.value.map(String);
-        } else {
-          filtersMap[filter.id] = [String(filter.value)];
-        }
+        filtersMap[filter.id] = Array.isArray(filter.value)
+          ? filter.value.map(String)
+          : [String(filter.value)];
       });
       setStagedFilters(filtersMap);
     }
   }, [isOpen, columnFilters]);
 
-  const handleFilterChange = useCallback((filterId: string, values: string[]) => {
+  const handleFilterChange = useCallback((filterId: ShipmentFilterId, values: string[]) => {
     setStagedFilters((prev) => ({
       ...prev,
       [filterId]: values,
@@ -57,7 +57,9 @@ export function ShipmentFilter({
   }, []);
 
   const handleApply = useCallback(() => {
-    const filters: Filters<any> = Object.entries(stagedFilters)
+    const filters: ShipmentColumnFilter[] = (
+      Object.entries(stagedFilters) as Array<[ShipmentFilterId, string[]]>
+    )
       .filter(([, value]) => value.length > 0)
       .map(([id, value]) => ({ id, value }));
     onApplyFilters(filters);
