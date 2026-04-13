@@ -23,7 +23,15 @@ import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
-import { Column, Filters, useFilters, useGlobalFilter, useSortBy, useTable } from "react-table";
+import {
+  Column,
+  Filters,
+  Row,
+  useFilters,
+  useGlobalFilter,
+  useSortBy,
+  useTable,
+} from "react-table";
 import {
   includesSomeObjectFilterFn,
   includesOneOfMultipleStringsFilterFn,
@@ -56,6 +64,44 @@ type ShipmentRow = {
   lastUpdated: Date | undefined;
   href: string;
 };
+
+// Custom global filter that knows how to search inside complex cell values:
+// - sourceBaseOrg / targetBaseOrg: search the displayed base name and organisation
+// - boxes: match against the rendered "X box(es)" text
+// - all other columns: plain string comparison
+const shipmentGlobalFilterFn = (
+  rows: Row<ShipmentRow>[],
+  _columnIds: string[],
+  filterValue: unknown,
+): Row<ShipmentRow>[] => {
+  const search = String(filterValue).toLowerCase();
+  return rows.filter((row) => {
+    const { labelIdentifier, sourceBaseOrg, targetBaseOrg, state, boxes } = row.values;
+    const boxText = boxes === 1 ? "1 box" : boxes > 1 ? `${boxes} boxes` : "";
+    return (
+      String(labelIdentifier ?? "")
+        .toLowerCase()
+        .includes(search) ||
+      String(sourceBaseOrg?.base ?? "")
+        .toLowerCase()
+        .includes(search) ||
+      String(sourceBaseOrg?.organisation ?? "")
+        .toLowerCase()
+        .includes(search) ||
+      String(targetBaseOrg?.base ?? "")
+        .toLowerCase()
+        .includes(search) ||
+      String(targetBaseOrg?.organisation ?? "")
+        .toLowerCase()
+        .includes(search) ||
+      String(state ?? "")
+        .toLowerCase()
+        .includes(search) ||
+      boxText.includes(search)
+    );
+  });
+};
+shipmentGlobalFilterFn.autoRemove = (val: unknown) => !val;
 
 function ShipmentsOverviewView() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
@@ -144,12 +190,6 @@ function ShipmentsOverviewView() {
   );
 
   const nonCompletedStates = ["Completed", "Canceled", "Lost"];
-  const receivingCount = rowData.filter(
-    (row) => row.direction === "Receiving" && !nonCompletedStates.includes(row.state!),
-  ).length;
-  const sendingCount = rowData.filter(
-    (row) => row.direction === "Sending" && !nonCompletedStates.includes(row.state!),
-  ).length;
 
   // Derive unique source/target base options from all data for the filter panel
   const sourceBaseOptions: IFilterValue[] = useMemo(() => {
@@ -259,6 +299,7 @@ function ShipmentsOverviewView() {
       columns,
       data: rowData,
       filterTypes,
+      globalFilter: shipmentGlobalFilterFn,
       initialState: {
         hiddenColumns: ["direction"],
         filters: [{ id: "direction", value: ["Receiving"] }],
@@ -346,12 +387,21 @@ function ShipmentsOverviewView() {
           row.sourceBaseOrg.organisation.toLowerCase().includes(search) ||
           row.targetBaseOrg.base.toLowerCase().includes(search) ||
           row.targetBaseOrg.organisation.toLowerCase().includes(search) ||
-          (row.state ?? "").toLowerCase().includes(search),
+          (row.state ?? "").toLowerCase().includes(search) ||
+          (row.boxes === 1 ? "1 box" : row.boxes > 1 ? `${row.boxes} boxes` : "").includes(search),
       );
     }
 
     return result;
   }, [rowData, visibleFilters, globalFilter]);
+
+  // Tab counts reflect all active column/search filters but exclude completed/canceled/lost states
+  const receivingCount = nonDirectionFilteredData.filter(
+    (row) => row.direction === "Receiving" && !nonCompletedStates.includes(row.state!),
+  ).length;
+  const sendingCount = nonDirectionFilteredData.filter(
+    (row) => row.direction === "Sending" && !nonCompletedStates.includes(row.state!),
+  ).length;
 
   // error and loading handling
   let shipmentsTable: JSX.Element;

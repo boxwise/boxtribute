@@ -292,3 +292,96 @@ it("4.4.1.7 - Warning When No Shipments Match Filters", async () => {
     ),
   );
 });
+
+it("4.4.1.8 - GlobalFilter searches BaseOrgCell fields", async () => {
+  // iAmSource: true → Sending shipment, sourceBase = Lesvos/BoxAid, targetBase = Thessaloniki/BoxCare
+  render(<ShipmentsOverviewView />, {
+    routePath: "/bases/:baseId/transfers/shipments",
+    initialUrl: "/bases/1/transfers/shipments",
+    mocks: [mockSuccessfulShipmentsQuery({})],
+  });
+
+  const user = userEvent.setup();
+
+  // Switch to Sending tab so the row is visible
+  await user.click(screen.getByText(/Sending \(/i));
+  expect(await screen.findByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
+
+  const searchInput = screen.getByPlaceholderText("Search");
+
+  // Searching by target org should keep the row visible
+  await user.type(searchInput, "BoxCare");
+  expect(await screen.findByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
+
+  // Searching by a term that doesn't match anything should hide the row
+  await user.clear(searchInput);
+  await user.type(searchInput, "xyznonexistent");
+  await waitFor(() =>
+    expect(screen.queryByRole("cell", { name: /thessaloniki boxcare/i })).not.toBeInTheDocument(),
+  );
+
+  // Clearing the filter restores the row
+  await user.clear(searchInput);
+  expect(await screen.findByRole("cell", { name: /thessaloniki boxcare/i })).toBeInTheDocument();
+});
+
+it("4.4.1.9 - GlobalFilter searches BoxesCell text", async () => {
+  // Mock shipment has 2 unique non-removed boxes (labelIdentifiers "123" and "124")
+  render(<ShipmentsOverviewView />, {
+    routePath: "/bases/:baseId/transfers/shipments",
+    initialUrl: "/bases/1/transfers/shipments",
+    mocks: [mockSuccessfulShipmentsQuery({})],
+  });
+
+  const user = userEvent.setup();
+
+  // Switch to Sending tab
+  await user.click(screen.getByText(/Sending \(/i));
+  expect(await screen.findByRole("cell", { name: /2 boxes/i })).toBeInTheDocument();
+
+  const searchInput = screen.getByPlaceholderText("Search");
+
+  // Searching "2 boxes" should keep the row visible
+  await user.type(searchInput, "2 boxes");
+  expect(await screen.findByRole("cell", { name: /2 boxes/i })).toBeInTheDocument();
+
+  // Searching "3 boxes" should hide the row (the shipment only has 2)
+  await user.clear(searchInput);
+  await user.type(searchInput, "3 boxes");
+  await waitFor(() =>
+    expect(screen.queryByRole("cell", { name: /2 boxes/i })).not.toBeInTheDocument(),
+  );
+});
+
+it("4.4.1.10 - Tab counts reflect active GlobalFilter", async () => {
+  // iAmSource: true → Sending shipment, sourceBase name contains "Lesvos"
+  render(<ShipmentsOverviewView />, {
+    routePath: "/bases/:baseId/transfers/shipments",
+    initialUrl: "/bases/1/transfers/shipments",
+    mocks: [mockSuccessfulShipmentsQuery({})],
+  });
+
+  const user = userEvent.setup();
+
+  // Initial counts: Sending(1), Receiving(0)
+  await screen.findByRole("table");
+  expect(screen.getByText(/Sending \(1\)/i)).toBeInTheDocument();
+  expect(screen.getByText(/Receiving \(0\)/i)).toBeInTheDocument();
+
+  const searchInput = screen.getByPlaceholderText("Search");
+
+  // A filter that matches the Sending shipment (sourceBase = "Lesvos") should keep the count
+  await user.type(searchInput, "Lesvos");
+  expect(await screen.findByText(/Sending \(1\)/i)).toBeInTheDocument();
+  expect(screen.getByText(/Receiving \(0\)/i)).toBeInTheDocument();
+
+  // A filter that matches nothing should drop the count to 0
+  await user.clear(searchInput);
+  await user.type(searchInput, "xyznonexistent");
+  expect(await screen.findByText(/Sending \(0\)/i)).toBeInTheDocument();
+  expect(screen.getByText(/Receiving \(0\)/i)).toBeInTheDocument();
+
+  // Clearing the filter restores the original count
+  await user.clear(searchInput);
+  expect(await screen.findByText(/Sending \(1\)/i)).toBeInTheDocument();
+});
