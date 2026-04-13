@@ -72,7 +72,7 @@ export function ShipmentFilter({
     <VStack spacing={4} align="stretch">
       <SimpleGrid spacing={4}>
         <MultiSelectFilter
-          fieldLabel="Sent from (source base)"
+          fieldLabel="Sent from"
           values={sourceBaseOptions}
           filterId="sourceBaseOrg"
           filterValue={sourceBaseOptions.filter((o) =>
@@ -88,7 +88,7 @@ export function ShipmentFilter({
         />
 
         <MultiSelectFilter
-          fieldLabel="Sent to (target base)"
+          fieldLabel="Sent to"
           values={targetBaseOptions}
           filterId="targetBaseOrg"
           filterValue={targetBaseOptions.filter((o) =>

@@ -428,7 +428,7 @@ function ShipmentsOverviewView() {
                   key={key}
                   {...rowProps}
                   onClick={() => navigate(row.original.href)}
-                  _hover={{ bg: "brandYellow.100" }}
+                  _hover={{ bg: "gray.100" }}
                   cursor="pointer"
                 >
                   {row.cells.map((cell) => (
@@ -450,7 +450,6 @@ function ShipmentsOverviewView() {
       <BreadcrumbNavigation
         items={[
           { label: "Aid Transfers", linkPath: "../../transfers/agreements", relative: "path" },
-          { label: "Manage Shipments" },
         ]}
       />
       <Heading fontWeight="bold" mb={4} as="h2">
