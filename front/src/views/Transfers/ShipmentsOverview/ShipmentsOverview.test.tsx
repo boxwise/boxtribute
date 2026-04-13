@@ -137,8 +137,9 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
 
   const user = userEvent.setup();
 
-  // Wait for the page to load
-  await screen.findByRole("table");
+  // Switch to the Sending tab where the mock shipment (iAmSource: true) is visible
+  await user.click(screen.getByText(/Sending \(/i));
+  expect(await screen.findByRole("cell", { name: /preparing/i })).toBeInTheDocument();
 
   // Check if Export CSV button exists and is enabled after data loads
   const exportButton = screen.getByTestId("export-csv-button");
@@ -237,8 +238,8 @@ it("4.4.1.6 - Export Button Disabled When No Data", async () => {
 });
 
 it("4.4.1.7 - Warning When No Shipments Match Filters", async () => {
-  // Create a mock shipment that will be filtered out
-  const mockShipment = generateMockShipment({ iAmSource: true });
+  // Create a Receiving mock shipment (iAmSource: false, visible on the default Receiving tab)
+  const mockShipment = generateMockShipment({ iAmSource: false });
 
   const exportQueryMock = {
     request: {
@@ -251,7 +252,7 @@ it("4.4.1.7 - Warning When No Shipments Match Filters", async () => {
     },
   };
 
-  const mocks = [mockSuccessfulShipmentsQuery({ iAmSource: true }), exportQueryMock];
+  const mocks = [mockSuccessfulShipmentsQuery({ iAmSource: false }), exportQueryMock];
 
   render(<ShipmentsOverviewView />, {
     routePath: "/bases/:baseId/transfers/shipments",
@@ -261,7 +262,7 @@ it("4.4.1.7 - Warning When No Shipments Match Filters", async () => {
 
   const user = userEvent.setup();
 
-  // Wait for the page to load
+  // Wait for the page to load — the Receiving shipment is visible on the default tab
   await screen.findByRole("table");
 
   // Click the export button to open popover
@@ -269,15 +270,15 @@ it("4.4.1.7 - Warning When No Shipments Match Filters", async () => {
   await user.click(exportButton);
 
   const popoverContent = await screen.findByTestId("export-popover-content");
-  const sendingCheckbox = await within(popoverContent).findByRole("checkbox", { name: /sending/i });
+  const receivingCheckbox = await within(popoverContent).findByRole("checkbox", {
+    name: /receiving/i,
+  });
 
-  // Uncheck the sending checkbox so no shipments match
-  await user.click(sendingCheckbox);
+  // Uncheck the receiving checkbox so no shipments match (the only shipment is Receiving)
+  await user.click(receivingCheckbox);
 
-  // Check receiving only - but the mock shipment is sending
+  // Click export with only sending checked
   const popoverExportButton = screen.getByTestId("export-button");
-
-  // Click export with only receiving checked
   await user.click(popoverExportButton);
 
   // Wait for the warning to appear

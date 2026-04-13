@@ -375,7 +375,7 @@ function ShipmentsOverviewView() {
               Create Shipment
             </Button>
           </Link>
-          <ShipmentExportButton rowData={rowData} />
+          <ShipmentExportButton filteredRowData={rows.map((r) => r.original)} />
         </Stack>
         <Spacer />
         <HStack spacing={2}>
