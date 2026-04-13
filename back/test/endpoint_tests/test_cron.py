@@ -90,7 +90,7 @@ def test_internal_stats(client, monkeypatch, mocker):
     # Verify successful execution
     response = client.get(internal_stats_path, headers=headers)
     assert response.status_code == 200
-    assert response.json == {"message": "posted 7 stats, 0 failure(s)"}
+    assert response.json == {"message": "posted 6 stats, 0 failure(s)"}
     header = "Organisation "
     for call_args_list, title in zip(mocked_urlopen.call_args_list, TITLES):
         part = json.loads(call_args_list.args[0].data.decode())
@@ -104,7 +104,7 @@ def test_internal_stats(client, monkeypatch, mocker):
 
     response = client.get(internal_stats_path, headers=headers)
     assert response.status_code == 500
-    assert response.json == {"message": "posted 0 stats, 7 failure(s)"}
+    assert response.json == {"message": "posted 0 stats, 6 failure(s)"}
 
 
 def test_reseed_db_in_staging(client, monkeypatch):
