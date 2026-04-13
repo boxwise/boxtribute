@@ -447,7 +447,12 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const locationHeader = screen.getAllByText(/Location/i)[2];
+    const locationElements = screen.getAllByText(/Location/i);
+    console.log("DEBUG: Location elements count:", locationElements.length);
+    locationElements.forEach((el, i) => {
+      console.log(`DEBUG: Location[${i}]:`, el.tagName, el.textContent?.substring(0, 50));
+    });
+    const locationHeader = locationElements[2];
     await userEvent.click(locationHeader); // Ascending sort
     await waitFor(
       () => {
