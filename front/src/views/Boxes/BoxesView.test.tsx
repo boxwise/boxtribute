@@ -447,7 +447,7 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const locationHeader = screen.getAllByText(/Location/i)[2];
+    const locationHeader = screen.getAllByText(/Location/i)[1];
     await userEvent.click(locationHeader); // Ascending sort
     await waitFor(
       () => {
@@ -476,7 +476,7 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const stateHeader = screen.getAllByText(/Status/i)[2];
+    const stateHeader = screen.getAllByText(/Status/i)[1];
     await userEvent.click(stateHeader); // Ascending sort
     await waitFor(
       () => {
