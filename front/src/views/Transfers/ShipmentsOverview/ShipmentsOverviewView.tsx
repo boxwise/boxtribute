@@ -9,23 +9,36 @@ import {
   Spacer,
   Stack,
   Tab,
+  Table,
+  TableContainer,
   TabList,
   Tabs,
+  Tbody,
+  Td,
+  Tr,
   useDisclosure,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
-import { Column, Row } from "react-table";
+import {
+  Column,
+  Filters,
+  Row,
+  useFilters,
+  useGlobalFilter,
+  useSortBy,
+  useTable,
+} from "react-table";
 import {
   includesSomeObjectFilterFn,
   includesOneOfMultipleStringsFilterFn,
 } from "components/Table/Filter";
+import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 import { FilterPanel } from "components/Table/FilterPanel";
-import { FilteringSortingTable } from "components/Table/Table";
 import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
@@ -94,10 +107,9 @@ shipmentGlobalFilterFn.autoRemove = (val: unknown) => !val;
 function ShipmentsOverviewView() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const navigate = useNavigate();
   const [direction, setDirection] = useState<"Receiving" | "Sending">("Receiving");
   const filterDisclosure = useDisclosure();
-  const [globalFilter, setGlobalFilter] = useState<string | undefined>("");
-  const [columnFilters, setColumnFilters] = useState<ShipmentColumnFilter[]>([]);
 
   // fetch shipments data
   const { loading, error, data } = useQuery(ALL_SHIPMENTS_QUERY, {
@@ -209,9 +221,24 @@ function ShipmentsOverviewView() {
     return Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label));
   }, [rowData]);
 
+  const filterTypes = useMemo(
+    () => ({
+      includesSomeObject: includesSomeObjectFilterFn,
+      includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
+    }),
+    [],
+  );
+
   // Define columns — source/target headers depend on current direction
   const columns = useMemo<Column<ShipmentRow>[]>(
     () => [
+      {
+        // Hidden column used as a filter dimension controlled by the direction tabs
+        Header: "Direction",
+        accessor: "direction",
+        id: "direction",
+        filter: "includesSome",
+      },
       {
         Header: "Shipment ID",
         accessor: "labelIdentifier",
@@ -223,21 +250,21 @@ function ShipmentsOverviewView() {
         accessor: "sourceBaseOrg",
         id: "sourceBaseOrg",
         Cell: BaseOrgCell,
-        disableFilters: true,
+        filter: "includesSomeObject",
       },
       {
         Header: direction === "Receiving" ? "Base" : "Sent to",
         accessor: "targetBaseOrg",
         id: "targetBaseOrg",
         Cell: BaseOrgCell,
-        disableFilters: true,
+        filter: "includesSomeObject",
       },
       {
         Header: "Status",
         accessor: "state",
         id: "state",
         Cell: StateCell,
-        disableFilters: true,
+        filter: "includesSome",
       },
       {
         Header: "Last Updated",
@@ -258,20 +285,56 @@ function ShipmentsOverviewView() {
     [direction],
   );
 
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state: { globalFilter, filters },
+    setGlobalFilter,
+    setAllFilters,
+    setFilter,
+  } = useTable<ShipmentRow>(
+    {
+      columns,
+      data: rowData,
+      filterTypes,
+      globalFilter: shipmentGlobalFilterFn,
+      initialState: {
+        hiddenColumns: ["direction"],
+        filters: [{ id: "direction", value: ["Receiving"] }],
+        sortBy: [{ id: "lastUpdated", desc: true }],
+      },
+    },
+    useFilters,
+    useGlobalFilter,
+    useSortBy,
+  );
+
   const handleDirectionChange = useCallback(() => {
-    setDirection((prev) => (prev === "Receiving" ? "Sending" : "Receiving"));
-  }, []);
+    const newDir = direction === "Receiving" ? "Sending" : "Receiving";
+    setDirection(newDir);
+    setFilter("direction", [newDir]);
+  }, [direction, setFilter]);
 
-  const handleApplyFilters = useCallback((newFilters: ShipmentColumnFilter[]) => {
-    setColumnFilters(newFilters);
-  }, []);
+  const handleApplyFilters = useCallback(
+    (newFilters: ShipmentColumnFilter[]) => {
+      // Preserve the direction filter when applying panel filters
+      const directionFilter = { id: "direction" as const, value: [direction] };
+      setAllFilters([directionFilter, ...newFilters]);
+    },
+    [direction, setAllFilters],
+  );
 
-  const handleRemoveFilter = useCallback((filterId: ShipmentFilterId, valueToRemove?: string) => {
-    setColumnFilters((prev) =>
-      prev
+  const handleRemoveFilter = useCallback(
+    (filterId: ShipmentFilterId, valueToRemove?: string) => {
+      const updatedFilters = filters
         .map((filter) => {
           if (filter.id === filterId) {
-            if (!valueToRemove) return null;
+            if (!valueToRemove) {
+              return null;
+            }
             const remainingValues = Array.isArray(filter.value)
               ? filter.value.filter((v: string) => v !== valueToRemove)
               : [];
@@ -279,18 +342,27 @@ function ShipmentsOverviewView() {
           }
           return filter;
         })
-        .filter((f): f is ShipmentColumnFilter => f !== null),
-    );
-  }, []);
+        .filter((f) => f !== null) as Filters<ShipmentRow>;
+      setAllFilters(updatedFilters);
+    },
+    [filters, setAllFilters],
+  );
 
   const handleClearFilters = useCallback(() => {
-    setColumnFilters([]);
-  }, []);
+    // Clear all panel filters but keep the direction filter
+    setAllFilters([{ id: "direction", value: [direction] }]);
+  }, [direction, setAllFilters]);
+
+  // Filters without the hidden direction dimension (shown in FilterChips and passed to ShipmentFilter)
+  const visibleFilters = useMemo<ShipmentColumnFilter[]>(
+    () => filters.filter((f) => f.id !== "direction") as ShipmentColumnFilter[],
+    [filters],
+  );
 
   // Rows filtered by all active panel/column filters and global filter, but NOT by direction.
   // Passed to ShipmentExportButton so the export covers both Sending and Receiving shipments
   // that match the current filter state, with direction determined by the export popover checkboxes.
-  // Reuses the same filter functions as FilteringSortingTable (single source of truth for filter behavior).
+  // Reuses the same filter functions as useTable (single source of truth for filter behavior).
   const nonDirectionFilteredData = useMemo(() => {
     // Build minimal row-like objects compatible with the react-table filter function signatures.
     // react-table filter functions operate on `row.values[id]`, which for ShipmentRow maps
@@ -299,7 +371,7 @@ function ShipmentsOverviewView() {
 
     let filtered: typeof rowShims = rowShims;
 
-    for (const filter of columnFilters) {
+    for (const filter of visibleFilters) {
       const filterValue = filter.value;
       if (!filterValue || (Array.isArray(filterValue) && filterValue.length === 0)) continue;
 
@@ -319,13 +391,7 @@ function ShipmentsOverviewView() {
     }
 
     return filtered.map((r) => r.original);
-  }, [rowData, columnFilters, globalFilter]);
-
-  // Rows further filtered by the active direction tab — passed to FilteringSortingTable.
-  const directionFilteredData = useMemo(
-    () => nonDirectionFilteredData.filter((row) => row.direction === direction),
-    [nonDirectionFilteredData, direction],
-  );
+  }, [rowData, visibleFilters, globalFilter]);
 
   // Tab counts reflect all active column/search filters but exclude completed/canceled/lost states
   const receivingCount = nonDirectionFilteredData.filter(
@@ -348,13 +414,32 @@ function ShipmentsOverviewView() {
     shipmentsTable = <TableSkeleton />;
   } else {
     shipmentsTable = (
-      <FilteringSortingTable
-        columns={columns}
-        tableData={directionFilteredData}
-        initialState={{ sortBy: [{ id: "lastUpdated", desc: true }] }}
-        hoverBg="gray.100"
-        hideColumnFilters={true}
-      />
+      <TableContainer>
+        <Table {...getTableProps()}>
+          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+          <Tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              const { key, ...rowProps } = row.getRowProps();
+              return (
+                <Tr
+                  key={key}
+                  {...rowProps}
+                  onClick={() => navigate(row.original.href)}
+                  _hover={{ bg: "gray.100" }}
+                  cursor="pointer"
+                >
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()} key={cell.column.id}>
+                      {cell.render("Cell")}
+                    </Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
     );
   }
 
@@ -379,7 +464,7 @@ function ShipmentsOverviewView() {
         </Stack>
         <Spacer />
         <HStack spacing={2}>
-          <GlobalFilter globalFilter={globalFilter ?? ""} setGlobalFilter={setGlobalFilter} />
+          <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel
             isOpen={filterDisclosure.isOpen}
             onOpen={filterDisclosure.onOpen}
@@ -388,7 +473,7 @@ function ShipmentsOverviewView() {
             <ShipmentFilter
               isOpen={filterDisclosure.isOpen}
               onClose={filterDisclosure.onClose}
-              columnFilters={columnFilters}
+              columnFilters={visibleFilters}
               onApplyFilters={handleApplyFilters}
               sourceBaseOptions={sourceBaseOptions}
               targetBaseOptions={targetBaseOptions}
@@ -417,7 +502,7 @@ function ShipmentsOverviewView() {
         </TabList>
       </Tabs>
       <ShipmentFilterChips
-        filters={columnFilters}
+        filters={visibleFilters}
         sourceBaseOptions={sourceBaseOptions}
         targetBaseOptions={targetBaseOptions}
         onRemoveFilter={handleRemoveFilter}
