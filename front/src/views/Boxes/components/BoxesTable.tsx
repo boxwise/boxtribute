@@ -52,6 +52,7 @@ import { BoxesFilter } from "./BoxesFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { FilterChips } from "./FilterChips";
 import { FilterPanel } from "components/Table/FilterPanel";
+import { createOptions } from "utils/filterOptions";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -216,11 +217,18 @@ function BoxesTable({
       return sorted1.every((v, i) => v === sorted2[i]);
     };
 
-    // refetch only if state filter actually changed
+    // refetch only if state or location filter actually changed
     const newStateFilter = filters.find((filter) => filter.id === "state");
     const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
+    const newLocationFilter = filters.find((filter) => filter.id === "location");
+    const oldLocationFilter = tableConfig
+      .getColumnFilters()
+      .find((filter) => filter.id === "location");
 
-    if (!areFilterValuesEqual(newStateFilter, oldStateFilter)) {
+    if (
+      !areFilterValuesEqual(newStateFilter, oldStateFilter) ||
+      !areFilterValuesEqual(newLocationFilter, oldLocationFilter)
+    ) {
       startRefetchBoxes(() => {
         onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
       });
@@ -244,51 +252,17 @@ function BoxesTable({
   const filterDisclosure = useDisclosure();
 
   const productOptions = useMemo(() => {
-    const uniqueProducts = new Map<string, { id: string; name: string; gender: string }>();
-    tableData.forEach((row) => {
-      if (row.product && row.product.id && row.product.name) {
-        const key = row.product.id;
-        if (!uniqueProducts.has(key)) {
-          uniqueProducts.set(key, {
-            id: row.product.id,
-            name: row.product.name,
-            gender: row.gender?.name || "",
-          });
-        }
-      }
-    });
-    return Array.from(uniqueProducts.values())
-      .map((p) => ({
-        label: `${p.name} (${p.gender})`,
-        value: p.id,
-        urlId: p.id,
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label));
+    const enrichedData = tableData.map((row) => ({
+      product: row.product?.id
+        ? { id: row.product.id, name: `${row.product.name} (${row.gender?.name || ""})` }
+        : null,
+    }));
+    return createOptions(enrichedData, "product");
   }, [tableData]);
 
-  const genderOptions = useMemo(() => {
-    const uniqueGenders = new Map<string, { id: string; name: string }>();
-    tableData.forEach((row) => {
-      if (row.gender && row.gender.name) {
-        uniqueGenders.set(row.gender.id, { id: row.gender.id, name: row.gender.name });
-      }
-    });
-    return Array.from(uniqueGenders.values())
-      .map((g) => ({ label: g.name, value: g.id, urlId: g.id }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [tableData]);
+  const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
 
-  const sizeOptions = useMemo(() => {
-    const uniqueSizes = new Map<string, { id: string; name: string }>();
-    tableData.forEach((row) => {
-      if (row.size && row.size.name) {
-        uniqueSizes.set(row.size.id, { id: row.size.id, name: row.size.name });
-      }
-    });
-    return Array.from(uniqueSizes.values())
-      .map((s) => ({ label: s.name, value: s.id, urlId: s.id }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [tableData]);
+  const sizeOptions = useMemo(() => createOptions(tableData, "size"), [tableData]);
 
   const handleApplyFilters = useCallback(
     (newFilters: Filters<any>) => {
