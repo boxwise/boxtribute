@@ -61,12 +61,7 @@ export function ShipmentCell({ row, value }: CellProps<any>) {
   return (
     <VStack align="start">
       {Object.values(value).map(({ name, count }) => (
-        <Link
-          textDecoration="underline"
-          key={name}
-          as={RouterLink}
-          to="../shipments"
-        >
+        <Link textDecoration="underline" key={name} as={RouterLink} to="../shipments">
           {name} ({count})
         </Link>
       ))}
