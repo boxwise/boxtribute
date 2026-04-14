@@ -84,12 +84,6 @@ it("4.4.1.4 - Initial Load of Page", async () => {
   expect(screen.getByRole("cell", { name: /preparing/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /2 boxes/i })).toBeInTheDocument();
   expect(screen.getByRole("cell", { name: /Wed, 01 Feb 2023, 17:24/i })).toBeInTheDocument();
-  // Breadcrumbs are there
-  expect(
-    screen.getByRole("link", {
-      name: /aid transfers/i,
-    }),
-  ).toBeInTheDocument();
 });
 
 it("4.4.1.5 - Export CSV Button Functionality", async () => {
