@@ -66,7 +66,6 @@ export function ShipmentCell({ row, value }: CellProps<any>) {
           key={name}
           as={RouterLink}
           to="../shipments"
-          state={{ partnerBaseOrg: { base: name, organisation: row.values.partnerOrg } }}
         >
           {name} ({count})
         </Link>
