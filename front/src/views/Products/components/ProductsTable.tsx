@@ -138,7 +138,7 @@ function ProductsTable({
     <Flex direction="column" overflowX="auto">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Link to="create">
-          <Button leftIcon={<AddIcon />} borderRadius="0">
+          <Button leftIcon={<AddIcon />} mb={2} borderRadius="0">
             Add New Product
           </Button>
         </Link>
