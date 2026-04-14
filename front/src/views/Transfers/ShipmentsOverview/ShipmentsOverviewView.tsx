@@ -39,7 +39,6 @@ import {
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 import { FilterPanel } from "components/Table/FilterPanel";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -427,11 +426,6 @@ function ShipmentsOverviewView() {
 
   return (
     <>
-      <BreadcrumbNavigation
-        items={[
-          { label: "Aid Transfers", linkPath: "../../transfers/agreements", relative: "path" },
-        ]}
-      />
       <Heading fontWeight="bold" mb={4} as="h2">
         Manage Shipments
       </Heading>
