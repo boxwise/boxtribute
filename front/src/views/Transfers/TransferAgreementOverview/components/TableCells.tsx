@@ -57,7 +57,7 @@ export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
   return <>value</>;
 }
 
-export function ShipmentCell({ row, value }: CellProps<any>) {
+export function ShipmentCell({ value }: CellProps<any>) {
   return (
     <VStack align="start">
       {Object.values(value).map(({ name, count }) => (
