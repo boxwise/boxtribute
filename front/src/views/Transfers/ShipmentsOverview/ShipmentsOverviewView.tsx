@@ -51,7 +51,7 @@ import ShipmentExportButton from "./components/ShipmentExportButton";
 import { ShipmentFilter } from "./components/ShipmentFilter";
 import { ShipmentFilterChips } from "./components/ShipmentFilterChips";
 import type { ShipmentColumnFilter, ShipmentFilterId } from "./components/types";
-import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import { createOptions } from "utils/filterOptions";
 
 // TODO: Revisit this after gql.tada merge
 type ShipmentRow = {
@@ -193,33 +193,15 @@ function ShipmentsOverviewView() {
   const nonCompletedStates = ["Completed", "Canceled", "Lost"];
 
   // Derive unique source/target base options from all data for the filter panel
-  const sourceBaseOptions: IFilterValue[] = useMemo(() => {
-    const seen = new Map<string, IFilterValue>();
-    rowData.forEach((row) => {
-      if (!seen.has(row.sourceBaseOrg.id)) {
-        seen.set(row.sourceBaseOrg.id, {
-          label: `${row.sourceBaseOrg.base} (${row.sourceBaseOrg.organisation})`,
-          value: row.sourceBaseOrg.id,
-          urlId: row.sourceBaseOrg.id,
-        });
-      }
-    });
-    return Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label));
-  }, [rowData]);
+  const sourceBaseOptions = useMemo(
+    () => createOptions(rowData, "sourceBaseOrg", (v) => `${v.base} (${v.organisation})`),
+    [rowData],
+  );
 
-  const targetBaseOptions: IFilterValue[] = useMemo(() => {
-    const seen = new Map<string, IFilterValue>();
-    rowData.forEach((row) => {
-      if (!seen.has(row.targetBaseOrg.id)) {
-        seen.set(row.targetBaseOrg.id, {
-          label: `${row.targetBaseOrg.base} (${row.targetBaseOrg.organisation})`,
-          value: row.targetBaseOrg.id,
-          urlId: row.targetBaseOrg.id,
-        });
-      }
-    });
-    return Array.from(seen.values()).sort((a, b) => a.label.localeCompare(b.label));
-  }, [rowData]);
+  const targetBaseOptions = useMemo(
+    () => createOptions(rowData, "targetBaseOrg", (v) => `${v.base} (${v.organisation})`),
+    [rowData],
+  );
 
   const filterTypes = useMemo(
     () => ({
