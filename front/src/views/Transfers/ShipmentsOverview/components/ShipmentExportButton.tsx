@@ -22,6 +22,7 @@ import { useNotification } from "hooks/useNotification";
 const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
 interface ShipmentCsvRow {
+  direction: string;
   shipmentId: string;
   shipmentLabelIdentifier: string;
   shipmentState: string | null;
@@ -62,7 +63,13 @@ type ShipmentRow = {
   id: string;
   labelIdentifier: string;
   direction: "Sending" | "Receiving";
-  partnerBaseOrg: {
+  sourceBaseOrg: {
+    id: string;
+    base: string;
+    organisation: string;
+  };
+  targetBaseOrg: {
+    id: string;
     base: string;
     organisation: string;
   };
@@ -73,10 +80,10 @@ type ShipmentRow = {
 };
 
 interface ShipmentExportButtonProps {
-  rowData: (ShipmentRow | undefined)[];
+  filteredRowData: ShipmentRow[];
 }
 
-const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) => {
+const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ filteredRowData }) => {
   const [includeReceiving, setIncludeReceiving] = useState(true);
   const [includeSending, setIncludeSending] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
@@ -114,12 +121,10 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
         const now = new Date();
         setFilename(`Shipments_${now.toJSON().slice(0, 10)}_${now.valueOf()}`);
 
-        // Create a map of shipment ID to direction from rowData
+        // Create a map of shipment ID to direction from filteredRowData
         const shipmentDirectionMap = new Map<string, "Sending" | "Receiving">();
-        rowData.forEach((row) => {
-          if (row) {
-            shipmentDirectionMap.set(row.id, row.direction);
-          }
+        filteredRowData.forEach((row) => {
+          shipmentDirectionMap.set(row.id, row.direction);
         });
 
         // Filter shipments based on selected checkboxes
@@ -142,6 +147,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
           if (!shipment.details || shipment.details.length === 0) {
             return [
               {
+                direction: shipmentDirectionMap.get(shipment.id) || "",
                 shipmentId: shipment.id,
                 shipmentLabelIdentifier: shipment.labelIdentifier,
                 shipmentState: shipment.state,
@@ -182,6 +188,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
 
           // Create one row per detail
           return shipment.details.map((detail) => ({
+            direction: shipmentDirectionMap.get(shipment.id) || "",
             shipmentId: shipment.id,
             shipmentLabelIdentifier: shipment.labelIdentifier,
             shipmentState: shipment.state,
@@ -253,7 +260,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
             borderRadius="0"
             onClick={() => setIsOpen(true)}
             data-testid="export-csv-button"
-            isDisabled={rowData.length === 0}
+            isDisabled={filteredRowData.length === 0}
           >
             Export .csv
           </Button>
@@ -263,7 +270,11 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
           <PopoverCloseButton />
           <PopoverBody>
             <Stack spacing={3}>
-              <Text>Include the following shipments:</Text>
+              <Text>
+                Include the following shipments
+                <br />
+                (filters apply):
+              </Text>
               <Checkbox
                 isChecked={includeReceiving}
                 onChange={(e) => setIncludeReceiving(e.target.checked)}
@@ -302,6 +313,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ rowData }) 
         data={csvData}
         filename={filename}
         headers={[
+          { label: "Direction", key: "direction" },
           { label: "Shipment ID", key: "shipmentId" },
           { label: "Shipment Label", key: "shipmentLabelIdentifier" },
           { label: "Shipment State", key: "shipmentState" },
