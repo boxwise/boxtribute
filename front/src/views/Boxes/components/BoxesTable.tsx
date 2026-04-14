@@ -66,6 +66,8 @@ interface IBoxesTableProps {
   shipmentOptions: IDropdownOption[];
 }
 
+export const PAGE_SIZE = 50;
+
 function BoxesTable({
   isBackgroundFetchOfBoxesLoading,
   hasExecutedInitialFetchOfBoxes,
@@ -152,7 +154,7 @@ function BoxesTable({
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
         pageIndex: 0,
-        pageSize: 20,
+        pageSize: PAGE_SIZE,
         filters: tableConfig.getColumnFilters(),
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
