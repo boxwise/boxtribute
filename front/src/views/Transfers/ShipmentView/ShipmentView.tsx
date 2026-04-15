@@ -143,7 +143,7 @@ function ShipmentView() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
-  const shipmentId = useParams<{ id: string }>().id!;
+  const shipmentId = useParams<{ id: string }>().id || "";
 
   // fetch shipment data
   const { loading, error, data } = useQuery(SHIPMENT_BY_ID_QUERY, {
@@ -350,9 +350,6 @@ function ShipmentView() {
     updateShipmentWhenReceivingStatus.loading ||
     lostShipmentStatus.loading;
 
-  // transform shipment data for UI
-  const shipmentData = data?.shipment!;
-
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetailWithAutomatchProduct[];
 
@@ -388,7 +385,7 @@ function ShipmentView() {
       if (shipmentObj.createdOn) {
         shipmentHistory.push({
           action: action as ShipmentActionEvent,
-          createdBy: shipmentObj.createdBy! as User,
+          createdBy: shipmentObj.createdBy as User,
           createdOn: new Date(shipmentObj.createdOn),
         });
       }
@@ -399,28 +396,28 @@ function ShipmentView() {
 
   const shipmentLogs: ITimelineEntry[] = generateShipmentHistory({
     [ShipmentActionEvent.ShipmentStarted]: {
-      createdOn: shipmentData?.startedOn,
-      createdBy: shipmentData?.startedBy!,
+      createdOn: data?.shipment?.startedOn || "",
+      createdBy: data?.shipment?.startedBy as User,
     },
     [ShipmentActionEvent.ShipmentCanceled]: {
-      createdOn: shipmentData?.canceledOn || "",
-      createdBy: shipmentData?.canceledBy!,
+      createdOn: data?.shipment?.canceledOn || "",
+      createdBy: data?.shipment?.canceledBy as User,
     },
     [ShipmentActionEvent.ShipmentSent]: {
-      createdOn: shipmentData?.sentOn || "",
-      createdBy: shipmentData?.sentBy!,
+      createdOn: data?.shipment?.sentOn || "",
+      createdBy: data?.shipment?.sentBy as User,
     },
     [ShipmentActionEvent.ShipmentStartReceiving]: {
-      createdOn: shipmentData?.receivingStartedOn || "",
-      createdBy: shipmentData?.receivingStartedBy!,
+      createdOn: data?.shipment?.receivingStartedOn || "",
+      createdBy: data?.shipment?.receivingStartedBy as User,
     },
     [ShipmentActionEvent.ShipmentCompleted]: {
-      createdOn: shipmentData?.completedOn || "",
-      createdBy: shipmentData?.completedBy!,
+      createdOn: data?.shipment?.completedOn || "",
+      createdBy: data?.shipment?.completedBy as User,
     },
   });
 
-  const shipmentDetailLogs = (data?.shipment?.details! as ShipmentDetail[])?.flatMap((detail) =>
+  const shipmentDetailLogs = (data?.shipment?.details as ShipmentDetail[])?.flatMap((detail) =>
     _.compact([
       detail?.createdBy && {
         box: detail.box.labelIdentifier,
@@ -431,19 +428,19 @@ function ShipmentView() {
       detail?.removedOn && {
         box: detail.box.labelIdentifier,
         action: ShipmentActionEvent.BoxRemoved,
-        createdBy: detail?.removedBy! as User,
+        createdBy: detail?.removedBy as User,
         createdOn: new Date(detail?.removedOn),
       },
       detail?.lostOn && {
         box: detail.box.labelIdentifier,
         action: ShipmentActionEvent.BoxLost,
-        createdBy: detail?.lostBy! as User,
+        createdBy: detail?.lostBy as User,
         createdOn: new Date(detail?.lostOn),
       },
       detail?.receivedOn && {
         box: detail.box.labelIdentifier,
         action: ShipmentActionEvent.BoxReceived,
-        createdBy: detail?.receivedBy! as User,
+        createdBy: detail?.receivedBy as User,
         createdOn: new Date(detail?.receivedOn),
       },
     ]),
@@ -473,7 +470,7 @@ function ShipmentView() {
 
   const isSender =
     availableBases && data?.shipment && data?.shipment?.sourceBase?.id
-      ? availableBases.some((b) => b.id === data.shipment!.sourceBase.id)
+      ? availableBases.some((b) => b.id === data.shipment?.sourceBase.id)
       : undefined;
 
   let shipmentTitle = <Heading>View Shipment</Heading>;
@@ -539,7 +536,7 @@ function ShipmentView() {
       />
     );
 
-    shipmentCard = (
+    shipmentCard = data?.shipment ? (
       <ShipmentCard
         canCancelShipment={canCancelShipment}
         canUpdateShipment={canUpdateShipment}
@@ -548,19 +545,19 @@ function ShipmentView() {
         onRemove={onMinusClick}
         onCancel={openShipmentOverlay}
         onLost={openShipmentOverlay}
-        shipment={data?.shipment!}
+        shipment={data?.shipment}
       />
-    );
+    ) : undefined;
   }
 
   let shipmentViewComponents;
 
   if (shipmentState === "Receiving" && !isSender && isSender !== undefined) {
-    shipmentViewComponents = (
+    shipmentViewComponents = data?.shipment ? (
       <>
         <Flex direction="column" gap={2} paddingBottom={5}>
           <Heading>Receiving Shipment</Heading>
-          <ShipmentReceivingCard shipment={data?.shipment!} />
+          <ShipmentReceivingCard shipment={data?.shipment} />
           <ShipmentReceivingContent
             items={shipmentContents}
             onReconciliationBox={openBoxReconciliationOverlay}
@@ -569,7 +566,7 @@ function ShipmentView() {
         </Flex>
         <BoxReconciliationOverlay />
       </>
-    );
+    ) : undefined;
   } else {
     shipmentViewComponents = (
       <Flex direction="column" gap={2} paddingBottom={5}>
