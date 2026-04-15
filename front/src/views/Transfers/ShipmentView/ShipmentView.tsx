@@ -143,7 +143,7 @@ function ShipmentView() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
-  const shipmentId = useParams<{ id: string }>().id || "";
+  const shipmentId = useParams<{ id: string }>().id!;
 
   // fetch shipment data
   const { loading, error, data } = useQuery(SHIPMENT_BY_ID_QUERY, {
