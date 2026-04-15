@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { vi } from "vitest";
 
-export function mockMatchMediaQuery(returnBool: Boolean) {
+export function mockMatchMediaQuery(returnBool: boolean) {
   // Jest does not implement window.matchMedia() which is used in the chackra ui hook useMediaQuery().
   // To mock a result of useMediaQuery you have to define this property. The 'matches' boolean is the return value.
   // https://jestjs.io/docs/26.x/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom

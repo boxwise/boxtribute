@@ -110,7 +110,7 @@ export default function CreatedBoxesFilterContainer({
         "createdOn",
         interval,
       );
-    } catch (error) {
+    } catch {
       // TODO useError
     }
     return [];
@@ -145,7 +145,7 @@ export default function CreatedBoxesFilterContainer({
 
     let filtered = createdBoxesFacts;
     if (filters.length > 0) {
-      // @ts-expect-error
+      // @ts-expect-error spread of tidy filter functions not fully typed
       filtered = tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
     }
 

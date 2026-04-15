@@ -61,7 +61,7 @@ export default function DemographicFilterContainer({
         "createdOn",
         interval,
       ) as BeneficiaryDemographicsResult[];
-    } catch (error) {
+    } catch {
       // TODO useError
     }
     return [];

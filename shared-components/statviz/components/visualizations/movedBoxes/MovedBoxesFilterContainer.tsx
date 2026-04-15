@@ -77,7 +77,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   const movedBoxesFacts = useMemo(() => {
     try {
       return filterListByInterval(movedBoxes?.facts! as MovedBoxesResult[], "movedOn", interval);
-    } catch (error) {
+    } catch {
       // TODO show toast with error message?
     }
     return [];
@@ -123,7 +123,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
     let filtered = movedBoxesFacts;
     if (filters.length > 0) {
-      // @ts-expect-error
+      // @ts-expect-error spread of tidy filter functions not fully typed
       filtered = tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
     }
 

@@ -14,7 +14,7 @@ import { getActiveSpan, startSpanManual } from "@sentry/react";
 function ApolloAuth0Provider({ children }: { children: ReactNode }) {
   const { triggerError } = useErrorHandling();
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [auth0Token, setAuth0Token] = useState<String>("");
+  const [auth0Token, setAuth0Token] = useState<string>("");
   const httpLink = new HttpLink({
     uri: import.meta.env.FRONT_GRAPHQL_SERVER,
   });

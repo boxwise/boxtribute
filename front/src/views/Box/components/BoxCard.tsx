@@ -261,8 +261,9 @@ function BoxCard({
                   onStateChange(
                     // If the current box state 'Scrap' is toggled, set the defaultBoxState of the box location
                     boxData?.state === "Scrap" &&
-                      boxData?.location?.__typename !== "DistributionSpot"
-                      ? boxData?.location?.defaultBoxState!
+                      boxData?.location?.__typename !== "DistributionSpot" &&
+                      boxData?.location?.defaultBoxState
+                      ? boxData?.location?.defaultBoxState
                       : "Scrap",
                   )
                 }
@@ -290,8 +291,9 @@ function BoxCard({
                   onStateChange(
                     // If the current box state 'Lost' is toggled, set the defaultBoxState of the box location
                     boxData?.state === "Lost" &&
-                      boxData?.location?.__typename !== "DistributionSpot"
-                      ? boxData?.location?.defaultBoxState!
+                      boxData?.location?.__typename !== "DistributionSpot" &&
+                      boxData?.location?.defaultBoxState
+                      ? boxData?.location?.defaultBoxState
                       : "Lost",
                   )
                 }
