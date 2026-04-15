@@ -354,31 +354,37 @@ describe("TagsView", () => {
     expect(await screen.findByRole("button", { name: /create tag/i })).toBeInTheDocument();
   });
 
-  it("handles query errors with error boundary", async () => {
-    const errorQuery = {
-      request: {
-        query: TAGS_QUERY,
-        variables: {
-          baseId: "1",
+  it(
+    "handles query errors with error boundary",
+    async () => {
+      const errorQuery = {
+        request: {
+          query: TAGS_QUERY,
+          variables: {
+            baseId: "1",
+          },
         },
-      },
-      result: {
-        errors: [new FakeGraphQLError()],
-      },
-    };
+        result: {
+          errors: [new FakeGraphQLError()],
+        },
+      };
 
-    render(<TagsView />, {
-      routePath: "/bases/:baseId/tags",
-      initialUrl: "/bases/1/tags",
-      mocks: [errorQuery],
-      addTypename: true,
-    });
+      render(<TagsView />, {
+        routePath: "/bases/:baseId/tags",
+        initialUrl: "/bases/1/tags",
+        mocks: [errorQuery],
+        addTypename: true,
+      });
 
-    // Should show error boundary fallback
-    expect(
-      await screen.findByText(/could not fetch tags data! please try reloading the page/i),
-    ).toBeInTheDocument();
-  });
+      // Should show error boundary fallback
+      expect(
+        await screen.findByText(/could not fetch tags data! please try reloading the page/i),
+      ).toBeInTheDocument();
+    },
+    {
+      timeout: 2000,
+    },
+  );
 
   it("allows selecting all tags with header checkbox", async () => {
     const user = userEvent.setup();
