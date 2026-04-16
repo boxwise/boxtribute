@@ -219,7 +219,7 @@ PackedContentListOverlayProps) {
             <BoxesList boxesData={boxesData} />
           </Box>
         )}
-        {unboxedItemsCollectionData.length > 0 && (
+        {unboxedItemsCollectionData.length > 0 && packingListEntry.size?.id && (
           <Box my={5}>
             <UnboxedItemsCollectionList
               unboxedItemsCollectionData={unboxedItemsCollectionData}
@@ -227,7 +227,7 @@ PackedContentListOverlayProps) {
               // TODO: check/align why size.id is nullable atm
               // assumption so far: each box / unboxed items collection needs
               // a sizeId
-              sizeId={packingListEntry.size?.id!}
+              sizeId={packingListEntry.size?.id}
             />
           </Box>
         )}

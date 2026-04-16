@@ -34,7 +34,7 @@ export interface IShipmentTabsProps {
   details: ShipmentDetail[];
   histories: IGroupedRecordEntry[];
   isLoadingMutation: boolean | undefined;
-  showRemoveIcon: Boolean;
+  showRemoveIcon: boolean;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
 }

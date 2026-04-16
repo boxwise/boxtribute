@@ -35,11 +35,11 @@ export default function DemographicFilterContainer({
 
   // merge Beneficiary tags to Box and All tags
   useEffect(() => {
-    const beneficiaryTagFilterValues = demographics?.dimensions!.tag!.map((e) =>
+    const beneficiaryTagFilterValues = demographics?.dimensions?.tag?.map((e) =>
       tagToFilterValue(e!),
     );
 
-    if (beneficiaryTagFilterValues?.length! > 0) {
+    if (beneficiaryTagFilterValues?.length ?? 0 > 0) {
       const distinctTagFilterValues = tidy(
         [...includedTagFilterValues, ...beneficiaryTagFilterValues!],
         distinct(["id"]),
@@ -61,7 +61,7 @@ export default function DemographicFilterContainer({
         "createdOn",
         interval,
       ) as BeneficiaryDemographicsResult[];
-    } catch (error) {
+    } catch {
       // TODO useError
     }
     return [];

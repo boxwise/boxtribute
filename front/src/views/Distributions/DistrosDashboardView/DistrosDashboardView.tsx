@@ -46,7 +46,7 @@ const DistrosDashboardView = () => {
   // will be supported via the UI.
   useEffect(() => {
     if (tabIndexSearchParamAsNumber !== currentTabIndex) {
-      setCurrentTabIndex(tabIndexSearchParamAsNumber!);
+      setCurrentTabIndex(tabIndexSearchParamAsNumber);
     }
   }, [currentTabIndex, tabIndexSearchParamAsNumber]);
 
