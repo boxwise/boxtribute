@@ -1,4 +1,4 @@
-import { Filters } from "react-table";
+import type { Filters } from "react-table";
 
 export function removeFilter(
   filterId: string,
