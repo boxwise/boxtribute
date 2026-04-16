@@ -6,8 +6,9 @@ import { useNotification } from "hooks/useNotification";
 import { BiTag } from "react-icons/bi";
 import { Box, Button, VStack } from "@chakra-ui/react";
 
-import { useForm } from "react-hook-form";
-import SelectField, { IDropdownOption } from "@boxtribute/shared-components/form/SelectField";
+import { Select } from "chakra-react-select";
+import { CustomOption, IDropdownOption } from "@boxtribute/shared-components/form/SelectField";
+import { colorIsBright } from "utils/helpers";
 
 interface AssignTagsButtonProps {
   onAssignTags: (tagIds: string[]) => void;
@@ -23,10 +24,7 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   const { createToast } = useNotification();
 
   const [isInputOpen, setIsInputOpen] = useState(false);
-
-  const { control, getValues, reset } = useForm<{ tags: IDropdownOption[] }>({
-    defaultValues: { tags: [] },
-  });
+  const [selectedTagOptions, setSelectedTagOptions] = useState<IDropdownOption[]>([]);
 
   const handleOpenInput = () => {
     if (selectedBoxes.length === 0) {
@@ -41,10 +39,9 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
   };
 
   const handleConfirmAssignTags = () => {
-    const selectedTags = getValues("tags");
-    onAssignTags(selectedTags.map((tag) => tag.value));
+    onAssignTags(selectedTagOptions.map((tag) => tag.value));
     setIsInputOpen(false);
-    reset();
+    setSelectedTagOptions([]);
   };
 
   return (
@@ -69,20 +66,40 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       {isInputOpen && (
         <>
           <Box maxWidth={230} data-testid="assign-tags-select-container">
-            <SelectField
-              fieldId="tags"
-              fieldLabel="Tags"
+            <Select
               placeholder="Type to find tags"
-              showLabel={false}
-              showError={false}
-              options={allTagOptions}
-              errors={{}}
-              control={control}
-              isMulti={true}
-              isRequired={false}
+              isSearchable
+              tagVariant="outline"
+              tagColorScheme="black"
+              focusBorderColor="blue.500"
+              chakraStyles={{
+                control: (provided) => ({
+                  ...provided,
+                  border: "2px",
+                  borderRadius: "0",
+                }),
+                option: (provided) => ({
+                  ...provided,
+                  color: "black",
+                  background: "white",
+                  _hover: { background: "gray.100" },
+                  _active: { background: "gray.100" },
+                }),
+                multiValue: (provided, state) => ({
+                  ...provided,
+                  color: colorIsBright(state.data?.color ?? "#fff") ? "black" : "white",
+                  background: state.data?.color,
+                }),
+              }}
+              isMulti
               closeMenuOnSelect={false}
               hideSelectedOptions={false}
-              showCheckIcon={true}
+              components={{ Option: CustomOption }}
+              options={allTagOptions}
+              value={selectedTagOptions}
+              onChange={(s: any) => {
+                setSelectedTagOptions(s);
+              }}
             />
           </Box>
           <Box marginRight="10px" alignSelf="end" marginBottom="20px">
