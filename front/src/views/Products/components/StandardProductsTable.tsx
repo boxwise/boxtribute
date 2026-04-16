@@ -24,7 +24,8 @@ import {
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
-import { StandardProductRow, removeFilter } from "./transformers";
+import { StandardProductRow } from "./transformers";
+import { removeFilter } from "utils/helpers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,

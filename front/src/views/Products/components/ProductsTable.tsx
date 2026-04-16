@@ -25,7 +25,8 @@ import {
 import { Link } from "react-router-dom";
 import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
-import { ProductRow, removeFilter } from "./transformers";
+import { ProductRow } from "./transformers";
+import { removeFilter } from "utils/helpers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,

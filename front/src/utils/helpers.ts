@@ -1,3 +1,28 @@
+import { Filters } from "react-table";
+
+export function removeFilter(
+  filterId: string,
+  valueToRemove: string | undefined,
+  filters: Filters<any>,
+  setAllFilters: (filters: Filters<any>) => void,
+): void {
+  const updatedFilters = filters
+    .map((filter) => {
+      if (filter.id === filterId) {
+        if (!valueToRemove) {
+          return null;
+        }
+        const remainingValues = Array.isArray(filter.value)
+          ? filter.value.filter((v: string) => v !== valueToRemove)
+          : [];
+        return remainingValues.length > 0 ? { ...filter, value: remainingValues } : null;
+      }
+      return filter;
+    })
+    .filter((f) => f !== null) as Filters<any>;
+  setAllFilters(updatedFilters);
+}
+
 export const getISODateTimeFromDateAndTimeString = (date: Date, timeString: string) => {
   const [hours, minutes] = timeString.split(":").map(Number);
   const dateTime = new Date(date);
