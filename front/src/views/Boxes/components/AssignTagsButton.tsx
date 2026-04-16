@@ -8,7 +8,7 @@ import { Box, Button, VStack } from "@chakra-ui/react";
 
 import { Select } from "chakra-react-select";
 import { CustomOption, IDropdownOption } from "@boxtribute/shared-components/form/SelectField";
-import { colorIsBright } from "utils/helpers";
+import { colorIsBright } from "@boxtribute/shared-components/utils/helpers";
 
 interface AssignTagsButtonProps {
   onAssignTags: (tagIds: string[]) => void;

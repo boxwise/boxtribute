@@ -8,6 +8,7 @@ import { Box, Button, VStack } from "@chakra-ui/react";
 
 import { Select } from "chakra-react-select";
 import { IDropdownOption } from "components/Form/SelectField";
+import { colorIsBright } from "@boxtribute/shared-components/utils/helpers";
 
 interface RemoveTagsButtonProps {
   onRemoveTags: (tagIds: string[]) => void;
@@ -90,6 +91,7 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
                 }),
                 multiValue: (provided, state) => ({
                   ...provided,
+                  color: colorIsBright(state.data?.color ?? "#fff") ? "black" : "white",
                   background: state.data?.color,
                 }),
               }}
