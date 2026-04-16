@@ -34,7 +34,7 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       });
     }
     if (selectedBoxes.length !== 0) {
-      setIsInputOpen(true);
+      setIsInputOpen(!isInputOpen);
     }
   };
 

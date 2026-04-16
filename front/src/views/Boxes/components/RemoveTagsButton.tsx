@@ -43,7 +43,7 @@ const RemoveTagsButton: React.FC<RemoveTagsButtonProps> = ({
       });
     }
     if (selectedBoxes.length !== 0) {
-      setIsInputOpen(true);
+      setIsInputOpen(!isInputOpen);
     }
   };
 
