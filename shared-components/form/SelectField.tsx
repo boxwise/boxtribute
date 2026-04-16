@@ -32,7 +32,7 @@ export interface ISelectFieldProps {
 }
 
 // Custom Option component that shows a CheckIcon for selected items
-const CustomOption = <
+export const CustomOption = <
   Option = IDropdownOption,
   IsMulti extends boolean = boolean,
   Group extends GroupBase<Option> = GroupBase<Option>,

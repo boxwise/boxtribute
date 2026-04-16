@@ -15,11 +15,13 @@ import { RiLayoutColumnFill } from "react-icons/ri";
 
 const PopoverTrigger: React.FC<{ children: React.ReactNode }> = OrigPopoverTrigger;
 
-interface IColumnSelectorProps {
-  availableColumns: ColumnInstance<Record<string, unknown>>[];
+interface IColumnSelectorProps<D extends object = Record<string, unknown>> {
+  availableColumns: ColumnInstance<D>[];
 }
 
-function ColumnSelector({ availableColumns }: IColumnSelectorProps) {
+function ColumnSelector<D extends object = Record<string, unknown>>({
+  availableColumns,
+}: IColumnSelectorProps<D>) {
   const selectedColumnsCount = availableColumns.filter(
     (column) => column.getToggleHiddenProps().checked,
   ).length;

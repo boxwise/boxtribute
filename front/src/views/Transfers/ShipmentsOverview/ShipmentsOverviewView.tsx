@@ -37,6 +37,7 @@ import {
   includesOneOfMultipleStringsFilterFn,
 } from "components/Table/Filter";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
+import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
 import { FilterPanel } from "components/Table/FilterPanel";
 import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
@@ -272,6 +273,7 @@ function ShipmentsOverviewView() {
     headerGroups,
     rows,
     prepareRow,
+    allColumns,
     state: { globalFilter, filters },
     setGlobalFilter,
     setAllFilters,
@@ -440,6 +442,9 @@ function ShipmentsOverviewView() {
         </Stack>
         <Spacer />
         <HStack spacing={2}>
+          <ColumnSelector
+            availableColumns={allColumns.filter((column) => column.id !== "direction")}
+          />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel
             isOpen={filterDisclosure.isOpen}

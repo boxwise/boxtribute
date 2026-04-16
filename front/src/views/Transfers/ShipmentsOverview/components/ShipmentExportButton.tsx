@@ -262,7 +262,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ filteredRow
             data-testid="export-csv-button"
             isDisabled={filteredRowData.length === 0}
           >
-            Export .csv
+            Export CSV
           </Button>
         </PopoverTrigger>
         <PopoverContent data-testid="export-popover-content">
