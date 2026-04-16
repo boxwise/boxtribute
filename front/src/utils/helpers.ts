@@ -1,10 +1,10 @@
 import type { Filters } from "react-table";
 
-export function removeFilter(
+export function removeFilter<TRow extends object>(
   filterId: string,
   valueToRemove: string | undefined,
-  filters: Filters<any>,
-  setAllFilters: (filters: Filters<any>) => void,
+  filters: Filters<TRow>,
+  setAllFilters: (filters: Filters<TRow>) => void,
 ): void {
   const updatedFilters = filters
     .map((filter) => {
@@ -19,7 +19,7 @@ export function removeFilter(
       }
       return filter;
     })
-    .filter((f) => f !== null) as Filters<any>;
+    .filter((f): f is Filters<TRow>[number] => f !== null);
   setAllFilters(updatedFilters);
 }
 
