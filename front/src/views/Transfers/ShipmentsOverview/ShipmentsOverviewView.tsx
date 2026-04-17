@@ -23,15 +23,7 @@ import { useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
-import {
-  Column,
-  Filters,
-  Row,
-  useFilters,
-  useGlobalFilter,
-  useSortBy,
-  useTable,
-} from "react-table";
+import { Column, Row, useFilters, useGlobalFilter, useSortBy, useTable } from "react-table";
 import {
   includesSomeObjectFilterFn,
   includesOneOfMultipleStringsFilterFn,
@@ -52,6 +44,7 @@ import { ShipmentFilter } from "./components/ShipmentFilter";
 import { ShipmentFilterChips } from "./components/ShipmentFilterChips";
 import type { ShipmentColumnFilter, ShipmentFilterId } from "./components/types";
 import { createOptions } from "utils/filterOptions";
+import { removeFilter } from "utils/helpers";
 
 // TODO: Revisit this after gql.tada merge
 type ShipmentRow = {
@@ -312,21 +305,7 @@ function ShipmentsOverviewView() {
 
   const handleRemoveFilter = useCallback(
     (filterId: ShipmentFilterId, valueToRemove?: string) => {
-      const updatedFilters = filters
-        .map((filter) => {
-          if (filter.id === filterId) {
-            if (!valueToRemove) {
-              return null;
-            }
-            const remainingValues = Array.isArray(filter.value)
-              ? filter.value.filter((v: string) => v !== valueToRemove)
-              : [];
-            return remainingValues.length > 0 ? { ...filter, value: remainingValues } : null;
-          }
-          return filter;
-        })
-        .filter((f) => f !== null) as Filters<ShipmentRow>;
-      setAllFilters(updatedFilters);
+      removeFilter(filterId, valueToRemove, filters, setAllFilters);
     },
     [filters, setAllFilters],
   );

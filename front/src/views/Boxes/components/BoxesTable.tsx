@@ -53,6 +53,7 @@ import type { IFilterValue } from "@boxtribute/shared-components/statviz/compone
 import { FilterChips } from "./FilterChips";
 import { FilterPanel } from "components/Table/FilterPanel";
 import { createOptions } from "utils/filterOptions";
+import { removeFilter } from "utils/helpers";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -277,24 +278,7 @@ function BoxesTable({
 
   const handleRemoveFilter = useCallback(
     (filterId: string, valueToRemove?: string) => {
-      const updatedFilters = filters
-        .map((filter) => {
-          if (filter.id === filterId) {
-            if (!valueToRemove) {
-              // Remove entire filter
-              return null;
-            }
-            // Remove specific value from filter
-            const remainingValues = Array.isArray(filter.value)
-              ? filter.value.filter((v: string) => v !== valueToRemove)
-              : [];
-            return remainingValues.length > 0 ? { ...filter, value: remainingValues } : null;
-          }
-          return filter;
-        })
-        .filter((f) => f !== null) as Filters<any>;
-
-      setAllFilters(updatedFilters);
+      removeFilter(filterId, valueToRemove, filters, setAllFilters);
     },
     [filters, setAllFilters],
   );
