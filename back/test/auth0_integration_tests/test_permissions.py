@@ -232,6 +232,6 @@ def test_check_beta_feature_access(auth0_client):
     mutation = "mutation { createQrCode { id } }"
     assert_successful_request(auth0_client, mutation)
 
-    mutation = "mutation { deleteTag(id: 1) { id } }"
+    mutation = "mutation { updateBeneficiary(id: 1) { __typename } }"
     response = assert_bad_request(auth0_client, mutation, expect_errors=True)
     assert response.json["errors"] == [{"message": "Insufficient beta-level"}]

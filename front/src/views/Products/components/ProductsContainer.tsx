@@ -12,7 +12,7 @@ import {
 import { graphql } from "../../../../../graphql/graphql";
 import { useTableConfig } from "hooks/useTableConfig";
 import { useDisableOrDeleteProducts } from "hooks/useDisableOrDeleteProducts";
-import { ProductRow, productsRawToTableDataTransformer } from "./transformers";
+import { ProductRow, productsRawToTableDataTransformer, createOptions } from "./transformers";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
 import ProductsTable from "./ProductsTable";
@@ -221,13 +221,27 @@ function ProductsContainer() {
 
   if (error) throw error;
 
+  const tableData = useMemo(
+    () => productsRawToTableDataTransformer(productsRawData),
+    [productsRawData],
+  );
+
+  const categoryOptions = useMemo(() => createOptions(tableData, "category"), [tableData]);
+
+  const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
+
+  const sizeRangeOptions = useMemo(() => createOptions(tableData, "sizeRange"), [tableData]);
+
   return (
     <>
       <ProductsTable
         tableConfig={tableConfig}
-        tableData={productsRawToTableDataTransformer(productsRawData)}
+        tableData={tableData}
         columns={availableColumns}
         onRowClick={onRowClick}
+        categoryOptions={categoryOptions}
+        genderOptions={genderOptions}
+        sizeRangeOptions={sizeRangeOptions}
       />
     </>
   );

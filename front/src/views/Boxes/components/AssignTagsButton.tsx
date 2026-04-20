@@ -7,7 +7,8 @@ import { BiTag } from "react-icons/bi";
 import { Box, Button, VStack } from "@chakra-ui/react";
 
 import { Select } from "chakra-react-select";
-import { IDropdownOption } from "components/Form/SelectField";
+import { CustomOption, IDropdownOption } from "@boxtribute/shared-components/form/SelectField";
+import { colorIsBright } from "@boxtribute/shared-components/utils/helpers";
 
 interface AssignTagsButtonProps {
   onAssignTags: (tagIds: string[]) => void;
@@ -33,7 +34,7 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
       });
     }
     if (selectedBoxes.length !== 0) {
-      setIsInputOpen(true);
+      setIsInputOpen(!isInputOpen);
     }
   };
 
@@ -77,12 +78,23 @@ const AssignTagsButton: React.FC<AssignTagsButtonProps> = ({
                   border: "2px",
                   borderRadius: "0",
                 }),
+                option: (provided) => ({
+                  ...provided,
+                  color: "black",
+                  background: "white",
+                  _hover: { background: "gray.100" },
+                  _active: { background: "gray.100" },
+                }),
                 multiValue: (provided, state) => ({
                   ...provided,
+                  color: colorIsBright(state.data?.color ?? "#fff") ? "black" : "white",
                   background: state.data?.color,
                 }),
               }}
               isMulti
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              components={{ Option: CustomOption }}
               options={allTagOptions}
               value={selectedTagOptions}
               onChange={(s: any) => {

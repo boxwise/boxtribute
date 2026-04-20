@@ -352,7 +352,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (158,161,'Add Beneficiary','people_add',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'create_beneficiaries'),
   (160,99,'Stock Planning','stock_overview',4,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_inventory'),
   (161,NULL,'Beneficiaries','',2,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
-  (162,42,'Manage Tags','tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags'),
+  (162,42,'Manage Tags v2','new_manage_tags',6,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tags'),
   (163,NULL,'Transfers','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (164,163,'Manage Shipments','shipments',0,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_shipments'),
   (165,163,'Manage Network','transfer_agreements',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_transfer_agreements'),
@@ -2324,7 +2324,8 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20251112080847,'EnableBaseSettingsAndServicesMenuForAllCamps','2025-12-02 12:43:14','2025-12-02 12:43:14',0),
   (20251124122232,'MakeServiceIdUnsigned','2025-12-02 12:43:14','2025-12-02 12:43:15',0),
   (20251201153803,'ReorderServicesMenu','2025-12-02 13:28:49','2025-12-02 13:28:49',0),
-  (20260113120933,'AddSourceBoxFkToStockTable','2026-01-20 09:46:56','2026-01-20 09:46:57',0);
+  (20260113120933,'AddSourceBoxFkToStockTable','2026-01-20 09:46:56','2026-01-20 09:46:57',0),
+  (20260408004411,'NewManageTagsMenu','2026-04-09 09:46:56','2026-04-09 09:46:57',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 

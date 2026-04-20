@@ -15,7 +15,11 @@ import {
 } from "../../../../../graphql/fragments";
 import { graphql } from "../../../../../graphql/graphql";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { StandardProductRow, standardProductsRawDataToTableDataTransformer } from "./transformers";
+import {
+  StandardProductRow,
+  standardProductsRawDataToTableDataTransformer,
+  createOptions,
+} from "./transformers";
 import StandardProductsTable from "./StandardProductsTable";
 import { DateCell } from "components/Table/Cells";
 import { useDisableOrDeleteProducts } from "../../../hooks/useDisableOrDeleteProducts";
@@ -175,7 +179,7 @@ function StandardProductsContainer() {
       {
         Header: "Size Range",
         accessor: "sizeRange",
-        id: "size",
+        id: "sizeRange",
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
@@ -243,13 +247,30 @@ function StandardProductsContainer() {
 
   if (error) throw error;
 
+  const tableData = useMemo(
+    () =>
+      standardProductsRawData
+        ? standardProductsRawDataToTableDataTransformer(standardProductsRawData)
+        : [],
+    [standardProductsRawData],
+  );
+
+  const categoryOptions = useMemo(() => createOptions(tableData, "category"), [tableData]);
+
+  const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
+
+  const sizeRangeOptions = useMemo(() => createOptions(tableData, "sizeRange"), [tableData]);
+
   if (!standardProductsRawData || isStandardProductsQueryLoading) return <TableSkeleton />;
 
   return (
     <StandardProductsTable
       tableConfig={tableConfig}
-      tableData={standardProductsRawDataToTableDataTransformer(standardProductsRawData)}
+      tableData={tableData}
       columns={availableColumns}
+      categoryOptions={categoryOptions}
+      genderOptions={genderOptions}
+      sizeRangeOptions={sizeRangeOptions}
     />
   );
 }

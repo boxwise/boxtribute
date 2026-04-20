@@ -146,7 +146,7 @@ const PackingScanBoxOrFindByLabelOverlay = ({
               variables: { qrCode },
             })
             .then(({ data }) => {
-              // @ts-ignore
+              // @ts-expect-error incomplete type from Apollo
               const boxLabelIdentifier = data?.qrCode?.box?.labelIdentifier;
               if (boxLabelIdentifier == null) {
                 // onScanningDone([

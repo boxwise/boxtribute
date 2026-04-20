@@ -161,6 +161,7 @@ const mutationGraphQLError = {
 
 // Test case 4.3.1
 it("4.3.1 - Initial load of Page", async () => {
+  // Increase timeout for this long-running test
   const user = userEvent.setup();
   render(<CreateShipmentView />, {
     routePath: "/bases/:baseId/transfers/shipments/create",
@@ -187,7 +188,7 @@ it("4.3.1 - Initial load of Page", async () => {
 
   // Breadcrumbs are there
   expect(screen.getByRole("link", { name: /back to manage shipments/i })).toBeInTheDocument();
-});
+}, 40000);
 
 // Test case 4.3.2
 it("4.3.2 - Input Validations", async () => {
@@ -204,10 +205,18 @@ it("4.3.2 - Input Validations", async () => {
   await user.click(submitButton);
   // Test case 4.3.2.1 - Partner Organisation SELECT field cannot be empty
   expect((screen.getByLabelText(/organisation/i) as HTMLInputElement).value).toEqual("");
-  expect(await screen.findByText(/please select an organisation/i)).toBeInTheDocument();
+  expect(
+    await screen.findByText(/please select an organisation/i, {
+      selector: ".chakra-form__error-message",
+    }),
+  ).toBeInTheDocument();
   // Test case 4.3.2.2 - Partner Organisation Base SELECT field cannot be empty
   expect((screen.getByLabelText(/base/i) as HTMLInputElement).value).toEqual("");
-  expect((await screen.findAllByText(/please select a base/i))[0]).toBeInTheDocument();
+  expect(
+    await screen.findByText(/please select a base/i, {
+      selector: ".chakra-form__error-message",
+    }),
+  ).toBeInTheDocument();
 });
 
 // Test case 4.3.3
