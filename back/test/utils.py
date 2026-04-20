@@ -28,6 +28,7 @@ def _assert_erroneous_request(
     return response
 
 
+# todo: remove none_data
 def _verify_response_data(*, query, response, field=None, none_data=False, value=None):
     """If `none_data` is given, verify that the `data` field of the response JSON is
     None. Otherwise extract field as query operation name, and verify that it is
