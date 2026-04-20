@@ -3,6 +3,7 @@ def _assert_erroneous_request(
     query,
     *,
     code,
+    http_code=200,
     endpoint="graphql",
     verify_response=True,
     error_count=1,
@@ -16,7 +17,7 @@ def _assert_erroneous_request(
     """
     data = {"query": query}
     response = client.post(f"/{endpoint}", json=data)
-    assert response.status_code == 200
+    assert response.status_code == http_code
 
     assert len(response.json["errors"]) == error_count
     for i in range(error_count):
@@ -28,7 +29,6 @@ def _assert_erroneous_request(
     return response
 
 
-# todo: remove none_data
 def _verify_response_data(*, query, response, field=None, none_data=False, value=None):
     """If `none_data` is given, verify that the `data` field of the response JSON is
     None. Otherwise extract field as query operation name, and verify that it is
