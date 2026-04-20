@@ -39,7 +39,7 @@ export default function DemographicFilterContainer({
       tagToFilterValue(e!),
     );
 
-    if (beneficiaryTagFilterValues?.length ?? 0 > 0) {
+    if ((beneficiaryTagFilterValues?.length ?? 0) > 0) {
       const distinctTagFilterValues = tidy(
         [...includedTagFilterValues, ...beneficiaryTagFilterValues!],
         distinct(["id"]),
