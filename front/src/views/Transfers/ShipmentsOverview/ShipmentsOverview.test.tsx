@@ -135,7 +135,7 @@ it("4.4.1.5 - Export CSV Button Functionality", async () => {
   // Check if Export CSV button exists and is enabled after data loads
   const exportButton = screen.getByTestId("export-csv-button");
   expect(exportButton).toBeInTheDocument();
-  expect(exportButton).toHaveTextContent("Export .csv");
+  expect(exportButton).toHaveTextContent("Export CSV");
   expect(exportButton).not.toBeDisabled();
 
   // Click the export button to open popover
