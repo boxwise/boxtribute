@@ -28,11 +28,10 @@ const singleSelectOptionShape = {
 
 export const TransferAgreementFormDataSchema = z
   .object({
-    currentOrganisationSelectedBases: z
-      .object(singleSelectOptionShape)
-      .array()
-      .min(1, "Please select at least one base"),
-
+    currentOrganisationSelectedBases: z.preprocess(
+      (val) => val ?? [],
+      z.object(singleSelectOptionShape).array().min(1, "Please select at least one base"),
+    ),
     partnerOrganisation: z.object(singleSelectOptionShape, {
       error: (iss) =>
         iss.input === undefined ? "Please select a partner organisation" : "Invalid input.",
