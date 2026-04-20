@@ -70,8 +70,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   // fill target filter with data
   useEffect(() => {
-    const targets =
-      movedBoxes?.dimensions?.target?.map((t) => targetToFilterValue(t!)) ?? [];
+    const targets = movedBoxes?.dimensions?.target?.map((t) => targetToFilterValue(t!)) ?? [];
     targetFilterValuesVar(targets);
   }, [movedBoxes?.dimensions]);
 
