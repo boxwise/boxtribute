@@ -90,7 +90,7 @@ function QrReaderContainer({ onSuccess }: IQrReaderContainerProps) {
             // Only execute for Multi Box tab
             // add box reference to query for list of all scanned boxes
 
-            if (qrResolvedValue?.box!) addBoxToScannedBoxes(qrResolvedValue?.box!);
+            if (qrResolvedValue.box) addBoxToScannedBoxes(qrResolvedValue.box);
           }
           setIsProcessingQrCode(false);
           break;

@@ -19,9 +19,9 @@ export const graphqlPackingListEntriesForDistributionEventTransformer = (
       id: entry.id,
       // TODO: for productName, sizse and gender: remove the bangs again once we have proper (e.g. zod based) validation of query result
       product: {
-        id: entry.product?.id!,
-        name: entry.product?.name!,
-        gender: entry.product?.gender!,
+        id: entry.product?.id ?? "",
+        name: entry.product?.name ?? "",
+        gender: entry.product?.gender ?? "none",
       },
       size: entry.size!,
       numberOfItems: entry.numberOfItems,
