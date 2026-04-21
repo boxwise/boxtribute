@@ -3,7 +3,6 @@ def _assert_erroneous_request(
     query,
     *,
     code,
-    http_code=200,
     endpoint="graphql",
     verify_response=True,
     error_count=1,
@@ -17,7 +16,7 @@ def _assert_erroneous_request(
     """
     data = {"query": query}
     response = client.post(f"/{endpoint}", json=data)
-    assert response.status_code == http_code
+    assert response.status_code == 200
 
     assert len(response.json["errors"]) == error_count
     for i in range(error_count):

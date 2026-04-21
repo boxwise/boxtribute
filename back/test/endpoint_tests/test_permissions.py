@@ -47,7 +47,7 @@ def test_invalid_read_permissions(unauthorized, client, resource):
         query = "query { products { elements { id } } }"
     elif resources == "boxes":
         query = "query { boxes(baseId: 1) { elements { id } } }"
-    assert_forbidden_request(client, query, none_data=True, http_code=400)
+    assert_forbidden_request(client, query, none_data=True)
 
     if resource == "sizeRange" or resource == "box":
         return

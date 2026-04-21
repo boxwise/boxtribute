@@ -74,7 +74,7 @@ def test_invalid_pagination_input(client):
     query = """query { beneficiaries(paginationInput: {last: 2}) {
         elements { id }
     } }"""
-    assert_bad_user_input(client, query, none_data=True, http_code=400)
+    assert_bad_user_input(client, query, none_data=True)
 
 
 @pytest.mark.parametrize(
