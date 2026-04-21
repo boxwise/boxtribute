@@ -1,4 +1,5 @@
 from functools import wraps
+from typing import Any
 
 from flask import request
 from peewee import MySQLDatabase
@@ -33,11 +34,11 @@ class DatabaseManager:
         self.database: MySQLDatabase | None = None
         self.replica: MySQLDatabase | None = None
 
-    def register_handlers(self, app):
+    def register_handlers(self, app) -> None:
         app.before_request(self.connect_db)
         app.teardown_request(self.close_db)
 
-    def connect_db(self):
+    def connect_db(self) -> None:
         # GraphQL queries are sent as POST requests. Don't open database connection on
         # other requests (e.g. CORS pre-flight OPTIONS request)
         if request.method.upper() != "POST":
@@ -69,7 +70,7 @@ class DatabaseManager:
         ):
             self.replica.connect()
 
-    def close_db(self, _):
+    def close_db(self, _) -> None:
         if self.database and not self.database.is_closed():
             self.database.close()
 
@@ -95,7 +96,7 @@ def use_db_replica(f):
     return decorated
 
 
-def create_db_interface(**mysql_kwargs):
+def create_db_interface(**mysql_kwargs) -> MySQLDatabase:
     """Create MySQL database interface using given connection parameters. `mysql_kwargs`
     are validated to not be None and forwarded to `pymysql.connect`.
     Configure primary keys to be unsigned integer.
@@ -121,7 +122,7 @@ def current_database() -> MySQLDatabase:
     return database
 
 
-def execute_sql(*params, query):
+def execute_sql(*params, query) -> list[dict[str, Any]] | None:
     """Utility function to execute a raw SQL query, returning the result rows as dicts.
     Use the database that the data models currently are bound to. If execute_sql() is
     called wrapped in use_db_replica(), the replica database is used. Any `params` are
@@ -131,7 +132,7 @@ def execute_sql(*params, query):
     cursor = current_database().execute_sql(query, params=params)
     if cursor.description is None:
         # For e.g. UPDATE statements no description is available
-        return
+        return None
     # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
     column_names = [x[0] for x in cursor.description]
     return [dict(zip(column_names, row)) for row in cursor.fetchall()]
