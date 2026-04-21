@@ -7,7 +7,6 @@ import peewee
 from flask import g
 from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
 
-from ..db import db
 from ..errors import ResourceDoesNotExist
 from .definitions import Model
 from .definitions.history import DbChangeHistory
@@ -38,19 +37,6 @@ def convert_ids(concat_ids, converter=int):
     list using given convert (default: int).
     """
     return [converter(i) for i in (concat_ids or "").split(",") if i]
-
-
-def execute_sql(*params, database=None, query):
-    """Utility function to execute a raw SQL query, returning the result rows as
-    dicts.
-    By default, the primary database is selected. Any `params` are passed into peewee's
-    `execute_sql` method as values for query parameters.
-    """
-    database = database or db.database
-    cursor = database.execute_sql(query, params=params)
-    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
-    column_names = [x[0] for x in cursor.description]
-    return [dict(zip(column_names, row)) for row in cursor.fetchall()]
 
 
 def format_sql(query):
@@ -111,11 +97,10 @@ def safely_handle_deletion(f):
 
 
 def _save_to_history(f, changes):
-    """Execute given function in a `db.database.atomic` context manager."""
 
     @wraps(f)
     def inner(*args, **kwargs):
-        with db.database.atomic():
+        with DbChangeHistory._meta.database.atomic():
             # Use single timestamp for DbChangeHistory entry AND to pass to f for fields
             # like created_on
             if "now" in kwargs:
@@ -195,7 +180,7 @@ def save_update_to_history(*, id_field_name="id", fields):
                 fields=fields,
                 change_date=now,
             )
-            with db.database.atomic():
+            with DbChangeHistory._meta.database.atomic():
                 DbChangeHistory.bulk_create(entries, batch_size=BATCH_SIZE)
                 if entries:
                     result.last_modified_on = now

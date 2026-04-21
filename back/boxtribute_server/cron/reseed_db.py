@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ..db import db
+from ..db import current_database, execute_sql
 from ..utils import in_demo_environment, in_staging_environment
 
 
@@ -15,7 +15,7 @@ def reseed_db():
     # For testing locally, run
     # dotenv run flask --debug --app boxtribute_server.dev_main:app run -p 5005
     # curl 'http://localhost:5005/cron/reseed-db' -H 'x-appengine-cron: true'
-    with db.database.cursor() as cursor, open(seed_filepath) as seed:
+    with current_database().cursor() as cursor, open(seed_filepath) as seed:
         execute_sql_statements_from_file(cursor, seed)
 
     if in_staging_environment() or in_demo_environment():
@@ -157,8 +157,8 @@ SET auth0_role_id =
         {when_then_statements}
     END
 ; """
-    db.database.execute_sql(
-        command,
+    execute_sql(
         # convert mapping of role names and IDs into flat list
-        [item for role_info in role_ids.items() for item in role_info],
+        *[item for role_info in role_ids.items() for item in role_info],
+        query=command,
     )

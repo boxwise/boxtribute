@@ -10,24 +10,15 @@ https://docs.pytest.org/en/stable/fixture.html#pytest-fixtures-explicit-modular-
 """
 
 import os
-from contextlib import contextmanager
 
 import pymysql
 import pytest
-from boxtribute_server.app import configure_app, create_app
-from boxtribute_server.db import create_db_interface, db
-
-# It's crucial to import the blueprints from the routes module (NOT the blueprints
-# module) because only then
-# a) they actually have routes registered
-# b) all data models are registered as Model subclasses (because the GraphQL schema
-#    is imported into the routes module which in turn imports all data models down the
-#    line); this is relevant for setup_models() to work
-from boxtribute_server.routes import api_bp, app_bp, shared_bp
+from boxtribute_server.db import create_db_interface
+from boxtribute_server.models import MODELS
 
 # Imports fixtures into tests
 from data import *  # noqa: F401,F403
-from data import MODELS, setup_models
+from data import create_test_data
 
 
 @pytest.fixture(scope="session")
@@ -46,78 +37,26 @@ def connection_parameters():
     )
 
 
-@contextmanager
-def _create_database(database_name, params):
-    """Create database with given name, and return interface to access it.
+@pytest.fixture(scope="session")
+def testing_database(connection_parameters):
+    """Create testing database, and return interface to access it.
     Requires running MySQL server (see connection_parameters docstring).
     """
-    with pymysql.connect(**params) as connection:
+    database_name = "testing"
+    with pymysql.connect(**connection_parameters) as connection:
         with connection.cursor() as cursor:
             cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-    database = create_db_interface(**params, database=database_name)
+    database = create_db_interface(**connection_parameters, database=database_name)
     yield database
     database.execute_sql(f"DROP DATABASE IF EXISTS {database_name}")
 
 
 @pytest.fixture(scope="session")
-def testing_database(connection_parameters):
-    """Create the testing database."""
-    with _create_database("testing", connection_parameters) as database:
-        yield database
-
-
-@contextmanager
-def _create_app(database_interface, *blueprints):
-    """On each invocation, create the Flask app and configure it to access the
-    `database_interface`.
-    Create all tables and populate them.
-
-    Adapted from
-    https://flask.palletsprojects.com/en/1.1.x/testing/#the-testing-skeleton.
-
-    The context manager allows to reuse the same fixture implementation with different
-    scopes (cf. https://github.com/pytest-dev/pytest/issues/3425#issuecomment-383835876)
-    """
-    app = create_app()
-    app.debug = True
-    # Reset handlers before registering in db.init_app(). This is crucial to enable the
-    # usage of transaction rollbacks in the client fixture. The connect_db/close_db
-    # methods are registered as before/after_request handlers in the Flask app. Usually
-    # they open/close the database connection but since this cannot happen during the
-    # transaction in the client fixture, they are rendered ineffective.
-    db.connect_db = lambda: None
-    db.close_db = lambda exc: None
-    configure_app(app, *blueprints, database_interface=database_interface)
-    with app.app_context():
-        yield app
-
-
-@pytest.fixture(scope="session")
 def setup_testing_database(testing_database):
-    """Bind all data models to the testing database and populate it with test data."""
+    """Create tables in testing database and populate them with test data."""
     with testing_database.bind_ctx(MODELS, False, False):
         testing_database.drop_tables(MODELS)
         testing_database.create_tables(MODELS)
-        setup_models()
+        create_test_data()
         testing_database.close()
-        yield testing_database
-
-
-@pytest.fixture
-def app(setup_testing_database):
-    """The fixture creates a web app on top of the given database fixture."""
-    with _create_app(setup_testing_database, api_bp, app_bp, shared_bp) as app:
-        yield app
-
-
-@pytest.fixture
-def client(app, setup_testing_database):
-    """Function fixture for any tests that include arbitrary operations on the database.
-    Use for testing GraphQL queries and mutations, and data model insertions/updates.
-    The fixture returns an app client that simulates sending requests to the app.
-    After each test, the applied database changes are rolled back.
-    The client's authentication and authorization may be separately defined or patched.
-    """
-    with setup_testing_database.atomic() as txn:
-        yield app.test_client()
-        txn.rollback()
+    yield testing_database
