@@ -205,8 +205,8 @@ importers:
   front:
     dependencies:
       '@auth0/auth0-react':
-        specifier: ^2.16.0
-        version: 2.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^2.16.2
+        version: 2.16.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@boxtribute/shared-components':
         specifier: workspace:*
         version: link:../shared-components
@@ -214,8 +214,8 @@ importers:
         specifier: 2.5.1
         version: 2.5.1(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       jotai:
-        specifier: ^2.19.0
-        version: 2.19.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1)
+        specifier: ^2.19.1
+        version: 2.19.1(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1)
       react-big-calendar:
         specifier: ^1.19.4
         version: 1.19.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -310,14 +310,14 @@ packages:
   '@auth0/auth0-auth-js@1.6.0':
     resolution: {integrity: sha512-/WYYNlsqhWA6I60pMVLFVeOgjOUCLdJThEAsjN8pAgYY09BTxbPaRIEVDgGu6ckoJpkmKvEYlHPO/vwRNrvX6w==}
 
-  '@auth0/auth0-react@2.16.1':
-    resolution: {integrity: sha512-YT6ngVDh3MV5ey2zhzXVQdLN0gQQCGzvykGtQVGY49Bky/NCB/Os6sXPhqqdsoTB07umYY9Uu54GowqwUSO4sw==}
+  '@auth0/auth0-react@2.16.2':
+    resolution: {integrity: sha512-Sp7aXuvSMXh0qO74wv25ZsNjCAX1HItU2LhHCvPAJKQYRr/Rc9b1OtdyhkkIXAlAYgQZ2qbC2P8hiDpRh54aAw==}
     peerDependencies:
       react: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
       react-dom: ^16.11.0 || ^17 || ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
 
-  '@auth0/auth0-spa-js@2.18.3':
-    resolution: {integrity: sha512-nfZxRj+bq0t4dJfem7V0VK/mPjD9TTvu6Wd87Yc/k7QojiFf5VswDL1+9o+6WjXAIaIEttS6BLZUYcsIgphLiQ==}
+  '@auth0/auth0-spa-js@2.19.2':
+    resolution: {integrity: sha512-NJOjPQZjZ8g2LXkBjNiYtf614WGVhwCg+q9L2MXcEQqey+ign9CG/wnl9OxYDz7XuItWecfYQLbiVTjIGNZ/Dw==}
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -3507,8 +3507,8 @@ packages:
   jose@6.2.2:
     resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
-  jotai@2.19.0:
-    resolution: {integrity: sha512-r2wwxEXP1F2JteDLZEOPoIpAHhV89paKsN5GWVYndPNMMP/uVZDcC+fNj0A8NjKgaPWzdyO8Vp8YcYKe0uCEqQ==}
+  jotai@2.19.1:
+    resolution: {integrity: sha512-sqm9lVZiqBHZH8aSRk32DSiZDHY3yUIlulXYn9GQj7/LvoUdYXSMti7ZPJGo+6zjzKFt5a25k/I6iBCi43PJcw==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@babel/core': '>=7.0.0'
@@ -5049,13 +5049,13 @@ snapshots:
       jose: 6.2.2
       openid-client: 6.8.2
 
-  '@auth0/auth0-react@2.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@auth0/auth0-react@2.16.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@auth0/auth0-spa-js': 2.18.3
+      '@auth0/auth0-spa-js': 2.19.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  '@auth0/auth0-spa-js@2.18.3':
+  '@auth0/auth0-spa-js@2.19.2':
     dependencies:
       '@auth0/auth0-auth-js': 1.6.0
       browser-tabs-lock: 1.3.0
@@ -8978,7 +8978,7 @@ snapshots:
 
   jose@6.2.2: {}
 
-  jotai@2.19.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1):
+  jotai@2.19.1(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1):
     optionalDependencies:
       '@babel/core': 7.28.4
       '@babel/template': 7.27.2
