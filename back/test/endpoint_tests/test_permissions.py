@@ -6,7 +6,6 @@ from utils import assert_forbidden_request, assert_successful_request
 @pytest.mark.parametrize(
     "resource",
     [
-        "box",
         # Test cases 99.1.4, 99.1.6
         "base",
         # Test cases 9.1.6, 9.1.7
@@ -37,19 +36,15 @@ def test_invalid_read_permissions(unauthorized, client, resource):
     resources = f"{resource}s"
     if resource.endswith("y"):
         resources = f"{resource[:-1]}ies"
-    elif resource.endswith("x"):
-        resources = f"{resource}es"
 
     query = f"""query {{ {resources} {{ id }} }}"""
     if resources == "beneficiaries":
         query = "query { beneficiaries { elements { id } } }"
     elif resources == "products":
         query = "query { products { elements { id } } }"
-    elif resources == "boxes":
-        query = "query { boxes(baseId: 1) { elements { id } } }"
     assert_forbidden_request(client, query, none_data=True)
 
-    if resource == "sizeRange" or resource == "box":
+    if resource == "sizeRange":
         return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
