@@ -87,17 +87,18 @@ AND (c.deleted IS NULL OR NOT c.deleted)
     LOGGER.info(f"Nr of rows to be deleted from cms_functions_camps: {len(result)}")
     LOGGER.info(result)
 
+    role_rows = []
     if single_base_user_role_ids:
-        result = execute_sql(
+        role_rows = execute_sql(
             single_base_user_role_ids,
             query="""SELECT * FROM cms_usergroups_roles WHERE auth0_role_id IN %s;""",
         )
 
     if not single_base_users:
         LOGGER.info(
-            f"Nr of rows to be deleted from cms_usergroups_roles: {len(result)}"
+            f"Nr of rows to be deleted from cms_usergroups_roles: {len(role_rows)}"
         )
-        LOGGER.info(result)
+        LOGGER.info(role_rows)
 
     single_base_user_ids = [
         int(u["user_id"].lstrip("auth0|")) for u in single_base_users
@@ -114,13 +115,13 @@ WHERE cms_usergroups_id IN (
 )
 ;""",
         )
-        result = set(tuple(r.items()) for r in result).union(
+        role_rows = set(tuple(r.items()) for r in role_rows).union(
             set(tuple(r.items()) for r in new_result)
         )
         LOGGER.info(
-            f"Nr of rows to be deleted from cms_usergroups_roles: {len(result)}"
+            f"Nr of rows to be deleted from cms_usergroups_roles: {len(role_rows)}"
         )
-        LOGGER.info(result)
+        LOGGER.info(role_rows)
 
         result = execute_sql(
             single_base_user_ids,
