@@ -62,6 +62,8 @@ from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.qr_code import QrCode
 from ..models.definitions.size import Size
+from ..models.definitions.size_range import SizeRange
+from ..models.definitions.size_range_size import SizeRangeSize
 from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.transfer_agreement import TransferAgreement
@@ -750,9 +752,11 @@ class Generator:
                 Product.category,
                 fn.GROUP_CONCAT(Size.id).python_value(convert_ids).alias("size_ids"),
             )
+            .join(SizeRangeSize)
+            .join(SizeRange)
             .join(
                 Product,
-                on=(Product.size_range == Size.size_range),
+                on=(Product.size_range == SizeRange.id),
             )
             .group_by(Product.category)
             .namedtuples()

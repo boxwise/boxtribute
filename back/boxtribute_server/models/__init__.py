@@ -25,6 +25,7 @@ from .definitions.shipment import Shipment
 from .definitions.shipment_detail import ShipmentDetail
 from .definitions.size import Size
 from .definitions.size_range import SizeRange
+from .definitions.size_range_size import SizeRangeSize
 from .definitions.standard_product import StandardProduct
 from .definitions.tag import Tag
 from .definitions.tags_relation import TagsRelation
@@ -71,6 +72,7 @@ MODELS = (
     ShipmentDetail,
     Size,
     SizeRange,
+    SizeRangeSize,
     StandardProduct,
     Tag,
     TagsRelation,

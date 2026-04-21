@@ -24,6 +24,7 @@ from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
 from ..models.definitions.size_range import SizeRange
+from ..models.definitions.size_range_size import SizeRangeSize
 from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
@@ -606,8 +607,8 @@ class SizesForSizeRangeLoader(DataLoader):
         authorize(permission="size:read")
         # Mapping of size range ID to list of sizes
         sizes = defaultdict(list)
-        for size in Size.select():
-            sizes[size.size_range_id].append(size)
+        for srs in SizeRangeSize.select(SizeRangeSize, Size).join(Size):
+            sizes[srs.size_range_id].append(srs.size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]
 

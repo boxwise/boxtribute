@@ -21,6 +21,7 @@ from ...models.definitions.packing_list_entry import PackingListEntry
 from ...models.definitions.product import Product
 from ...models.definitions.size import Size
 from ...models.definitions.size_range import SizeRange
+from ...models.definitions.size_range_size import SizeRangeSize
 from ...models.definitions.unboxed_items_collection import UnboxedItemsCollection
 from ...models.utils import utcnow
 from .exceptions import (
@@ -150,6 +151,7 @@ def set_products_for_packing_list(
         for product_id in product_ids_to_add:
             sizes = (
                 Size.select(Size.id)
+                .join(SizeRangeSize)
                 .join(SizeRange)
                 .join(Product)
                 .where(Product.id == product_id)
