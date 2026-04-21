@@ -6,6 +6,8 @@ from utils import assert_forbidden_request, assert_successful_request
 @pytest.mark.parametrize(
     "resource",
     [
+        # Test case 8.1.6b
+        "box",
         # Test cases 99.1.4, 99.1.6
         "base",
         # Test cases 9.1.6, 9.1.7
@@ -36,15 +38,19 @@ def test_invalid_read_permissions(unauthorized, client, resource):
     resources = f"{resource}s"
     if resource.endswith("y"):
         resources = f"{resource[:-1]}ies"
+    elif resource.endswith("x"):
+        resources = f"{resource}es"
 
     query = f"""query {{ {resources} {{ id }} }}"""
     if resources == "beneficiaries":
         query = "query { beneficiaries { elements { id } } }"
     elif resources == "products":
         query = "query { products { elements { id } } }"
+    elif resources == "boxes":
+        query = "query { boxes(baseId: 1) { elements { id } } }"
     assert_forbidden_request(client, query, none_data=True)
 
-    if resource == "sizeRange":
+    if resource == "sizeRange" or resource == "box":
         return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
@@ -84,6 +90,8 @@ def test_invalid_permission(unauthorized, client, query):
         """tag( id: 4 ) { id }""",
         # Test case 8.1.4
         """box( labelIdentifier: "34567890" ) { id }""",
+        # Test case 8.1.6c
+        """boxes( baseId: 2 ) { totalCount }""",
         # Test case 8.1.24
         """product( id: 2 ) { id }""",
         # Test case 9.1.8
@@ -98,7 +106,9 @@ def test_invalid_permission_for_given_resource_id(client, query):
     """Verify missing resource:read permission, or missing permission to access
     specified resource (i.e. base).
     """
-    assert_forbidden_request(client, f"query {{ {query} }}")
+    assert_forbidden_request(
+        client, f"query {{ {query} }}", none_data=query.startswith("boxes")
+    )
 
 
 @pytest.mark.parametrize(

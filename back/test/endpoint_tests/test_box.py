@@ -128,6 +128,7 @@ def test_box_query_by_qr_code(client, default_box, default_qr_code):
 
 
 def test_boxes_query(client, default_location_boxes):
+    # Test case 8.1.6a
     base_id = 1
     query = f"""query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"""
     boxes = assert_successful_request(client, query)
