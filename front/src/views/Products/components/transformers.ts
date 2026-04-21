@@ -1,4 +1,5 @@
 import { ProductsQuery, StandardProductsforProductsViewQuery } from "queries/types";
+export { createOptions } from "utils/filterOptions";
 
 export type StandardProductRow = {
   enabled: boolean;

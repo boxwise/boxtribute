@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   Column,
+  Filters,
   useTable,
   useFilters,
   useGlobalFilter,
@@ -8,10 +9,24 @@ import {
   useRowSelect,
   usePagination,
 } from "react-table";
-import { Table, Tr, Tbody, Td, Spacer, Flex, Text, IconButton, HStack } from "@chakra-ui/react";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import {
+  Table,
+  Tr,
+  Tbody,
+  Td,
+  Spacer,
+  Flex,
+  Text,
+  IconButton,
+  Button,
+  HStack,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { Link } from "react-router-dom";
+import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
+import { removeFilter } from "utils/helpers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -19,15 +34,30 @@ import {
 } from "components/Table/Filter";
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
+import { FilterPanel } from "components/Table/FilterPanel";
+import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import { ProductsFilter } from "./ProductsFilter";
+import { ProductsFilterChips } from "./ProductsFilterChips";
 
 type ProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
   columns: Column<ProductRow>[];
   onRowClick: (productId: string, isStandard: boolean) => void;
+  categoryOptions: IFilterValue[];
+  genderOptions: IFilterValue[];
+  sizeRangeOptions: IFilterValue[];
 };
 
-function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductTableProps) {
+function ProductsTable({
+  tableConfig,
+  tableData,
+  columns,
+  onRowClick,
+  categoryOptions,
+  genderOptions,
+  sizeRangeOptions,
+}: ProductTableProps) {
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -43,6 +73,7 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
     allColumns,
     state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
+    setAllFilters,
     page,
     canPreviousPage,
     canNextPage,
@@ -84,19 +115,67 @@ function ProductsTable({ tableConfig, tableData, columns, onRowClick }: ProductT
       tableConfig.setHiddenColumns(hiddenColumns);
   }, [filters, globalFilter, hiddenColumns, sortBy, tableConfig]);
 
+  const filterDisclosure = useDisclosure();
+
+  const handleApplyFilters = useCallback(
+    (newFilters: Filters<any>) => {
+      setAllFilters(newFilters);
+    },
+    [setAllFilters],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    setAllFilters([]);
+  }, [setAllFilters]);
+
+  const handleRemoveFilter = useCallback(
+    (filterId: string, valueToRemove?: string) => {
+      removeFilter(filterId, valueToRemove, filters, setAllFilters);
+    },
+    [filters, setAllFilters],
+  );
+
   return (
     <Flex direction="column" overflowX="auto">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
+        <Link to="create">
+          <Button leftIcon={<AddIcon />} mb={2} borderRadius="0">
+            Add New Product
+          </Button>
+        </Link>
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
             availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+          <FilterPanel
+            isOpen={filterDisclosure.isOpen}
+            onOpen={filterDisclosure.onOpen}
+            onClose={filterDisclosure.onClose}
+          >
+            <ProductsFilter
+              isOpen={filterDisclosure.isOpen}
+              onClose={filterDisclosure.onClose}
+              columnFilters={filters}
+              onApplyFilters={handleApplyFilters}
+              categoryOptions={categoryOptions}
+              genderOptions={genderOptions}
+              sizeRangeOptions={sizeRangeOptions}
+            />
+          </FilterPanel>
         </HStack>
       </Flex>
+      <ProductsFilterChips
+        filters={filters}
+        categoryOptions={categoryOptions}
+        genderOptions={genderOptions}
+        sizeRangeOptions={sizeRangeOptions}
+        onRemoveFilter={handleRemoveFilter}
+        onClearAllFilters={handleClearFilters}
+      />
       <Table key="products-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} />
+        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
           {page.map((row) => {
             prepareRow(row);

@@ -106,5 +106,5 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
 
     success, result = asyncio.run(run())
 
-    status_code = 200 if success else 400
+    status_code = 200 if success or "data" in result else 400
     return jsonify(result), status_code

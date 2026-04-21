@@ -105,8 +105,8 @@ function EditCustomProductFormContainer() {
         variables: {
           id: customProductId!,
           name: editProductFormOutput.name,
-          categoryId: parseInt(editProductFormOutput.category?.value!),
-          sizeRangeId: parseInt(editProductFormOutput.sizeRange?.value!),
+          categoryId: parseInt(editProductFormOutput.category?.value ?? ""),
+          sizeRangeId: parseInt(editProductFormOutput.sizeRange?.value ?? ""),
           gender: editProductFormOutput.gender?.value as NonNullProductGender,
           price: editProductFormOutput.price,
           inShop: editProductFormOutput.inShop,

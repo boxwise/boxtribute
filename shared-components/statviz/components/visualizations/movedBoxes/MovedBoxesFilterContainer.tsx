@@ -70,14 +70,14 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   // fill target filter with data
   useEffect(() => {
-    const targets = movedBoxes?.dimensions!.target!.map((t) => targetToFilterValue(t!));
+    const targets = movedBoxes?.dimensions?.target?.map((t) => targetToFilterValue(t!)) ?? [];
     targetFilterValuesVar(targets);
   }, [movedBoxes?.dimensions]);
 
   const movedBoxesFacts = useMemo(() => {
     try {
       return filterListByInterval(movedBoxes?.facts! as MovedBoxesResult[], "movedOn", interval);
-    } catch (error) {
+    } catch {
       // TODO show toast with error message?
     }
     return [];
@@ -89,7 +89,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
       filters.push(
         filter(
           (fact: MovedBoxesResult) =>
-            genderFilter.find((fPG) => fPG.value === fact.gender?.valueOf()!) !== undefined,
+            genderFilter.find((fPG) => fPG.value === fact.gender?.valueOf()) !== undefined,
         ),
       );
     }
@@ -123,7 +123,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
     let filtered = movedBoxesFacts;
     if (filters.length > 0) {
-      // @ts-expect-error
+      // @ts-expect-error spread of tidy filter functions not fully typed
       filtered = tidy(movedBoxesFacts, ...filters) as MovedBoxesResult[];
     }
 

@@ -20,19 +20,19 @@ export async function assertOptionsInSelectField(
   });
 
   await user.click(fieldControlInput);
-  options.forEach(async (option) => {
+  for (const option of options) {
     expect(await screen.findByRole("option", { name: option })).toBeInTheDocument();
-  });
+  }
   subHeadings.forEach((subHeading) => {
     expect(screen.getByText(subHeading)).toBeInTheDocument();
   });
 
   await user.click(elementOutside);
-  options.forEach(async (option) => {
+  for (const option of options) {
     await waitFor(() => {
       expect(screen.queryByText(option)).not.toBeInTheDocument();
     });
-  });
+  }
   subHeadings.forEach((subHeading) => {
     expect(screen.queryByText(subHeading)).not.toBeInTheDocument();
   });
