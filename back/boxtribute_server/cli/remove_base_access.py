@@ -61,12 +61,12 @@ def _show_affected_database_entries(
     result = execute_sql(
         base_id,
         query="""\
-SELECT count(c.id) FROM camps c
+SELECT count(c.id) AS nr_active_bases FROM camps c
 WHERE organisation_id = (SELECT organisation_id FROM camps WHERE id = %s)
 AND (c.deleted IS NULL OR NOT c.deleted)
 ;""",
     )
-    nr_active_bases = result[0]["count(c.id)"]
+    nr_active_bases = result[0]["nr_active_bases"]
     if nr_active_bases == 1:
         LOGGER.info("The governing organisation will be soft-deleted.")
 

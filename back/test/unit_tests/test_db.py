@@ -34,7 +34,7 @@ def test_execute_sql_without_binding():
         execute_sql(query="SELECT 1")
 
 
-def test_unitialized_database_manager():
+def test_uninitialized_database_manager():
     manager = DatabaseManager()
     app = create_app()
     app.register_blueprint(api_bp)
