@@ -5,7 +5,7 @@ import {
   tagFilterExcludedValuesVar,
   ITagFilterValue,
 } from "../../state/filter";
-import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
+import useIncludeExcludeFilter from "../../hooks/useIncludeExcludeFilter";
 import TabbedTagDropdown from "./TabbedTagDropdown";
 import { tagFilterId } from "./TagFilter";
 
@@ -22,7 +22,7 @@ export default function TabbedTagFilter() {
     onIncludedFilterChange,
     onExcludedFilterChange,
     onClearAll,
-  } = useMultiSelectFilter<ITagFilterValue>(
+  } = useIncludeExcludeFilter<ITagFilterValue>(
     includedTagFilterValues,
     tagFilterIncludedId,
     excludedTagFilterValues,

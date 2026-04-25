@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useMutation, useQuery, NetworkStatus } from "@apollo/client";
 import { graphql } from "gql.tada";
 import {
@@ -210,7 +210,6 @@ function BTBox() {
   const { createToast } = useNotification();
   const labelIdentifier = useParams<{ labelIdentifier: string }>().labelIdentifier!;
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const [currentBoxState, setCurrentState] = useState<BoxState | undefined>();
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
     assignBoxesToShipment,
@@ -230,10 +229,6 @@ function BTBox() {
       notifyOnNetworkStatusChange: true,
     },
   );
-
-  const boxInTransit = currentBoxState
-    ? ["Receiving", "MarkedForShipment", "InTransit"].includes(currentBoxState)
-    : false;
 
   // map over each box HistoryEntry to compile its timeline records
   const boxLogs: ITimelineEntry[] = allData.data?.box?.history?.flatMap((histories) =>
@@ -314,8 +309,11 @@ function BTBox() {
 
   const boxData = allData.data?.box;
 
+  const boxInTransit = boxData?.state
+    ? ["Receiving", "MarkedForShipment", "InTransit"].includes(boxData.state)
+    : false;
+
   useEffect(() => {
-    setCurrentState(boxData?.state);
     const shipmentId = boxData?.shipmentDetail?.shipment.id;
     // open reconciliation overlay if the box state is receiving and if we're on the receiving side
     if (

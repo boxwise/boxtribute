@@ -30,6 +30,7 @@ import {
 } from "../../../state/filter";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
+import useIncludeExcludeFilter from "../../../hooks/useIncludeExcludeFilter";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxes;
@@ -61,7 +62,7 @@ export default function CreatedBoxesFilterContainer({
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
+    useIncludeExcludeFilter(
       includedTagFilterValues,
       tagFilterIncludedId,
       excludedTagFilterValues,

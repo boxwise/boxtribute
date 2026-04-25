@@ -208,7 +208,7 @@ The folder structure is as follows:
 ├── tsconfig.json
 ├── .prettierignore
 ├── .dockerignore
-├── .eslintignore
+├── eslint.config.js
 ├── .eslintrc
 ├── .prettierrc
 └── .gitignore

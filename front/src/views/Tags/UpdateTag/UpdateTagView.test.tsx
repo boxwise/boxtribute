@@ -38,6 +38,7 @@ beforeEach(async () => {
       await cache.reset();
     }
   } catch (e) {
+    console.error(e);
     // cache module not found or not used, ignore
   }
   const { useNavigate, useParams } = await import("react-router-dom");
