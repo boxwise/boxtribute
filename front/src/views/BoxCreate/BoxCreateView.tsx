@@ -160,13 +160,10 @@ function BoxCreateView() {
     }))
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
 
-  useEffect(() => {
-    // Disable form submission if no warehouse location or products associated with base, but only if the query response is available
-    if (allLocations !== undefined && allLocations.length < 1) setNoLocation(true);
-    else if (noLocation) setNoLocation(false);
-    if (allProducts !== undefined && allProducts.length < 1) setNoProducts(true);
-    else if (noProducts) setNoProducts(false);
-  }, [allLocations, allProducts, noLocation, noProducts]);
+  if (allLocations !== undefined && allLocations.length < 1 && !noLocation) setNoLocation(true);
+  else if (noLocation) setNoLocation(false);
+  if (allProducts !== undefined && allProducts.length < 1 && !noProducts) setNoProducts(true);
+  else if (noProducts) setNoProducts(false);
 
   // check data for form
   useEffect(() => {

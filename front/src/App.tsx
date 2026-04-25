@@ -105,11 +105,10 @@ function App() {
   const hasExecutedInitialFetchOfBoxes = useRef(false);
 
   // store previous location to return to if you are not authorized
-  useEffect(() => {
-    const regex = /^\/bases\/\d+\//;
-    // only store previous location if a base is selected
-    if (regex.test(location.pathname)) setPrevLocation(location.pathname);
-  }, [location]);
+  // only store previous location if a base is selected
+  if (/^\/bases\/\d+\//.test(location.pathname) && location.pathname !== prevLocation) {
+    setPrevLocation(location.pathname);
+  }
 
   if (error) {
     return <ErrorView error={error} />;
