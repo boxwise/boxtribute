@@ -75,7 +75,8 @@ export const useLoadAndSetGlobalPreferences = () => {
       // validate that
       // - the selected base ID is part of the available base IDs from Auth0 or
       // - that the user is a Boxtribute God
-      if (urlBaseId) {
+      // - do not overwrite if the base already has a name (set by the query result)
+      if (urlBaseId && !selectedBase?.name) {
         if (isGod) {
           setSelectedBase({ id: urlBaseId });
         } else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
@@ -89,12 +90,13 @@ export const useLoadAndSetGlobalPreferences = () => {
   }, [
     availableBases.length,
     error,
+    isGod,
     location.pathname,
+    selectedBase?.name,
+    selectedBaseId,
     setAvailableBases,
     setSelectedBase,
     user,
-    isGod,
-    selectedBaseId,
   ]);
 
   // handle additional base information being returned from the query
@@ -131,24 +133,28 @@ export const useLoadAndSetGlobalPreferences = () => {
   ]);
 
   const finalError = useMemo(() => {
-    const basesWithOrgData = organisationAndBaseData?.bases;
-    const bases = basesWithOrgData?.map((base) => ({
-      id: base.id,
-      name: base.name,
-    }));
+    if (organisationAndBaseData) {
+      const basesWithOrgData = organisationAndBaseData.bases;
+      const bases = basesWithOrgData?.map((base) => ({
+        id: base.id,
+        name: base.name,
+      }));
 
-    if (!bases || bases.length <= 0) {
-      return "There are no available bases.";
-    } else if (selectedBase?.id) {
-      const matchingBase = basesWithOrgData?.find((base) => base.id === selectedBase.id);
+      if (!bases || bases.length <= 0) {
+        return "There are no available bases.";
+      } else if (selectedBase?.id) {
+        const matchingBase = basesWithOrgData?.find((base) => base.id === selectedBase.id);
 
-      if (!matchingBase) {
-        return "The requested base is not available to you.";
+        if (!matchingBase) {
+          return "The requested base is not available to you.";
+        }
       }
-    }
 
-    return error;
-  }, [error, organisationAndBaseData?.bases, selectedBase?.id]);
+      return error;
+    } else {
+      return "";
+    }
+  }, [error, organisationAndBaseData, selectedBase?.id]);
 
   const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IFilterValue } from "../components/filter/ValueFilter";
 import { trackFilter } from "../utils/analytics/heap";
@@ -17,32 +17,26 @@ function useIncludeExcludeFilter<T>(
   onClearAll: () => void;
 } {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [includedFilterValue, setIncludedFilterValue] = useState<(IFilterValue & T)[]>([]);
-  const [excludedFilterValue, setExcludedFilterValue] = useState<(IFilterValue & T)[]>([]);
 
+  // Derive filter values directly from URL params during render
+  const includedParam = searchParams.get(includedFilterId);
+  const excludedParam = searchParams.get(excludedFilterId);
+  const includedFilterValue =
+    includedParam !== null ? urlFilterValuesDecode(includedParam, includedValues) : [];
+  const excludedFilterValue =
+    excludedParam !== null ? urlFilterValuesDecode(excludedParam, excludedValues) : [];
+
+  // Clean up empty params from URL
   useEffect(() => {
-    const param = searchParams.get(includedFilterId);
-    if (param !== null) {
-      setIncludedFilterValue(urlFilterValuesDecode(param, includedValues));
-    } else {
-      setIncludedFilterValue([]);
-    }
-    if (param === "") {
+    if (includedParam === "") {
       const newParams = new URLSearchParams(searchParams);
       newParams.delete(includedFilterId);
       setSearchParams(newParams);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, includedFilterId, includedValues]);
-
   useEffect(() => {
-    const param = searchParams.get(excludedFilterId);
-    if (param !== null) {
-      setExcludedFilterValue(urlFilterValuesDecode(param, excludedValues));
-    } else {
-      setExcludedFilterValue([]);
-    }
-    if (param === "") {
+    if (excludedParam === "") {
       const newParams = new URLSearchParams(searchParams);
       newParams.delete(excludedFilterId);
       setSearchParams(newParams);

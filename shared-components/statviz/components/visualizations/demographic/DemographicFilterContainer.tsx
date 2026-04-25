@@ -65,7 +65,7 @@ export default function DemographicFilterContainer({
       // TODO useError
     }
     return [];
-  }, [demographics?.facts, interval]);
+  }, [demographics, interval]);
 
   const filteredFacts = useMemo(() => {
     // Apply tag filter (included/excluded)

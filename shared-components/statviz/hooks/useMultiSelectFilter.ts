@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IFilterValue } from "../components/filter/ValueFilter";
 import { trackFilter } from "../utils/analytics/heap";
@@ -21,11 +21,12 @@ function useMultiSelectFilter<T>(
 ): { onFilterChange: (event: (IFilterValue & T)[]) => void; filterValue: (IFilterValue & T)[] } {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterValue, setFilterValue] = useState<(IFilterValue & T)[]>([]);
+  const valuesRef = useRef(values);
 
   useEffect(() => {
     const param = searchParams.get(filterId);
     if (param !== null) {
-      setFilterValue(urlFilterValuesDecode(param, values));
+      setFilterValue(urlFilterValuesDecode(param, valuesRef.current));
     } else {
       setFilterValue([]);
     }
@@ -34,8 +35,7 @@ function useMultiSelectFilter<T>(
       newParams.delete(filterId);
       setSearchParams(newParams);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, filterId, values]);
+  }, [searchParams, filterId, setSearchParams]);
 
   const onFilterChange = (event: (IFilterValue & T)[]) => {
     const selected = event;
