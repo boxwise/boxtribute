@@ -55,7 +55,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@eslint/compat": "2.0.3",
+    "@eslint/compat": "2.0.5",
     "@eslint/eslintrc": "3.3.5",
     "@eslint/js": "9.39.4",
     "@sentry/types": "^10.49.0",
@@ -75,10 +75,10 @@
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.5",
-    "eslint-plugin-react-hooks": "7.0.1",
+    "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-refresh": "0.5.2",
-    "eslint-plugin-testing-library": "7.16.1",
-    "globals": "17.4.0",
+    "eslint-plugin-testing-library": "7.16.2",
+    "globals": "17.5.0",
     "husky": "^9.1.7",
     "jsdom": "26.1.0",
     "lint-staged": "^16.4.0",
