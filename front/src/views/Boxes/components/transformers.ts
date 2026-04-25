@@ -43,6 +43,8 @@ export const filterIdToGraphQLVariable = (filterID: string) => {
   switch (filterID) {
     case "state":
       return "states";
+    case "location":
+      return "locationIds";
     default:
       return "";
   }
@@ -58,18 +60,29 @@ export const prepareBoxesForBoxesViewQueryVariables = (
     filterInput: {},
     paginationInput,
   };
-  const refetchFilters = columnFilters.filter((filter) => filter.id === "state");
+  const refetchFilters = columnFilters.filter(
+    (filter) => filter.id === "state" || filter.id === "location",
+  );
   if (refetchFilters.length > 0) {
-    // Find GraphQL BoxState enum values matching the selected filter IDs
-    const filterInput = refetchFilters.reduce(
-      (acc, filter) => ({
-        ...acc,
-        [filterIdToGraphQLVariable(filter.id)]: filter.value.map((id: string) =>
-          Object.keys(boxStateIds).find((name) => boxStateIds[name] === id),
-        ),
-      }),
-      {},
-    );
+    const filterInput = refetchFilters.reduce((acc, filter) => {
+      const gqlVar = filterIdToGraphQLVariable(filter.id);
+      if (!gqlVar) return acc;
+      if (filter.id === "state") {
+        return {
+          ...acc,
+          [gqlVar]: filter.value.map((id: string) =>
+            Object.keys(boxStateIds).find((name) => boxStateIds[name] === id),
+          ),
+        };
+      }
+      if (filter.id === "location") {
+        return {
+          ...acc,
+          [gqlVar]: filter.value.map((id: string) => parseInt(id, 10)),
+        };
+      }
+      return acc;
+    }, {});
     variables.filterInput = filterInput;
   }
   return variables;

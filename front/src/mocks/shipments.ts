@@ -82,6 +82,7 @@ export const generateMockShipment = ({
   id: "1",
   labelIdentifier: "S001-231111-LExTH",
   state,
+  direction: iAmSource ? "Outgoing" : "Incoming",
   details: hasBoxes
     ? [
         {

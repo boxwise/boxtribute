@@ -135,6 +135,10 @@ const actionsQuery = {
             id: "10",
             name: "company X",
             type: "Box",
+            lastUsedOn: null,
+            deletedOn: null,
+            createdOn: "2023-11-01T10:00:00Z",
+            lastModifiedOn: "2023-11-01T10:00:00Z",
           },
           {
             __typename: "Tag",
@@ -143,6 +147,10 @@ const actionsQuery = {
             id: "11",
             name: "new",
             type: "All",
+            lastUsedOn: null,
+            deletedOn: null,
+            createdOn: "2023-11-05T12:00:00Z",
+            lastModifiedOn: "2023-11-05T12:00:00Z",
           },
           {
             __typename: "Tag",
@@ -151,6 +159,10 @@ const actionsQuery = {
             id: "12",
             name: "emergency",
             type: "Box",
+            lastUsedOn: null,
+            deletedOn: null,
+            createdOn: "2023-11-10T09:30:00Z",
+            lastModifiedOn: "2023-11-10T09:30:00Z",
           },
         ],
       },
@@ -296,9 +308,9 @@ describe("4.8.1 - Initial load of Page", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ state: "InStock", paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ state: "InStock", paginationInput: 50 }),
           boxesQuery({ state: "InStock" }),
           actionsQuery,
         ],
@@ -315,9 +327,9 @@ describe("4.8.1 - Initial load of Page", () => {
     {
       name: "4.8.1.2.2 - Failed to Fetch Initial Data",
       mocks: [
-        boxesQuery({ state: "Scrap", paginationInput: 20 }),
-        boxesQuery({ state: "Donated", paginationInput: 20 }),
-        initialQueryGraphQLError({ paginationInput: 20 }),
+        boxesQuery({ state: "Scrap", paginationInput: 50 }),
+        boxesQuery({ state: "Donated", paginationInput: 50 }),
+        initialQueryGraphQLError({ paginationInput: 50 }),
         boxesQuery({}),
         actionsQuery,
       ],
@@ -325,9 +337,9 @@ describe("4.8.1 - Initial load of Page", () => {
     {
       name: "4.8.1.2.6 - Failed to Fetch Initial Data",
       mocks: [
-        boxesQuery({ state: "Scrap", paginationInput: 20 }),
-        boxesQuery({ state: "Donated", paginationInput: 20 }),
-        initialQueryNetworkError({ paginationInput: 20 }),
+        boxesQuery({ state: "Scrap", paginationInput: 50 }),
+        boxesQuery({ state: "Donated", paginationInput: 50 }),
+        initialQueryNetworkError({ paginationInput: 50 }),
         boxesQuery({}),
         actionsQuery,
       ],
@@ -385,9 +397,9 @@ describe("4.8.1 - Initial load of Page", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ paginationInput: 50 }),
           boxesQuery({}),
           actionsQuery,
         ],
@@ -416,8 +428,8 @@ describe("4.8.1 - Initial load of Page", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1,6",
         mocks: [
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ state: "InStock", state2: "Scrap", paginationInput: 20 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ state: "InStock", state2: "Scrap", paginationInput: 50 }),
           boxesQuery({ state: "InStock", state2: "Scrap" }),
           actionsQuery,
         ],
@@ -435,7 +447,7 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const locationHeader = screen.getAllByText(/Location/i)[2];
+    const locationHeader = screen.getAllByText(/Location/i)[1];
     await userEvent.click(locationHeader); // Ascending sort
     await waitFor(
       () => {
@@ -464,7 +476,7 @@ describe("4.8.1 - Initial load of Page", () => {
       { timeout: 10000 },
     );
 
-    const stateHeader = screen.getAllByText(/Status/i)[2];
+    const stateHeader = screen.getAllByText(/Status/i)[1];
     await userEvent.click(stateHeader); // Ascending sort
     await waitFor(
       () => {
@@ -490,7 +502,7 @@ describe("4.8.1 - Initial load of Page", () => {
       },
       { timeout: 10000 },
     );
-  }, 20000);
+  }, 40000);
 
   it("4.8.1.5 - Global filter", async () => {
     const user = userEvent.setup();
@@ -508,9 +520,9 @@ describe("4.8.1 - Initial load of Page", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ paginationInput: 50 }),
           boxesQuery({}),
           actionsQuery,
         ],
@@ -616,7 +628,7 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(totalSummary6).toHaveTextContent(/Total/);
     expect(totalSummary6).toHaveTextContent(/0/);
     expect(screen.queryByText("1481666")).not.toBeInTheDocument();
-  }, 20000);
+  }, 40000);
 });
 
 describe("4.8.2 - Selecting rows and performing bulk actions", () => {
@@ -636,9 +648,9 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ paginationInput: 50 }),
           boxesQuery({}),
           actionsQuery,
           moveBoxesMutation,
@@ -736,9 +748,9 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ paginationInput: 50 }),
           boxesQuery({}),
           actionsQuery,
         ],
@@ -809,9 +821,9 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ paginationInput: 50 }),
           boxesQuery({}),
           actionsQuery,
         ],
@@ -847,11 +859,11 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=999", // Invalid state ID
         mocks: [
-          boxesQuery({ state: "ALL", paginationInput: 20 }),
+          boxesQuery({ state: "ALL", paginationInput: 50 }),
           boxesQuery({ state: "ALL" }),
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ paginationInput: 50 }),
           actionsQuery,
         ],
         cache,
@@ -880,9 +892,9 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?product_ids=267&state_ids=1",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ paginationInput: 50 }),
           boxesQuery({}),
           actionsQuery,
         ],
@@ -920,9 +932,9 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?product_ids=267,350&state_ids=1,5",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 20 }),
-          boxesQuery({ state: "Donated", paginationInput: 20 }),
-          boxesQuery({ state: "InStock", state2: "Donated", paginationInput: 20 }),
+          boxesQuery({ state: "Scrap", paginationInput: 50 }),
+          boxesQuery({ state: "Donated", paginationInput: 50 }),
+          boxesQuery({ state: "InStock", state2: "Donated", paginationInput: 50 }),
           boxesQuery({ state: "InStock", state2: "Donated" }),
           actionsQuery,
         ],

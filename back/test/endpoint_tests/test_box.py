@@ -128,6 +128,7 @@ def test_box_query_by_qr_code(client, default_box, default_qr_code):
 
 
 def test_boxes_query(client, default_location_boxes):
+    # Test case 8.1.6a
     base_id = 1
     query = f"""query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"""
     boxes = assert_successful_request(client, query)
@@ -137,6 +138,16 @@ def test_boxes_query(client, default_location_boxes):
                         {{ totalCount }} }}"""
     boxes = assert_successful_request(client, query)
     assert boxes == {"totalCount": 0}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{locationIds: []}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(client, query)
+    assert boxes == {"totalCount": 14}
+
+    query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{locationIds: [1]}})
+                        {{ totalCount }} }}"""
+    boxes = assert_successful_request(client, query)
+    assert boxes == {"totalCount": 14}
 
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2]}})
                         {{ totalCount }} }}"""
@@ -1550,12 +1561,23 @@ def _format(parameter):
         [[{"lastModifiedUntil": '"2020-01-01"'}], 0],
         [[{"productGender": "Women"}], 12],
         [[{"productGender": "Men"}], 0],
+        [[{"productGenders": "[Women]"}], 12],
+        [[{"productGenders": "[Men]"}], 0],
+        [[{"productGenders": "[Women, Boy]"}], 14],
         [[{"productId": "1"}], 10],
         [[{"productId": "2"}], 0],
+        [[{"productIds": "[1]"}], 10],
+        [[{"productIds": "[1, 3]"}], 11],
         [[{"sizeId": "1"}], 12],
         [[{"sizeId": "2"}], 1],
         [[{"productCategoryId": "1"}], 12],
         [[{"productCategoryId": "2"}], 0],
+        [[{"productCategoryIds": "[1]"}], 12],
+        [[{"productCategoryIds": "[12]"}], 2],
+        [[{"locationIds": "[1]"}], 14],
+        [[{"locationIds": "[2]"}], 0],
+        [[{"productGenders": "[Women]"}, {"productIds": "[1]"}], 10],
+        [[{"locationIds": "[1]"}, {"states": "[InStock]"}], 2],
         [[{"states": "[MarkedForShipment]"}, {"lastModifiedFrom": '"2021-02-01"'}], 2],
         [[{"states": "[InStock,Lost]"}, {"productGender": "Boy"}], 0],
     ],

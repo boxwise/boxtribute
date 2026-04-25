@@ -71,17 +71,13 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   // fill target filter with data
   useEffect(() => {
-    const targets = movedBoxes?.dimensions?.target?.map((t) => targetToFilterValue(t!));
+    const targets = movedBoxes?.dimensions?.target?.map((t) => targetToFilterValue(t!)) ?? [];
     targetFilterValuesVar(targets);
   }, [movedBoxes?.dimensions]);
 
   const movedBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(
-        (movedBoxes?.facts ?? []) as MovedBoxesResult[],
-        "movedOn",
-        interval,
-      );
+      return filterListByInterval(movedBoxes?.facts as MovedBoxesResult[], "movedOn", interval);
     } catch {
       // TODO show toast with error message?
     }

@@ -2,6 +2,7 @@ import urllib.parse as up
 
 from ariadne import ObjectType
 
+from ...db import use_db_replica
 from ...enums import ShareableView
 from ...models.definitions.base import Base
 from ...models.definitions.organisation import Organisation
@@ -16,6 +17,7 @@ resolved_link = ObjectType("ResolvedLink")
 
 
 @resolved_link.field("data")
+@use_db_replica
 def resolve_resolved_link_data(resolved_link_obj, _):
     if resolved_link_obj.view == ShareableView.StatvizDashboard:
         return [
@@ -52,12 +54,14 @@ def resolve_resolved_link_data(resolved_link_obj, _):
 
 
 @resolved_link.field("baseName")
-async def resolve_resolved_link_base_name(resolved_link_obj, _):
+@use_db_replica
+def resolve_resolved_link_base_name(resolved_link_obj, _):
     return Base.get_by_id(resolved_link_obj.base_id).name
 
 
 @resolved_link.field("organisationName")
-async def resolve_resolved_link_organisation_name(resolved_link_obj, _):
+@use_db_replica
+def resolve_resolved_link_organisation_name(resolved_link_obj, _):
     organisation = (
         Base.select(Organisation.name)
         .join(Organisation)

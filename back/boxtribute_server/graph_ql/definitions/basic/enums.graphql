@@ -102,6 +102,18 @@ enum ShipmentState {
   Lost
 }
 
+"""
+Direction of a shipment relative to a specific base.
+"""
+enum ShipmentDirection {
+  " Shipment sent from the specified base "
+  Outgoing
+  " Shipment being received by the specified base "
+  Incoming
+  " Shipment between bases the user is authorized to access, where neither is the specified base "
+  Indeterminate
+}
+
 enum TargetType {
   Shipment
   OutgoingLocation

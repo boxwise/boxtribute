@@ -11,6 +11,15 @@ import { useNotification } from "hooks/useNotification";
 
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
+vi.mock("framer-motion", async () => {
+  const actual = await vi.importActual<Record<string, unknown>>("framer-motion");
+
+  return {
+    ...actual,
+    AnimatePresence: ({ children }: { children: unknown }) => children,
+  };
+});
+
 // -------- Apollo cache
 // extracting a cacheObject to reset the cache correctly later
 const emptyCache = cache.extract();

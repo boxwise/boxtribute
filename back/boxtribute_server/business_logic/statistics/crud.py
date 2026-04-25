@@ -7,7 +7,7 @@ from typing import Any
 
 from peewee import JOIN, SQL, fn
 
-from ...db import db
+from ...db import execute_sql
 from ...enums import BoxState, TaggableObjectType, TargetType
 from ...errors import InvalidDate
 from ...models.definitions.base import Base
@@ -24,7 +24,7 @@ from ...models.definitions.size_range import SizeRange
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import compute_age, convert_ids, execute_sql, utcnow
+from ...models.utils import compute_age, convert_ids, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from ..metrics.crud import exclude_test_organisation
 from .sql import MOVED_BOXES_QUERY, STOCK_OVERVIEW_QUERY
@@ -412,7 +412,6 @@ def compute_moved_boxes(*base_ids):
         base_ids,
         TargetType.BoxState.name,
         base_ids,
-        database=db.replica or db.database,
         query=MOVED_BOXES_QUERY,
     )
     for fact in facts:
@@ -461,7 +460,6 @@ def compute_stock_overview(base_id, *, tag_ids=None, excluded_tag_ids=None):
         excluded_tag_ids,
         include_filter_active,
         exclude_filter_active,
-        database=db.replica or db.database,
         query=STOCK_OVERVIEW_QUERY,
     )
     for fact in facts:

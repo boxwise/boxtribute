@@ -52,6 +52,10 @@ updates:
       # v4 requires Node 20.19+ or 22+
       - dependency-name: "@vitejs/plugin-react-swc"
         versions: ["4.x"]
+      # https://github.com/boxwise/boxtribute/pull/2659
+      # v4 requires Node 22 or 24+
+      - dependency-name: "vite-plugin-static-copy"
+        versions: ["4.x"]
       # v27 requires Node 20.19+ or 22+
       - dependency-name: "jsdom"
         update-types:

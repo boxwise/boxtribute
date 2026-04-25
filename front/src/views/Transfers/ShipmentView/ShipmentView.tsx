@@ -377,7 +377,7 @@ function ShipmentView() {
       if (shipmentObj.createdOn) {
         shipmentHistory.push({
           action: action as ShipmentActionEvent,
-          createdBy: shipmentObj.createdBy! as User,
+          createdBy: shipmentObj.createdBy as User,
           createdOn: new Date(shipmentObj.createdOn),
         });
       }
@@ -462,7 +462,7 @@ function ShipmentView() {
 
   const isSender =
     availableBases && data?.shipment && data?.shipment?.sourceBase?.id
-      ? availableBases.some((b) => b.id === data.shipment!.sourceBase.id)
+      ? availableBases.some((b) => b.id === data.shipment?.sourceBase.id)
       : undefined;
 
   let shipmentTitle = <Heading>View Shipment</Heading>;

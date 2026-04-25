@@ -14,9 +14,7 @@ def _assert_erroneous_request(
     For complex responses, set `verify_response=False` and perform the verification in
     the test function.
     """
-    data = {"query": query}
-    response = client.post(f"/{endpoint}", json=data)
-    assert response.status_code == 200
+    response = _assert_web_request(client, query, endpoint=endpoint, expect_errors=True)
 
     assert len(response.json["errors"]) == error_count
     for i in range(error_count):
@@ -93,13 +91,13 @@ def assert_successful_request(client, query, field=None, **kwargs):
     """Send GraphQL request with query using given client.
     Assert response HTTP code 200, and return main response JSON data field.
     """
-    response = _assert_web_request(client, query, field=field, **kwargs)
+    response = _assert_web_request(client, query, **kwargs)
     field = field or _extract_field(query)
     return response.json["data"][field]
 
 
 def _assert_web_request(
-    client, query, *, http_code=200, field=None, endpoint="graphql", expect_errors=False
+    client, query, *, http_code=200, endpoint="graphql", expect_errors=False
 ):
     data = {"query": query}
     response = client.post(f"/{endpoint}", json=data)

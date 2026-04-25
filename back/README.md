@@ -399,7 +399,7 @@ to simulate a god user with ID 8 (for a regular user, set something like `id=1, 
 > [!IMPORTANT]
 > To keep the front-end side up-to-date with the GraphQL schema, make sure that the pre-commit command for `*.graphql` files (`id: generate-graphql-ts-types`) is running properly.
 >
-> It should generate both `schema.graphql` (the introspected unified schema) and `graphql-env.d.ts` (the generated types to be ìnferred and consumed in the FE with `gql.tada`) inside `/graphql/generated/`.
+> It should generate both `schema.graphql` (the introspected unified schema) and `graphql-env.d.ts` (the generated types to be inferred and consumed in the FE with `gql.tada`) inside `/graphql/generated/`.
 
 ## Project structure
 
@@ -407,7 +407,7 @@ The back-end codebase is organized as a Python package called `boxtribute_server
 
 - `main.py` and `api_main.py`: entry-points to start the Flask app
 - `app.py` and `blueprints.py`: Definition and configuration of Flask app
-- `db.py`: Definition of MySQL interface
+- `db.py`: Utility functions to e.g. create MySQL interface and work with database replica, definition of DatabaseManager class
 - `routes.py`: Definition of web endpoints; invocation of ariadne GraphQL server
 - `auth.py` and `authz.py`: Authentication and authorization utilities
 - `exceptions.py` and `errors.py`: Utility classes for error handling

@@ -1,4 +1,3 @@
-import httpx
 from auth0.management import ManagementClient
 from auth0.management.core.api_error import ApiError
 
@@ -6,27 +5,6 @@ from ..exceptions import ServiceError
 from .utils import setup_logger
 
 LOGGER = setup_logger(__name__)
-
-
-class _Client(httpx.Client):
-    """Custom client class to work-around a pagination bug in the Auth0 SDK.
-    Keep track of correct page number, instead of relying on incorrect page increment
-    implemented in the library.
-    Reset page count before using the `users.list` or `roles.list` methods.
-    Cf. https://github.com/auth0/auth0-python/issues/783
-    """
-
-    def __init__(self, **kwargs):
-        self._page = 0
-        super().__init__(**kwargs)
-
-    def request(self, method, url, **kwargs):
-        if url.split("/")[-1] in ("users", "roles") and method == "GET":
-            params = dict(kwargs.get("params", [("page", 0)]))
-            params["page"] = self._page
-            self._page += 1
-            kwargs["params"] = list(params.items())
-        return super().request(method, url, **kwargs)
 
 
 class ServiceBase:
@@ -37,7 +15,6 @@ class ServiceBase:
         """Returns user data (fields excluded from the query are returned as None)."""
         users = []
         try:
-            self._interface._api._client_wrapper.httpx_client.httpx_client._page = 0
             pager = self._interface.users.list(
                 q=query,
                 fields=",".join(fields),
@@ -72,7 +49,6 @@ class ServiceBase:
             domain=domain,
             client_id=client_id,
             client_secret=secret,
-            httpx_client=_Client(),
         )
         return cls(interface)
 
@@ -108,7 +84,6 @@ class Auth0Service(ServiceBase):
 
     def get_single_base_user_role_ids(self, base_id):
         try:
-            self._interface._api._client_wrapper.httpx_client.httpx_client._page = 0
             prefix = f"base_{base_id}_"
             roles = [
                 role

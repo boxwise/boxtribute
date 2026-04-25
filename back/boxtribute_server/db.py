@@ -1,8 +1,8 @@
 from functools import wraps
+from typing import Any
 
 from flask import request
 from peewee import MySQLDatabase
-from playhouse.flask_utils import FlaskDB  # type: ignore
 
 from .blueprints import (
     API_GRAPHQL_PATH,
@@ -14,26 +14,31 @@ from .blueprints import (
     shared_bp,
 )
 from .business_logic.statistics import statistics_queries
-from .models.definitions import Model
+from .models import MODELS
 
 
-class DatabaseManager(FlaskDB):
-    """Custom class to glue Flask and Peewee together.
-    If configured accordingly, connect to a database replica for statistics-related
-    GraphQL queries. To use the replica for database queries, wrap the calling code in
-    the `use_db_replica` decorator, and make sure the replica connection is set up in
-    the connect_db() method.
+class DatabaseManager:
+    """Custom class to glue Flask and Peewee together, borrowed from peewee's
+    playhouse.flask_utils.FlaskDB, with irrelevant parts stripped.
+    It holds the references to the primary and the replica database.
+
+    Most importantly, this class handles opening/closing database connection(s)
+    before/after handling incoming requests.
+
+    It connects to the database replica for statistics-related GraphQL queries. To use
+    the replica for database queries, wrap the calling code in the `use_db_replica`
+    decorator.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.replica = None
+    def __init__(self) -> None:
+        self.database: MySQLDatabase | None = None
+        self.replica: MySQLDatabase | None = None
 
-    def init_app(self, app):
-        self.replica = app.config.get("DATABASE_REPLICA")  # expecting peewee.Database
-        super().init_app(app)
+    def register_handlers(self, app) -> None:
+        app.before_request(self.connect_db)
+        app.teardown_request(self.close_db)
 
-    def connect_db(self):
+    def connect_db(self) -> None:
         # GraphQL queries are sent as POST requests. Don't open database connection on
         # other requests (e.g. CORS pre-flight OPTIONS request)
         if request.method.upper() != "POST":
@@ -52,6 +57,9 @@ class DatabaseManager(FlaskDB):
         ):
             return
 
+        if not self.database:
+            raise RuntimeError("DatabaseManager.database not set")
+
         self.database.connect()
 
         # Provide fallback for non-JSON and non-GraphQL requests
@@ -62,8 +70,8 @@ class DatabaseManager(FlaskDB):
         ):
             self.replica.connect()
 
-    def close_db(self, exc):
-        if not self.database.is_closed():
+    def close_db(self, _) -> None:
+        if self.database and not self.database.is_closed():
             self.database.close()
 
         if self.replica and not self.replica.is_closed():
@@ -80,9 +88,7 @@ def use_db_replica(f):
     def decorated(*args, **kwargs):
         if db.replica is not None:
             # With a complete list of models no need to recursively bind dependencies
-            with db.replica.bind_ctx(
-                Model.__subclasses__(), bind_refs=False, bind_backrefs=False
-            ):
+            with db.replica.bind_ctx(MODELS, bind_refs=False, bind_backrefs=False):
                 return f(*args, **kwargs)
 
         return f(*args, **kwargs)
@@ -90,7 +96,7 @@ def use_db_replica(f):
     return decorated
 
 
-def create_db_interface(**mysql_kwargs):
+def create_db_interface(**mysql_kwargs) -> MySQLDatabase:
     """Create MySQL database interface using given connection parameters. `mysql_kwargs`
     are validated to not be None and forwarded to `pymysql.connect`.
     Configure primary keys to be unsigned integer.
@@ -104,3 +110,29 @@ def create_db_interface(**mysql_kwargs):
     return MySQLDatabase(
         **mysql_kwargs, field_types={"AUTO": "INTEGER UNSIGNED AUTO_INCREMENT"}
     )
+
+
+def current_database() -> MySQLDatabase:
+    """Return the database object that the data models currently are bound to.
+    Raise RuntimeError if run without prior Database.bind() or Database.bind_ctx() call.
+    """
+    database = MODELS[0]._meta.database
+    if database is None:
+        raise RuntimeError("Data models not bound to database.")
+    return database
+
+
+def execute_sql(*params, query) -> list[dict[str, Any]] | None:
+    """Utility function to execute a raw SQL query, returning the result rows as dicts.
+    Use the database that the data models currently are bound to. If execute_sql() is
+    called wrapped in use_db_replica(), the replica database is used. Any `params` are
+    passed into peewee's `execute_sql` method as values for query parameters.
+    Raise RuntimeError if run without prior Database.bind() or Database.bind_ctx() call.
+    """
+    cursor = current_database().execute_sql(query, params=params)
+    if cursor.description is None:
+        # For e.g. UPDATE statements no description is available
+        return None
+    # Turn cursor result into dict (https://stackoverflow.com/a/56219996/3865876)
+    column_names = [x[0] for x in cursor.description]
+    return [dict(zip(column_names, row)) for row in cursor.fetchall()]

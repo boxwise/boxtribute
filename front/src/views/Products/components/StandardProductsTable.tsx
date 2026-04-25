@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   Column,
+  Filters,
   useTable,
   useFilters,
   useGlobalFilter,
@@ -19,10 +20,12 @@ import {
   IconButton,
   HStack,
   Box,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { StandardProductRow } from "./transformers";
+import { removeFilter } from "utils/helpers";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import {
   includesOneOfMultipleStringsFilterFn,
@@ -30,14 +33,28 @@ import {
 } from "components/Table/Filter";
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
+import { FilterPanel } from "components/Table/FilterPanel";
+import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
+import { ProductsFilter } from "./ProductsFilter";
+import { ProductsFilterChips } from "./ProductsFilterChips";
 
 type StandardProductTableProps = {
   tableConfig: IUseTableConfigReturnType;
   tableData;
   columns: Column<StandardProductRow>[];
+  categoryOptions: IFilterValue[];
+  genderOptions: IFilterValue[];
+  sizeRangeOptions: IFilterValue[];
 };
 
-function StandardProductsTable({ tableConfig, tableData, columns }: StandardProductTableProps) {
+function StandardProductsTable({
+  tableConfig,
+  tableData,
+  columns,
+  categoryOptions,
+  genderOptions,
+  sizeRangeOptions,
+}: StandardProductTableProps) {
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -53,6 +70,7 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
     allColumns,
     state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
+    setAllFilters,
     page,
     canPreviousPage,
     canNextPage,
@@ -94,6 +112,26 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
       tableConfig.setHiddenColumns(hiddenColumns);
   }, [filters, globalFilter, hiddenColumns, sortBy, tableConfig]);
 
+  const filterDisclosure = useDisclosure();
+
+  const handleApplyFilters = useCallback(
+    (newFilters: Filters<any>) => {
+      setAllFilters(newFilters);
+    },
+    [setAllFilters],
+  );
+
+  const handleClearFilters = useCallback(() => {
+    setAllFilters([]);
+  }, [setAllFilters]);
+
+  const handleRemoveFilter = useCallback(
+    (filterId: string, valueToRemove?: string) => {
+      removeFilter(filterId, valueToRemove, filters, setAllFilters);
+    },
+    [filters, setAllFilters],
+  );
+
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
@@ -103,8 +141,31 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
             availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+          <FilterPanel
+            isOpen={filterDisclosure.isOpen}
+            onOpen={filterDisclosure.onOpen}
+            onClose={filterDisclosure.onClose}
+          >
+            <ProductsFilter
+              key={String(filterDisclosure.isOpen)}
+              onClose={filterDisclosure.onClose}
+              columnFilters={filters}
+              onApplyFilters={handleApplyFilters}
+              categoryOptions={categoryOptions}
+              genderOptions={genderOptions}
+              sizeRangeOptions={sizeRangeOptions}
+            />
+          </FilterPanel>
         </HStack>
       </Flex>
+      <ProductsFilterChips
+        filters={filters}
+        categoryOptions={categoryOptions}
+        genderOptions={genderOptions}
+        sizeRangeOptions={sizeRangeOptions}
+        onRemoveFilter={handleRemoveFilter}
+        onClearAllFilters={handleClearFilters}
+      />
       {/* overflowY and flex={1} make the table scrollable vertically and took the other settings from <TableContainer>
       See https://chakra-ui.com/docs/components/table/usage#table-container */}
       <Box
@@ -116,7 +177,7 @@ function StandardProductsTable({ tableConfig, tableData, columns }: StandardProd
         whiteSpace="nowrap"
       >
         <Table key="standard-products-table">
-          <FilteringSortingTableHeader headerGroups={headerGroups} />
+          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
           <Tbody>
             {page.map((row) => {
               prepareRow(row);

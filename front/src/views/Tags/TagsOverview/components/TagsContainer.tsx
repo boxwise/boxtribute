@@ -1,0 +1,165 @@
+import { useSuspenseQuery } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
+import { includesOneOfMultipleStringsFilterFn, SelectColumnFilter } from "components/Table/Filter";
+import { useMemo } from "react";
+import { Column } from "react-table";
+import { useAtomValue } from "jotai";
+import { useTableConfig } from "hooks/useTableConfig";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { graphql, ResultOf, VariablesOf } from "../../../../../../graphql/graphql";
+import { TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
+import { TagRow, tagsRawToTableDataTransformer } from "./transformers";
+import { Tag, TagLabel } from "@chakra-ui/react";
+import { colorIsBright } from "utils/helpers";
+import { Style } from "victory";
+import { TagsTable } from "./TagsTable";
+import { DateCell } from "components/Table/Cells";
+
+export const TAGS_QUERY = graphql(
+  `
+    query TagsForTagsView($baseId: ID!) {
+      base(id: $baseId) {
+        tags {
+          taggedResources {
+            ... on Beneficiary {
+              id
+            }
+            ... on Box {
+              labelIdentifier
+            }
+          }
+          ...TagBasicFields
+        }
+      }
+    }
+  `,
+  [TAG_BASIC_FIELDS_FRAGMENT],
+);
+
+export const TAG_QUERY = graphql(
+  `
+    query TagForUpdateTagView($tagId: ID!) {
+      tag(id: $tagId) {
+        ...TagBasicFields
+      }
+    }
+  `,
+  [TAG_BASIC_FIELDS_FRAGMENT],
+);
+
+export type TagsForTagsContainerVariables = VariablesOf<typeof TAGS_QUERY>;
+
+export type TagsQuery = ResultOf<typeof TAGS_QUERY>;
+
+// Sort dates ascending, placing null/undefined values at the end.
+function nullableDateSortType(rowA: any, rowB: any, columnId: string) {
+  const a: Date | null | undefined = rowA.values[columnId];
+  const b: Date | null | undefined = rowB.values[columnId];
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+  return a.getTime() - b.getTime();
+}
+
+export function TagsContainer() {
+  const navigate = useNavigate();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+
+  const tableConfigKey = `bases/${baseId}/tags`;
+  const tableConfig = useTableConfig({
+    tableConfigKey,
+    defaultTableConfig: {
+      columnFilters: [],
+      sortBy: [{ id: "lastUsedOn", desc: true }],
+      hiddenColumns: ["createdOn", "lastModifiedOn"],
+    },
+  });
+
+  const onRowClick = (tagId: string) => {
+    navigate(`/bases/${baseId}/tags/${tagId}`);
+  };
+
+  // fetch Tags data
+  const { data: tagsRawData, error } = useSuspenseQuery(TAGS_QUERY, {
+    variables: { baseId },
+  });
+
+  const availableColumns: Column<TagRow>[] = useMemo(
+    () => [
+      {
+        Header: "Name",
+        accessor: "name",
+        id: "name",
+        Filter: SelectColumnFilter,
+        Cell: (args) => {
+          const { row } = args;
+          return (
+            <Tag
+              bg={Style.toTransformString(row.original.color)}
+              color={colorIsBright(row.original.color) ? "black" : "white"}
+            >
+              <TagLabel>{row.original.name}</TagLabel>
+            </Tag>
+          );
+        },
+        filter: includesOneOfMultipleStringsFilterFn,
+        sortType: (rowA, rowB) => {
+          const a = rowA.values.name.toLowerCase();
+          const b = rowB.values.name.toLowerCase();
+          return a.localeCompare(b);
+        },
+      },
+      {
+        Header: "Apply to",
+        accessor: "application",
+        id: "application",
+        Filter: SelectColumnFilter,
+        filter: includesOneOfMultipleStringsFilterFn,
+      },
+      {
+        Header: "Description",
+        accessor: "description",
+        id: "description",
+      },
+      {
+        Header: "Items Tagged",
+        accessor: "totalTaggedItemsCount",
+        id: "totalTaggedItemsCount",
+        disableFilters: true,
+      },
+      {
+        Header: "Created Date",
+        accessor: "createdOn",
+        id: "createdOn",
+        Cell: DateCell,
+        sortType: nullableDateSortType,
+      },
+      {
+        Header: "Last Modified Date",
+        accessor: "lastModifiedOn",
+        id: "lastModifiedOn",
+        Cell: DateCell,
+        sortType: nullableDateSortType,
+      },
+      {
+        Header: "Last Used Date",
+        accessor: "lastUsedOn",
+        id: "lastUsedOn",
+        Cell: DateCell,
+        sortType: nullableDateSortType,
+      },
+    ],
+    [],
+  );
+
+  if (error) throw error;
+
+  return (
+    <TagsTable
+      tableConfig={tableConfig}
+      tableData={tagsRawToTableDataTransformer(tagsRawData)}
+      columns={availableColumns}
+      onRowClick={onRowClick}
+    />
+  );
+}
