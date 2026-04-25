@@ -1,4 +1,3 @@
-/* eslint-disable import/export */
 // TODO: Investigate possible render function overload.
 
 import React, { ReactNode } from "react";
@@ -177,5 +176,10 @@ function StorybookApolloProvider({ children }: { children: ReactNode }) {
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
 
-export * from "@testing-library/react";
-export { render, StorybookApolloProvider };
+import * as reactLib from "@testing-library/react";
+
+export const finalExport = {
+  ...reactLib,
+  render,
+  StorybookApolloProvider,
+};

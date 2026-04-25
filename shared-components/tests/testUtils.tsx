@@ -1,4 +1,3 @@
-/* eslint-disable import/export */
 // TODO: Investigate possible render function overload.
 
 import React from "react";
@@ -91,5 +90,9 @@ function render(
   });
 }
 
-export * from "@testing-library/react";
-export { render };
+import * as reactLib from "@testing-library/react";
+
+export const finalExport = {
+  ...reactLib,
+  render,
+};
