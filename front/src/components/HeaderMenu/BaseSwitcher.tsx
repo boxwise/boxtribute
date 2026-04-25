@@ -23,21 +23,20 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const baseId = useAtomValue(selectedBaseIdAtom);
   const availableBases = useAtomValue(availableBasesAtom);
   const currentOrganisationBases = availableBases.filter((base) => base.id !== baseId);
-  const firstAvailableBaseId = currentOrganisationBases.find((base) => base)?.id;
+  const firstAvailableBaseId = currentOrganisationBases[0]?.id;
   const [value, setValue] = useState(firstAvailableBaseId);
-  const [prevFirstAvailableBaseId, setPrevFirstAvailableBaseId] = useState(firstAvailableBaseId);
-
-  // Need to reset the default radio selection whenever the available bases change.
-  if (firstAvailableBaseId !== prevFirstAvailableBaseId) {
-    setPrevFirstAvailableBaseId(firstAvailableBaseId);
-    setValue(firstAvailableBaseId);
-  }
 
   const switchBase = () => {
     const currentPath = pathname.split(`/bases/${urlBaseId}`)[1];
 
     navigate(`/bases/${value}${currentPath}`);
     onClose();
+
+    // Need to reset the default radio selection whenever the available bases change.
+
+    const currentOrganisationBases = availableBases.filter((base) => base.id !== value);
+    const newFirstAvailableBaseId = currentOrganisationBases[0]?.id;
+    setValue(newFirstAvailableBaseId);
   };
 
   return (
