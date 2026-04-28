@@ -2365,8 +2365,37 @@ def test_create_boxes(
         },
     ]
 
-    # Test case: boxLabelIdentifierForMerge - one valid merge, one invalid merge (wrong
-    # state), one plain create
+    # Test case 8.2.116
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 3
+            locationId: {location_id}
+            boxLabelIdentifierForMerge: "{default_box["label_identifier"]}"
+        }}
+    ]) {{
+        ...on BoxesResult {{
+            updatedBoxes {{
+                id
+                numberOfItems
+            }}
+            invalidBoxLabelIdentifiers
+        }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "invalidBoxLabelIdentifiers": [],
+        "updatedBoxes": [
+            {
+                "id": str(default_box["id"]),
+                "numberOfItems": default_box["number_of_items"] + 3,
+            }
+        ],
+    }
+
+    # one valid merge, one invalid merge (wrong state), one plain create
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             productId: {product_id}
@@ -2408,7 +2437,7 @@ def test_create_boxes(
     assert updated_boxes[0] == {
         "id": str(default_box["id"]),
         "labelIdentifier": default_box["label_identifier"],
-        "numberOfItems": default_box["number_of_items"] + 3,
+        "numberOfItems": default_box["number_of_items"] + 6,
     }
     assert updated_boxes[1]["numberOfItems"] == 1
     assert len(updated_boxes[1]["labelIdentifier"]) == 8
