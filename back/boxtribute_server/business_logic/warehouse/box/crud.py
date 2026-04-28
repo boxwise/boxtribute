@@ -676,47 +676,47 @@ def create_boxes(*, user_id, data):
 
     # More validation: Deleted location/product?
 
-    # Split input: rows with boxIdForMerge (extend existing box) vs rows to create new
-    # boxes
+    # Split input: rows with boxLabelIdentifierForMerge (extend existing box) vs rows to
+    # create new boxes
     merge_rows = []
     create_rows = []
     for row in data:
-        if row.get("box_id_for_merge") is not None:
+        if row.get("box_label_identifier_for_merge") is not None:
             merge_rows.append(row)
         else:
             create_rows.append(row)
 
     # --- Process merge rows: validate boxes, compute item deltas ---
     invalid_box_label_identifiers = []
-    # Maps box_id -> total items to add (summed across all input rows for that box)
+    # Maps label_identifier -> total items to add (summed across all input rows)
     merge_items_delta = {}
-    # Per merge row: the box_id if valid, None if invalid (same length as merge_rows)
-    merge_row_box_ids = []
+    # Per merge row: the label_identifier if valid, None if invalid
+    merge_row_label_identifiers = []
     valid_merge_boxes = {}
     if merge_rows:
-        requested_box_ids = [row["box_id_for_merge"] for row in merge_rows]
+        requested_label_identifiers = [
+            row["box_label_identifier_for_merge"] for row in merge_rows
+        ]
         valid_merge_boxes = {
-            box.id: box
+            box.label_identifier: box
             for box in Box.select().where(
-                Box.id << requested_box_ids,
+                Box.label_identifier << requested_label_identifiers,
                 (~Box.deleted_on | Box.deleted_on.is_null()),
                 Box.state << WAREHOUSE_BOX_STATES,
             )
         }
         for row in merge_rows:
-            box_id = row["box_id_for_merge"]
-            if box_id in valid_merge_boxes:
+            label_identifier = row["box_label_identifier_for_merge"]
+            if label_identifier in valid_merge_boxes:
                 items_to_add = row.get("number_of_items") or 0
-                merge_items_delta[box_id] = (
-                    merge_items_delta.get(box_id, 0) + items_to_add
+                merge_items_delta[label_identifier] = (
+                    merge_items_delta.get(label_identifier, 0) + items_to_add
                 )
-                merge_row_box_ids.append(box_id)
+                merge_row_label_identifiers.append(label_identifier)
             else:
-                # Invalid box: try to retrieve its label_identifier for the response
-                invalid_box = Box.get_or_none(Box.id == box_id)
-                if invalid_box is not None:
-                    invalid_box_label_identifiers.append(invalid_box.label_identifier)
-                merge_row_box_ids.append(None)
+                # The label_identifier from the input IS the value for the response
+                invalid_box_label_identifiers.append(label_identifier)
+                merge_row_label_identifiers.append(None)
 
     # --- Process create rows ---
     # Create new tags (only from create rows)
@@ -841,20 +841,20 @@ def create_boxes(*, user_id, data):
         merged_boxes = {}
         if merge_items_delta:
             merge_history_entries = []
-            for box_id, items_delta in merge_items_delta.items():
-                old_box = valid_merge_boxes[box_id]
+            for label_identifier, items_delta in merge_items_delta.items():
+                old_box = valid_merge_boxes[label_identifier]
                 old_items = old_box.number_of_items or 0
                 new_items = old_items + items_delta
                 Box.update(
                     number_of_items=new_items,
                     last_modified_on=now,
                     last_modified_by=user_id,
-                ).where(Box.id == box_id).execute()
+                ).where(Box.id == old_box.id).execute()
                 merge_history_entries.append(
                     DbChangeHistory(
                         changes=Box.number_of_items.column_name,
                         table_name=Box._meta.table_name,
-                        record_id=box_id,
+                        record_id=old_box.id,
                         user=user_id,
                         change_date=now,
                         from_int=old_items,
@@ -863,21 +863,20 @@ def create_boxes(*, user_id, data):
                 )
             DbChangeHistory.bulk_create(merge_history_entries, batch_size=BATCH_SIZE)
             # Re-fetch updated boxes so callers see current data
-            updated_box_list = list(
-                Box.select().where(Box.id << list(merge_items_delta.keys()))
-            )
-            merged_boxes = {box.id: box for box in updated_box_list}
+            box_ids_to_refetch = [valid_merge_boxes[li].id for li in merge_items_delta]
+            updated_box_list = list(Box.select().where(Box.id << box_ids_to_refetch))
+            merged_boxes = {box.label_identifier: box for box in updated_box_list}
 
     # Build result in the same order as the input, skipping invalid merge rows
     result_boxes = []
     merge_idx = 0
     create_idx = 0
     for row in data:
-        if row.get("box_id_for_merge") is not None:
-            box_id = merge_row_box_ids[merge_idx]
+        if row.get("box_label_identifier_for_merge") is not None:
+            label_identifier = merge_row_label_identifiers[merge_idx]
             merge_idx += 1
-            if box_id is not None:
-                result_boxes.append(merged_boxes[box_id])
+            if label_identifier is not None:
+                result_boxes.append(merged_boxes[label_identifier])
         else:
             result_boxes.append(created_boxes[create_idx])
             create_idx += 1

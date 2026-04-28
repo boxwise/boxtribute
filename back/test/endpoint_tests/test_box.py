@@ -2365,22 +2365,22 @@ def test_create_boxes(
         },
     ]
 
-    # Test case: boxIdForMerge - one valid merge, one invalid merge (wrong state),
-    # one plain create
+    # Test case: boxLabelIdentifierForMerge - one valid merge, one invalid merge (wrong
+    # state), one plain create
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             productId: {product_id}
             sizeName: "Small"
             numberOfItems: 3
             locationId: {location_id}
-            boxIdForMerge: {default_box["id"]}
+            boxLabelIdentifierForMerge: "{default_box["label_identifier"]}"
         }},
         {{
             productId: {product_id}
             sizeName: "Small"
             numberOfItems: 2
             locationId: {location_id}
-            boxIdForMerge: {box_without_qr_code["id"]}
+            boxLabelIdentifierForMerge: "{box_without_qr_code["label_identifier"]}"
         }},
         {{
             productId: {product_id}

@@ -394,8 +394,8 @@ input BoxBulkCreationInput {
   comment: String
   tagIds: [Int!]
   newTagNames: [String!]
-  " If set, add numberOfItems to the existing box with this ID instead of creating a new box "
-  boxIdForMerge: Int
+  " If set, add numberOfItems to the existing box with this label identifier instead of creating a new box "
+  boxLabelIdentifierForMerge: String
 }
 
 input CustomProductCreationInput {
