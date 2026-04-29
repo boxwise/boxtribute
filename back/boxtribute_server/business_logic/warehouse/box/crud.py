@@ -699,10 +699,13 @@ def create_boxes(*, user_id, data):
         ]
         valid_merge_boxes = {
             box.label_identifier: box
-            for box in Box.select().where(
+            for box in Box.select()
+            .join(Location)
+            .where(
                 Box.label_identifier << requested_label_identifiers,
                 (~Box.deleted_on | Box.deleted_on.is_null()),
                 Box.state << WAREHOUSE_BOX_STATES,
+                Location.base == base_id,
             )
         }
         for row in merge_rows:

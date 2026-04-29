@@ -2212,6 +2212,7 @@ def test_create_boxes(
     deleted_base,
     default_box,
     box_without_qr_code,
+    another_box,
 ):
     product_id = str(default_product["id"])
     mass_product_id = str(mass_product["id"])
@@ -2395,7 +2396,7 @@ def test_create_boxes(
         ],
     }
 
-    # one valid merge, one invalid merge (wrong state), one plain create
+    # one valid merge, two invalid merges (wrong state and wrong base), one plain create
     mutation = f"""mutation {{ createBoxes(creationInput: [
         {{
             productId: {product_id}
@@ -2416,6 +2417,13 @@ def test_create_boxes(
             sizeName: "Small"
             numberOfItems: 1
             locationId: {location_id}
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+            boxLabelIdentifierForMerge: "{another_box["label_identifier"]}"
         }}
     ]) {{
         ...on BoxesResult {{
@@ -2430,7 +2438,8 @@ def test_create_boxes(
     """
     response = assert_successful_request(client, mutation)
     assert response["invalidBoxLabelIdentifiers"] == [
-        box_without_qr_code["label_identifier"]
+        box_without_qr_code["label_identifier"],
+        another_box["label_identifier"],
     ]
     updated_boxes = response["updatedBoxes"]
     assert len(updated_boxes) == 2
