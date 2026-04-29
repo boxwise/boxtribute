@@ -110,13 +110,13 @@ function App() {
     setPrevLocation(location.pathname);
   }
 
-  if (error) {
-    return <ErrorView error={error} />;
-  }
-
   // selectedBaseId not set yet
   if (!isInitialized) {
     return;
+  }
+
+  if (error) {
+    return <ErrorView error={error} />;
   }
 
   return (

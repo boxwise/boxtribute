@@ -1,7 +1,7 @@
 import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 
 import { useEffect, useMemo } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 
@@ -130,14 +130,13 @@ export function BoxCreate({
     control,
     register,
     resetField,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(CreateBoxFormDataSchema),
   });
 
-  const productId = watch("productId");
+  const productId = useWatch({ control, name: "productId" });
 
   const productAndSizeDataForCurrentProduct = useMemo(() => {
     if (productId != null) {
