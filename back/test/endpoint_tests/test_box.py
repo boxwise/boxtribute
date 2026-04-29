@@ -2370,7 +2370,7 @@ def test_create_boxes(
         {{
             productId: {product_id}
             sizeName: "Small"
-            numberOfItems: 3
+            numberOfItems: 0
             locationId: {location_id}
             boxLabelIdentifierForMerge: "{default_box["label_identifier"]}"
         }}
@@ -2390,7 +2390,7 @@ def test_create_boxes(
         "updatedBoxes": [
             {
                 "id": str(default_box["id"]),
-                "numberOfItems": default_box["number_of_items"] + 3,
+                "numberOfItems": default_box["number_of_items"] + 0,
             }
         ],
     }
@@ -2437,7 +2437,7 @@ def test_create_boxes(
     assert updated_boxes[0] == {
         "id": str(default_box["id"]),
         "labelIdentifier": default_box["label_identifier"],
-        "numberOfItems": default_box["number_of_items"] + 6,
+        "numberOfItems": default_box["number_of_items"] + 3,
     }
     assert updated_boxes[1]["numberOfItems"] == 1
     assert len(updated_boxes[1]["labelIdentifier"]) == 8

@@ -707,8 +707,8 @@ def create_boxes(*, user_id, data):
         }
         for row in merge_rows:
             label_identifier = row["box_label_identifier_for_merge"]
-            if label_identifier in valid_merge_boxes:
-                items_to_add = row.get("number_of_items") or 0
+            items_to_add = row.get("number_of_items") or 0
+            if label_identifier in valid_merge_boxes and items_to_add >= 0:
                 merge_items_delta[label_identifier] = (
                     merge_items_delta.get(label_identifier, 0) + items_to_add
                 )
@@ -842,6 +842,8 @@ def create_boxes(*, user_id, data):
         if merge_items_delta:
             merge_history_entries = []
             for label_identifier, items_delta in merge_items_delta.items():
+                if items_delta == 0:
+                    continue
                 old_box = valid_merge_boxes[label_identifier]
                 old_items = old_box.number_of_items or 0
                 new_items = old_items + items_delta
