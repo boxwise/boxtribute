@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useAtomValue } from "jotai";
 import { GET_SCANNED_BOXES } from "queries/local-only";
@@ -167,12 +167,14 @@ function QrReaderMultiBoxContainer() {
       }));
   }, [baseId, hasShipmentPermission, optionsQueryResult.data]);
 
-  // Assign To Shipment is default MultiBoxAction if there are shipments
-  const [prevShipmentOptionsLength, setPrevShipmentOptionsLength] = useState(0);
-  if (shipmentOptions.length > 0 && prevShipmentOptionsLength === 0) {
-    setPrevShipmentOptionsLength(shipmentOptions.length);
-    setMultiBoxAction(IMultiBoxAction.assignShipment);
-  }
+  // Assign To Shipment is default MultiBoxAction if there are shipments (set once on first load)
+  const hasSetDefaultShipmentAction = useRef(false);
+  useEffect(() => {
+    if (shipmentOptions.length > 0 && !hasSetDefaultShipmentAction.current) {
+      hasSetDefaultShipmentAction.current = true;
+      setMultiBoxAction(IMultiBoxAction.assignShipment);
+    }
+  }, [shipmentOptions.length]);
 
   const notInStockBoxes = useMemo(
     () => scannedBoxesQueryResult.data?.scannedBoxes.filter((box) => box.state !== "InStock") ?? [],
