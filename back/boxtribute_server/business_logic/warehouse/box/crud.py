@@ -808,10 +808,12 @@ def create_boxes(*, user_id, data):
         if complete_data:
             first_inserted_id = Box.insert_many(complete_data).execute()
             created_boxes = list(
-                Box.select().where(
+                Box.select()
+                .where(
                     Box.id >= first_inserted_id,
                     Box.id < first_inserted_id + len(complete_data),
                 )
+                .order_by(Box.id)
             )
 
             history_entries = [
