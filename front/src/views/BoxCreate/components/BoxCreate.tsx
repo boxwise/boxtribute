@@ -1,6 +1,6 @@
 import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -138,27 +138,38 @@ export function BoxCreate({
 
   const productId = useWatch({ control, name: "productId" });
 
-  const productAndSizeDataForCurrentProduct = productId
-    ? productAndSizesData.find((p) => p.id === productId.value)
-    : undefined;
-  const sizesOptionsForCurrentProduct: IDropdownOption[] =
-    productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
-      label: s.label,
-      value: s.id,
-    })) ?? [];
+  const productAndSizeDataForCurrentProduct = useMemo(() => {
+    if (productId != null) {
+      return productAndSizesData.find((p) => p.id === productId.value);
+    } else {
+      return;
+    }
+  }, [productAndSizesData, productId]);
+
+  const sizesOptionsForCurrentProduct = useMemo(() => {
+    return (
+      productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
+        label: s.label,
+        value: s.id,
+      })) || []
+    );
+  }, [productAndSizeDataForCurrentProduct?.sizeRange?.sizes]);
 
   useEffect(() => {
-    if (productId != null) {
-      resetField("sizeId");
-      // Put a default value for sizeId when there's only one option
-      if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
-        setValue("sizeId", {
-          label: productAndSizeDataForCurrentProduct.sizeRange.sizes[0].label,
-          value: productAndSizeDataForCurrentProduct.sizeRange.sizes[0].id,
-        });
-      }
+    resetField("sizeId");
+    // Put a default value for sizeId when there's only one option
+    if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
+      setValue("sizeId", {
+        label: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].label,
+        value: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].id,
+      });
     }
-  }, [productId, productAndSizeDataForCurrentProduct, resetField, setValue]);
+  }, [
+    productAndSizeDataForCurrentProduct?.sizeRange?.sizes,
+    productAndSizesData,
+    resetField,
+    setValue,
+  ]);
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
