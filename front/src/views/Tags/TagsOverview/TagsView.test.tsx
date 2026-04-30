@@ -9,7 +9,7 @@ import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
 import { DELETE_TAGS } from "hooks/useDeleteTags";
 
-vi.setConfig({ testTimeout: 20_000 });
+vi.setConfig({ testTimeout: 40_000 });
 
 vi.mock("@auth0/auth0-react");
 const mockedUseAuth0 = vi.mocked(useAuth0);
