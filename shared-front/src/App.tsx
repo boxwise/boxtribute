@@ -108,7 +108,7 @@ function App() {
 
   // Redirect to full URL with view param once link data has loaded
   useEffect(() => {
-    if (data && !view) {
+    if (data && !view && data?.resolveLink?.view) {
       const urlParams = data?.resolveLink?.urlParameters ?? "nofilters=true";
       const hasBoiParam = urlParams.includes("boi=");
       const boiParam = hasBoiParam ? "" : `&boi=${boxesOrItemsFilterValues[0].urlId}`;

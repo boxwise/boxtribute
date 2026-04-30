@@ -1,5 +1,5 @@
 import "regenerator-runtime/runtime";
-import { ReactElement, Suspense, useEffect, useRef, useState } from "react";
+import { ReactElement, Suspense, useEffect, useMemo, useRef } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
@@ -99,16 +99,19 @@ function DropappRedirect({ path }: DropappRedirectProps) {
 function App() {
   const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const location = useLocation();
-  const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
   // For BoxesView to reduce number of expensive Boxes queries
   // when navigating between boxes and other views.
   const hasExecutedInitialFetchOfBoxes = useRef(false);
 
   // store previous location to return to if you are not authorized
   // only store previous location if a base is selected
-  if (/^\/bases\/\d+\//.test(location.pathname) && location.pathname !== prevLocation) {
-    setPrevLocation(location.pathname);
-  }
+  const prevLocation = useMemo(() => {
+    if (/^\/bases\/\d+\//.test(location.pathname)) {
+      return location.pathname;
+    } else {
+      return "";
+    }
+  }, [location.pathname]);
 
   // selectedBaseId not set yet
   if (!isInitialized) {
