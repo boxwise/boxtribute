@@ -386,12 +386,13 @@ def update_box(
 
         # Find all tag IDs that are currently assigned to the box
         assigned_tag_ids = set(
-            r.tag_id
-            for r in TagsRelation.select(TagsRelation.tag_id).where(
+            TagsRelation.select(TagsRelation.tag_id)
+            .where(
                 TagsRelation.object_type == TaggableObjectType.Box,
                 TagsRelation.object_id == box.id,
                 TagsRelation.deleted_on.is_null(),
             )
+            .scalars()
         )
         updated_tag_ids = set(tag.id for tag in tags)
 
@@ -647,10 +648,9 @@ def create_boxes(*, user_id, data):
 
     # Find base corresponding to given locations
     location_ids = {row["location_id"] for row in data}
-    base_ids = {
-        loc.base_id
-        for loc in Location.select(Location.base).where(Location.id << location_ids)
-    }
+    base_ids = set(
+        Location.select(Location.base).where(Location.id << location_ids).scalars()
+    )
     if len(base_ids) != 1:
         return InvalidBase(ids=sorted(base_ids))
 
@@ -666,9 +666,9 @@ def create_boxes(*, user_id, data):
 
     # Validation: product and location base must match
     product_ids = {row["product_id"] for row in data}
-    product_base_ids = {
-        p.base_id for p in Product.select(Product.base).where(Product.id << product_ids)
-    }
+    product_base_ids = set(
+        Product.select(Product.base).where(Product.id << product_ids).scalars()
+    )
     if len(product_base_ids) != 1:
         return InvalidBase(ids=sorted(product_base_ids))
     if base_id != list(product_base_ids)[0]:
