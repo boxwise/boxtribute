@@ -214,7 +214,7 @@ describe("UpdateTagView", () => {
 
     // Verify navigation back to tags list
     expect(mockNavigate).toHaveBeenCalledWith("..");
-  }, 30000);
+  });
 
   it("handles tag with null/undefined description", async () => {
     const tagQueryNullDescription = {
