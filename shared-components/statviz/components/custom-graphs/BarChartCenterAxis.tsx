@@ -58,7 +58,13 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     if (firstRender && chart.rendered) {
       chart.rendered(firstRender);
     }
-  });
+
+    return () => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+      }
+    };
+  }, [chart]);
 
   const fields = { ...chart };
 
