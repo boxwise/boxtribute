@@ -676,8 +676,54 @@ def create_boxes(*, user_id, data):
 
     # More validation: Deleted location/product?
 
-    # Create new tags
-    new_tag_names = {n for row in data for n in row.get("new_tag_names", [])}
+    # Split input: rows with boxLabelIdentifierForMerge (extend existing box) vs rows to
+    # create new boxes
+    merge_rows = []
+    create_rows = []
+    for row in data:
+        if row.get("box_label_identifier_for_merge") is not None:
+            merge_rows.append(row)
+        else:
+            create_rows.append(row)
+
+    # --- Process merge rows: validate boxes, compute item deltas ---
+    invalid_box_label_identifiers = []
+    # Maps label_identifier -> total items to add (summed across all input rows)
+    merge_items_delta = {}
+    # Per merge row: the label_identifier if valid, None if invalid
+    merge_row_label_identifiers = []
+    valid_merge_boxes = {}
+    if merge_rows:
+        requested_label_identifiers = [
+            row["box_label_identifier_for_merge"] for row in merge_rows
+        ]
+        valid_merge_boxes = {
+            box.label_identifier: box
+            for box in Box.select()
+            .join(Location)
+            .where(
+                Box.label_identifier << requested_label_identifiers,
+                (~Box.deleted_on | Box.deleted_on.is_null()),
+                Box.state << WAREHOUSE_BOX_STATES,
+                Location.base == base_id,
+            )
+        }
+        for row in merge_rows:
+            label_identifier = row["box_label_identifier_for_merge"]
+            items_to_add = row.get("number_of_items") or 0
+            if label_identifier in valid_merge_boxes and items_to_add >= 0:
+                merge_items_delta[label_identifier] = (
+                    merge_items_delta.get(label_identifier, 0) + items_to_add
+                )
+                merge_row_label_identifiers.append(label_identifier)
+            else:
+                # The label_identifier from the input IS the value for the response
+                invalid_box_label_identifiers.append(label_identifier)
+                merge_row_label_identifiers.append(None)
+
+    # --- Process create rows ---
+    # Create new tags (only from create rows)
+    new_tag_names = {n for row in create_rows for n in row.get("new_tag_names", [])}
     new_tag_ids = {}
     for tag_name in new_tag_names:
         tag = create_tag(
@@ -690,24 +736,26 @@ def create_boxes(*, user_id, data):
         new_tag_ids[tag_name] = tag.id
 
     # Data preparation
-    sanitized_data, all_tag_ids = sanitize_input(data, new_tag_ids)
+    sanitized_data, all_tag_ids = sanitize_input(create_rows, new_tag_ids)
 
-    # Build look-ups for products and their sizes
-    all_sizes = (
-        Product.select(Product.id, Product.size_range, Size.id, Size.label)
-        .left_outer_join(Size, on=(Product.size_range == Size.size_range))
-        .where(Product.id << product_ids)
-    )
+    # Build look-ups for products and their sizes (only needed for create rows)
     sizes_for_product = defaultdict(dict)
     products = {}
-    for row in all_sizes:
-        products[row.id] = row
-        size = getattr(row, "size", None)
-        if size is not None:
-            sizes_for_product[row.id][size.label.lower()] = size.id
+    if sanitized_data:
+        create_product_ids = {row["product_id"] for row in sanitized_data}
+        all_sizes = (
+            Product.select(Product.id, Product.size_range, Size.id, Size.label)
+            .left_outer_join(Size, on=(Product.size_range == Size.size_range))
+            .where(Product.id << create_product_ids)
+        )
+        for row in all_sizes:
+            products[row.id] = row
+            size = getattr(row, "size", None)
+            if size is not None:
+                sizes_for_product[row.id][size.label.lower()] = size.id
 
     # Prepare units look-up
-    units = {u.symbol: u for u in Unit.select()}
+    units = {u.symbol: u for u in Unit.select()} if sanitized_data else {}
 
     # Bulk create
     complete_data = []
@@ -755,38 +803,92 @@ def create_boxes(*, user_id, data):
         )
 
     with db.database.atomic():
-        first_inserted_id = Box.insert_many(complete_data).execute()
-        boxes = list(
-            Box.select().where(
-                Box.id >= first_inserted_id,
-                Box.id < first_inserted_id + len(complete_data),
+        # Create new boxes
+        created_boxes = []
+        if complete_data:
+            first_inserted_id = Box.insert_many(complete_data).execute()
+            created_boxes = list(
+                Box.select()
+                .where(
+                    Box.id >= first_inserted_id,
+                    Box.id < first_inserted_id + len(complete_data),
+                )
+                .order_by(Box.id)
             )
-        )
 
-        history_entries = [
-            DbChangeHistory(
-                changes=HISTORY_CREATION_MESSAGE,
-                table_name=Box._meta.table_name,
-                record_id=box.id,
-                user=user_id,
-                change_date=now,
-            )
-            for box in boxes
-        ]
-        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+            history_entries = [
+                DbChangeHistory(
+                    changes=HISTORY_CREATION_MESSAGE,
+                    table_name=Box._meta.table_name,
+                    record_id=box.id,
+                    user=user_id,
+                    change_date=now,
+                )
+                for box in created_boxes
+            ]
+            DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
 
-        tags_relations = [
-            {
-                "object_id": box.id,
-                "object_type": TaggableObjectType.Box,
-                "tag": tag_id,
-                "created_on": now,
-                "created_by": user_id,
-            }
-            for box, tag_ids in zip(boxes, all_tag_ids)
-            for tag_id in tag_ids
-        ]
-        if tags_relations:
-            TagsRelation.insert_many(tags_relations).execute()
+            tags_relations = [
+                {
+                    "object_id": box.id,
+                    "object_type": TaggableObjectType.Box,
+                    "tag": tag_id,
+                    "created_on": now,
+                    "created_by": user_id,
+                }
+                for box, tag_ids in zip(created_boxes, all_tag_ids)
+                for tag_id in tag_ids
+            ]
+            if tags_relations:
+                TagsRelation.insert_many(tags_relations).execute()
 
-        return BoxesResult(updated_boxes=boxes, invalid_box_label_identifiers=[])
+        # Update merged boxes: add numberOfItems and record history
+        merged_boxes = {}
+        if merge_items_delta:
+            merge_history_entries = []
+            for label_identifier, items_delta in merge_items_delta.items():
+                if items_delta == 0:
+                    continue
+                old_box = valid_merge_boxes[label_identifier]
+                old_items = old_box.number_of_items or 0
+                new_items = old_items + items_delta
+                Box.update(
+                    number_of_items=new_items,
+                    last_modified_on=now,
+                    last_modified_by=user_id,
+                ).where(Box.id == old_box.id).execute()
+                merge_history_entries.append(
+                    DbChangeHistory(
+                        changes=Box.number_of_items.column_name,
+                        table_name=Box._meta.table_name,
+                        record_id=old_box.id,
+                        user=user_id,
+                        change_date=now,
+                        from_int=old_items,
+                        to_int=new_items,
+                    )
+                )
+            DbChangeHistory.bulk_create(merge_history_entries, batch_size=BATCH_SIZE)
+            # Re-fetch updated boxes so callers see current data
+            box_ids_to_refetch = [valid_merge_boxes[li].id for li in merge_items_delta]
+            updated_box_list = list(Box.select().where(Box.id << box_ids_to_refetch))
+            merged_boxes = {box.label_identifier: box for box in updated_box_list}
+
+    # Build result in the same order as the input, skipping invalid merge rows
+    result_boxes = []
+    merge_idx = 0
+    create_idx = 0
+    for row in data:
+        if row.get("box_label_identifier_for_merge") is not None:
+            label_identifier = merge_row_label_identifiers[merge_idx]
+            merge_idx += 1
+            if label_identifier is not None:
+                result_boxes.append(merged_boxes[label_identifier])
+        else:
+            result_boxes.append(created_boxes[create_idx])
+            create_idx += 1
+
+    return BoxesResult(
+        updated_boxes=result_boxes,
+        invalid_box_label_identifiers=invalid_box_label_identifiers,
+    )
