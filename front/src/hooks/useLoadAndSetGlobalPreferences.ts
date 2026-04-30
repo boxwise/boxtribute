@@ -33,10 +33,10 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   const [
     runOrganisationAndBasesQuery,
-    { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData },
+    { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData, error },
   ] = useLazyQuery(ORGANISATION_AND_BASES_QUERY);
 
-  const error = useMemo(() => {
+  const localError = useMemo(() => {
     if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length)) {
       return "You do not have access to any bases.";
     } else {
@@ -54,22 +54,24 @@ export const useLoadAndSetGlobalPreferences = () => {
   // - the access token is in the request header from the apollo client and
   // - the base Name is not set
   useEffect(() => {
-    if (user && !selectedBase?.name && !error) {
+    if (user && !selectedBase?.name && !localError) {
       runOrganisationAndBasesQuery();
     }
-  }, [runOrganisationAndBasesQuery, user, selectedBase?.name, error]);
+  }, [runOrganisationAndBasesQuery, user, selectedBase?.name, localError]);
 
   // setting auth atoms initially from auth0
   useEffect(() => {
     if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
-      if (!error && user && (user[JWT_AVAILABLE_BASES] || isGod)) {
+      if (!localError && user && (user[JWT_AVAILABLE_BASES] || isGod)) {
         const basesWithOrgData = organisationAndBaseData.bases;
         const bases = basesWithOrgData.map((base) => ({
           id: base.id,
           name: base.name,
         }));
         if (bases.length > 0) {
-          setAvailableBases(bases);
+          if (JSON.stringify(availableBases) !== JSON.stringify(bases)) {
+            setAvailableBases(bases);
+          }
           // set available bases from auth0 id token only if they are not set yet.
           // Otherwise, it would overwrite the names queried from the BE.
           // if (!availableBases.length && !isGod) {
@@ -114,13 +116,12 @@ export const useLoadAndSetGlobalPreferences = () => {
       }
     }
   }, [
-    availableBases.length,
-    error,
+    availableBases,
+    localError,
     isGod,
     isOrganisationAndBasesQueryLoading,
     location.pathname,
     organisationAndBaseData,
-    selectedBaseId,
     setAvailableBases,
     setOrganisation,
     setSelectedBase,
@@ -145,11 +146,13 @@ export const useLoadAndSetGlobalPreferences = () => {
         }
       }
 
-      return error;
+      return localError;
+    } else if (error) {
+      return "Failed getting information " + error.message;
     } else {
       return "The requested base is not available to you";
     }
-  }, [error, organisationAndBaseData, selectedBase?.id]);
+  }, [error, localError, organisationAndBaseData, selectedBase?.id]);
 
   const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 
