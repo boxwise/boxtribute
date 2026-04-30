@@ -23,13 +23,14 @@ from ....models.utils import convert_ids, utcnow
 
 def _base_ids_of_organisation(organisation_id):
     """Return IDs of non-deleted bases that belong to the organisation with given ID."""
-    return [
-        b.id
-        for b in Base.select(Base.id).where(
+    return list(
+        Base.select(Base.id)
+        .where(
             Base.organisation_id == organisation_id,
             Base.deleted_on.is_null(),
         )
-    ]
+        .scalars()
+    )
 
 
 def _validate_bases_as_part_of_organisation(*, base_ids, organisation_id):
