@@ -95,19 +95,19 @@ export const useLoadAndSetGlobalPreferences = () => {
                 setOrganisation(matchingBase.organisation);
               }
             } else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
-              if (selectedBaseId !== urlBaseId) {
-                // only overwrite the selected base ID if the id is different from the existing one.
-                // setSelectedBase({ id: urlBaseId });
+              // if (selectedBaseId !== urlBaseId) {
+              // only overwrite the selected base ID if the id is different from the existing one.
+              // setSelectedBase({ id: urlBaseId });
 
-                const matchingBase = basesWithOrgData.find((base) => base.id === urlBaseId);
+              const matchingBase = basesWithOrgData.find((base) => base.id === urlBaseId);
 
-                if (matchingBase) {
-                  // set selected base
-                  setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
-                  // set organisation for selected base
-                  setOrganisation(matchingBase.organisation);
-                }
+              if (matchingBase) {
+                // set selected base
+                setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
+                // set organisation for selected base
+                setOrganisation(matchingBase.organisation);
               }
+              // }
             }
           }
         }
@@ -126,39 +126,6 @@ export const useLoadAndSetGlobalPreferences = () => {
     setSelectedBase,
     user,
   ]);
-
-  // // handle additional base information being returned from the query
-  // useEffect(() => {
-  //   if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
-  //     const basesWithOrgData = organisationAndBaseData.bases;
-  //     const bases = basesWithOrgData.map((base) => ({
-  //       id: base.id,
-  //       name: base.name,
-  //     }));
-
-  //     if (bases.length > 0) {
-  //       setAvailableBases(bases);
-
-  //       if (selectedBase?.id) {
-  //         const matchingBase = basesWithOrgData.find((base) => base.id === selectedBase.id);
-
-  //         if (matchingBase) {
-  //           // set selected base
-  //           setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
-  //           // set organisation for selected base
-  //           setOrganisation(matchingBase.organisation);
-  //         }
-  //       }
-  //     }
-  //   }
-  // }, [
-  //   isOrganisationAndBasesQueryLoading,
-  //   organisationAndBaseData,
-  //   selectedBase?.id,
-  //   setAvailableBases,
-  //   setOrganisation,
-  //   setSelectedBase,
-  // ]);
 
   const finalError = useMemo(() => {
     if (organisationAndBaseData) {
@@ -180,7 +147,7 @@ export const useLoadAndSetGlobalPreferences = () => {
 
       return error;
     } else {
-      return "";
+      return "The requested base is not available to you";
     }
   }, [error, organisationAndBaseData, selectedBase?.id]);
 
