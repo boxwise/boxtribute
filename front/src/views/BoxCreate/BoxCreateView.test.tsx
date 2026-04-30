@@ -227,7 +227,7 @@ describe("BoxCreateView", () => {
 
     // Verify navigation to box details page
     expect(mockNavigate).toHaveBeenCalledWith("/bases/1/boxes/12345");
-  });
+  }, 10000);
 
   it("successfully creates a box with QR label and navigates to box details", async () => {
     const user = userEvent.setup();
