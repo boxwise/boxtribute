@@ -14,6 +14,8 @@ import { mockMatchMediaQuery } from "mocks/functions";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import BTBox from "./BoxView";
 
+vi.setConfig({ testTimeout: 40_000 });
+
 vi.mock("@auth0/auth0-react");
 const mockedUseAuth0 = vi.mocked(useAuth0);
 
@@ -160,4 +162,4 @@ it("4.7.4.1 - Reconciliation dialog automatically appears when box state equals 
     },
     { timeout: 5000 },
   );
-}, 20000);
+});

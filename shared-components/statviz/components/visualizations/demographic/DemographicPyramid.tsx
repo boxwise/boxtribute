@@ -45,67 +45,59 @@ export default function DemographicPyramid({
 }: IDemographicChartProps) {
   const onExport = getOnExport(BarChartCenterAxis);
 
-  const prepareFactsForGraph = () => {
-    const dataXr = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Male" && value.age !== null),
-      groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age! })),
-    );
-
-    const dataXl = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Female" && value.age !== null),
-      groupBy("age", [summarize({ count: sum("count") })]),
-      map((value) => ({ x: value.count, y: value.age! })),
-    );
-
-    return [dataXr, dataXl];
-  };
-
-  const prepareFactsForText = () => {
-    const totalCount = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      summarize({ total: sum("count") }),
-    )[0].total;
-
-    const maleCount = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Male"),
-      summarize({ total: sum("count") }),
-    )[0].total;
-
-    const femaleCount = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Female"),
-      summarize({ total: sum("count") }),
-    )[0].total;
-
-    const diverseCount = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.gender === "Diverse"),
-      summarize({ total: sum("count") }),
-    )[0].total;
-
-    const ageNullCount = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.age === null),
-      summarize({ total: sum("count") }),
-    )[0].total;
-
-    const ageNullOrDiverseCount = tidy(
-      demographics?.facts as BeneficiaryDemographicsResult[],
-      filter((value) => value.age === null || value.gender === "Diverse"),
-      summarize({ total: sum("count") }),
-    )[0].total;
-
-    return [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount];
-  };
-
-  const [dataXr, dataXl] = useMemo(prepareFactsForGraph, [demographics?.facts]);
+  const [dataXr, dataXl] = useMemo(
+    () => [
+      tidy(
+        demographics?.facts as BeneficiaryDemographicsResult[],
+        filter((value) => value.gender === "Male" && value.age !== null),
+        groupBy("age", [summarize({ count: sum("count") })]),
+        map((value) => ({ x: value.count, y: value.age! })),
+      ),
+      tidy(
+        demographics?.facts as BeneficiaryDemographicsResult[],
+        filter((value) => value.gender === "Female" && value.age !== null),
+        groupBy("age", [summarize({ count: sum("count") })]),
+        map((value) => ({ x: value.count, y: value.age! })),
+      ),
+    ],
+    [demographics?.facts],
+  );
 
   const [totalCount, maleCount, femaleCount, diverseCount, ageNullCount, ageNullOrDiverseCount] =
-    useMemo(prepareFactsForText, [demographics?.facts]);
+    useMemo(
+      () => [
+        tidy(
+          demographics?.facts as BeneficiaryDemographicsResult[],
+          summarize({ total: sum("count") }),
+        )[0].total,
+        tidy(
+          demographics?.facts as BeneficiaryDemographicsResult[],
+          filter((value) => value.gender === "Male"),
+          summarize({ total: sum("count") }),
+        )[0].total,
+        tidy(
+          demographics?.facts as BeneficiaryDemographicsResult[],
+          filter((value) => value.gender === "Female"),
+          summarize({ total: sum("count") }),
+        )[0].total,
+        tidy(
+          demographics?.facts as BeneficiaryDemographicsResult[],
+          filter((value) => value.gender === "Diverse"),
+          summarize({ total: sum("count") }),
+        )[0].total,
+        tidy(
+          demographics?.facts as BeneficiaryDemographicsResult[],
+          filter((value) => value.age === null),
+          summarize({ total: sum("count") }),
+        )[0].total,
+        tidy(
+          demographics?.facts as BeneficiaryDemographicsResult[],
+          filter((value) => value.age === null || value.gender === "Diverse"),
+          summarize({ total: sum("count") }),
+        )[0].total,
+      ],
+      [demographics?.facts],
+    );
 
   const beneficiariesRegistrationsText = (
     <Text as="div">

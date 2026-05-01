@@ -38,6 +38,7 @@ beforeEach(async () => {
       await cache.reset();
     }
   } catch (e) {
+    console.error(e);
     // cache module not found or not used, ignore
   }
   const { useNavigate, useParams } = await import("react-router-dom");
@@ -213,7 +214,7 @@ describe("UpdateTagView", () => {
 
     // Verify navigation back to tags list
     expect(mockNavigate).toHaveBeenCalledWith("..");
-  }, 30000);
+  });
 
   it("handles tag with null/undefined description", async () => {
     const tagQueryNullDescription = {

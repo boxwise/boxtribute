@@ -7,12 +7,12 @@ import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTag
 import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
-import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { filterByTags } from "../../../utils/filterByTags";
 import {
   BeneficiaryDemographics,
   BeneficiaryDemographicsResult,
 } from "../../../../../graphql/types";
+import useIncludeExcludeFilter from "../../../hooks/useIncludeExcludeFilter";
 
 interface IDemographicFilterContainerProps {
   demographics: BeneficiaryDemographics;
@@ -26,7 +26,7 @@ export default function DemographicFilterContainer({
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
+    useIncludeExcludeFilter(
       includedTagFilterValues,
       tagFilterIncludedId,
       excludedTagFilterValues,
@@ -65,7 +65,7 @@ export default function DemographicFilterContainer({
       // TODO useError
     }
     return [];
-  }, [demographics?.facts, interval]);
+  }, [demographics, interval]);
 
   const filteredFacts = useMemo(() => {
     // Apply tag filter (included/excluded)

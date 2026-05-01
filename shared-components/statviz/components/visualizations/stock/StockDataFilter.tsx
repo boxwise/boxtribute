@@ -9,9 +9,9 @@ import {
 import useValueFilter from "../../../hooks/useValueFilter";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
 import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
-import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { filterByTags } from "../../../utils/filterByTags";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
+import useIncludeExcludeFilter from "../../../hooks/useIncludeExcludeFilter";
 
 interface IStockDataFilterProps {
   stockOverview: StockOverview;
@@ -30,7 +30,7 @@ export default function StockDataFilter({ stockOverview }: IStockDataFilterProps
   );
 
   const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
+    useIncludeExcludeFilter(
       includedTagFilterValues,
       tagFilterIncludedId,
       excludedTagFilterValues,

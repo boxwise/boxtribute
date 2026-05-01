@@ -15,7 +15,7 @@ import { RiQuestionFill } from "react-icons/ri";
 import { ILocationData, IProductWithSizeRangeData } from "./BoxReconciliationView";
 import { MatchProductsFormData, MatchProductsForm } from "./MatchProductsForm";
 import { IReceiveLocationFormData, ReceiveLocationForm } from "./ReceiveLocationForm";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   reconciliationMatchProductAtom,
   reconciliationReceiveLocationAtom,
@@ -55,27 +55,25 @@ export function BoxReconcilationAccordion({
   onBoxUndelivered,
   onBoxDelivered,
 }: IBoxReconcilationAccordionProps) {
-  const [reconciliationMatchProductCache, setReconciliationMatchProductCache] = useAtom(
-    reconciliationMatchProductAtom,
-  );
-  const cachedReconciliationMatchProduct = useAtomValue(reconciliationMatchProductAtom);
+  const reconciliationMatchProductCache = useAtomValue(reconciliationMatchProductAtom);
+  const setReconciliationMatchProductCache = useSetAtom(reconciliationMatchProductAtom);
   const setReconciliationReceiveLocationCache = useSetAtom(reconciliationReceiveLocationAtom);
 
   // source side
   const sourceProductId = shipmentDetail.sourceProduct?.id;
   const sourceSizeId = shipmentDetail.sourceSize?.id;
   const isSourceProductInCache =
-    sourceProductId && !!cachedReconciliationMatchProduct[sourceProductId];
+    sourceProductId && !!reconciliationMatchProductCache[sourceProductId];
 
   // target side
   const isTargetProductAutoMatched = !!shipmentDetail?.autoMatchingTargetProduct;
   const targetProductName = isSourceProductInCache
-    ? cachedReconciliationMatchProduct[sourceProductId].productId.label
+    ? reconciliationMatchProductCache[sourceProductId].productId.label
     : isTargetProductAutoMatched && shipmentDetail?.autoMatchingTargetProduct
       ? shipmentDetail.autoMatchingTargetProduct.name
       : undefined;
   const targetProductId = isSourceProductInCache
-    ? cachedReconciliationMatchProduct[sourceProductId].productId.value
+    ? reconciliationMatchProductCache[sourceProductId].productId.value
     : isTargetProductAutoMatched && shipmentDetail?.autoMatchingTargetProduct
       ? shipmentDetail.autoMatchingTargetProduct.id
       : undefined;
@@ -86,12 +84,12 @@ export function BoxReconcilationAccordion({
       return sourceSizeId && possibleSizeIds.includes(sourceSizeId);
     });
   const targetSizeName = isSourceProductInCache
-    ? cachedReconciliationMatchProduct[sourceProductId].sizeId.label
+    ? reconciliationMatchProductCache[sourceProductId].sizeId.label
     : isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct && shipmentDetail?.sourceSize
       ? shipmentDetail.sourceSize.label
       : undefined;
   const targetSizeId = isSourceProductInCache
-    ? cachedReconciliationMatchProduct[sourceProductId].sizeId.value
+    ? reconciliationMatchProductCache[sourceProductId].sizeId.value
     : isTargetProductAutoMatched && isSourceSizeInRangeOfTargetProduct && shipmentDetail?.sourceSize
       ? shipmentDetail.sourceSize.id
       : undefined;
@@ -187,9 +185,10 @@ export function BoxReconcilationAccordion({
                 setAccordionIndex(1);
 
                 if (shipmentDetail.sourceProduct?.id) {
-                  reconciliationMatchProductCache[shipmentDetail.sourceProduct.id] =
-                    matchedProductsFormData;
-                  setReconciliationMatchProductCache(reconciliationMatchProductCache);
+                  setReconciliationMatchProductCache({
+                    ...reconciliationMatchProductCache,
+                    [shipmentDetail.sourceProduct.id]: matchedProductsFormData,
+                  });
                 }
 
                 setProductFormData({

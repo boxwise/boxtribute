@@ -14,7 +14,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -35,7 +35,7 @@ import ShipmentReceivingCard from "./components/ShipmentReceivingCard";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { availableBasesAtom } from "stores/globalPreferenceStore";
 import { User } from "../../../../../graphql/types";
-import { ShipmentDetail, ShipmentDetailWithAutomatchProduct, ShipmentState } from "queries/types";
+import { ShipmentDetail, ShipmentDetailWithAutomatchProduct } from "queries/types";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
@@ -137,7 +137,6 @@ function ShipmentView() {
   } = useDisclosure();
   // State to show minus button near boxes when remove button is triggered
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
-  const [shipmentState, setShipmentState] = useState<ShipmentState>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
@@ -153,13 +152,6 @@ function ShipmentView() {
     // returns cache first, but syncs with server in background
     fetchPolicy: "cache-and-network",
   });
-
-  useEffect(() => {
-    setShipmentState(data?.shipment?.state || undefined);
-    return () => {
-      setShipmentState(undefined);
-    };
-  }, [data]);
 
   // Mutations for shipment actions
   const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] =
@@ -494,26 +486,26 @@ function ShipmentView() {
     shipmentTab = <TabsSkeleton />;
     shipmentActionButtons = <ButtonSkeleton />;
   } else {
-    if ("Preparing" === shipmentState && isSender) {
+    if ("Preparing" === data?.shipment?.state && isSender) {
       canUpdateShipment = true;
       canCancelShipment = true;
 
       shipmentTitle = <Heading>Prepare Shipment</Heading>;
-    } else if ("Sent" === shipmentState && isSender) {
+    } else if ("Sent" === data?.shipment?.state && isSender) {
       canLooseShipment = true;
-    } else if ("Sent" === shipmentState && !isSender) {
+    } else if ("Sent" === data?.shipment?.state && !isSender) {
       canLooseShipment = true;
-    } else if ("Receiving" === shipmentState && !isSender) {
+    } else if ("Receiving" === data?.shipment?.state && !isSender) {
       canLooseShipment = true;
       shipmentTitle = <Heading>Receiving Shipment</Heading>;
-    } else if ("Preparing" === shipmentState && !isSender) {
+    } else if ("Preparing" === data?.shipment?.state && !isSender) {
       canCancelShipment = true;
     }
 
     shipmentActionButtons = (
       <ShipmentActionButtons
         isLoadingFromMutation={isLoadingFromMutation}
-        shipmentState={shipmentState}
+        shipmentState={data?.shipment?.state}
         shipmentContents={shipmentContents}
         onLost={onLost}
         onCancel={openShipmentOverlay}
@@ -526,7 +518,7 @@ function ShipmentView() {
 
     shipmentTab = (
       <ShipmentTabs
-        shipmentState={shipmentState}
+        shipmentState={data?.shipment?.state}
         details={shipmentContents}
         histories={sortedGroupedHistoryEntries}
         isLoadingMutation={isLoadingFromMutation}
@@ -552,7 +544,7 @@ function ShipmentView() {
 
   let shipmentViewComponents;
 
-  if (shipmentState === "Receiving" && !isSender && isSender !== undefined) {
+  if (data?.shipment?.state === "Receiving" && !isSender && isSender !== undefined) {
     shipmentViewComponents = data?.shipment ? (
       <>
         <Flex direction="column" gap={2} paddingBottom={5}>
