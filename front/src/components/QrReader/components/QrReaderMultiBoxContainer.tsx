@@ -168,13 +168,13 @@ function QrReaderMultiBoxContainer() {
   }, [baseId, hasShipmentPermission, optionsQueryResult.data]);
 
   // Assign To Shipment is default MultiBoxAction if there are shipments (set once on first load)
-  const hasSetDefaultShipmentAction = useRef(false);
+  const defaultShipmentActionForBaseId = useRef("");
   useEffect(() => {
-    if (shipmentOptions.length > 0 && !hasSetDefaultShipmentAction.current) {
-      hasSetDefaultShipmentAction.current = true;
+    if (shipmentOptions.length > 0 && defaultShipmentActionForBaseId.current !== baseId) {
+      defaultShipmentActionForBaseId.current = baseId;
       setMultiBoxAction(IMultiBoxAction.assignShipment);
     }
-  }, [shipmentOptions.length]);
+  }, [baseId, shipmentOptions.length]);
 
   const notInStockBoxes = useMemo(
     () => scannedBoxesQueryResult.data?.scannedBoxes.filter((box) => box.state !== "InStock") ?? [],
