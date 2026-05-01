@@ -51,7 +51,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 
     const currentOrganisationBases = availableBases.filter((base) => base.id !== actValue);
     const newFirstAvailableBaseId = currentOrganisationBases[0]?.id;
-    setValue(newFirstAvailableBaseId);
+    setValue(newFirstAvailableBaseId || "");
   };
 
   return (

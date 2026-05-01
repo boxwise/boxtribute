@@ -109,7 +109,7 @@ function App() {
     if (/^\/bases\/\d+\//.test(location.pathname)) {
       return location.pathname;
     } else {
-      return "";
+      return;
     }
   }, [location.pathname]);
 
@@ -118,7 +118,7 @@ function App() {
     return;
   }
 
-  if (error) {
+  if (error && isInitialized) {
     return <ErrorView error={error} />;
   }
 

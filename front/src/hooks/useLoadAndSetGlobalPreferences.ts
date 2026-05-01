@@ -35,7 +35,7 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   const [
     runOrganisationAndBasesQuery,
-    { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData, error },
+    { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData, error, called },
   ] = useLazyQuery(ORGANISATION_AND_BASES_QUERY);
 
   const localError = useMemo(() => {
@@ -151,12 +151,13 @@ export const useLoadAndSetGlobalPreferences = () => {
       return localError;
     } else if (error) {
       return "Failed getting information " + error.message;
-    } else if (!isOrganisationAndBasesQueryLoading) {
+    } else if (!isOrganisationAndBasesQueryLoading && called) {
       return "The requested base is not available to you";
     } else {
       return;
     }
   }, [
+    called,
     error,
     isOrganisationAndBasesQueryLoading,
     localError,
@@ -166,7 +167,7 @@ export const useLoadAndSetGlobalPreferences = () => {
 
   const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 
-  const isInitialized = selectedBaseId !== "0";
+  const isInitialized = !isLoading && selectedBaseId !== "0";
 
   return { isLoading, error: finalError, isInitialized };
 };
