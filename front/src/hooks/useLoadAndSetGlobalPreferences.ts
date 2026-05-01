@@ -25,11 +25,13 @@ export const useLoadAndSetGlobalPreferences = () => {
   // Boxtribute God user
   const isGod: boolean = (user && user[JWT_ROLE]?.includes("boxtribute_god")) || false;
 
-  // Set in localStore if current user can Share Public Dashboard Views
-  localStorage.setItem(
-    "canShareLink",
-    authorize({ requiredAbps: ["create_shareable_link"] }).toString(),
-  );
+  useEffect(() => {
+    // Set in localStore if current user can Share Public Dashboard Views
+    localStorage.setItem(
+      "canShareLink",
+      authorize({ requiredAbps: ["create_shareable_link"] }).toString(),
+    );
+  }, [authorize]);
 
   const [
     runOrganisationAndBasesQuery,
@@ -149,10 +151,18 @@ export const useLoadAndSetGlobalPreferences = () => {
       return localError;
     } else if (error) {
       return "Failed getting information " + error.message;
-    } else {
+    } else if (!isOrganisationAndBasesQueryLoading) {
       return "The requested base is not available to you";
+    } else {
+      return;
     }
-  }, [error, localError, organisationAndBaseData, selectedBase?.id]);
+  }, [
+    error,
+    isOrganisationAndBasesQueryLoading,
+    localError,
+    organisationAndBaseData,
+    selectedBase?.id,
+  ]);
 
   const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 
