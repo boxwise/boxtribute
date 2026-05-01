@@ -40,6 +40,10 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 
     const actValue = value || firstAvailableBaseId;
 
+    if (!actValue) {
+      return;
+    }
+
     navigate(`/bases/${actValue}${currentPath}`);
     onClose();
 
