@@ -59,15 +59,17 @@ const boxesQuery = ({
       boxes: {
         __typename: "BoxPage",
         elements:
-          state === "InStock" && state2 === "Scrap"
-            ? [instockBox1, instockBox2, scrapBox]
-            : state === "InStock"
-              ? [instockBox1, instockBox2]
-              : state === "Scrap"
-                ? [scrapBox]
-                : state === "Donated"
-                  ? []
-                  : [],
+          state === "ALL"
+            ? [instockBox1, instockBox2]
+            : state === "InStock" && state2 === "Scrap"
+              ? [instockBox1, instockBox2, scrapBox]
+              : state === "InStock"
+                ? [instockBox1, instockBox2]
+                : state === "Scrap"
+                  ? [scrapBox]
+                  : state === "Donated"
+                    ? []
+                    : [],
         pageInfo: {
           __typename: "PageInfo",
           hasNextPage: false,
@@ -301,19 +303,13 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
-        mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ state: "InStock", paginationInput: 50 }),
-          boxesQuery({ state: "InStock" }),
-          actionsQuery,
-        ],
+        mocks: [boxesQuery({ state: "InStock", paginationInput: 50 }), actionsQuery],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -326,23 +322,11 @@ describe("4.8.1 - Initial load of Page", () => {
   const failedInitialFetching = [
     {
       name: "4.8.1.2.2 - Failed to Fetch Initial Data",
-      mocks: [
-        boxesQuery({ state: "Scrap", paginationInput: 50 }),
-        boxesQuery({ state: "Donated", paginationInput: 50 }),
-        initialQueryGraphQLError({ paginationInput: 50 }),
-        boxesQuery({}),
-        actionsQuery,
-      ],
+      mocks: [initialQueryGraphQLError({ paginationInput: 50 }), actionsQuery],
     },
     {
       name: "4.8.1.2.6 - Failed to Fetch Initial Data",
-      mocks: [
-        boxesQuery({ state: "Scrap", paginationInput: 50 }),
-        boxesQuery({ state: "Donated", paginationInput: 50 }),
-        initialQueryNetworkError({ paginationInput: 50 }),
-        boxesQuery({}),
-        actionsQuery,
-      ],
+      mocks: [initialQueryNetworkError({ paginationInput: 50 }), actionsQuery],
     },
   ];
 
@@ -357,7 +341,7 @@ describe("4.8.1 - Initial load of Page", () => {
             }
           >
             <Suspense fallback={<TableSkeleton />}>
-              <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+              <Boxes />
             </Suspense>
           </ErrorBoundary>,
           {
@@ -390,19 +374,13 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
-        mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ paginationInput: 50 }),
-          boxesQuery({}),
-          actionsQuery,
-        ],
+        mocks: [boxesQuery({ paginationInput: 50 }), actionsQuery],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -421,16 +399,14 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1,6",
         mocks: [
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
           boxesQuery({ state: "InStock", state2: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "InStock", state2: "Scrap" }),
           actionsQuery,
         ],
         cache,
@@ -513,19 +489,13 @@ describe("4.8.1 - Initial load of Page", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
-        mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ paginationInput: 50 }),
-          boxesQuery({}),
-          actionsQuery,
-        ],
+        mocks: [boxesQuery({ paginationInput: 50 }), actionsQuery],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -641,20 +611,13 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
-        mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ paginationInput: 50 }),
-          boxesQuery({}),
-          actionsQuery,
-          moveBoxesMutation,
-        ],
+        mocks: [boxesQuery({ paginationInput: 50 }), actionsQuery, moveBoxesMutation],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -741,19 +704,13 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
-        mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ paginationInput: 50 }),
-          boxesQuery({}),
-          actionsQuery,
-        ],
+        mocks: [boxesQuery({ paginationInput: 50 }), actionsQuery],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -814,19 +771,13 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=1",
-        mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ paginationInput: 50 }),
-          boxesQuery({}),
-          actionsQuery,
-        ],
+        mocks: [boxesQuery({ paginationInput: 50 }), actionsQuery],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -852,20 +803,13 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?state_ids=999", // Invalid state ID
-        mocks: [
-          boxesQuery({ state: "ALL", paginationInput: 50 }),
-          boxesQuery({ state: "ALL" }),
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ paginationInput: 50 }),
-          actionsQuery,
-        ],
+        mocks: [boxesQuery({ state: "ALL", paginationInput: 50 }), actionsQuery],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -885,19 +829,13 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?product_ids=267&state_ids=1",
-        mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
-          boxesQuery({ paginationInput: 50 }),
-          boxesQuery({}),
-          actionsQuery,
-        ],
+        mocks: [boxesQuery({ paginationInput: 50 }), actionsQuery],
         cache,
         addTypename: true,
         jotaiAtoms,
@@ -925,17 +863,14 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
         }
       >
         <Suspense fallback={<TableSkeleton />}>
-          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+          <Boxes />
         </Suspense>
       </ErrorBoundary>,
       {
         routePath: "/bases/:baseId/boxes",
         initialUrl: "/bases/2/boxes?product_ids=267,350&state_ids=1,5",
         mocks: [
-          boxesQuery({ state: "Scrap", paginationInput: 50 }),
-          boxesQuery({ state: "Donated", paginationInput: 50 }),
           boxesQuery({ state: "InStock", state2: "Donated", paginationInput: 50 }),
-          boxesQuery({ state: "InStock", state2: "Donated" }),
           actionsQuery,
         ],
         cache,

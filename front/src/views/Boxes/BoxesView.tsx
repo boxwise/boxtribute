@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { useMemo } from "react";
+import { useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
   locationToDropdownOptionTransformer,
@@ -40,9 +40,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
-import { BoxState } from "queries/types";
 import BoxesTable, { PAGE_SIZE } from "./components/BoxesTable";
-import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
 import { useSearchParams } from "react-router-dom";
 
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
@@ -147,14 +145,9 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
   [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
-function Boxes({
-  hasExecutedInitialFetchOfBoxes,
-}: {
-  hasExecutedInitialFetchOfBoxes: { current: boolean };
-}) {
+function Boxes() {
   const [searchParams] = useSearchParams();
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
 
@@ -202,8 +195,6 @@ function Boxes({
     },
   });
 
-  // The first 50 boxes to be shown are preloaded causing the suspense on the initial mount.
-  // The rest of the boxes are fetched in the background in the following useEffect.
   const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
     variables: prepareBoxesForBoxesViewQueryVariables(
       baseId,
@@ -211,62 +202,6 @@ function Boxes({
       PAGE_SIZE,
     ),
   });
-  const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(
-    !hasExecutedInitialFetchOfBoxes.current,
-  );
-  useEffect(() => {
-    if (hasExecutedInitialFetchOfBoxes.current) {
-      return;
-    }
-
-    // Only on very initial mount, query 50 boxes of the most used states to preload the data into
-    // Apollo cache.
-    // But skip preloading a state if the current table config already requests it via filters.
-    // e.g. if tableConfig.getColumnFilters() already contains the id for "Donated" (boxStateIds.Donated),
-    // do not query Donated here.
-    const states = ["InStock", "Donated", "Scrap"] satisfies Partial<BoxState>[];
-
-    // Read the current state filter values (these are state IDs like "5", "6" etc.)
-    const stateFilterValues: string[] =
-      (tableConfig.getColumnFilters().find((f) => f.id === "state")?.value as string[]) ?? [];
-
-    for (const state of states) {
-      const stateId = boxStateIds[state];
-      // If the table is already filtered to this state ID, skip preloading it.
-      if (stateId && stateFilterValues.includes(stateId)) {
-        continue;
-      }
-
-      apolloClient.query({
-        query: BOXES_FOR_BOXESVIEW_QUERY,
-        variables: {
-          baseId,
-          filterInput: {
-            states: [state],
-          },
-          paginationInput: PAGE_SIZE,
-        },
-        fetchPolicy: "network-only",
-      });
-    }
-
-    apolloClient
-      .query({
-        query: BOXES_FOR_BOXESVIEW_QUERY,
-        variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
-        fetchPolicy: "network-only",
-      })
-      .then(({ data, errors }) => {
-        if ((errors?.length || 0) === 0 && data?.boxes?.elements) {
-          hasExecutedInitialFetchOfBoxes.current = true;
-        }
-      })
-      .finally(() => {
-        setIsBackgroundFetchOfBoxesLoading(false);
-      });
-    // only on initial mount, so no dependencies needed.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
@@ -476,8 +411,6 @@ function Boxes({
         Manage Boxes
       </Heading>
       <BoxesTable
-        isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
-        hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
         tableConfig={tableConfig}
         onRefetch={refetchBoxes}
         boxesQueryRef={boxesQueryRef}

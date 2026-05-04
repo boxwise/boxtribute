@@ -333,9 +333,6 @@ const boxesViewActionsTests = [
     name: "4.8.5.2 - MoveBoxes Action is successful",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -350,9 +347,6 @@ const boxesViewActionsTests = [
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -368,9 +362,6 @@ const boxesViewActionsTests = [
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -386,9 +377,6 @@ const boxesViewActionsTests = [
     name: "4.8.5.6 - MoveBoxes Action fails due to insufficient permissions",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -404,9 +392,6 @@ const boxesViewActionsTests = [
     name: "4.8.5.7 - MoveBoxes Action fails due to deleted location",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       moveBoxesMutation({
         labelIdentifiers: ["123"],
@@ -421,15 +406,7 @@ const boxesViewActionsTests = [
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
     mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
       boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
-      boxesQuery({
-        state: "MarkedForShipment",
-        stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
-      }),
       actionsQuery(),
     ],
     clicks: [/Move/, /warehouse/i],
@@ -440,9 +417,6 @@ const boxesViewActionsTests = [
     name: "4.8.3.2 - Assign To Shipment Action is successful",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -461,9 +435,6 @@ const boxesViewActionsTests = [
     name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -479,9 +450,6 @@ const boxesViewActionsTests = [
     name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
@@ -495,13 +463,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"], paginationInput: 100000 }),
-      actionsQuery(),
-    ],
+    mocks: [boxesQuery({ state: "Donated", stateFilter: ["Donated"] }), actionsQuery()],
     clicks: [/transfer/i, /thessaloniki/i],
     toast: /Cannot assign a box/i,
     searchParams: "?state_ids=5",
@@ -509,15 +471,10 @@ const boxesViewActionsTests = [
   {
     name: "4.8.4.2 - Unassign From Shipment Action is successful",
     mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
         stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
       }),
       actionsQuery(),
       mutation({
@@ -535,15 +492,10 @@ const boxesViewActionsTests = [
   {
     name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
     mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
         stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
       }),
       actionsQuery(),
       mutation({
@@ -559,15 +511,10 @@ const boxesViewActionsTests = [
   {
     name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
     mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
       boxesQuery({
         state: "MarkedForShipment",
         shipmentDetail: shipmentDetail1(),
         stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
       }),
       actionsQuery(),
       mutation({
@@ -582,13 +529,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.6.1 - DeleteBoxes Action is loading and shows Table skeleton",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-    ],
+    mocks: [boxesQuery({}), actionsQuery()],
     clicks: [], // No action clicks since we're just testing the initial load
     toast: null, // No toast message expected
     searchParams: "?state_ids=1",
@@ -597,9 +538,6 @@ const boxesViewActionsTests = [
     name: "4.8.6.2 - DeleteBoxes Action is successful",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -613,9 +551,6 @@ const boxesViewActionsTests = [
     name: "4.8.6.3 - DeleteBoxes Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -630,9 +565,6 @@ const boxesViewActionsTests = [
     name: "4.8.6.4 - DeleteBoxes Action is failing due to Network error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -649,9 +581,6 @@ const boxesViewActionsTests = [
       boxesQuery({
         labelIdentifier: "456",
       }),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ labelIdentifier: "456", paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["456"],
@@ -666,9 +595,6 @@ const boxesViewActionsTests = [
     name: "4.8.6.6 - DeleteBoxes Action fails due to insufficient permissions",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       deleteBoxesMutation({
         labelIdentifiers: ["123"],
@@ -683,9 +609,6 @@ const boxesViewActionsTests = [
     name: "4.8.7.1 - Add tags Action is successful",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       assignTagsMutation({
         labelIdentifiers: ["123"],
@@ -700,9 +623,6 @@ const boxesViewActionsTests = [
     name: "4.8.7.2 - Add tags Action is failing due to GraphQL error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       assignTagsMutation({
         labelIdentifiers: ["123"],
@@ -718,9 +638,6 @@ const boxesViewActionsTests = [
     name: "4.8.7.3 - Add tags Action is failing due to Network error",
     mocks: [
       boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
       actionsQuery(),
       assignTagsMutation({
         labelIdentifiers: ["123"],
@@ -738,17 +655,11 @@ const boxesViewActionsTests = [
       const bq1 = boxesQuery({});
       bq1.result.data.boxes.elements[0].tags = [tag2];
 
-      const bq2 = boxesQuery({ paginationInput: 100000 });
-      bq2.result.data.boxes.elements[0].tags = [tag2];
-
       const aq = actionsQuery();
       aq.result.data.base.tags = [tag1, tag2];
 
       return [
         bq1,
-        boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-        boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-        bq2,
         aq,
         unassignTagsMutation({
           labelIdentifiers: ["123"],
@@ -774,7 +685,7 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
           }
         >
           <Suspense fallback={<TableSkeleton />}>
-            <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+            <Boxes />
           </Suspense>
         </ErrorBoundary>,
         {
