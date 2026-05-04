@@ -133,15 +133,18 @@ class StandardProductLoader(SimpleDataLoader):
 
 
 class ShipmentLoader(DataLoader):
-    async def batch_load_fn(self, keys):
+    async def batch_load_fn(self, shipment_ids):
         shipments = {
             s.id: s
-            for s in Shipment.select().orwhere(
-                authorized_bases_filter(Shipment, base_fk_field_name="source_base_id"),
-                authorized_bases_filter(Shipment, base_fk_field_name="target_base_id"),
+            for s in Shipment.select().where(
+                authorized_bases_filter(Shipment, base_fk_field_name="source_base_id")
+                | authorized_bases_filter(
+                    Shipment, base_fk_field_name="target_base_id"
+                ),
+                Shipment.id << shipment_ids,
             )
         }
-        return [shipments.get(i) for i in keys]
+        return [shipments.get(i) for i in shipment_ids]
 
 
 async def load_agreement_bases(*, type, agreement_ids):
