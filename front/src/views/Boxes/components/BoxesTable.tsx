@@ -56,6 +56,8 @@ import { createOptions } from "utils/filterOptions";
 import { removeFilter } from "utils/helpers";
 
 interface IBoxesTableProps {
+  isBackgroundFetchOfBoxesLoading: boolean;
+  hasExecutedInitialFetchOfBoxes: { current: boolean };
   tableConfig: IUseTableConfigReturnType;
   onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
   boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
@@ -68,6 +70,8 @@ interface IBoxesTableProps {
 export const PAGE_SIZE = 50;
 
 function BoxesTable({
+  isBackgroundFetchOfBoxesLoading,
+  hasExecutedInitialFetchOfBoxes,
   tableConfig,
   onRefetch,
   boxesQueryRef,
@@ -157,7 +161,7 @@ function BoxesTable({
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
       },
-      autoResetSelectedRows: true,
+      autoResetSelectedRows: !isBackgroundFetchOfBoxesLoading,
     },
     useFilters,
     useGlobalFilter,
@@ -334,12 +338,12 @@ function BoxesTable({
         onClearAllFilters={handleClearFilters}
       />
       <Box bg="gray.100" px={4} py={2} mb={2} width="100%" data-testid="total-summary">
-        {refetchBoxesIsPending || tableConfig.isNotMounted ? (
+        {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
           <HStack spacing={2}>
             <Text fontWeight="bold">Total</Text>
             <Skeleton height={5} width={20} />
           </HStack>
-        ) : (
+        ) : hasExecutedInitialFetchOfBoxes.current ? (
           <HStack spacing={10} data-testid="boxes-count">
             <Text fontWeight="bold">Total</Text>
             <Text>
@@ -355,6 +359,8 @@ function BoxesTable({
               items
             </Text>
           </HStack>
+        ) : (
+          <Text>Data unavailable</Text>
         )}
       </Box>
       <Table key="boxes-table">
@@ -421,7 +427,7 @@ function BoxesTable({
               {pageIndex + 1}
             </Text>{" "}
             of{" "}
-            {refetchBoxesIsPending ? (
+            {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
               <Skeleton height={5} width={10} mr={2} />
             ) : (
               <Text fontWeight="bold" as="span">

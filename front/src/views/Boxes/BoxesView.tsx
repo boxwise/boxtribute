@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { useEffect, useMemo, useState } from "react";
+import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
   locationToDropdownOptionTransformer,
@@ -145,9 +145,14 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
   [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
-function Boxes() {
+function Boxes({
+  hasExecutedInitialFetchOfBoxes,
+}: {
+  hasExecutedInitialFetchOfBoxes: { current: boolean };
+}) {
   const [searchParams] = useSearchParams();
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
 
@@ -202,6 +207,31 @@ function Boxes() {
       PAGE_SIZE,
     ),
   });
+  const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(
+    !hasExecutedInitialFetchOfBoxes.current,
+  );
+  useEffect(() => {
+    if (hasExecutedInitialFetchOfBoxes.current) {
+      return;
+    }
+
+    apolloClient
+      .query({
+        query: BOXES_FOR_BOXESVIEW_QUERY,
+        variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
+        fetchPolicy: "network-only",
+      })
+      .then(({ data, errors }) => {
+        if ((errors?.length || 0) === 0 && data?.boxes?.elements) {
+          hasExecutedInitialFetchOfBoxes.current = true;
+        }
+      })
+      .finally(() => {
+        setIsBackgroundFetchOfBoxesLoading(false);
+      });
+    // only on initial mount, so no dependencies needed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
@@ -411,6 +441,8 @@ function Boxes() {
         Manage Boxes
       </Heading>
       <BoxesTable
+        isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
+        hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
         tableConfig={tableConfig}
         onRefetch={refetchBoxes}
         boxesQueryRef={boxesQueryRef}
