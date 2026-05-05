@@ -137,10 +137,8 @@ class ShipmentLoader(DataLoader):
         shipments = {
             s.id: s
             for s in Shipment.select().where(
-                authorized_bases_filter(Shipment, base_fk_field_name="source_base_id")
-                | authorized_bases_filter(
-                    Shipment, base_fk_field_name="target_base_id"
-                ),
+                authorized_bases_filter(Shipment, base_fk_field_name="source_base")
+                | authorized_bases_filter(Shipment, base_fk_field_name="target_base"),
                 Shipment.id << shipment_ids,
             )
         }
