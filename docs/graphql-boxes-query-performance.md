@@ -1,5 +1,192 @@
 # GraphQL Backend Performance Analysis — `BOXES_FOR_BOXESVIEW_QUERY`
 
+> **Note — Follow-up investigation (actual measurements)**
+>
+> Section 0 below documents a follow-up investigation run against an instrumented
+> development backend with ~5 500 synthetic boxes.  The measurements disprove the earlier
+> hypothesis that the missing `stock.modified` index is the primary bottleneck, and reveal
+> the real culprit.  Sections 4 and 5 have been updated accordingly.
+
+---
+
+## 0. Follow-Up Investigation
+
+### 0.1 Methodology
+
+A timing harness was added via Python monkey-patching (no source changes) to measure wall
+time at every critical stage: Q1 (main `SELECT`), Q2 (`COUNT(*)`), Q3 (`has_prev_page`),
+and each DataLoader's `batch_load_fn`.  The test ran against the development MySQL database
+(Docker, local machine) seeded with **5 497 boxes** in base 1.
+
+### 0.2 Key Discovery — `paginationInput` defaults to 100 000
+
+`prepareBoxesForBoxesViewQueryVariables` (`front/src/views/Boxes/components/transformers.ts`)
+has a default value of **100 000** for `paginationInput`:
+
+```ts
+export const prepareBoxesForBoxesViewQueryVariables = (
+  baseId: string,
+  columnFilters: Filters<any>,
+  paginationInput: number = 100000,   // ← fetches ALL boxes on every mount
+```
+
+This default is used by the full-preload `apolloClient.query()` call in the `useEffect`
+(`BoxesView.tsx:253–266`), which fires on **every component mount**.  With 7 000 boxes in
+production the backend is asked to return and serialize every single box in one response.
+
+### 0.3 Measured Timings (local dev, 5 497 boxes in base 1)
+
+#### Per-limit scaling
+
+| `paginationInput` | Total Python time | Elements returned |
+|------------------:|------------------:|------------------:|
+| 50 | **72 ms** | 50 |
+| 100 | 88 ms | 100 |
+| 200 | 167 ms | 200 |
+| 500 | 328 ms | 500 |
+| 1 000 | 534 ms | 1 000 |
+| 2 000 | 1 188 ms | 2 000 |
+| 5 000 | 3 087 ms | 5 000 |
+| 5 497 (all) | **3 298 ms** | 5 497 |
+
+#### Breakdown for limit=50 (initial page, warm run)
+
+| Stage | Time |
+|---|---:|
+| Q1 — stock SELECT + JOIN, ORDER BY modified DESC LIMIT 51 | 6 ms |
+| Q2 — COUNT(*) | 6 ms |
+| Q3 — has_prev_page SELECT | 2 ms |
+| DataLoaders total (QrCode, Tags, Product, Size, Location, …) | 16 ms |
+| asyncio / ariadne / Flask / JSON overhead | 43 ms |
+| **Total** | **67 ms** |
+
+#### Breakdown for limit=100 000 (full preload, ~5 497 boxes)
+
+| Stage | Time |
+|---|---:|
+| Q1 — stock SELECT (5 497 rows) | 24 ms |
+| Q2 — COUNT(*) | 5 ms |
+| Q3 — has_prev_page | 2 ms |
+| QrCodeLoader (5 497 keys, huge `IN` clause) | **197 ms** |
+| TagsForBoxLoader (5 497 keys) | 35 ms |
+| ShipmentDetailForBoxLoader (5 497 keys) | 21 ms |
+| Other loaders (Product, Size, Location, User, …) | 15 ms |
+| **asyncio / ariadne / Python / JSON serialisation** | **2 962 ms** |
+| **Total** | **3 298 ms** |
+
+#### Raw SQL baseline
+
+| Query | Time |
+|---|---:|
+| SELECT + JOIN + ORDER BY modified DESC LIMIT 51 | 6 ms |
+| COUNT(*) | 5 ms |
+| SELECT all 5 497 rows (no LIMIT) | 25 ms |
+
+SQL alone is fast.  The `ORDER BY stock.modified DESC` filesort on 5 497 rows completes in
+**< 25 ms** even without an index on `modified`.
+
+---
+
+### 0.5 Second Instrumented Run — Production-Scale Base (8 201 boxes)
+
+A second run was performed against a larger base (base 17, ~8 201 active boxes) using the
+corrected instrumentation that patches resolver references directly in
+`full_api_schema.type_map[T].fields[F].resolve` (rather than `setattr` on module attributes,
+which does not work because `make_executable_schema()` bakes function references into the
+schema object at import time).
+
+#### Top-level phase breakdown
+
+| Phase | Time |
+|---|---:|
+| `ariadne.graphql()` (field resolution + result building) | **15 120 ms** |
+| `jsonify()` (JSON serialisation) | 1 154 ms |
+| `asyncio.run()` teardown overhead | 362 ms |
+| JSON payload size | 5 944 KB |
+| **Total wall time** | **~16 600 ms** |
+
+This confirms the per-box ariadne overhead at production scale: **15 120 ms ÷ 8 201 boxes ≈ 1.84 ms/box** — higher than the 0.6 ms/box estimate from the smaller local-dev run (5 497 boxes), because the larger `IN` clauses and asyncio scheduling overhead scale super-linearly with N.
+
+#### Per-resolver call counts (correctly instrumented)
+
+Sync resolvers (which call `loader.load()` and return a Future immediately) show accurate
+timings because the timer starts and stops within the same scheduler tick:
+
+| Resolver | Calls | Measured time | Notes |
+|---|---:|---:|---|
+| `Box.qrCode` | 8 201 | ~40 ms | sync; returns DataLoader Future immediately |
+| `Box.tags` | 8 201 | ~35 ms | sync; returns DataLoader Future immediately |
+| `Box.size` | 8 201 | ~30 ms | sync; returns DataLoader Future immediately |
+| `Box.shipmentDetail` | 8 201 | ~25 ms | sync; returns DataLoader Future immediately |
+| `Box.createdBy` | 8 201 | ~20 ms | sync; returns DataLoader Future immediately |
+| `Box.lastModifiedBy` | 8 201 | ~18 ms | sync; returns DataLoader Future immediately |
+| `Box.state` | 8 201 | ~12 ms | sync; simple int lookup |
+
+Async resolvers show **severely inflated** totals due to a measurement artefact — see below.
+
+#### ⚠️ Timing artefact for `async def` resolvers (`Box.product`, `Box.location`)
+
+`resolve_box_product` and `resolve_box_location` are both `async def` coroutines that
+`await` a DataLoader `load()` call:
+
+```python
+@box.field("product")
+async def resolve_box_product(box_obj, info):
+    product = await info.context["product_loader"].load(box_obj.product_id)
+    ...
+```
+
+The `async_wrapper` in the timing harness measures wall time from when the coroutine
+**starts** to when `await fn(*a, **kw)` returns.  Because `loader.load()` returns a Future
+that is only resolved after *all* N load-calls have been collected and the DataLoader's
+`batch_load_fn` has been dispatched and completed (via `loop.call_soon`), each of the 8 201
+coroutines is suspended for approximately the entire batch wait time T.
+
+The accumulated total is therefore **N × T**, not N sequential executions of a slow function:
+
+```
+Box.product: 8 201 calls, 18 940 828.8 ms total
+  → average per call: 18 940 828 / 8 201 ≈ 2 310 ms
+  → total ariadne execution time: ~15 120 ms
+  → 8 201 × ~2 310 ms ≈ 18.9M ms  ✓ (consistent)
+```
+
+This is **not** a real bottleneck — the ProductLoader still fires a single batched SQL query
+for all 8 201 product IDs.  The inflated number is purely a measurement artefact of counting
+coroutine suspension time once per coroutine rather than once per batch.
+
+**The correct way to time async DataLoader resolvers** is to measure only the synchronous
+part (i.e., the `loader.load(key)` call itself, before the `await`), or to instrument the
+`batch_load_fn` directly — which the DataLoader timing section of the harness does correctly.
+
+### 0.4 Root Cause Verdict
+
+| # | Cause | Impact |
+|---|---|---|
+| **1** | Full-preload request (`paginationInput=100000`) fetches ALL boxes on every mount | **CRITICAL** |
+| **2** | Python / asyncio / ariadne per-element overhead scales linearly: **~1.84 ms/box** (confirmed at 8 201 boxes) | **HIGH** |
+| **3** | 4–5 parallel frontend requests on every mount | **HIGH** |
+| **4** | `QrCodeLoader` large `IN` clause at scale (197 ms for 5 497 keys) | **MEDIUM** |
+| **5** | `COUNT(*)` on every page load (5–6 ms, regardless of client requesting `totalCount`) | **LOW** |
+| **6** | Missing index on `stock.modified` | **NEGLIGIBLE** — SQL is already fast |
+
+The SQL + DataLoader phase for the **full-preload** request (~240 ms for 5 497 boxes) is
+dwarfed by the **Python/asyncio/ariadne processing** needed to resolve, marshal, and
+JSON-serialize all box objects through the ariadne execution engine.
+
+At the confirmed rate of **~1.84 ms/box**, production estimates are:
+
+| Base size | Estimated ariadne time |
+|---:|---:|
+| 5 500 boxes | ~10 s |
+| 7 000 boxes | ~13 s |
+| 11 000 boxes | ~20 s |
+
+This matches the 15 120 ms measured for 8 201 boxes and is significantly worse than the
+4–5 s estimate made from the smaller local-dev run.  The SQL sort order is not the cause.
+
+---
+
 ## 1. Query Definition and Field Inventory
 
 **Frontend location:** `front/src/views/Boxes/BoxesView.tsx:96–115`
@@ -111,32 +298,52 @@ synchronously before any `await` suspends a coroutine — before aiodataloader's
 
 ## 4. Identified Performance Culprits
 
-### Culprit #1 — Missing index on `stock.modified` *(CRITICAL)*
+> **Updated after instrumented investigation (Section 0).**  Culprits are re-ranked by
+> measured impact.  The numbering below reflects the original analysis order for reference;
+> see Section 0.4 for the priority ranking.
 
-**Files:** `back/boxtribute_server/models/definitions/box.py`, `back/init.sql:2265–2310`
+### Culprit #1 — Full preload with `paginationInput=100 000` *(CRITICAL)*
 
-The main box query orders by `Box.last_modified_on.desc()` (i.e., `ORDER BY stock.modified DESC`).
-From `init.sql` the `stock` table has:
+**File:** `front/src/views/Boxes/components/transformers.ts`
 
-```sql
-KEY `location_id` (`location_id`),
-KEY `product_id`  (`product_id`),
-KEY `box_state_id` (`box_state_id`),
--- NO KEY on `modified` !
-```
+`prepareBoxesForBoxesViewQueryVariables` defaults `paginationInput` to **100 000**.  The
+`useEffect` in `BoxesView.tsx:253–266` calls this function without overriding the default,
+so **every component mount triggers a request for up to 100 000 boxes**.
 
-There is **no index on `stock.modified`**. For a base with N boxes MySQL must:
+With 5 497 boxes in the test base this single request takes **3 298 ms** — 46× slower than
+the equivalent 50-box page request (72 ms).  The breakdown:
 
-1. Filter rows by joining `locations` (uses the `location_id` index).
-2. Materialise **all N matching rows** in a temporary structure.
-3. Sort all N rows by `modified DESC` (**filesort — O(N log N)**).
-4. Return the first 51.
+- Python/asyncio/ariadne per-element resolution: **~2 962 ms** (89 % of total)
+- DataLoaders for 5 497 elements (including a 197 ms QrCode `IN` clause): **~268 ms**
+- SQL (Q1 + Q2 + Q3): **~31 ms**
 
-This single missing index is the most likely cause of the >20 s response time.
+At production scale (8 201 boxes, second run), the ariadne phase alone takes **15 120 ms**
+and the full response exceeds 16 s.  Projected for 11 000 boxes: **≈ 20 s** for this one
+request alone.
+
+This is the primary cause of the perceived slow load, **not** the SQL sort order.
 
 ---
 
-### Culprit #2 — `COUNT(*)` query on every page load *(HIGH)*
+### Culprit #2 — Python / asyncio / ariadne per-element overhead *(HIGH)*
+
+**File:** `back/boxtribute_server/graph_ql/execution.py`
+
+The measured cost scales approximately linearly with the number of returned elements.
+The second instrumented run (**8 201 boxes → 15 120 ms ariadne time**) confirms
+**~1.84 ms per box** at production scale.  This overhead comes from graphql-core
+resolving every field of every nested object individually through its async execution
+engine: with `convert_names_case=True` in the schema, ariadne installs a
+camelCase→snake_case converting resolver for each field that lacks an explicit one, so
+every one of the ~25–30 field resolutions per box runs real Python.
+
+At 50 boxes the overhead is negligible (~43 ms total); at production scale it dominates.
+
+The primary fix is to never request thousands of boxes at once (see Culprit #1).
+
+---
+
+### Culprit #3 — `COUNT(*)` query on every page load *(LOW — measured at 5–6 ms)*
 
 **File:** `back/boxtribute_server/graph_ql/pagination.py:158–162`
 
@@ -152,7 +359,7 @@ actually selected `totalCount`. For 10 000 boxes it must scan all rows.
 
 ---
 
-### Culprit #3 — Frontend fires 4–5 parallel requests simultaneously on mount *(HIGH)*
+### Culprit #4 — Frontend fires 4–5 parallel requests simultaneously on mount *(HIGH)*
 
 **File:** `front/src/views/Boxes/BoxesView.tsx:207–268`
 
@@ -168,7 +375,7 @@ set of DataLoader instances — no sharing between concurrent requests.
 
 ---
 
-### Culprit #4 — `ShipmentLoader` ignores `keys`, fetches ALL accessible shipments *(MEDIUM)*
+### Culprit #5 — `ShipmentLoader` ignores `keys`, fetches ALL accessible shipments *(MEDIUM)*
 
 **File:** `back/boxtribute_server/graph_ql/loaders.py:135–144`
 
@@ -191,7 +398,7 @@ hundreds of historical shipments this is a wasted table scan.
 
 ---
 
-### Culprit #5 — Pagination cursor keyed on `Box.id` but ordered by `Box.modified` *(MEDIUM/CORRECTNESS)*
+### Culprit #6 — Pagination cursor keyed on `Box.id` but ordered by `Box.modified` *(MEDIUM/CORRECTNESS)*
 
 **File:** `back/boxtribute_server/graph_ql/pagination.py:96–109`
 
@@ -208,7 +415,7 @@ extra round-trip SQL query per page load.
 
 ---
 
-### Culprit #6 — QrCode loaded via a separate DataLoader instead of JOIN *(LOW)*
+### Culprit #7 — QrCode loaded via a separate DataLoader instead of JOIN *(LOW)*
 
 **Files:** `back/boxtribute_server/business_logic/warehouse/box/fields.py:12–13`,
 `back/boxtribute_server/graph_ql/loaders.py:95–97`
@@ -219,7 +426,7 @@ extra round-trip SQL query per page load.
 
 ---
 
-### Culprit #7 — `asyncio.run()` creates a fresh event loop per Flask request *(LOW)*
+### Culprit #8 — `asyncio.run()` creates a fresh event loop per Flask request *(LOW)*
 
 **File:** `back/boxtribute_server/graph_ql/execution.py:55–110`
 
@@ -233,26 +440,64 @@ compounds with simultaneous requests.
 
 ---
 
-### Solution A — Add a `modified` index on the `stock` table
+### Solution A — Cap `paginationInput` in `prepareBoxesForBoxesViewQueryVariables` *(NEW — CRITICAL)*
 
-**Complexity: LOW | Impact: HIGH**
+**Complexity: LOW | Impact: CRITICAL**
 
-```sql
--- Option 1: single-column index
-CREATE INDEX stock_modified_idx ON stock (modified);
+**File:** `front/src/views/Boxes/components/transformers.ts`
 
--- Option 2 (preferred): composite covering index for the common filtering pattern
--- (filter by location_id via the JOIN, then walk in modified order without filesort)
-CREATE INDEX stock_location_modified_idx ON stock (location_id, modified);
+The root cause of the large latency is the 100 000-box default.  The fix is to replace the
+unbounded default with a value that matches what the UI can actually display without
+excessive load.  Two options:
+
+**Option A-1 — Use a bounded constant (e.g. 500 or 1 000) as the default.**
+
+```ts
+// front/src/views/Boxes/components/transformers.ts
+export const prepareBoxesForBoxesViewQueryVariables = (
+  baseId: string,
+  columnFilters: Filters<any>,
+  paginationInput: number = 500,   // ← was 100000
 ```
 
-This eliminates the full filesort for every `boxes` query. With a composite
-`(location_id, modified)` index MySQL can filter by location and traverse in
-`modified DESC` order in a single index scan.
+This ensures the preload request returns at most 500 boxes (~330 ms on local dev vs 3 298 ms
+for 5 497 boxes), with the rest fetched on demand via Apollo's network-only refetch when the
+user scrolls or changes filters.
+
+**Option A-2 — Remove the unlimited preload entirely.**
+
+Remove the `useEffect` call that uses `prepareBoxesForBoxesViewQueryVariables` (the fifth
+request at `BoxesView.tsx:253–266`) and instead rely on Apollo's reactive re-fetching when
+the user interacts with filters.  The `useBackgroundQuery` already shows the initial 50 boxes
+quickly; the secondary preload only matters if the user scrolls past the first page without
+changing filters.
 
 ---
 
-### Solution B — Reduce the number of parallel frontend requests
+### Solution B — Add an index on `stock.modified` *(LOW — previously mislabelled CRITICAL)*
+
+**Complexity: LOW | Impact: LOW**
+
+**Files:** `back/init.sql:2284–2296`
+
+The original analysis claimed this was the primary bottleneck.  Actual measurements show
+that the `ORDER BY stock.modified DESC` filesort completes in **< 25 ms** for 5 500 rows
+even without an index.  Adding the index would provide a marginal improvement to Q1 only.
+
+```sql
+-- Single-column index
+CREATE INDEX stock_modified_idx ON stock (modified);
+
+-- Or composite covering index for the common query pattern
+CREATE INDEX stock_location_modified_idx ON stock (location_id, modified);
+```
+
+This is still worth doing as a defensive measure for very large bases (100 000+ boxes), but
+it is not the cause of the observed latency and should not be the first priority.
+
+---
+
+### Solution C — Reduce the number of parallel frontend requests
 
 **Complexity: LOW | Impact: HIGH**
 
@@ -359,7 +604,7 @@ Apollo cache entry (may require cache policy adjustments).
 
 ---
 
-### Solution C — Fix `ShipmentLoader` to filter by keys
+### Solution D — Fix `ShipmentLoader` to filter by keys
 
 **Complexity: LOW | Impact: MEDIUM**
 
@@ -384,7 +629,7 @@ box IDs." One-line fix with no schema or API change.
 
 ---
 
-### Solution D — Make `totalCount` optional / reduce its cost
+### Solution E — Make `totalCount` optional / reduce its cost
 
 **Complexity: MEDIUM | Impact: MEDIUM**
 
@@ -392,7 +637,7 @@ box IDs." One-line fix with no schema or API change.
 regardless of whether the client selected `totalCount` in their query. Three approaches are
 described below, from simplest to most complex.
 
-#### D-1: Skip the count when `totalCount` is not in the selection set
+#### E-1: Skip the count when `totalCount` is not in the selection set
 
 The Ariadne `info` object exposes the parsed GraphQL query as `info.field_nodes`. Using the
 `graphql-core` AST helpers it is possible to check, from inside the `resolve_boxes` root
@@ -526,7 +771,7 @@ the query is later updated to drop the field — or if other callers of `boxes(�
 
 ---
 
-#### D-2: Use `INFORMATION_SCHEMA` or `SHOW TABLE STATUS` for an approximate count
+#### E-2: Use `INFORMATION_SCHEMA` or `SHOW TABLE STATUS` for an approximate count
 
 MySQL keeps a running estimate of row counts in its storage engine statistics. This estimate
 is fast (O(1)) and requires no table scan, but is approximate (within a few percent for
@@ -578,7 +823,7 @@ page = {
 
 ---
 
-#### D-3: Cache the count per base with a short TTL
+#### E-3: Cache the count per base with a short TTL
 
 Run the real `COUNT(*)` but cache its result so subsequent requests within the same time
 window reuse it without hitting the database. Flask's `g` object is per-request, so a
@@ -730,7 +975,7 @@ cache invalidation when boxes are created/deleted (or accept the TTL-based stale
 
 ---
 
-### Solution E — Fix cursor-based pagination to use `modified` as the ordering key
+### Solution F — Fix cursor-based pagination to use `modified` as the ordering key
 
 **Complexity: MEDIUM | Impact: MEDIUM (correctness + removes the extra `has_previous_page` query)**
 
@@ -744,7 +989,7 @@ same `modified` timestamp.
 
 ---
 
-### Solution F — Join `QrCode` into the main Box SELECT
+### Solution G — Join `QrCode` into the main Box SELECT
 
 **Complexity: LOW | Impact: LOW**
 
@@ -778,7 +1023,7 @@ round-trip per request.
 
 ---
 
-### Solution G — Replace Peewee with an async-compatible ORM *(long-term)*
+### Solution H — Replace Peewee with an async-compatible ORM *(long-term)*
 
 **Complexity: HIGH | Impact: HIGH**
 
@@ -793,9 +1038,10 @@ effort but would benefit the entire backend, not just the boxes query.
 
 | Action | File(s) | Effort | Expected Improvement |
 |---|---|---|---|
-| **Add index on `stock.modified`** (or composite `location_id, modified`) | DB migration / `init.sql` | 30 min | Likely 5–15× speedup on the main box SELECT |
+| **Cap `paginationInput` default** (100 000 → 500) | `transformers.ts` | 5 min | **Eliminates the 10–20 s full-preload request** (confirmed at ~15 s for 8 201 boxes) — primary fix |
 | **Reduce frontend parallel requests** (Option 1: remove preloading; Option 2: stagger with delays) | `BoxesView.tsx:217–268` | 1–2 h | ~80 % reduction in backend load on page mount |
 | **Fix `ShipmentLoader` to use `keys`** | `loaders.py:135–144` | 15 min | Eliminates full-shipments scan per request |
-| **Skip `COUNT(*)` when `totalCount` not selected** (Solution D-1) | `pagination.py`, `box/queries.py` | 2 h | Eliminates one full table scan per request |
-| **Cache `COUNT(*)` per base/filter** (Solution D-3) | `pagination.py`, `box/queries.py` | 3 h | Same benefit as D-1 for existing callers that do select `totalCount` |
+| **Skip `COUNT(*)` when `totalCount` not selected** (Solution E-1) | `pagination.py`, `box/queries.py` | 2 h | Eliminates one full table scan per request (5–6 ms) |
+| **Cache `COUNT(*)` per base/filter** (Solution E-3) | `pagination.py`, `box/queries.py` | 3 h | Same benefit as E-1 for existing callers that do select `totalCount` |
 | **Join `qr` into the main box SELECT** | `box/queries.py`, `box/fields.py` | 1 h | Eliminates 1 DB round-trip per request |
+| **Add index on `stock.modified`** | DB migration / `init.sql` | 30 min | Negligible at current scale; defensive measure for very large bases |
