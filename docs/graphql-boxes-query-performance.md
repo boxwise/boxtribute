@@ -337,23 +337,7 @@ engine: with `convert_names_case=True` in the schema, ariadne installs a
 camelCase→snake_case converting resolver for each field that lacks an explicit one, so
 every one of the ~25–30 field resolutions per box runs real Python.
 
-At 50 boxes the overhead is negligible (~43 ms total); at production scale it dominates:
-
-| Base size | Estimated ariadne time |
-|---:|---:|
-| 5 500 boxes | ~10 s |
-| 7 000 boxes | ~13 s |
-| 11 000 boxes | ~20 s |
-
-> **Note on async resolver timing artefact:** `resolve_box_product` and
-> `resolve_box_location` are `async def` coroutines that `await` a DataLoader Future.
-> When wrapped for timing, each coroutine's measured duration includes its entire
-> suspension time while waiting for the DataLoader batch to fire — so the accumulated
-> total across N coroutines is **N × T_batch**, not the actual CPU cost.  For example,
-> `Box.product: 8 201 calls, 18 940 828 ms total` works out to ~2 310 ms per call,
-> which is approximately the total ariadne execution time (15 120 ms), not the time
-> spent in the resolver logic.  Only the DataLoader `batch_load_fn` timings (which the
-> harness measures separately) reflect the true SQL cost.
+At 50 boxes the overhead is negligible (~43 ms total); at production scale it dominates.
 
 The primary fix is to never request thousands of boxes at once (see Culprit #1).
 
