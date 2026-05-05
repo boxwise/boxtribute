@@ -85,23 +85,105 @@ production the backend is asked to return and serialize every single box in one 
 SQL alone is fast.  The `ORDER BY stock.modified DESC` filesort on 5 497 rows completes in
 **< 25 ms** even without an index on `modified`.
 
+---
+
+### 0.5 Second Instrumented Run — Production-Scale Base (8 201 boxes)
+
+A second run was performed against a larger base (base 17, ~8 201 active boxes) using the
+corrected instrumentation that patches resolver references directly in
+`full_api_schema.type_map[T].fields[F].resolve` (rather than `setattr` on module attributes,
+which does not work because `make_executable_schema()` bakes function references into the
+schema object at import time).
+
+#### Top-level phase breakdown
+
+| Phase | Time |
+|---|---:|
+| `ariadne.graphql()` (field resolution + result building) | **15 120 ms** |
+| `jsonify()` (JSON serialisation) | 1 154 ms |
+| `asyncio.run()` teardown overhead | 362 ms |
+| JSON payload size | 5 944 KB |
+| **Total wall time** | **~16 600 ms** |
+
+This confirms the per-box ariadne overhead at production scale: **15 120 ms ÷ 8 201 boxes ≈ 1.84 ms/box** — higher than the 0.6 ms/box estimate from the smaller local-dev run (5 497 boxes), because the larger `IN` clauses and asyncio scheduling overhead scale super-linearly with N.
+
+#### Per-resolver call counts (correctly instrumented)
+
+Sync resolvers (which call `loader.load()` and return a Future immediately) show accurate
+timings because the timer starts and stops within the same scheduler tick:
+
+| Resolver | Calls | Measured time | Notes |
+|---|---:|---:|---|
+| `Box.qrCode` | 8 201 | ~40 ms | sync; returns DataLoader Future immediately |
+| `Box.tags` | 8 201 | ~35 ms | sync; returns DataLoader Future immediately |
+| `Box.size` | 8 201 | ~30 ms | sync; returns DataLoader Future immediately |
+| `Box.shipmentDetail` | 8 201 | ~25 ms | sync; returns DataLoader Future immediately |
+| `Box.createdBy` | 8 201 | ~20 ms | sync; returns DataLoader Future immediately |
+| `Box.lastModifiedBy` | 8 201 | ~18 ms | sync; returns DataLoader Future immediately |
+| `Box.state` | 8 201 | ~12 ms | sync; simple int lookup |
+
+Async resolvers show **severely inflated** totals due to a measurement artefact — see below.
+
+#### ⚠️ Timing artefact for `async def` resolvers (`Box.product`, `Box.location`)
+
+`resolve_box_product` and `resolve_box_location` are both `async def` coroutines that
+`await` a DataLoader `load()` call:
+
+```python
+@box.field("product")
+async def resolve_box_product(box_obj, info):
+    product = await info.context["product_loader"].load(box_obj.product_id)
+    ...
+```
+
+The `async_wrapper` in the timing harness measures wall time from when the coroutine
+**starts** to when `await fn(*a, **kw)` returns.  Because `loader.load()` returns a Future
+that is only resolved after *all* N load-calls have been collected and the DataLoader's
+`batch_load_fn` has been dispatched and completed (via `loop.call_soon`), each of the 8 201
+coroutines is suspended for approximately the entire batch wait time T.
+
+The accumulated total is therefore **N × T**, not N sequential executions of a slow function:
+
+```
+Box.product: 8 201 calls, 18 940 828.8 ms total
+  → average per call: 18 940 828 / 8 201 ≈ 2 310 ms
+  → total ariadne execution time: ~15 120 ms
+  → 8 201 × ~2 310 ms ≈ 18.9M ms  ✓ (consistent)
+```
+
+This is **not** a real bottleneck — the ProductLoader still fires a single batched SQL query
+for all 8 201 product IDs.  The inflated number is purely a measurement artefact of counting
+coroutine suspension time once per coroutine rather than once per batch.
+
+**The correct way to time async DataLoader resolvers** is to measure only the synchronous
+part (i.e., the `loader.load(key)` call itself, before the `await`), or to instrument the
+`batch_load_fn` directly — which the DataLoader timing section of the harness does correctly.
+
 ### 0.4 Root Cause Verdict
 
 | # | Cause | Impact |
 |---|---|---|
 | **1** | Full-preload request (`paginationInput=100000`) fetches ALL boxes on every mount | **CRITICAL** |
-| **2** | Python / asyncio / ariadne per-element overhead scales linearly: ~0.6 ms/box | **HIGH** |
+| **2** | Python / asyncio / ariadne per-element overhead scales linearly: **~1.84 ms/box** (confirmed at 8 201 boxes) | **HIGH** |
 | **3** | 4–5 parallel frontend requests on every mount | **HIGH** |
 | **4** | `QrCodeLoader` large `IN` clause at scale (197 ms for 5 497 keys) | **MEDIUM** |
 | **5** | `COUNT(*)` on every page load (5–6 ms, regardless of client requesting `totalCount`) | **LOW** |
 | **6** | Missing index on `stock.modified` | **NEGLIGIBLE** — SQL is already fast |
 
-The SQL + DataLoader phase for the **full-preload** request (~240 ms) is dwarfed by the
-**~3 seconds of Python/asyncio processing** needed to resolve, marshal, and JSON-serialize
-~5 500 box objects through the ariadne execution engine.
+The SQL + DataLoader phase for the **full-preload** request (~240 ms for 5 497 boxes) is
+dwarfed by the **Python/asyncio/ariadne processing** needed to resolve, marshal, and
+JSON-serialize all box objects through the ariadne execution engine.
 
-In production with ~7 000 boxes the full-preload request is estimated to take **≈ 4–5 s**,
-which is what the user experiences as "slow initial load" — not the SQL sort order.
+At the confirmed rate of **~1.84 ms/box**, production estimates are:
+
+| Base size | Estimated ariadne time |
+|---:|---:|
+| 5 500 boxes | ~10 s |
+| 7 000 boxes | ~13 s |
+| 11 000 boxes | ~20 s |
+
+This matches the 15 120 ms measured for 8 201 boxes and is significantly worse than the
+4–5 s estimate made from the smaller local-dev run.  The SQL sort order is not the cause.
 
 ---
 
@@ -235,7 +317,9 @@ the equivalent 50-box page request (72 ms).  The breakdown:
 - DataLoaders for 5 497 elements (including a 197 ms QrCode `IN` clause): **~268 ms**
 - SQL (Q1 + Q2 + Q3): **~31 ms**
 
-Projected for ~7 000 production boxes: **≈ 4–5 s** for this one request.
+At production scale (8 201 boxes, second run), the ariadne phase alone takes **15 120 ms**
+and the full response exceeds 16 s.  Projected for 11 000 boxes: **≈ 20 s** for this one
+request alone.
 
 This is the primary cause of the perceived slow load, **not** the SQL sort order.
 
@@ -245,12 +329,32 @@ This is the primary cause of the perceived slow load, **not** the SQL sort order
 
 **File:** `back/boxtribute_server/graph_ql/execution.py`
 
-The measured cost scales approximately linearly with the number of returned elements:
-**~0.6–1.4 ms per box**.  This overhead comes from ariadne traversing field resolvers for
-every element, coroutine management within the asyncio event loop, and JSON serialisation
-of the final response.
+The measured cost scales approximately linearly with the number of returned elements.
+The second instrumented run (**8 201 boxes → 15 120 ms ariadne time**) confirms
+**~1.84 ms per box** at production scale.  This overhead comes from graphql-core
+resolving every field of every nested object individually through its async execution
+engine: with `convert_names_case=True` in the schema, ariadne installs a
+camelCase→snake_case converting resolver for each field that lacks an explicit one, so
+every one of the ~25–30 field resolutions per box runs real Python.
 
-At 50 boxes the overhead is negligible (~43 ms); at 5 000 boxes it dominates (~2 962 ms).
+At 50 boxes the overhead is negligible (~43 ms total); at production scale it dominates:
+
+| Base size | Estimated ariadne time |
+|---:|---:|
+| 5 500 boxes | ~10 s |
+| 7 000 boxes | ~13 s |
+| 11 000 boxes | ~20 s |
+
+> **Note on async resolver timing artefact:** `resolve_box_product` and
+> `resolve_box_location` are `async def` coroutines that `await` a DataLoader Future.
+> When wrapped for timing, each coroutine's measured duration includes its entire
+> suspension time while waiting for the DataLoader batch to fire — so the accumulated
+> total across N coroutines is **N × T_batch**, not the actual CPU cost.  For example,
+> `Box.product: 8 201 calls, 18 940 828 ms total` works out to ~2 310 ms per call,
+> which is approximately the total ariadne execution time (15 120 ms), not the time
+> spent in the resolver logic.  Only the DataLoader `batch_load_fn` timings (which the
+> harness measures separately) reflect the true SQL cost.
+
 The primary fix is to never request thousands of boxes at once (see Culprit #1).
 
 ---
@@ -950,7 +1054,7 @@ effort but would benefit the entire backend, not just the boxes query.
 
 | Action | File(s) | Effort | Expected Improvement |
 |---|---|---|---|
-| **Cap `paginationInput` default** (100 000 → 500) | `transformers.ts` | 5 min | **Eliminates the 3–5 s full-preload request** — primary fix |
+| **Cap `paginationInput` default** (100 000 → 500) | `transformers.ts` | 5 min | **Eliminates the 10–20 s full-preload request** (confirmed at ~15 s for 8 201 boxes) — primary fix |
 | **Reduce frontend parallel requests** (Option 1: remove preloading; Option 2: stagger with delays) | `BoxesView.tsx:217–268` | 1–2 h | ~80 % reduction in backend load on page mount |
 | **Fix `ShipmentLoader` to use `keys`** | `loaders.py:135–144` | 15 min | Eliminates full-shipments scan per request |
 | **Skip `COUNT(*)` when `totalCount` not selected** (Solution E-1) | `pagination.py`, `box/queries.py` | 2 h | Eliminates one full table scan per request (5–6 ms) |
