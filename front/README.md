@@ -12,7 +12,7 @@ This front-end project of Boxtribute was bootstrapped with [Vite](https://vite.d
 4. [About Husky](#about-husky)
 5. [Testing](#testing)
 6. [Mobile functional testing](#mobile-functional-testing)
-7. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
+7. [Folders and files structure](#folders-and-files-structure)
 8. [About Apollo](#apollo)
 9. [Types and GraphQL](#types-and-graphql)
 
@@ -139,7 +139,15 @@ However, auth0 will not forward you automatically to the login screen if you try
 3. start a tunnel by `ngrok http http://localhost:3000`
 4. Take the generated https address and put it in Auth0 in the "boxtribute-react" application under "Allowed Callback URLs".
 
-## Conventions for file and folder organisation
+## Folders and files structure
+
+### Architecture
+
+The following diagram shows the responsibilities of and the relationships among the front-end components, as well as the integration in the Boxtribute system.
+
+![C4 front-end components](../docs/c4-frontend-components.jpg)
+
+### Conventions for file and folder organisation
 
 - Views of react-router paths go into the views folder
 - Each view can have it's own folder - which in return can have a local components folder
@@ -150,16 +158,6 @@ However, auth0 will not forward you automatically to the login screen if you try
 - Other files (like types.ts, helpers.ts etc) and folders (like providers, utilities etc) are written in lowerCamelCase
 - Config constants should be UPPERCASE_SNAKES
 - GraphQL queries, mutation and subscription **string** have the format UPPERCASE_SNAKES\_<QUERY|MUTATION|SUBSCRIPTION>
-
-## Folders and files structures
-
-### Architecture
-
-The following diagram shows the responsibilities of and the relationships among the front-end components, as well as the integration in the Boxtribute system.
-
-![C4 front-end components](../docs/c4-frontend-components.jpg)
-
-### File naming conventions
 
 Apply the following rules to name files:
 
