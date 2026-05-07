@@ -6,18 +6,19 @@ This front-end project of Boxtribute was bootstrapped with [Vite](https://vite.d
 
 1. [Contribution Guidelines](../CONTRIBUTING.md)
 2. [Development Set-up](#development-set-up)
-   1. [Set-up pre-commit](#set-up-pre-commit)
-   2. [Install node and pnpm](#install-node-and-pnpm)
-   3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
+   1. [Install node and pnpm](#install-node-and-pnpm)
+   2. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
 3. [Note about pnpm and Docker](#note-about-pnpm-and-docker)
-4. [Testing](#testing)
-5. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
-6. [About Apollo](#apollo)
-7. [Types and GraphQL](#types-and-graphql)
+4. [About Husky](#about-husky)
+5. [Testing](#testing)
+6. [Mobile functional testing](#mobile-functional-testing)
+7. [Folders and files structure](#folders-and-files-structure)
+8. [About Apollo](#apollo)
+9. [Types and GraphQL](#types-and-graphql)
 
 ## Development Set-Up
 
-Following the [general set-up steps](../README.md), here a few steps that make your live easier working on the front-end.
+Following the [general set-up steps](../README.md), here a few steps that make your life easier working on the front-end.
 
 ### Install node and pnpm
 
@@ -31,7 +32,7 @@ Please do not forget to run `pnpm install` at the end if you want the FE tools l
 
 ### Linting and Formatting in VSCode
 
-We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc`-file](../.eslintrc), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
+We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and the root [`.eslintrc.cjs`-file](../.eslintrc.cjs), respectively. The local [`front/.eslintrc.cjs`](.eslintrc.cjs) file only exists as a wrapper for package-specific dependency resolution. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend installing.
 
 The settings that these extensions are used are already defined in [`.vscode/settings.json`](../.vscode/settings.json).
 
@@ -82,17 +83,17 @@ Afterwards:
 
 ## About Husky
 
-`husky` is a git hook tool that we use to format and lint staged files on pre-commits. In case you use a version manager tool (e.g. `nvm`, `asdf`), or run into trouble commiting your code, consult https://typicode.github.io/husky/how-to.html#node-version-managers-and-guis.
+`husky` is a git hook tool that we use to format and lint staged files on pre-commits. In case you use a version manager tool (e.g. `nvm`, `asdf`), or run into trouble committing your code, consult [the docs](https://typicode.github.io/husky/how-to.html#node-version-managers-and-guis).
 
 ## Testing
 
-Testing is done with React Testing Library and Jest.
+Testing is done with React Testing Library and Vitest.
 
-Test files are located in the same directory as the files they are testing. For example, `EditBox.test.js` and `EditBox.tsx` are both located in `front/src/views/EditBox`.
+Test files are located in the same directory as the files they are testing. For example, `BoxEditView.test.tsx` and `BoxEditView.tsx` are both located in `front/src/views/BoxEdit`.
 
 For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
 
-To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.js`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.js` for examples of the custom renderer's use.
+To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.tsx`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `BoxEditView.test.tsx` for examples of the custom renderer's use.
 
 Tests and test coverage can be run with the following command:
 
@@ -114,15 +115,15 @@ Here, a list of best practices you should follow when writing front-end tests wi
 
 - [Common mistakes with React Testing Library](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library)
 - [Write tests that simulate user behavior rather than single components](https://kentcdodds.com/blog/write-fewer-longer-tests)
-- [Use the right queries in React Testing Library according to their priorization](https://testing-library.com/docs/queries/about#priority)
+- [Use the right queries in React Testing Library according to their priority](https://testing-library.com/docs/queries/about#priority)
 - [Maybe use this Browser extension to find the best query](https://chrome.google.com/webstore/detail/testing-playground/hejbmebodbijjdhflfknehhcgaklhano)
 
 ## Mobile functional testing
 
 Using Boxtribute with a mobile device is one of the main use cases, therefore we should do some functional testing of the work we are doing whenever possible.
-Check https://developer.chrome.com/docs/devtools/remote-debugging/ to know how to debug local development with your Android phone. For Mac/Safari/iOS you will need a Mac and an iPhone simulator set up.
+Check [the Chrome docs](https://developer.chrome.com/docs/devtools/remote-debugging/) to know how to debug local development with your Android phone. For Mac/Safari/iOS you will need a Mac and an iPhone simulator set up.
 
-Alernatively, one can connect to your local dev server through the IP address of your local docker container. Vite prints out the address when you start the server locally with e.g. `docker compose up`
+Alternatively, one can connect to your local dev server through the IP address of your local docker container. Vite prints out the address when you start the server locally with e.g. `docker compose up`
 
 ```
 front-1    |   VITE v5.4.8
@@ -138,7 +139,15 @@ However, auth0 will not forward you automatically to the login screen if you try
 3. start a tunnel by `ngrok http http://localhost:3000`
 4. Take the generated https address and put it in Auth0 in the "boxtribute-react" application under "Allowed Callback URLs".
 
-## Conventions for file and folder organisation
+## Folders and files structure
+
+### Architecture
+
+The following diagram shows the responsibilities of and the relationships among the front-end components, as well as the integration in the Boxtribute system.
+
+![C4 front-end components](../docs/c4-frontend-components.jpg)
+
+### Conventions for file and folder organisation
 
 - Views of react-router paths go into the views folder
 - Each view can have it's own folder - which in return can have a local components folder
@@ -146,13 +155,11 @@ However, auth0 will not forward you automatically to the login screen if you try
 - No index.ts files, besides the entry file for the app
 - Ideally only one component per file
 - Files and folders which export a component/view are written UpperCamelCase, with the same name as the actual exported component/view
-- Other files (like types.ts, helpers.ts etc) and folders (like providers, utils etc) are written in lowerCamelCase
+- Other files (like types.ts, helpers.ts etc) and folders (like providers, utilities etc) are written in lowerCamelCase
 - Config constants should be UPPERCASE_SNAKES
 - GraphQL queries, mutation and subscription **string** have the format UPPERCASE_SNAKES\_<QUERY|MUTATION|SUBSCRIPTION>
 
-## Folders and files structures
-
-The following rules and naming conversions can be used to name files:
+Apply the following rules to name files:
 
 ```bash
 |---- <NameOfComponent>Container.ts # GraphQL string definitions, Business Logic, Data transformation
@@ -166,7 +173,7 @@ The following rules and naming conversions can be used to name files:
 |--------<NameOfComponent>.ts # **only** UI parts
 ```
 
-The folder structure is as follows:
+### Folder tree
 
 ```bash
 
@@ -175,43 +182,36 @@ The folder structure is as follows:
 │   ├── assets
 │   ├── components
 │   │   ├── <NameOfComponent>
-│   │   |    ├── <NameOfComponent>Container.tsx
-│   |   |    └── <NameOfComponent>.stories.tsx #storybook component definition
+│   │   |    ├── <NameOfComponent>.ts
+│   |   |    └── <NameOfComponent>Container.tsx
 │   |   └── Layout.tsx # main layout
+│   ├── hooks
 │   ├── mocks
 │   ├── providers #context providers
+│   ├── queries
+│   ├── stores
+│   ├── tests
 │   ├── types #typescript definitions
 │   ├── views
 │   │   └── <NameOfComponent>
 │   │       ├──components
 │   |       └── <NameOfSubComponent>.tsx
 │   └── utils
-│           ├── base-types.ts
+│           ├── constants.ts
+│           ├── filterOptions.ts
 │           ├── helpers.ts
-│           ├── queries.ts
-│           ├── test-utils.ts
-│           └── hooks.ts
+│           ├── theme.ts
+│           └── transformers.ts
 ├── node_modules
-├── .storybook
 ├── public
-├── test
-├── App.tsx
-├── index.tsx
-├── logo.svg
-├── serviceWorker.js
-├── setupTests.js
-├── craco.config.js
-├── Dockerfile
+├── index.html
+├── vite.config.ts
 ├── README.md
 ├── package.json
-├── pnpm-lock.yaml
 ├── tsconfig.json
-├── .prettierignore
-├── .dockerignore
-├── .eslintignore
-├── .eslintrc
-├── .prettierrc
-└── .gitignore
+├── .eslintrc.cjs
+├── ../Dockerfile
+└── ../.prettierrc
 ```
 
 ## Apollo
@@ -231,7 +231,7 @@ See how it's generated by checking out the root `package.json` command `graphql-
 
 ### Convention for creating new GraphQL Fragments, Mutations, Queries, and Types
 
-- Infer your types as much as possible, preferably from Fragments. And break down Queries and Mutations into composable Fragments whenever possible.
+- Infer your types as much as possible, preferably from Fragments. And break down Queries and Mutations into modular Fragments whenever possible.
 - Prefer to use them locally to where they are consumed. Be it component or project-wise.
 - Fragments that compose other fragments that are used across more than one app or package should be placed at `/graphql` in the root of the project. Same for Queries, Mutations, and derived types.
 - Create types based on the schema for type hint and casting when inference is not an option.
