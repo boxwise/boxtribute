@@ -6,18 +6,19 @@ This front-end project of Boxtribute was bootstrapped with [Vite](https://vite.d
 
 1. [Contribution Guidelines](../CONTRIBUTING.md)
 2. [Development Set-up](#development-set-up)
-   1. [Set-up pre-commit](#set-up-pre-commit)
-   2. [Install node and pnpm](#install-node-and-pnpm)
-   3. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
+   1. [Install node and pnpm](#install-node-and-pnpm)
+   2. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
 3. [Note about pnpm and Docker](#note-about-pnpm-and-docker)
-4. [Testing](#testing)
-5. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
-6. [About Apollo](#apollo)
-7. [Types and GraphQL](#types-and-graphql)
+4. [About Husky](#about-husky)
+5. [Testing](#testing)
+6. [Mobile functional testing](#mobile-functional-testing)
+7. [Conventions for file and folder organisation](#conventions-for-file-and-folder-organisation)
+8. [About Apollo](#apollo)
+9. [Types and GraphQL](#types-and-graphql)
 
 ## Development Set-Up
 
-Following the [general set-up steps](../README.md), here a few steps that make your live easier working on the front-end.
+Following the [general set-up steps](../README.md), here a few steps that make your life easier working on the front-end.
 
 ### Install node and pnpm
 
@@ -31,7 +32,7 @@ Please do not forget to run `pnpm install` at the end if you want the FE tools l
 
 ### Linting and Formatting in VSCode
 
-We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc`-file](../.eslintrc), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
+We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc.cjs`-file](.eslintrc.cjs), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
 
 The settings that these extensions are used are already defined in [`.vscode/settings.json`](../.vscode/settings.json).
 
@@ -86,13 +87,13 @@ Afterwards:
 
 ## Testing
 
-Testing is done with React Testing Library and Jest.
+Testing is done with React Testing Library and Vitest.
 
-Test files are located in the same directory as the files they are testing. For example, `EditBox.test.js` and `EditBox.tsx` are both located in `front/src/views/EditBox`.
+Test files are located in the same directory as the files they are testing. For example, `EditBox.test.tsx` and `EditBox.tsx` are both located in `front/src/views/EditBox`.
 
 For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
 
-To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.js`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.js` for examples of the custom renderer's use.
+To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.tsx`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.tsx` for examples of the custom renderer's use.
 
 Tests and test coverage can be run with the following command:
 
@@ -122,7 +123,7 @@ Here, a list of best practices you should follow when writing front-end tests wi
 Using Boxtribute with a mobile device is one of the main use cases, therefore we should do some functional testing of the work we are doing whenever possible.
 Check https://developer.chrome.com/docs/devtools/remote-debugging/ to know how to debug local development with your Android phone. For Mac/Safari/iOS you will need a Mac and an iPhone simulator set up.
 
-Alernatively, one can connect to your local dev server through the IP address of your local docker container. Vite prints out the address when you start the server locally with e.g. `docker compose up`
+Alternatively, one can connect to your local dev server through the IP address of your local docker container. Vite prints out the address when you start the server locally with e.g. `docker compose up`
 
 ```
 front-1    |   VITE v5.4.8
@@ -178,39 +179,37 @@ The folder structure is as follows:
 │   │   |    ├── <NameOfComponent>Container.tsx
 │   |   |    └── <NameOfComponent>.stories.tsx #storybook component definition
 │   |   └── Layout.tsx # main layout
+│   ├── hooks
 │   ├── mocks
 │   ├── providers #context providers
+│   ├── queries
+│   ├── stores
+│   ├── tests
 │   ├── types #typescript definitions
 │   ├── views
 │   │   └── <NameOfComponent>
 │   │       ├──components
 │   |       └── <NameOfSubComponent>.tsx
 │   └── utils
-│           ├── base-types.ts
+│           ├── constants.ts
+│           ├── filterOptions.ts
 │           ├── helpers.ts
-│           ├── queries.ts
-│           ├── test-utils.ts
-│           └── hooks.ts
+│           ├── theme.ts
+│           └── transformers.ts
 ├── node_modules
 ├── .storybook
 ├── public
-├── test
-├── App.tsx
-├── index.tsx
-├── logo.svg
-├── serviceWorker.js
-├── setupTests.js
-├── craco.config.js
+├── index.html
+├── vite.config.ts
 ├── Dockerfile
 ├── README.md
 ├── package.json
 ├── pnpm-lock.yaml
 ├── tsconfig.json
-├── .prettierignore
 ├── .dockerignore
-├── .eslintignore
-├── .eslintrc
-├── .prettierrc
+├── .eslintrc.cjs
+├── .prettierrc # at repo root (../)
+├── .prettierignore # at repo root (../)
 └── .gitignore
 ```
 
