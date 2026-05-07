@@ -32,7 +32,7 @@ Please do not forget to run `pnpm install` at the end if you want the FE tools l
 
 ### Linting and Formatting in VSCode
 
-We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and [`.eslintrc.cjs`-file](.eslintrc.cjs), respectively. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend to to install.
+We are using eslint as a linter and prettier as a formatter for the front-end. The configuration of these two is in the [`.prettierrc`-file](../.prettierrc) and the root [`.eslintrc.cjs`-file](../.eslintrc.cjs), respectively. The local [`front/.eslintrc.cjs`](.eslintrc.cjs) file only exists as a wrapper for package-specific dependency resolution. There are two extensions for VSCode ([prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), [eslint](dbaeumer.vscode-eslint)), which we recommend installing.
 
 The settings that these extensions are used are already defined in [`.vscode/settings.json`](../.vscode/settings.json).
 
@@ -89,11 +89,11 @@ Afterwards:
 
 Testing is done with React Testing Library and Vitest.
 
-Test files are located in the same directory as the files they are testing. For example, `EditBox.test.tsx` and `EditBox.tsx` are both located in `front/src/views/EditBox`.
+Test files are located in the same directory as the files they are testing. For example, `BoxEditView.test.tsx` and `BoxEditView.tsx` are both located in `front/src/views/BoxEdit`.
 
 For integration tests, we mock the Apollo client with a `MockedProvider` component instead of the `ApolloProvider` component that is used to handle real data. More information on mocking the Apollo client can be found [here](https://www.apollographql.com/docs/react/development-testing/testing/).
 
-To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.tsx`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `EditBox.test.tsx` for examples of the custom renderer's use.
+To eliminate repetitive code, a custom renderer was built in `front/src/tests/test-utils.tsx`. It allows developers to render a component in a test environment where chakra, Apollo and Routes are wrapped around it. The utility also exports the entire react testing library, so you should import from this utility instead of `@testing-library/react`. See `BoxEditView.test.tsx` for examples of the custom renderer's use.
 
 Tests and test coverage can be run with the following command:
 
@@ -210,8 +210,8 @@ Apply the following rules to name files:
 ├── package.json
 ├── tsconfig.json
 ├── .eslintrc.cjs
-├── Dockerfile # at repo root
-└── .prettierrc # at repo root
+├── ../Dockerfile
+└── ../.prettierrc
 ```
 
 ## Apollo
