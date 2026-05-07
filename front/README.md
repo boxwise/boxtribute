@@ -153,7 +153,15 @@ However, auth0 will not forward you automatically to the login screen if you try
 
 ## Folders and files structures
 
-The following rules and naming conversions can be used to name files:
+### Architecture
+
+The following diagram shows the responsibilities of and the relationships among the front-end components, as well as the integration in the Boxtribute system.
+
+![C4 front-end components](../docs/c4-frontend-components.jpg)
+
+### File naming conventions
+
+Apply the following rules to name files:
 
 ```bash
 |---- <NameOfComponent>Container.ts # GraphQL string definitions, Business Logic, Data transformation
@@ -167,7 +175,7 @@ The following rules and naming conversions can be used to name files:
 |--------<NameOfComponent>.ts # **only** UI parts
 ```
 
-The folder structure is as follows:
+### Folder tree
 
 ```bash
 
@@ -176,8 +184,8 @@ The folder structure is as follows:
 │   ├── assets
 │   ├── components
 │   │   ├── <NameOfComponent>
-│   │   |    ├── <NameOfComponent>Container.tsx
-│   |   |    └── <NameOfComponent>.stories.tsx #storybook component definition
+│   │   |    ├── <NameOfComponent>.ts
+│   |   |    └── <NameOfComponent>Container.tsx
 │   |   └── Layout.tsx # main layout
 │   ├── hooks
 │   ├── mocks
@@ -197,20 +205,15 @@ The folder structure is as follows:
 │           ├── theme.ts
 │           └── transformers.ts
 ├── node_modules
-├── .storybook
 ├── public
 ├── index.html
 ├── vite.config.ts
-├── Dockerfile
 ├── README.md
 ├── package.json
-├── pnpm-lock.yaml
 ├── tsconfig.json
-├── .dockerignore
 ├── .eslintrc.cjs
-├── .prettierrc # at repo root (../)
-├── .prettierignore # at repo root (../)
-└── .gitignore
+├── Dockerfile # at repo root
+└── .prettierrc # at repo root
 ```
 
 ## Apollo
