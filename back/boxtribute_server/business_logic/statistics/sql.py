@@ -35,11 +35,13 @@ BoxHistory AS (
         h.id AS id
     FROM history h
     JOIN ValidBoxes s ON h.record_id = s.id
-    AND ((h.to_int IS NOT null AND h.id >= %s)
-         OR h.changes = "Record created"
-         OR h.changes = "Record deleted"
-         OR h.changes = "Box was undeleted."
+    AND (
+        h.id >= %s
+        AND (
+            h.to_int IS NOT NULL
+            OR h.changes IN ("Record created", "Record deleted", "Box was undeleted.")
         )
+    )
     AND h.tablename = 'stock'
     ORDER BY record_id, changedate DESC, id DESC
 ),
