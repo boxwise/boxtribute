@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Column,
   Filters,
@@ -91,8 +91,6 @@ function ProductsTable({
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
-        pageIndex: 0,
-        pageSize: 20,
         filters: tableConfig.getColumnFilters(),
         groupBy: ["category"],
         ...(tableConfig.getGlobalFilter()
@@ -193,7 +191,7 @@ function ProductsTable({
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
           <Tr key={"header-spacer"}>
-            <Td colSpan={columns.length} p={0} border="none" h="16px" />
+            <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
           </Tr>
 
           {rows.map((row) => {
@@ -201,9 +199,9 @@ function ProductsTable({
 
             if (row.isGrouped) {
               return (
-                <>
-                  <Tr key={row.id} bg="gray.100" fontWeight="bold">
-                    <Td colSpan={columns.length}>
+                <React.Fragment key={row.id}>
+                  <Tr bg="gray.100" fontWeight="bold">
+                    <Td colSpan={headerGroups[0]?.headers.length}>
                       {row.groupByVal} ({row.subRows.length})
                     </Td>
                   </Tr>
@@ -236,7 +234,7 @@ function ProductsTable({
                       </Tr>
                     );
                   })}
-                </>
+                </React.Fragment>
               );
             }
 

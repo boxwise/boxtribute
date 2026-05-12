@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Column,
   Filters,
@@ -151,7 +151,7 @@ function StandardProductsTable({
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
           <Tr key={"header-spacer"}>
-            <Td colSpan={columns.length} p={0} border="none" h="16px" />
+            <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
           </Tr>
 
           {rows.map((row) => {
@@ -159,9 +159,9 @@ function StandardProductsTable({
 
             if (row.isGrouped) {
               return (
-                <>
-                  <Tr key={row.id} bg="gray.100" fontWeight="bold">
-                    <Td colSpan={columns.length}>
+                <React.Fragment key={row.id}>
+                  <Tr bg="gray.100" fontWeight="bold">
+                    <Td colSpan={headerGroups[0]?.headers.length}>
                       {row.groupByVal} ({row.subRows.length})
                     </Td>
                   </Tr>
@@ -186,7 +186,7 @@ function StandardProductsTable({
                       </Tr>
                     );
                   })}
-                </>
+                </React.Fragment>
               );
             }
 
