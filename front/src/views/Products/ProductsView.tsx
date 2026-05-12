@@ -1,6 +1,4 @@
 import { Flex, Heading, Link } from "@chakra-ui/react";
-import { useAtomValue } from "jotai";
-import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { Link as RouterLink } from "react-router-dom";
 import ProductsContainer from "./components/ProductsContainer";
 import { ErrorBoundary } from "@sentry/react";
@@ -9,20 +7,13 @@ import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 
 function Products() {
-  const baseId = useAtomValue(selectedBaseIdAtom);
-
   return (
     <>
       <Flex alignItems="center" mb={4}>
         <Heading fontWeight="bold" as="h2" flex="1">
           Manage Products
         </Heading>
-        <Link
-          as={RouterLink}
-          to={`/bases/${baseId}/products/assort`}
-          color="blue.500"
-          fontWeight="semibold"
-        >
+        <Link as={RouterLink} to={"assort"} color="blue.500" fontWeight="semibold">
           Check ASSORT Standard Products {">"}
         </Link>
       </Flex>
