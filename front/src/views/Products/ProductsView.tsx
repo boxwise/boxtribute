@@ -23,7 +23,7 @@ function Products() {
           color="blue.500"
           fontWeight="semibold"
         >
-          Check ASSORT Standard Products &gt;
+          Check ASSORT Standard Products {">"}
         </Link>
       </Flex>
       <ErrorBoundary
