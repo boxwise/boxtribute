@@ -5,6 +5,7 @@ import {
   useTable,
   useFilters,
   useGlobalFilter,
+  useGroupBy,
   useSortBy,
   useRowSelect,
   usePagination,
@@ -26,7 +27,11 @@ import {
   Switch,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import {
+  AddIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+} from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
 import { removeFilter } from "utils/helpers";
@@ -81,10 +86,10 @@ function ProductsTable({
     headerGroups,
     prepareRow,
     allColumns,
+    rows,
     state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     setAllFilters,
-    page,
     canPreviousPage,
     canNextPage,
     pageOptions,
@@ -101,6 +106,7 @@ function ProductsTable({
         pageIndex: 0,
         pageSize: 20,
         filters: tableConfig.getColumnFilters(),
+        groupBy: ["category"],
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
@@ -108,6 +114,7 @@ function ProductsTable({
     },
     useFilters,
     useGlobalFilter,
+    useGroupBy,
     useSortBy,
     usePagination,
     useRowSelect,
@@ -196,31 +203,57 @@ function ProductsTable({
         onClearAllFilters={handleClearFilters}
       />
       <Table key="products-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+        <FilteringSortingTableHeader mb={2} headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
-          {page.map((row) => {
+          <Tr key={"header-spacer"}>
+            <Td colSpan={columns.length} p={0} border="none" h="16px" />
+          </Tr>
+
+          {rows.map((row) => {
             prepareRow(row);
-            return (
-              <Tr
-                {...row.getRowProps()}
-                key={row.original.id}
-                onClick={() =>
-                  onRowClick(
-                    row.original.isStandard
-                      ? row.original.standardInstantiationId
-                      : row.original.id,
-                    row.original.isStandard,
-                  )
-                }
-                cursor="pointer"
-              >
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
+
+            if (row.isGrouped) {
+              return (
+                <>
+                  <Tr key={row.id} bg="gray.100" fontWeight="bold">
+                    <Td colSpan={columns.length}>
+                      {row.groupByVal} ({row.subRows.length})
+                    </Td>
+                  </Tr>
+                  {row.subRows.map((subRow) => {
+                    prepareRow(subRow);
+                    return (
+                      <Tr
+                        {...subRow.getRowProps()}
+                        key={subRow.original.id}
+                        onClick={() =>
+                          onRowClick(
+                            subRow.original.isStandard
+                              ? subRow.original.standardInstantiationId
+                              : subRow.original.id,
+                            subRow.original.isStandard,
+                          )
+                        }
+                        cursor="pointer"
+                      >
+                        {subRow.cells.map((cell) =>
+                          cell.isGrouped ? null : (
+                            <Td
+                              {...cell.getCellProps()}
+                              key={`${subRow.values.id}-${cell.column.id}`}
+                            >
+                              {cell.isPlaceholder ? null : cell.render("Cell")}
+                            </Td>
+                          ),
+                        )}
+                      </Tr>
+                    );
+                  })}
+                </>
+              );
+            }
+
+            return null;
           })}
         </Tbody>
       </Table>
