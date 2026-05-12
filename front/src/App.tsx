@@ -13,6 +13,7 @@ import CreateShipmentView from "views/Transfers/CreateShipment/CreateShipmentVie
 import ShipmentsOverviewView from "views/Transfers/ShipmentsOverview/ShipmentsOverviewView";
 import ShipmentView from "views/Transfers/ShipmentView/ShipmentView";
 import Products from "views/Products/ProductsView";
+import StandardProductsView from "views/Products/StandardProductsView";
 import EnableStandardProductView from "views/EnableStandardProduct/EnableStandardProductView";
 import QrReaderView from "views/QrReader/QrReaderView";
 import NotFoundView from "views/NotFoundView/NotFoundView";
@@ -274,6 +275,17 @@ function App() {
               element={
                 <Protected
                   component={<Products />}
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_products"]}
+                  minBeta={4}
+                />
+              }
+            />
+            <Route
+              path="assort"
+              element={
+                <Protected
+                  component={<StandardProductsView />}
                   redirectPath={prevLocation}
                   requiredAbps={["manage_products"]}
                   minBeta={4}
