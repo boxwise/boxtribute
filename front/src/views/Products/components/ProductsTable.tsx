@@ -8,7 +8,6 @@ import {
   useGroupBy,
   useSortBy,
   useRowSelect,
-  usePagination,
 } from "react-table";
 import {
   Table,
@@ -17,8 +16,6 @@ import {
   Td,
   Spacer,
   Flex,
-  Text,
-  IconButton,
   Button,
   HStack,
   useDisclosure,
@@ -27,11 +24,7 @@ import {
   Switch,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import {
-  AddIcon,
-  ChevronRightIcon,
-  ChevronLeftIcon,
-} from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
 import { removeFilter } from "utils/helpers";
@@ -87,14 +80,9 @@ function ProductsTable({
     prepareRow,
     allColumns,
     rows,
-    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
+    state: { globalFilter, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     setAllFilters,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    nextPage,
-    previousPage,
   } = useTable(
     {
       columns,
@@ -116,7 +104,6 @@ function ProductsTable({
     useGlobalFilter,
     useGroupBy,
     useSortBy,
-    usePagination,
     useRowSelect,
   );
 
@@ -257,36 +244,6 @@ function ProductsTable({
           })}
         </Tbody>
       </Table>
-      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
-        <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={previousPage}
-            isDisabled={!canPreviousPage}
-            icon={<ChevronLeftIcon h={6} w={6} />}
-          />
-        </Flex>
-        <Flex justifyContent="center" m={4}>
-          <Text>
-            Page{" "}
-            <Text fontWeight="bold" as="span">
-              {pageIndex + 1}
-            </Text>{" "}
-            of{" "}
-            <Text fontWeight="bold" as="span">
-              {pageOptions.length}
-            </Text>
-          </Text>
-        </Flex>
-        <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={nextPage}
-            isDisabled={!canNextPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
-          />
-        </Flex>
-      </Flex>
     </Flex>
   );
 }
