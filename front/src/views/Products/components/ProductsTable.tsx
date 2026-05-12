@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Column,
   Filters,
@@ -21,6 +21,9 @@ import {
   Button,
   HStack,
   useDisclosure,
+  FormControl,
+  FormLabel,
+  Switch,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
@@ -58,6 +61,13 @@ function ProductsTable({
   genderOptions,
   sizeRangeOptions,
 }: ProductTableProps) {
+  const [showOnlyAssort, setShowOnlyAssort] = useState(false);
+
+  const filteredData = useMemo(
+    () => (showOnlyAssort ? tableData.filter((row) => row.isStandard) : tableData),
+    [showOnlyAssort, tableData],
+  );
+
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -83,7 +93,7 @@ function ProductsTable({
   } = useTable(
     {
       columns,
-      data: tableData,
+      data: filteredData,
       filterTypes,
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
@@ -145,6 +155,17 @@ function ProductsTable({
         </Link>
         <Spacer />
         <HStack spacing={2} mb={2}>
+          <FormControl display="flex" alignItems="center">
+            <Switch
+              id="show-only-assort"
+              isChecked={showOnlyAssort}
+              onChange={(e) => setShowOnlyAssort(e.target.checked)}
+              mr={2}
+            />
+            <FormLabel htmlFor="show-only-assort" mb={0} whiteSpace="nowrap" fontWeight="normal">
+              Show only ASSORT products
+            </FormLabel>
+          </FormControl>
           <ColumnSelector
             availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
           />

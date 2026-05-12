@@ -214,8 +214,8 @@ importers:
         specifier: 2.5.1
         version: 2.5.1(@types/emscripten@1.41.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       jotai:
-        specifier: ^2.19.1
-        version: 2.19.1(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1)
+        specifier: ^2.20.0
+        version: 2.20.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1)
       react-big-calendar:
         specifier: ^1.19.4
         version: 1.19.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3511,8 +3511,8 @@ packages:
   jose@6.2.2:
     resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
 
-  jotai@2.19.1:
-    resolution: {integrity: sha512-sqm9lVZiqBHZH8aSRk32DSiZDHY3yUIlulXYn9GQj7/LvoUdYXSMti7ZPJGo+6zjzKFt5a25k/I6iBCi43PJcw==}
+  jotai@2.20.0:
+    resolution: {integrity: sha512-b5GAqgmXmXzB4WPaTH26ppk9Sl7AA9WSQX7yfdM+gJ1rFROiWcVbi97gFuN/yVCojOcbcvop2sfLL+fjxW0JVg==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@babel/core': '>=7.0.0'
@@ -8984,7 +8984,7 @@ snapshots:
 
   jose@6.2.2: {}
 
-  jotai@2.19.1(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1):
+  jotai@2.20.0(@babel/core@7.28.4)(@babel/template@7.27.2)(@types/react@18.3.14)(react@18.3.1):
     optionalDependencies:
       '@babel/core': 7.28.4
       '@babel/template': 7.27.2
