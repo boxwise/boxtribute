@@ -162,7 +162,7 @@ function ProductsTable({
               onChange={(e) => setShowOnlyAssort(e.target.checked)}
               mr={2}
             />
-            <FormLabel htmlFor="show-only-assort" mb={0} whiteSpace="nowrap">
+            <FormLabel htmlFor="show-only-assort" mb={0} whiteSpace="nowrap" fontWeight="normal">
               Show only ASSORT products
             </FormLabel>
           </FormControl>
