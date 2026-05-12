@@ -190,7 +190,7 @@ function ProductsTable({
         onClearAllFilters={handleClearFilters}
       />
       <Table key="products-table">
-        <FilteringSortingTableHeader mb={2} headerGroups={headerGroups} hideColumnFilters={true} />
+        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
           <Tr key={"header-spacer"}>
             <Td colSpan={columns.length} p={0} border="none" h="16px" />

@@ -1,6 +1,5 @@
-import { useQuery } from "@apollo/client";
+import { useSuspenseQuery } from "@apollo/client";
 import { Button, Badge } from "@chakra-ui/react";
-import { TableSkeleton } from "components/Skeletons";
 import { SelectColumnFilter } from "components/Table/Filter";
 import { useTableConfig } from "hooks/useTableConfig";
 import { useCallback, useMemo } from "react";
@@ -89,11 +88,10 @@ function StandardProductsContainer() {
   });
 
   // fetch Standard Products data
-  const {
-    loading: isStandardProductsQueryLoading,
-    data: standardProductsRawData,
-    error,
-  } = useQuery(STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY, { variables: { baseId } });
+  const { data: standardProductsRawData } = useSuspenseQuery(
+    STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY,
+    { variables: { baseId } },
+  );
 
   const handleEnableProduct = useCallback(
     (standardProductId: string) =>
@@ -245,13 +243,8 @@ function StandardProductsContainer() {
     [disableStandardProductMutationLoading, handleDisableOrDeleteProduct, handleEnableProduct],
   );
 
-  if (error) throw error;
-
   const tableData = useMemo(
-    () =>
-      standardProductsRawData
-        ? standardProductsRawDataToTableDataTransformer(standardProductsRawData)
-        : [],
+    () => standardProductsRawDataToTableDataTransformer(standardProductsRawData),
     [standardProductsRawData],
   );
 
@@ -260,8 +253,6 @@ function StandardProductsContainer() {
   const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
 
   const sizeRangeOptions = useMemo(() => createOptions(tableData, "sizeRange"), [tableData]);
-
-  if (!standardProductsRawData || isStandardProductsQueryLoading) return <TableSkeleton />;
 
   return (
     <StandardProductsTable
