@@ -150,7 +150,7 @@ function StandardProductsTable({
       <Table key="standard-products-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
-          <Tr key={"header-spacer"}>
+          <Tr key={"header-spacer-std"}>
             <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
           </Tr>
 

@@ -230,7 +230,7 @@ function EnableStandardProductForm({
             type="button"
             w="full"
             variant="outline"
-            onClick={() => navigate(`${selectedStandardProduct ? "../../assort" : ".."}`)}
+            onClick={() => navigate(`${selectedStandardProduct ? "../.." : ".."}`)}
           >
             Nevermind
           </Button>
