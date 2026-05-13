@@ -1,28 +1,15 @@
-import { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Column,
   Filters,
   useTable,
   useFilters,
   useGlobalFilter,
+  useGroupBy,
   useSortBy,
   useRowSelect,
-  usePagination,
 } from "react-table";
-import {
-  Table,
-  Tr,
-  Tbody,
-  Td,
-  Spacer,
-  Flex,
-  Text,
-  IconButton,
-  HStack,
-  Box,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { Table, Tr, Tbody, Td, Spacer, Flex, HStack, useDisclosure } from "@chakra-ui/react";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { StandardProductRow } from "./transformers";
 import { removeFilter } from "utils/helpers";
@@ -68,15 +55,10 @@ function StandardProductsTable({
     headerGroups,
     prepareRow,
     allColumns,
-    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
+    rows,
+    state: { globalFilter, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     setAllFilters,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    nextPage,
-    previousPage,
   } = useTable(
     {
       columns,
@@ -85,9 +67,8 @@ function StandardProductsTable({
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
-        pageIndex: 0,
-        pageSize: 20,
         filters: tableConfig.getColumnFilters(),
+        groupBy: ["category"],
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
@@ -95,8 +76,8 @@ function StandardProductsTable({
     },
     useFilters,
     useGlobalFilter,
+    useGroupBy,
     useSortBy,
-    usePagination,
     useRowSelect,
   );
 
@@ -133,7 +114,7 @@ function StandardProductsTable({
   );
 
   return (
-    <Flex direction="column" height="100%">
+    <Flex direction="column" overflowX="auto">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Spacer />
         <HStack spacing={2} mb={2}>
@@ -166,68 +147,53 @@ function StandardProductsTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      {/* overflowY and flex={1} make the table scrollable vertically and took the other settings from <TableContainer>
-      See https://chakra-ui.com/docs/components/table/usage#table-container */}
-      <Box
-        flex={1}
-        display="block"
-        maxWidth="100%"
-        overflowX="auto"
-        overflowY="auto"
-        whiteSpace="nowrap"
-      >
-        <Table key="standard-products-table">
-          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
-          <Tbody>
-            {page.map((row) => {
-              prepareRow(row);
+      <Table key="standard-products-table">
+        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+        <Tbody>
+          <Tr key={"header-spacer-std"}>
+            <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
+          </Tr>
+
+          {rows.map((row) => {
+            prepareRow(row);
+
+            if (row.isGrouped) {
               return (
-                <Tr
-                  backgroundColor={row.values.enabled ? "inherit" : "#D9D9D9"}
-                  {...row.getRowProps()}
-                  key={row.original.id}
-                >
-                  {row.cells.map((cell) => (
-                    <Td {...cell.getCellProps()} key={`${row.values.name}-${cell.column.id}`}>
-                      {cell.render("Cell")}
+                <React.Fragment key={row.id}>
+                  <Tr bg="gray.100" fontWeight="bold">
+                    <Td colSpan={headerGroups[0]?.headers.length}>
+                      {row.groupByVal} ({row.subRows.length})
                     </Td>
-                  ))}
-                </Tr>
+                  </Tr>
+                  {row.subRows.map((subRow) => {
+                    prepareRow(subRow);
+                    return (
+                      <Tr
+                        backgroundColor={subRow.values.enabled ? "inherit" : "#D9D9D9"}
+                        {...subRow.getRowProps()}
+                        key={subRow.original.id}
+                      >
+                        {subRow.cells.map((cell) =>
+                          cell.isGrouped ? null : (
+                            <Td
+                              {...cell.getCellProps()}
+                              key={`${subRow.values.name}-${cell.column.id}`}
+                            >
+                              {cell.isPlaceholder ? null : cell.render("Cell")}
+                            </Td>
+                          ),
+                        )}
+                      </Tr>
+                    );
+                  })}
+                </React.Fragment>
               );
-            })}
-          </Tbody>
-        </Table>
-      </Box>
-      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
-        <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={previousPage}
-            isDisabled={!canPreviousPage}
-            icon={<ChevronLeftIcon h={6} w={6} />}
-          />
-        </Flex>
-        <Flex justifyContent="center" m={4}>
-          <Text>
-            Page{" "}
-            <Text fontWeight="bold" as="span">
-              {pageIndex + 1}
-            </Text>{" "}
-            of{" "}
-            <Text fontWeight="bold" as="span">
-              {pageOptions.length}
-            </Text>
-          </Text>
-        </Flex>
-        <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={nextPage}
-            isDisabled={!canNextPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
-          />
-        </Flex>
-      </Flex>
+            }
+
+            return null;
+          })}
+        </Tbody>
+      </Table>
     </Flex>
   );
 }

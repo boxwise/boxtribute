@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Column,
   Filters,
   useTable,
   useFilters,
   useGlobalFilter,
+  useGroupBy,
   useSortBy,
   useRowSelect,
-  usePagination,
 } from "react-table";
 import {
   Table,
@@ -16,8 +16,6 @@ import {
   Td,
   Spacer,
   Flex,
-  Text,
-  IconButton,
   Button,
   HStack,
   useDisclosure,
@@ -26,7 +24,7 @@ import {
   Switch,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
 import { removeFilter } from "utils/helpers";
@@ -81,15 +79,10 @@ function ProductsTable({
     headerGroups,
     prepareRow,
     allColumns,
-    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
+    rows,
+    state: { globalFilter, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     setAllFilters,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    nextPage,
-    previousPage,
   } = useTable(
     {
       columns,
@@ -98,9 +91,8 @@ function ProductsTable({
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
-        pageIndex: 0,
-        pageSize: 20,
         filters: tableConfig.getColumnFilters(),
+        groupBy: ["category"],
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
@@ -108,8 +100,8 @@ function ProductsTable({
     },
     useFilters,
     useGlobalFilter,
+    useGroupBy,
     useSortBy,
-    usePagination,
     useRowSelect,
   );
 
@@ -198,62 +190,58 @@ function ProductsTable({
       <Table key="products-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
-          {page.map((row) => {
+          <Tr key={"header-spacer"}>
+            <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
+          </Tr>
+
+          {rows.map((row) => {
             prepareRow(row);
-            return (
-              <Tr
-                {...row.getRowProps()}
-                key={row.original.id}
-                onClick={() =>
-                  onRowClick(
-                    row.original.isStandard
-                      ? row.original.standardInstantiationId
-                      : row.original.id,
-                    row.original.isStandard,
-                  )
-                }
-                cursor="pointer"
-              >
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
+
+            if (row.isGrouped) {
+              return (
+                <React.Fragment key={row.id}>
+                  <Tr bg="gray.100" fontWeight="bold">
+                    <Td colSpan={headerGroups[0]?.headers.length}>
+                      {row.groupByVal} ({row.subRows.length})
+                    </Td>
+                  </Tr>
+                  {row.subRows.map((subRow) => {
+                    prepareRow(subRow);
+                    return (
+                      <Tr
+                        {...subRow.getRowProps()}
+                        key={subRow.original.id}
+                        onClick={() =>
+                          onRowClick(
+                            subRow.original.isStandard
+                              ? subRow.original.standardInstantiationId
+                              : subRow.original.id,
+                            subRow.original.isStandard,
+                          )
+                        }
+                        cursor="pointer"
+                      >
+                        {subRow.cells.map((cell) =>
+                          cell.isGrouped ? null : (
+                            <Td
+                              {...cell.getCellProps()}
+                              key={`${subRow.values.id}-${cell.column.id}`}
+                            >
+                              {cell.isPlaceholder ? null : cell.render("Cell")}
+                            </Td>
+                          ),
+                        )}
+                      </Tr>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            }
+
+            return null;
           })}
         </Tbody>
       </Table>
-      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
-        <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={previousPage}
-            isDisabled={!canPreviousPage}
-            icon={<ChevronLeftIcon h={6} w={6} />}
-          />
-        </Flex>
-        <Flex justifyContent="center" m={4}>
-          <Text>
-            Page{" "}
-            <Text fontWeight="bold" as="span">
-              {pageIndex + 1}
-            </Text>{" "}
-            of{" "}
-            <Text fontWeight="bold" as="span">
-              {pageOptions.length}
-            </Text>
-          </Text>
-        </Flex>
-        <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={nextPage}
-            isDisabled={!canNextPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
-          />
-        </Flex>
-      </Flex>
     </Flex>
   );
 }

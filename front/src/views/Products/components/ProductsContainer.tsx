@@ -92,8 +92,8 @@ function ProductsContainer() {
         filter: "includesOneOfMultipleStrings",
         Cell: ProductWithSPCheckmarkCell,
         sortType: (rowA, rowB) => {
-          const a = rowA.values.name.toLowerCase();
-          const b = rowB.values.name.toLowerCase();
+          const a = (rowA.values.name ?? "").toLowerCase();
+          const b = (rowB.values.name ?? "").toLowerCase();
           return a.localeCompare(b);
         },
       },
