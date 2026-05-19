@@ -5,6 +5,7 @@ import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
+import { BiChevronRight } from "react-icons/bi";
 
 function Products() {
   return (
@@ -14,7 +15,8 @@ function Products() {
           Manage Products
         </Heading>
         <Link as={RouterLink} to={"assort"} color="blue.500" fontWeight="semibold">
-          Check ASSORT Standard Products {">"}
+          Check ASSORT Standard Products{" "}
+          <BiChevronRight size="1.5em" style={{ display: "inline", verticalAlign: "middle" }} />
         </Link>
       </Flex>
       <ErrorBoundary
