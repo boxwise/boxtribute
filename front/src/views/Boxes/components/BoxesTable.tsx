@@ -382,15 +382,21 @@ function BoxesTable({
         <Box as="span" color="gray.400" mx={4}>
           |
         </Box>
-        <Text
-          cursor={isAllRowsSelected ? "default" : "pointer"}
-          color={isAllRowsSelected ? "gray.400" : "black"}
-          onClick={() => {
-            if (!isAllRowsSelected) toggleAllRowsSelected(true);
-          }}
-        >
-          Select all {boxCount} {boxCount === 1 ? "box" : "boxes"}
-        </Text>
+        {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
+          <HStack spacing={2}>
+            <Skeleton height={5} width={20} />
+          </HStack>
+        ) : (
+          <Text
+            cursor={isAllRowsSelected ? "default" : "pointer"}
+            color={isAllRowsSelected ? "gray.400" : "black"}
+            onClick={() => {
+              if (!isAllRowsSelected) toggleAllRowsSelected(true);
+            }}
+          >
+            Select all {boxCount} {boxCount === 1 ? "box" : "boxes"}
+          </Text>
+        )}
       </Flex>
       <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
