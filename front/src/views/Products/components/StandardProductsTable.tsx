@@ -8,6 +8,7 @@ import {
   useGroupBy,
   useSortBy,
   useRowSelect,
+  defaultOrderByFn,
 } from "react-table";
 import { Table, Tr, Tbody, Td, Spacer, Flex, HStack, useDisclosure } from "@chakra-ui/react";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
@@ -64,6 +65,12 @@ function StandardProductsTable({
       columns,
       data: tableData,
       filterTypes,
+      orderByFn: (rows, sortFns, dirs) => {
+        if (rows.length > 0 && rows[0].isGrouped) {
+          return [...rows].sort((a, b) => String(a.groupByVal).localeCompare(String(b.groupByVal)));
+        }
+        return defaultOrderByFn(rows, sortFns, dirs);
+      },
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
@@ -119,7 +126,9 @@ function StandardProductsTable({
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
+            availableColumns={allColumns.filter(
+              (column) => column.id !== "category" && column.id !== "actionButton",
+            )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel
@@ -160,19 +169,19 @@ function StandardProductsTable({
             if (row.isGrouped) {
               return (
                 <React.Fragment key={row.id}>
-                  <Tr bg="gray.100" fontWeight="bold">
-                    <Td colSpan={headerGroups[0]?.headers.length}>
-                      {row.groupByVal} ({row.subRows.length})
-                    </Td>
+                  <Tr backgroundColor="gray.50" fontWeight="bold">
+                    {headerGroups[0]?.headers.map((header) => (
+                      <Td key={header.id}>
+                        {header.id === "enabled"
+                          ? `${row.groupByVal} (${row.subRows.length})`
+                          : null}
+                      </Td>
+                    ))}
                   </Tr>
                   {row.subRows.map((subRow) => {
                     prepareRow(subRow);
                     return (
-                      <Tr
-                        backgroundColor={subRow.values.enabled ? "inherit" : "#D9D9D9"}
-                        {...subRow.getRowProps()}
-                        key={subRow.original.id}
-                      >
+                      <Tr {...subRow.getRowProps()} key={subRow.original.id}>
                         {subRow.cells.map((cell) =>
                           cell.isGrouped ? null : (
                             <Td
