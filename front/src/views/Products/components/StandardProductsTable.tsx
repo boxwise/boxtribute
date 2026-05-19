@@ -160,7 +160,7 @@ function StandardProductsTable({
             if (row.isGrouped) {
               return (
                 <React.Fragment key={row.id}>
-                  <Tr bg="gray.100" fontWeight="bold">
+                  <Tr backgroundColor="#F9F9F9" fontWeight="bold">
                     <Td colSpan={headerGroups[0]?.headers.length}>
                       {row.groupByVal} ({row.subRows.length})
                     </Td>
@@ -168,11 +168,7 @@ function StandardProductsTable({
                   {row.subRows.map((subRow) => {
                     prepareRow(subRow);
                     return (
-                      <Tr
-                        backgroundColor={subRow.values.enabled ? "inherit" : "#D9D9D9"}
-                        {...subRow.getRowProps()}
-                        key={subRow.original.id}
-                      >
+                      <Tr {...subRow.getRowProps()} key={subRow.original.id}>
                         {subRow.cells.map((cell) =>
                           cell.isGrouped ? null : (
                             <Td

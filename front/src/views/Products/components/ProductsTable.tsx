@@ -200,7 +200,7 @@ function ProductsTable({
             if (row.isGrouped) {
               return (
                 <React.Fragment key={row.id}>
-                  <Tr bg="gray.100" fontWeight="bold">
+                  <Tr backgroundColor="#F9F9F9" fontWeight="bold">
                     <Td colSpan={headerGroups[0]?.headers.length}>
                       {row.groupByVal} ({row.subRows.length})
                     </Td>
