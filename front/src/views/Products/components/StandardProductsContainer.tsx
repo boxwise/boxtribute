@@ -149,7 +149,12 @@ function StandardProductsContainer() {
                 Disable
               </Button>
             ) : (
-              <Button onClick={() => handleEnableProduct(row.original.id)} size="sm">
+              <Button
+                color="white"
+                bg="green.500"
+                onClick={() => handleEnableProduct(row.original.id)}
+                size="sm"
+              >
                 Enable
               </Button>
             )}
