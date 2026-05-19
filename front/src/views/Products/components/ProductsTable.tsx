@@ -159,7 +159,7 @@ function ProductsTable({
             </FormLabel>
           </FormControl>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
+            availableColumns={allColumns.filter((column) => column.id !== "category" && column.id !== "actionButton")}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel

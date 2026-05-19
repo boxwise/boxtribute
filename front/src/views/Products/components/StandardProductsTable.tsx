@@ -119,7 +119,7 @@ function StandardProductsTable({
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
+            availableColumns={allColumns.filter((column) => column.id !== "category" && column.id !== "actionButton")}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel
