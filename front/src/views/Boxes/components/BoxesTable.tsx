@@ -366,28 +366,33 @@ function BoxesTable({
         )}
       </Box>
       <Flex alignItems="center" mb={2} data-testid="selected-boxes-counter">
-        <HStack spacing={10} bg="blue.100" px={4} py={2}>
-          <Text as="span" fontWeight="bold" color="black">
-            {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
-          </Text>{" "}
-          <Text
-            as="span"
-            color="black"
-            cursor="pointer"
-            onClick={() => toggleAllRowsSelected(false)}
-          >
-            Clear all
-          </Text>
-        </HStack>
-        <Box as="span" color="gray.400" mx={4}>
-          |
-        </Box>
+        {selectedCount > 0 && (
+          <HStack spacing={10} bg="blue.100" px={4} py={2}>
+            <Text as="span" fontWeight="bold" color="black">
+              {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
+            </Text>{" "}
+            <Text
+              as="span"
+              color="black"
+              cursor="pointer"
+              onClick={() => toggleAllRowsSelected(false)}
+            >
+              Clear all
+            </Text>
+          </HStack>
+        )}
+        {selectedCount > 0 && (
+          <Box as="span" color="gray.400" ml={4}>
+            |
+          </Box>
+        )}
         {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
           <HStack spacing={2}>
             <Skeleton height={5} width={20} />
           </HStack>
         ) : (
           <Text
+            mx={4}
             cursor={isAllRowsSelected ? "default" : "pointer"}
             color={isAllRowsSelected ? "gray.400" : "black"}
             onClick={() => {
