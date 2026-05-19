@@ -145,6 +145,8 @@ function BoxesTable({
     previousPage,
     selectedFlatRows,
     toggleRowSelected,
+    toggleAllRowsSelected,
+    isAllRowsSelected,
   } = useTable(
     {
       columns,
@@ -363,6 +365,33 @@ function BoxesTable({
           <Text>Data unavailable</Text>
         )}
       </Box>
+      <Flex alignItems="center" mb={2} data-testid="selected-boxes-counter">
+        <Box bg="blue.100" px={4} py={2} borderRadius="md">
+          <Text as="span" fontWeight="bold" color="black">
+            {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
+          </Text>{" "}
+          <Text
+            as="span"
+            color="black"
+            cursor="pointer"
+            onClick={() => toggleAllRowsSelected(false)}
+          >
+            Clear all
+          </Text>
+        </Box>
+        <Box as="span" color="gray.400" mx={4}>
+          |
+        </Box>
+        <Text
+          cursor={isAllRowsSelected ? "default" : "pointer"}
+          color={isAllRowsSelected ? "gray.400" : "black"}
+          onClick={() => {
+            if (!isAllRowsSelected) toggleAllRowsSelected(true);
+          }}
+        >
+          Select all {boxCount} {boxCount === 1 ? "box" : "boxes"}
+        </Text>
+      </Flex>
       <Table key="boxes-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
@@ -446,27 +475,6 @@ function BoxesTable({
           />
         </Flex>
       </Flex>
-
-      {/* Floating selected boxes counter */}
-      {selectedCount > 0 && (
-        <Box
-          position="fixed"
-          bottom={9}
-          right={4}
-          bg="blue.600"
-          color="white"
-          px={4}
-          py={2}
-          borderRadius="md"
-          boxShadow="lg"
-          zIndex={1000}
-          data-testid="floating-selected-counter"
-        >
-          <Text fontSize="sm" fontWeight="bold">
-            {selectedCount === 1 ? "one box selected" : `${selectedCount} boxes selected`}
-          </Text>
-        </Box>
-      )}
     </Flex>
   );
 }

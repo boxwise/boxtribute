@@ -771,37 +771,45 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       name: /toggle row selected/i,
     });
 
-    // Initially, no counter should be visible
-    expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
+    // Initially, counter shows 0 selected
+    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("0 Boxes selected");
 
     // Select one box
     await user.click(checkbox1);
     await waitFor(() => expect(checkbox1).toBeChecked());
 
-    // Counter should show "one box selected"
-    expect(await screen.findByTestId("floating-selected-counter")).toBeInTheDocument();
-    expect(screen.getByText("one box selected")).toBeInTheDocument();
+    // Counter should show "1 Box selected"
+    expect(screen.getByTestId("selected-boxes-counter")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("1 Box selected"),
+    );
 
     // Select second box
     await user.click(checkbox2);
     await waitFor(() => expect(checkbox2).toBeChecked());
 
-    // Counter should show "2 boxes selected"
-    expect(screen.getByText("2 boxes selected")).toBeInTheDocument();
+    // Counter should show "2 Boxes selected"
+    await waitFor(() =>
+      expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("2 Boxes selected"),
+    );
 
     // Unselect one box
     await user.click(checkbox1);
     await waitFor(() => expect(checkbox1).not.toBeChecked());
 
-    // Counter should show "one box selected" again
-    expect(screen.getByText("one box selected")).toBeInTheDocument();
+    // Counter should show "1 Box selected" again
+    await waitFor(() =>
+      expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("1 Box selected"),
+    );
 
     // Unselect the last box
     await user.click(checkbox2);
     await waitFor(() => expect(checkbox2).not.toBeChecked());
 
-    // Counter should disappear
-    expect(screen.queryByTestId("floating-selected-counter")).not.toBeInTheDocument();
+    // Counter should show 0 selected
+    await waitFor(() =>
+      expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("0 Boxes selected"),
+    );
   }, 15000);
 });
 
