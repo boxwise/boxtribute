@@ -72,6 +72,7 @@ function StandardProductsContainer() {
     defaultTableConfig: {
       columnFilters: [],
       sortBy: [
+        { id: "category", desc: false },
         { id: "enabled", desc: false },
         { id: "name", desc: false },
       ],

@@ -67,7 +67,10 @@ function ProductsContainer() {
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [],
-      sortBy: [{ id: "name", desc: false }],
+      sortBy: [
+        { id: "category", desc: false },
+        { id: "name", desc: false },
+      ],
       hiddenColumns: ["inShop", "createdBy", "created", "lastModifiedBy", "lastModified", "id"],
     },
   });
