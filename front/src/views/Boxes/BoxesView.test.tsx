@@ -771,8 +771,8 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       name: /toggle row selected/i,
     });
 
-    // Initially, counter shows 0 selected
-    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("0 Boxes selected");
+    // Initially, counter is hidden
+    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("Select all 2 boxes");
 
     // Select one box
     await user.click(checkbox1);
@@ -806,9 +806,9 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     await user.click(checkbox2);
     await waitFor(() => expect(checkbox2).not.toBeChecked());
 
-    // Counter should show 0 selected
+    // Counter should be hidden again
     await waitFor(() =>
-      expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("0 Boxes selected"),
+      expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("Select all 2 boxes"),
     );
   }, 15000);
 });
