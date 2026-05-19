@@ -8,6 +8,7 @@ import {
   useGroupBy,
   useSortBy,
   useRowSelect,
+  defaultOrderByFn,
 } from "react-table";
 import {
   Table,
@@ -88,6 +89,12 @@ function ProductsTable({
       columns,
       data: filteredData,
       filterTypes,
+      orderByFn: (rows, sortFns, dirs) => {
+        if (rows.length > 0 && rows[0].isGrouped) {
+          return [...rows].sort((a, b) => String(a.groupByVal).localeCompare(String(b.groupByVal)));
+        }
+        return defaultOrderByFn(rows, sortFns, dirs);
+      },
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
@@ -159,7 +166,9 @@ function ProductsTable({
             </FormLabel>
           </FormControl>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "category" && column.id !== "actionButton")}
+            availableColumns={allColumns.filter(
+              (column) => column.id !== "category" && column.id !== "actionButton",
+            )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel
@@ -200,7 +209,7 @@ function ProductsTable({
             if (row.isGrouped) {
               return (
                 <React.Fragment key={row.id}>
-                  <Tr backgroundColor="#F9F9F9" fontWeight="bold">
+                  <Tr backgroundColor="gray.50" fontWeight="bold">
                     {headerGroups[0]?.headers.map((header) => (
                       <Td key={header.id}>
                         {header.id === "name" ? `${row.groupByVal} (${row.subRows.length})` : null}
