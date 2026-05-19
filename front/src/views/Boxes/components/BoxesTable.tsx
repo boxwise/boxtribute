@@ -366,7 +366,7 @@ function BoxesTable({
         )}
       </Box>
       <Flex alignItems="center" mb={2} data-testid="selected-boxes-counter">
-        <Box bg="blue.100" px={4} py={2}>
+        <HStack spacing={10} bg="blue.100" px={4} py={2}>
           <Text as="span" fontWeight="bold" color="black">
             {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
           </Text>{" "}
@@ -378,7 +378,7 @@ function BoxesTable({
           >
             Clear all
           </Text>
-        </Box>
+        </HStack>
         <Box as="span" color="gray.400" mx={4}>
           |
         </Box>
