@@ -366,7 +366,7 @@ function BoxesTable({
         )}
       </Box>
       <Flex alignItems="center" mb={2} data-testid="selected-boxes-counter">
-        <Box bg="blue.100" px={4} py={2} borderRadius="md">
+        <Box bg="blue.100" px={4} py={2}>
           <Text as="span" fontWeight="bold" color="black">
             {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
           </Text>{" "}
