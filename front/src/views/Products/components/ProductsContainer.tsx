@@ -67,11 +67,16 @@ function ProductsContainer() {
     tableConfigKey,
     defaultTableConfig: {
       columnFilters: [],
-      sortBy: [
-        { id: "category", desc: false },
-        { id: "name", desc: false },
+      sortBy: [{ id: "name", desc: false }],
+      hiddenColumns: [
+        "category",
+        "inShop",
+        "createdBy",
+        "created",
+        "lastModifiedBy",
+        "lastModified",
+        "id",
       ],
-      hiddenColumns: ["inShop", "createdBy", "created", "lastModifiedBy", "lastModified", "id"],
     },
   });
 
@@ -136,6 +141,7 @@ function ProductsContainer() {
           </Button>
         ),
       },
+      // category is used for grouping only (hidden via hiddenColumns)
       {
         Header: "Category",
         accessor: "category",
@@ -225,7 +231,10 @@ function ProductsContainer() {
   if (error) throw error;
 
   const tableData = useMemo(
-    () => productsRawToTableDataTransformer(productsRawData),
+    () =>
+      productsRawToTableDataTransformer(productsRawData).sort((a, b) =>
+        a.category.localeCompare(b.category),
+      ),
     [productsRawData],
   );
 

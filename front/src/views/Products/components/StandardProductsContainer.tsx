@@ -72,11 +72,11 @@ function StandardProductsContainer() {
     defaultTableConfig: {
       columnFilters: [],
       sortBy: [
-        { id: "category", desc: false },
         { id: "enabled", desc: false },
         { id: "name", desc: false },
       ],
       hiddenColumns: [
+        "category",
         "price",
         "inShop",
         "comment",
@@ -163,6 +163,7 @@ function StandardProductsContainer() {
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
+      // "category" kept in columns array for groupBy, hidden via hiddenColumns
       {
         Header: "Category",
         accessor: "category",
@@ -251,7 +252,9 @@ function StandardProductsContainer() {
   const tableData = useMemo(
     () =>
       standardProductsRawData
-        ? standardProductsRawDataToTableDataTransformer(standardProductsRawData)
+        ? standardProductsRawDataToTableDataTransformer(standardProductsRawData).sort((a, b) =>
+            a.category.localeCompare(b.category),
+          )
         : [],
     [standardProductsRawData],
   );

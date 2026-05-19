@@ -161,9 +161,13 @@ function StandardProductsTable({
               return (
                 <React.Fragment key={row.id}>
                   <Tr backgroundColor="#F9F9F9" fontWeight="bold">
-                    <Td colSpan={headerGroups[0]?.headers.length}>
-                      {row.groupByVal} ({row.subRows.length})
-                    </Td>
+                    {headerGroups[0]?.headers.map((header) => (
+                      <Td key={header.id}>
+                        {header.id === "enabled"
+                          ? `${row.groupByVal} (${row.subRows.length})`
+                          : null}
+                      </Td>
+                    ))}
                   </Tr>
                   {row.subRows.map((subRow) => {
                     prepareRow(subRow);
