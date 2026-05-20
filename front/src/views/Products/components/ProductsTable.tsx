@@ -23,6 +23,7 @@ import {
   FormControl,
   FormLabel,
   Switch,
+  Box,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { AddIcon } from "@chakra-ui/icons";
@@ -145,7 +146,7 @@ function ProductsTable({
   );
 
   return (
-    <Flex direction="column" overflowX="auto">
+    <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Link to="create">
           <Button leftIcon={<AddIcon />} mb={2} borderRadius="0">
@@ -196,63 +197,67 @@ function ProductsTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      <Table key="products-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
-        <Tbody>
-          <Tr key={"header-spacer"}>
-            <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
-          </Tr>
+      <Box overflowX="auto">
+        <Table key="products-table">
+          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+          <Tbody>
+            <Tr key={"header-spacer"}>
+              <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
+            </Tr>
 
-          {rows.map((row) => {
-            prepareRow(row);
+            {rows.map((row) => {
+              prepareRow(row);
 
-            if (row.isGrouped) {
-              return (
-                <React.Fragment key={row.id}>
-                  <Tr backgroundColor="gray.50" fontWeight="bold">
-                    {headerGroups[0]?.headers.map((header) => (
-                      <Td key={header.id}>
-                        {header.id === "name" ? `${row.groupByVal} (${row.subRows.length})` : null}
-                      </Td>
-                    ))}
-                  </Tr>
-                  {row.subRows.map((subRow) => {
-                    prepareRow(subRow);
-                    return (
-                      <Tr
-                        {...subRow.getRowProps()}
-                        key={subRow.original.id}
-                        onClick={() =>
-                          onRowClick(
-                            subRow.original.isStandard
-                              ? subRow.original.standardInstantiationId
-                              : subRow.original.id,
-                            subRow.original.isStandard,
-                          )
-                        }
-                        cursor="pointer"
-                      >
-                        {subRow.cells.map((cell) =>
-                          cell.isGrouped ? null : (
-                            <Td
-                              {...cell.getCellProps()}
-                              key={`${subRow.values.id}-${cell.column.id}`}
-                            >
-                              {cell.isPlaceholder ? null : cell.render("Cell")}
-                            </Td>
-                          ),
-                        )}
-                      </Tr>
-                    );
-                  })}
-                </React.Fragment>
-              );
-            }
+              if (row.isGrouped) {
+                return (
+                  <React.Fragment key={row.id}>
+                    <Tr backgroundColor="gray.50" fontWeight="bold">
+                      {headerGroups[0]?.headers.map((header) => (
+                        <Td key={header.id}>
+                          {header.id === "name"
+                            ? `${row.groupByVal} (${row.subRows.length})`
+                            : null}
+                        </Td>
+                      ))}
+                    </Tr>
+                    {row.subRows.map((subRow) => {
+                      prepareRow(subRow);
+                      return (
+                        <Tr
+                          {...subRow.getRowProps()}
+                          key={subRow.original.id}
+                          onClick={() =>
+                            onRowClick(
+                              subRow.original.isStandard
+                                ? subRow.original.standardInstantiationId
+                                : subRow.original.id,
+                              subRow.original.isStandard,
+                            )
+                          }
+                          cursor="pointer"
+                        >
+                          {subRow.cells.map((cell) =>
+                            cell.isGrouped ? null : (
+                              <Td
+                                {...cell.getCellProps()}
+                                key={`${subRow.values.id}-${cell.column.id}`}
+                              >
+                                {cell.isPlaceholder ? null : cell.render("Cell")}
+                              </Td>
+                            ),
+                          )}
+                        </Tr>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              }
 
-            return null;
-          })}
-        </Tbody>
-      </Table>
+              return null;
+            })}
+          </Tbody>
+        </Table>
+      </Box>
     </Flex>
   );
 }

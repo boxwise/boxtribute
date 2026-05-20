@@ -10,7 +10,7 @@ import {
   useRowSelect,
   defaultOrderByFn,
 } from "react-table";
-import { Table, Tr, Tbody, Td, Spacer, Flex, HStack, useDisclosure } from "@chakra-ui/react";
+import { Table, Tr, Tbody, Td, Spacer, Flex, HStack, useDisclosure, Box } from "@chakra-ui/react";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { StandardProductRow } from "./transformers";
 import { removeFilter } from "utils/helpers";
@@ -121,7 +121,7 @@ function StandardProductsTable({
   );
 
   return (
-    <Flex direction="column" overflowX="auto">
+    <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Spacer />
         <HStack spacing={2} mb={2}>
@@ -156,53 +156,55 @@ function StandardProductsTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      <Table key="standard-products-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
-        <Tbody>
-          <Tr key={"header-spacer-std"}>
-            <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
-          </Tr>
+      <Box overflowX="auto">
+        <Table key="standard-products-table">
+          <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+          <Tbody>
+            <Tr key={"header-spacer-std"}>
+              <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
+            </Tr>
 
-          {rows.map((row) => {
-            prepareRow(row);
+            {rows.map((row) => {
+              prepareRow(row);
 
-            if (row.isGrouped) {
-              return (
-                <React.Fragment key={row.id}>
-                  <Tr backgroundColor="gray.50" fontWeight="bold">
-                    {headerGroups[0]?.headers.map((header) => (
-                      <Td key={header.id}>
-                        {header.id === "enabled"
-                          ? `${row.groupByVal} (${row.subRows.length})`
-                          : null}
-                      </Td>
-                    ))}
-                  </Tr>
-                  {row.subRows.map((subRow) => {
-                    prepareRow(subRow);
-                    return (
-                      <Tr {...subRow.getRowProps()} key={subRow.original.id}>
-                        {subRow.cells.map((cell) =>
-                          cell.isGrouped ? null : (
-                            <Td
-                              {...cell.getCellProps()}
-                              key={`${subRow.values.name}-${cell.column.id}`}
-                            >
-                              {cell.isPlaceholder ? null : cell.render("Cell")}
-                            </Td>
-                          ),
-                        )}
-                      </Tr>
-                    );
-                  })}
-                </React.Fragment>
-              );
-            }
+              if (row.isGrouped) {
+                return (
+                  <React.Fragment key={row.id}>
+                    <Tr backgroundColor="gray.50" fontWeight="bold">
+                      {headerGroups[0]?.headers.map((header) => (
+                        <Td key={header.id}>
+                          {header.id === "enabled"
+                            ? `${row.groupByVal} (${row.subRows.length})`
+                            : null}
+                        </Td>
+                      ))}
+                    </Tr>
+                    {row.subRows.map((subRow) => {
+                      prepareRow(subRow);
+                      return (
+                        <Tr {...subRow.getRowProps()} key={subRow.original.id}>
+                          {subRow.cells.map((cell) =>
+                            cell.isGrouped ? null : (
+                              <Td
+                                {...cell.getCellProps()}
+                                key={`${subRow.values.name}-${cell.column.id}`}
+                              >
+                                {cell.isPlaceholder ? null : cell.render("Cell")}
+                              </Td>
+                            ),
+                          )}
+                        </Tr>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              }
 
-            return null;
-          })}
-        </Tbody>
-      </Table>
+              return null;
+            })}
+          </Tbody>
+        </Table>
+      </Box>
     </Flex>
   );
 }
