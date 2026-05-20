@@ -76,6 +76,7 @@ function StandardProductsContainer() {
         { id: "name", desc: false },
       ],
       hiddenColumns: [
+        "category",
         "price",
         "inShop",
         "comment",
@@ -148,7 +149,12 @@ function StandardProductsContainer() {
                 Disable
               </Button>
             ) : (
-              <Button onClick={() => handleEnableProduct(row.original.id)} size="sm">
+              <Button
+                color="white"
+                bg="green.500"
+                onClick={() => handleEnableProduct(row.original.id)}
+                size="sm"
+              >
                 Enable
               </Button>
             )}
@@ -162,6 +168,7 @@ function StandardProductsContainer() {
         Filter: SelectColumnFilter,
         filter: "includesOneOfMultipleStrings",
       },
+      // "category" kept in columns array for groupBy, hidden via hiddenColumns
       {
         Header: "Category",
         accessor: "category",
@@ -250,7 +257,9 @@ function StandardProductsContainer() {
   const tableData = useMemo(
     () =>
       standardProductsRawData
-        ? standardProductsRawDataToTableDataTransformer(standardProductsRawData)
+        ? standardProductsRawDataToTableDataTransformer(standardProductsRawData).sort((a, b) =>
+            a.category.localeCompare(b.category),
+          )
         : [],
     [standardProductsRawData],
   );

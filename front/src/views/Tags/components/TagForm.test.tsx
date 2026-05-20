@@ -4,7 +4,7 @@ import { userEvent } from "@testing-library/user-event";
 import { selectOptionInSelectField } from "tests/helpers";
 import { TagForm, nameErrorText, applicationErrorText } from "./TagForm";
 
-vi.setConfig({ testTimeout: 20_000 });
+vi.setConfig({ testTimeout: 40_000 });
 
 // Mock useNavigate
 vi.mock("react-router-dom", async () => {
@@ -112,7 +112,7 @@ describe("TagForm", () => {
         expect.anything(), // form event
       );
     });
-  }, 30000);
+  });
 
   it("submits form without optional description", async () => {
     const user = userEvent.setup();

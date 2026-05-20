@@ -2210,6 +2210,9 @@ def test_create_boxes(
     tags,
     location_in_deleted_base,
     deleted_base,
+    default_box,
+    box_without_qr_code,
+    another_box,
 ):
     product_id = str(default_product["id"])
     mass_product_id = str(mass_product["id"])
@@ -2362,6 +2365,91 @@ def test_create_boxes(
             "history": [{"changes": "created box"}],
         },
     ]
+
+    # Test case 8.2.116
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 0
+            locationId: {location_id}
+            boxLabelIdentifierForMerge: "{default_box["label_identifier"]}"
+        }}
+    ]) {{
+        ...on BoxesResult {{
+            updatedBoxes {{
+                id
+                numberOfItems
+            }}
+            invalidBoxLabelIdentifiers
+        }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "invalidBoxLabelIdentifiers": [],
+        "updatedBoxes": [
+            {
+                "id": str(default_box["id"]),
+                "numberOfItems": default_box["number_of_items"] + 0,
+            }
+        ],
+    }
+
+    # one valid merge, two invalid merges (wrong state and wrong base), one plain create
+    mutation = f"""mutation {{ createBoxes(creationInput: [
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 3
+            locationId: {location_id}
+            boxLabelIdentifierForMerge: "{default_box["label_identifier"]}"
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 2
+            locationId: {location_id}
+            boxLabelIdentifierForMerge: "{box_without_qr_code["label_identifier"]}"
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+        }},
+        {{
+            productId: {product_id}
+            sizeName: "Small"
+            numberOfItems: 1
+            locationId: {location_id}
+            boxLabelIdentifierForMerge: "{another_box["label_identifier"]}"
+        }}
+    ]) {{
+        ...on BoxesResult {{
+            updatedBoxes {{
+                id
+                labelIdentifier
+                numberOfItems
+            }}
+            invalidBoxLabelIdentifiers
+        }}
+    }} }}
+    """
+    response = assert_successful_request(client, mutation)
+    assert response["invalidBoxLabelIdentifiers"] == [
+        box_without_qr_code["label_identifier"],
+        another_box["label_identifier"],
+    ]
+    updated_boxes = response["updatedBoxes"]
+    assert len(updated_boxes) == 2
+    assert updated_boxes[0] == {
+        "id": str(default_box["id"]),
+        "labelIdentifier": default_box["label_identifier"],
+        "numberOfItems": default_box["number_of_items"] + 3,
+    }
+    assert updated_boxes[1]["numberOfItems"] == 1
+    assert len(updated_boxes[1]["labelIdentifier"]) == 8
 
     # Test case 8.2.115
     another_location_id = location_in_deleted_base["id"]

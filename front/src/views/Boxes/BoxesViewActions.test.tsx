@@ -810,8 +810,8 @@ boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, trigg
         // Ensure state propagation in CI environments
         await waitFor(
           () =>
-            expect(screen.getByTestId("floating-selected-counter")).toHaveTextContent(
-              /one box selected/i,
+            expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent(
+              /1 Box selected/i,
             ),
           { timeout: 2000 },
         );

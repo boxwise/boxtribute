@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Column,
   Filters,
   useTable,
   useFilters,
   useGlobalFilter,
+  useGroupBy,
   useSortBy,
   useRowSelect,
-  usePagination,
+  defaultOrderByFn,
 } from "react-table";
 import {
   Table,
@@ -16,14 +17,15 @@ import {
   Td,
   Spacer,
   Flex,
-  Text,
-  IconButton,
   Button,
   HStack,
   useDisclosure,
+  FormControl,
+  FormLabel,
+  Switch,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { AddIcon, ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { AddIcon } from "@chakra-ui/icons";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { ProductRow } from "./transformers";
 import { removeFilter } from "utils/helpers";
@@ -58,6 +60,13 @@ function ProductsTable({
   genderOptions,
   sizeRangeOptions,
 }: ProductTableProps) {
+  const [showOnlyAssort, setShowOnlyAssort] = useState(false);
+
+  const filteredData = useMemo(
+    () => (showOnlyAssort ? tableData.filter((row) => row.isStandard) : tableData),
+    [showOnlyAssort, tableData],
+  );
+
   // Add custom filter function to filter objects in a column https://react-table-v7.tanstack.com/docs/examples/filtering
   const filterTypes = useMemo(
     () => ({
@@ -71,26 +80,26 @@ function ProductsTable({
     headerGroups,
     prepareRow,
     allColumns,
-    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
+    rows,
+    state: { globalFilter, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     setAllFilters,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    nextPage,
-    previousPage,
   } = useTable(
     {
       columns,
-      data: tableData,
+      data: filteredData,
       filterTypes,
+      orderByFn: (rows, sortFns, dirs) => {
+        if (rows.length > 0 && rows[0].isGrouped) {
+          return [...rows].sort((a, b) => String(a.groupByVal).localeCompare(String(b.groupByVal)));
+        }
+        return defaultOrderByFn(rows, sortFns, dirs);
+      },
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
-        pageIndex: 0,
-        pageSize: 20,
         filters: tableConfig.getColumnFilters(),
+        groupBy: ["category"],
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
@@ -98,8 +107,8 @@ function ProductsTable({
     },
     useFilters,
     useGlobalFilter,
+    useGroupBy,
     useSortBy,
-    usePagination,
     useRowSelect,
   );
 
@@ -145,8 +154,21 @@ function ProductsTable({
         </Link>
         <Spacer />
         <HStack spacing={2} mb={2}>
+          <FormControl display="flex" alignItems="center">
+            <Switch
+              id="show-only-assort"
+              isChecked={showOnlyAssort}
+              onChange={(e) => setShowOnlyAssort(e.target.checked)}
+              mr={2}
+            />
+            <FormLabel htmlFor="show-only-assort" mb={0} whiteSpace="nowrap" fontWeight="normal">
+              Show only ASSORT products
+            </FormLabel>
+          </FormControl>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
+            availableColumns={allColumns.filter(
+              (column) => column.id !== "category" && column.id !== "actionButton",
+            )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel
@@ -177,62 +199,60 @@ function ProductsTable({
       <Table key="products-table">
         <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
         <Tbody>
-          {page.map((row) => {
+          <Tr key={"header-spacer"}>
+            <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
+          </Tr>
+
+          {rows.map((row) => {
             prepareRow(row);
-            return (
-              <Tr
-                {...row.getRowProps()}
-                key={row.original.id}
-                onClick={() =>
-                  onRowClick(
-                    row.original.isStandard
-                      ? row.original.standardInstantiationId
-                      : row.original.id,
-                    row.original.isStandard,
-                  )
-                }
-                cursor="pointer"
-              >
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()} key={`${row.values.id}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
+
+            if (row.isGrouped) {
+              return (
+                <React.Fragment key={row.id}>
+                  <Tr backgroundColor="gray.50" fontWeight="bold">
+                    {headerGroups[0]?.headers.map((header) => (
+                      <Td key={header.id}>
+                        {header.id === "name" ? `${row.groupByVal} (${row.subRows.length})` : null}
+                      </Td>
+                    ))}
+                  </Tr>
+                  {row.subRows.map((subRow) => {
+                    prepareRow(subRow);
+                    return (
+                      <Tr
+                        {...subRow.getRowProps()}
+                        key={subRow.original.id}
+                        onClick={() =>
+                          onRowClick(
+                            subRow.original.isStandard
+                              ? subRow.original.standardInstantiationId
+                              : subRow.original.id,
+                            subRow.original.isStandard,
+                          )
+                        }
+                        cursor="pointer"
+                      >
+                        {subRow.cells.map((cell) =>
+                          cell.isGrouped ? null : (
+                            <Td
+                              {...cell.getCellProps()}
+                              key={`${subRow.values.id}-${cell.column.id}`}
+                            >
+                              {cell.isPlaceholder ? null : cell.render("Cell")}
+                            </Td>
+                          ),
+                        )}
+                      </Tr>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            }
+
+            return null;
           })}
         </Tbody>
       </Table>
-      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
-        <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={previousPage}
-            isDisabled={!canPreviousPage}
-            icon={<ChevronLeftIcon h={6} w={6} />}
-          />
-        </Flex>
-        <Flex justifyContent="center" m={4}>
-          <Text>
-            Page{" "}
-            <Text fontWeight="bold" as="span">
-              {pageIndex + 1}
-            </Text>{" "}
-            of{" "}
-            <Text fontWeight="bold" as="span">
-              {pageOptions.length}
-            </Text>
-          </Text>
-        </Flex>
-        <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={nextPage}
-            isDisabled={!canNextPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
-          />
-        </Flex>
-      </Flex>
     </Flex>
   );
 }

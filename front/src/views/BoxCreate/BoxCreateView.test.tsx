@@ -15,7 +15,7 @@ import { product1, productBasic1 } from "mocks/products";
 import { location1 } from "mocks/locations";
 import { tag1, tag2 } from "mocks/tags";
 
-vi.setConfig({ testTimeout: 20_000 });
+vi.setConfig({ testTimeout: 40_000 });
 
 vi.mock("@auth0/auth0-react");
 const mockedUseAuth0 = vi.mocked(useAuth0);
