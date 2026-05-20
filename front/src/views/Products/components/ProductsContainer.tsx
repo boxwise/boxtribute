@@ -72,7 +72,6 @@ function ProductsContainer() {
         "category",
         "inShop",
         "createdBy",
-        "created",
         "lastModifiedBy",
         "lastModified",
         "id",
@@ -195,7 +194,7 @@ function ProductsContainer() {
         disableFilters: true,
       },
       {
-        Header: "Last Modified",
+        Header: "Last Modified On",
         accessor: "lastModified",
         id: "lastModified",
         Cell: DateCell,
@@ -210,7 +209,7 @@ function ProductsContainer() {
         filter: "includesOneOfMultipleStrings",
       },
       {
-        Header: "Created",
+        Header: "Created On",
         accessor: "created",
         id: "created",
         Cell: DateCell,
