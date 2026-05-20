@@ -257,6 +257,7 @@ _NAMES = [
     "product",
     "size",
     "unit",
+    "size_range_size",
     "box",
     "beneficiary",
     "transfer_agreement",

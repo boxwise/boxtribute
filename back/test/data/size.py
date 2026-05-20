@@ -1,19 +1,17 @@
 import pytest
 from boxtribute_server.models.definitions.size import Size
 
-from .size_range import data as size_range_data
-
 
 def default_size_data():
-    return {"id": 1, "label": "small", "size_range": size_range_data()[0]["id"]}
+    return {"id": 1, "label": "small"}
 
 
 def another_size_data():
-    return {"id": 2, "label": "medium", "size_range": size_range_data()[0]["id"]}
+    return {"id": 2, "label": "medium"}
 
 
 def mixed_size_data():
-    return {"id": 3, "label": "Mixed", "size_range": size_range_data()[0]["id"]}
+    return {"id": 3, "label": "Mixed"}
 
 
 @pytest.fixture
