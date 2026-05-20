@@ -744,6 +744,7 @@ def create_boxes(*, user_id, data):
     products = {}
     if sanitized_data:
         create_product_ids = {row["product_id"] for row in sanitized_data}
+        # Get ID and size range for all requested products
         product_rows = list(
             Product.select(Product.id, Product.size_range).where(
                 Product.id << create_product_ids
@@ -751,6 +752,7 @@ def create_boxes(*, user_id, data):
         )
         products = {p.id: p for p in product_rows}
         size_range_ids = {p.size_range_id for p in product_rows if p.size_range_id}
+        # For all size ranges of the requested products, get corresponding sizes
         sizes_for_size_range = defaultdict(dict)
         for srs in (
             SizeRangeSize.select(SizeRangeSize.size_range, Size.id, Size.label)
@@ -759,7 +761,8 @@ def create_boxes(*, user_id, data):
         ):
             sizes_for_size_range[srs.size_range_id][
                 srs.size.label.lower()
-            ] = srs.size_id
+            ] = srs.size.id
+        # Create mapping of these sizes for each product
         sizes_for_product = {
             p.id: sizes_for_size_range.get(p.size_range_id, {}) for p in product_rows
         }
