@@ -14,16 +14,16 @@ function Products() {
         <Heading fontWeight="bold" as="h2" flex={{ md: "1" }}>
           Manage Products
         </Heading>
-         <Link
-           as={RouterLink}
-           to={"assort"}
-           color="blue.500"
-           fontWeight="semibold"
-           alignSelf={{ base: "flex-end", md: "auto" }}
-         >
-           Check ASSORT Standard Products{" "}
-           <BiChevronRight size="1.5em" style={{ display: "inline", verticalAlign: "middle" }} />
-         </Link>
+        <Link
+          as={RouterLink}
+          to={"assort"}
+          color="blue.500"
+          fontWeight="semibold"
+          alignSelf={{ base: "flex-end", md: "auto" }}
+        >
+          Check ASSORT Standard Products{" "}
+          <BiChevronRight size="1.5em" style={{ display: "inline", verticalAlign: "middle" }} />
+        </Link>
       </Flex>
       <ErrorBoundary
         fallback={
