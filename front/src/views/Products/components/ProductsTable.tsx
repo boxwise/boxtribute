@@ -147,15 +147,15 @@ function ProductsTable({
 
   return (
     <Flex direction="column" height="100%">
-      <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
-        <Link to="create">
-          <Button leftIcon={<AddIcon />} mb={2} borderRadius="0">
-            Add New Product
-          </Button>
-        </Link>
-        <Spacer />
-        <HStack spacing={2} mb={2}>
-          <FormControl display="flex" alignItems="center">
+      <Flex direction="column" key="columnSelector" flex="none">
+        <Flex alignItems="center" mb={2}>
+          <Link to="create">
+            <Button leftIcon={<AddIcon />} borderRadius="0">
+              Add New Product
+            </Button>
+          </Link>
+          <Spacer />
+          <FormControl display="flex" alignItems="center" width="auto">
             <Switch
               id="show-only-assort"
               isChecked={showOnlyAssort}
@@ -166,28 +166,32 @@ function ProductsTable({
               Show only ASSORT products
             </FormLabel>
           </FormControl>
-          <ColumnSelector
-            availableColumns={allColumns.filter(
-              (column) => column.id !== "category" && column.id !== "actionButton",
-            )}
-          />
-          <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-          <FilterPanel
-            isOpen={filterDisclosure.isOpen}
-            onOpen={filterDisclosure.onOpen}
-            onClose={filterDisclosure.onClose}
-          >
-            <ProductsFilter
-              isOpen={filterDisclosure.isOpen}
-              onClose={filterDisclosure.onClose}
-              columnFilters={filters}
-              onApplyFilters={handleApplyFilters}
-              categoryOptions={categoryOptions}
-              genderOptions={genderOptions}
-              sizeRangeOptions={sizeRangeOptions}
+        </Flex>
+        <Flex justifyContent="flex-end" mb={2}>
+          <HStack spacing={2}>
+            <ColumnSelector
+              availableColumns={allColumns.filter(
+                (column) => column.id !== "category" && column.id !== "actionButton",
+              )}
             />
-          </FilterPanel>
-        </HStack>
+            <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+            <FilterPanel
+              isOpen={filterDisclosure.isOpen}
+              onOpen={filterDisclosure.onOpen}
+              onClose={filterDisclosure.onClose}
+            >
+              <ProductsFilter
+                isOpen={filterDisclosure.isOpen}
+                onClose={filterDisclosure.onClose}
+                columnFilters={filters}
+                onApplyFilters={handleApplyFilters}
+                categoryOptions={categoryOptions}
+                genderOptions={genderOptions}
+                sizeRangeOptions={sizeRangeOptions}
+              />
+            </FilterPanel>
+          </HStack>
+        </Flex>
       </Flex>
       <ProductsFilterChips
         filters={filters}

@@ -10,14 +10,16 @@ import { BiChevronRight } from "react-icons/bi";
 function Products() {
   return (
     <>
-      <Flex alignItems="center" mb={4}>
-        <Heading fontWeight="bold" as="h2" flex="1">
+      <Flex direction="column" mb={4}>
+        <Heading fontWeight="bold" as="h2">
           Manage Products
         </Heading>
-        <Link as={RouterLink} to={"assort"} color="blue.500" fontWeight="semibold">
-          Check ASSORT Standard Products{" "}
-          <BiChevronRight size="1.5em" style={{ display: "inline", verticalAlign: "middle" }} />
-        </Link>
+        <Flex justifyContent="flex-end">
+          <Link as={RouterLink} to={"assort"} color="blue.500" fontWeight="semibold">
+            Check ASSORT Standard Products{" "}
+            <BiChevronRight size="1.5em" style={{ display: "inline", verticalAlign: "middle" }} />
+          </Link>
+        </Flex>
       </Flex>
       <ErrorBoundary
         fallback={
