@@ -15,7 +15,6 @@ import {
   Tr,
   Tbody,
   Td,
-  Spacer,
   Flex,
   Button,
   HStack,
@@ -147,15 +146,19 @@ function ProductsTable({
 
   return (
     <Flex direction="column" height="100%">
-      <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        alignItems={{ base: "flex-start", md: "center" }}
+        key="columnSelector"
+        flex="none"
+      >
         <Link to="create">
           <Button leftIcon={<AddIcon />} mb={2} borderRadius="0">
             Add New Product
           </Button>
         </Link>
-        <Spacer />
-        <HStack spacing={2} mb={2}>
-          <FormControl display="flex" alignItems="center">
+        <HStack spacing={2} mb={2} ml={{ md: "auto" }}>
+          <FormControl display="flex" alignItems="center" width="auto">
             <Switch
               id="show-only-assort"
               isChecked={showOnlyAssort}
@@ -163,7 +166,12 @@ function ProductsTable({
               mr={2}
             />
             <FormLabel htmlFor="show-only-assort" mb={0} whiteSpace="nowrap" fontWeight="normal">
-              Show only ASSORT products
+              <Box as="span" display={{ base: "none", md: "inline" }}>
+                Show only ASSORT products
+              </Box>
+              <Box as="span" display={{ base: "inline", md: "none" }}>
+                Only ASSORT
+              </Box>
             </FormLabel>
           </FormControl>
           <ColumnSelector
