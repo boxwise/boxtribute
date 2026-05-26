@@ -146,15 +146,18 @@ function ProductsTable({
 
   return (
     <Flex direction="column" height="100%">
-      <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        alignItems={{ base: "flex-start", md: "center" }}
+        key="columnSelector"
+        flex="none"
+      >
         <Link to="create">
           <Button leftIcon={<AddIcon />} mb={2} borderRadius="0">
             Add New Product
           </Button>
         </Link>
-        {/* Zero-height line-break: full-width on mobile forces HStack to next line; hidden on desktop */}
-        <Box display={{ base: "block", md: "none" }} width="100%" />
-        <HStack spacing={2} mb={2} ml="auto">
+        <HStack spacing={2} mb={2} ml={{ md: "auto" }}>
           <FormControl display="flex" alignItems="center" width="auto">
             <Switch
               id="show-only-assort"
