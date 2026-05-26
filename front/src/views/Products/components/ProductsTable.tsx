@@ -146,7 +146,7 @@ function ProductsTable({
 
   return (
     <Flex direction="column" height="100%">
-      <Flex flexWrap="wrap" alignItems="center" key="columnSelector" flex="none">
+      <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <Link to="create">
           <Button leftIcon={<AddIcon />} mb={2} borderRadius="0">
             Add New Product
