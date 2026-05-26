@@ -10,8 +10,8 @@ import { BiChevronRight } from "react-icons/bi";
 function Products() {
   return (
     <>
-      <Flex direction="column" mb={4}>
-        <Heading fontWeight="bold" as="h2">
+      <Flex direction={{ base: "column", md: "row" }} alignItems={{ md: "center" }} mb={4}>
+        <Heading fontWeight="bold" as="h2" flex={{ md: "1" }}>
           Manage Products
         </Heading>
         <Flex justifyContent="flex-end">
