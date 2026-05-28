@@ -83,6 +83,7 @@ def main():
             client_id=os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"],
             client_secret=os.environ["AUTH0_MANAGEMENT_API_CLIENT_SECRET"],
             audience=os.environ["AUTH0_MANAGEMENT_API_AUDIENCE"],
+            domain=os.environ["AUTH0_MANAGEMENT_API_DOMAIN"],
             grant_type="client_credentials",
             username=None,
             password=None,
