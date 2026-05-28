@@ -68,21 +68,26 @@ Nice-to-have:
 
 ---
 
-### Option C – GitBook (SaaS, free Community plan for OSS/non-profits)
+### Option C – GitBook (SaaS, free Community/Sponsored plan for OSS/non-profits)
 
-**Description:** GitBook is a cloud-hosted documentation platform with a WYSIWYG block editor. It offers a free Community plan for qualifying open-source and non-profit organisations (requires an application and approval).
+**Description:** GitBook is a cloud-hosted documentation platform with a WYSIWYG block editor. It offers two free options for qualifying open-source and non-profit organisations:
+
+1. **Community Plan** (requires application and approval): Access to nearly all Ultimate plan features (except SAML SSO), including custom domains, custom branding, AI assistant, advanced analytics, and unlimited contributors.
+2. **Sponsored Plan** (no application required): Free for open-source projects; includes custom domains, most features, but shows small ethical ads on the documentation site. Revenue from ads supports the project.
 
 Key characteristics:
 - Block-based WYSIWYG editor — non-tech friendly out of the box.
 - Two-way GitHub sync — docs can live in the repo and be edited via GitBook UI.
 - Fast full-text search built in.
-- Reasonable theming (predefined themes, limited CSS customisation on free plan).
-- Basic "site insights" on the free plan; **advanced analytics require a paid plan**.
-- **No custom domain on the free plan** (forced `*.gitbook.io` subdomain).
-- **No offline / PWA support** — requires an active internet connection at all times.
+- AI-powered search and content assistant.
+- ✅ **Custom domain available on Community/Sponsored plans** (corrected from initial research).
+- ✅ **Advanced analytics and site insights available on Community plan**.
+- Custom fonts and branding (Community plan).
+- Slack, GitHub, and Linear integrations.
+- ❌ **No native offline / PWA support** — GitBook is a cloud-first platform and requires an active internet connection at all times. There is no service worker or PWA caching built in. Users can export to PDF for offline reading, but this is not the same as browsing cached pages offline.
 - Not open source; vendor lock-in risk.
 
-**Verdict:** Fails the offline/low-connectivity requirement and the custom domain requirement on the free tier. Advanced analytics are behind a paywall. Vendor lock-in is a concern for a long-lived OSS project.
+**Verdict:** GitBook's Community plan is significantly more capable than initially assessed—it includes custom domains, advanced analytics, and AI features. However, **it still fails the offline/low-connectivity requirement**, which is critical for aid workers in refugee camps with intermittent connectivity. Vendor lock-in remains a concern for a long-lived OSS project.
 
 ---
 
@@ -157,9 +162,177 @@ Key characteristics:
 
 **Verdict:** Strong for API docs but does not cover the non-developer audience Boxtribute needs to serve.
 
+---
+
+### Option H – MkDocs with Material theme (open-source static site generator)
+
+**Description:** [MkDocs](https://www.mkdocs.org/) is a Python-based static site generator designed for project documentation. Combined with the popular [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme, it offers a polished documentation experience.
+
+Key characteristics:
+- ✅ Free, open-source (MIT license)
+- ✅ PWA support with offline caching via built-in `material/pwa` plugin
+- ✅ Full-text client-side search (works offline after first load)
+- ✅ Analytics support (Google Analytics, Plausible, Matomo)
+- ✅ Theming and customisation (Material theme with light/dark mode, custom CSS)
+- ✅ Custom domain (static site, deployable anywhere)
+- ⚠️ Blog plugin available via third-party plugins (`mkdocs-blog-plugin`), but not as mature as Docusaurus
+- ⚠️ Python-based — Boxtribute has Python in the backend, but frontend team is React-focused
+- ❌ No equivalent to `@graphql-markdown/docusaurus` for GraphQL API docs
+- ❌ No MCP server plugin
+
+**Verdict:** Strong contender with excellent PWA/offline support. However, less alignment with the React-based frontend team, less mature blog capabilities, and missing GraphQL documentation plugin make it slightly less optimal than Docusaurus for Boxtribute's specific needs.
+
+---
+
+### Option I – Read the Docs (open-source hosting platform)
+
+**Description:** [Read the Docs](https://readthedocs.org/) is a leading platform for hosting documentation automatically built from Git repositories. Very popular in the Python ecosystem.
+
+- ✅ Free for open-source projects
+- ✅ Automatic builds on commit
+- ✅ Version management (multiple doc versions per release)
+- ✅ Full-text Elasticsearch-powered search
+- ✅ Basic analytics included
+- ❌ No PWA/offline caching — requires internet connection
+- ❌ Limited theming (Sphinx/MkDocs themes)
+- ❌ No blog functionality
+- ❌ Primarily suited for technical reference docs, not user guides or case studies
+
+**Verdict:** Excellent for open-source project reference docs but lacks offline support, blog features, and the flexibility needed for Boxtribute's diverse content requirements.
+
+---
+
+### Option J – BookStack (self-hosted open-source wiki)
+
+**Description:** [BookStack](https://www.bookstackapp.com/) is a self-hosted, open-source wiki platform with a hierarchical book-chapter-page structure.
+
+- ✅ Free, open-source (MIT license)
+- ✅ WYSIWYG and Markdown editors — very non-tech friendly
+- ✅ Full-text search
+- ✅ Custom theming and dark mode
+- ✅ REST API for integrations
+- ✅ Fine-grained role-based permissions
+- ❌ **No PWA/offline support** — responsive web app but no service worker caching
+- ❌ **Requires self-hosting** — adds maintenance burden (server, backups, updates)
+- ❌ No built-in analytics (requires external tools)
+- ❌ No blog functionality
+
+**Verdict:** Excellent WYSIWYG editing and organisation, but requires ongoing server maintenance (counter to minimal tech maintenance requirement) and lacks offline support.
+
+---
+
+### Option K – Wiki.js (self-hosted open-source wiki)
+
+**Description:** [Wiki.js](https://js.wiki/) is a modern, lightweight, open-source wiki engine built on Node.js.
+
+- ✅ Free, open-source (AGPLv3)
+- ✅ WYSIWYG, Markdown, and code editors
+- ✅ Full-text search with Elasticsearch integration
+- ✅ Built-in analytics (page views, popular content) plus Google Analytics/Matomo integration
+- ✅ Theming and custom CSS
+- ✅ Git sync for content versioning
+- ✅ Granular permissions and SSO support
+- ❌ **No PWA/offline support**
+- ❌ **Requires self-hosting** — adds maintenance burden
+- ❌ No blog functionality (wiki-oriented)
+
+**Verdict:** Feature-rich wiki with good analytics and theming, but requires self-hosting and lacks offline support.
+
+---
+
+### Option L – Outline (open-source knowledge base)
+
+**Description:** [Outline](https://www.getoutline.com/) is a beautifully designed, team-focused knowledge base with real-time collaboration, available as self-hosted or cloud.
+
+- ✅ Open-source (BSL license, transitioning to AGPLv3)
+- ✅ Modern, fast UI with WYSIWYG editing
+- ✅ Real-time collaboration
+- ✅ Full-text search
+- ✅ Markdown support
+- ✅ Slack integrations
+- ⚠️ Cloud version available (paid) or self-hosted (free but requires maintenance)
+- ❌ **No PWA/offline support**
+- ❌ Self-hosted adds maintenance burden
+- ❌ No blog functionality
+- ❌ No public-facing docs site out of the box (primarily for internal wikis)
+
+**Verdict:** Excellent for internal team knowledge bases but not designed as a public-facing documentation site. Lacks offline support and blog functionality.
+
+---
+
+### Option M – Notion (SaaS workspace with nonprofit discount)
+
+**Description:** [Notion](https://www.notion.so/) is an all-in-one workspace popular for wikis, project management, and documentation. Offers 50% discount for nonprofits (via TechSoup).
+
+- ✅ Extremely user-friendly for non-technical users
+- ✅ Block-based editor, databases, templates
+- ✅ Real-time collaboration
+- ✅ Offline mode improved significantly in 2025 (desktop/mobile apps)
+- ⚠️ 50% discount for nonprofits (still has cost)
+- ❌ Not open source
+- ❌ Limited theming / public site customisation
+- ❌ Not designed for structured public documentation sites
+- ❌ No built-in analytics for public pages
+- ❌ Search limited on public pages
+
+**Verdict:** Great for internal wikis and team collaboration but not ideal for structured public-facing documentation. Still has ongoing cost even with nonprofit discount.
+
+---
+
+### Option N – Document360 (SaaS knowledge base)
+
+**Description:** [Document360](https://document360.com/) is an AI-enhanced knowledge base platform for public and private documentation.
+
+- ✅ Powerful Markdown editor
+- ✅ Version control and analytics
+- ✅ Full-text search with AI assistance
+- ✅ Localisation features
+- ❌ Commercial SaaS with limited free tier
+- ❌ No PWA/offline support
+- ❌ Not open source; vendor lock-in
+- ❌ Pricing may be prohibitive for nonprofit
+
+**Verdict:** Feature-rich but commercial SaaS not aligned with Boxtribute's free/open-source requirement.
+
 ## Decision
 
 **Adopt Docusaurus** as Boxtribute's public documentation platform.
+
+### Summary of Options Evaluated
+
+| Option | Free | Non-tech editing | Offline/PWA | Search | Theming | Custom domain | Blog | Self-hosted burden |
+|--------|:----:|:----------------:|:-----------:|:------:|:-------:|:-------------:|:----:|:------------------:|
+| A. Google Docs | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
+| B. GitHub Wiki | ✅ | ⚠️ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
+| **C. GitBook** | ✅* | ✅ | ❌ | ✅ | ✅ | ✅ | ⚠️ | N/A |
+| **D. Docusaurus** | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
+| E. Starlight | ✅ | ⚠️ | ⚠️ | ✅ | ✅ | ✅ | ❌ | N/A |
+| F. VitePress | ✅ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ❌ | N/A |
+| G. Mintlify | ⚠️ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ⚠️ | N/A |
+| H. MkDocs Material | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ⚠️ | N/A |
+| I. Read the Docs | ✅ | ⚠️ | ❌ | ✅ | ⚠️ | ✅ | ❌ | N/A |
+| J. BookStack | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ⚠️ |
+| K. Wiki.js | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ⚠️ |
+| L. Outline | ✅ | ✅ | ❌ | ✅ | ✅ | ⚠️ | ❌ | ⚠️ |
+| M. Notion | ⚠️ | ✅ | ✅ | ⚠️ | ❌ | ⚠️ | ❌ | N/A |
+| N. Document360 | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | N/A |
+
+*Legend: ✅ = meets requirement, ⚠️ = partial/limited, ❌ = does not meet*
+
+*\* GitBook Community plan requires application and approval*
+
+### Key Findings
+
+**GitBook (Option C)** is more capable than initially assessed—the Community plan includes custom domains, advanced analytics, and AI features. However, its **lack of offline/PWA support is a critical blocker** for Boxtribute's use case (aid workers in refugee camps with intermittent connectivity).
+
+**Docusaurus (Option D) and MkDocs Material (Option H)** are the only options that meet all must-have requirements, including offline/PWA caching. Docusaurus is preferred because:
+1. **React alignment** — Boxtribute's frontend is React-based; Docusaurus uses React/MDX.
+2. **Mature blog plugin** — Built-in, well-documented blog functionality.
+3. **GraphQL API docs** — `@graphql-markdown/docusaurus` plugin can generate docs from the existing schema.
+4. **MCP integration** — `docusaurus-plugin-mcp-server` available for AI assistant context.
+5. **Ecosystem** — Larger community, more themes, more plugins.
+
+### Implementation Plan
 
 The site will be:
 - Maintained as a directory (e.g. `/docs-site`) inside the existing monorepo, or as a dedicated repository (`boxwise/docs`).
