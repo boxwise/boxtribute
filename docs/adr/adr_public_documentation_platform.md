@@ -38,12 +38,6 @@ Nice-to-have:
 
 **Description:** Use a shared Google Drive folder for guides and link to individual documents from the README or in-app tooltips.
 
-- ✅ Zero setup cost, non-tech friendly
-- ❌ No search across documents
-- ❌ No branding / theming
-- ❌ No offline support
-- ❌ No analytics
-- ❌ No custom domain
 - ❌ Does not scale; no navigation structure
 
 **Verdict:** Does not meet must-have requirements.
@@ -54,14 +48,7 @@ Nice-to-have:
 
 **Description:** Activate the built-in GitHub Wiki on the Boxtribute repository.
 
-- ✅ Free, already available, markdown-based
 - ✅ Basic non-tech editing via GitHub web UI
-- ❌ Search is extremely limited (no full-text across all pages)
-- ❌ No theming or branding at all
-- ❌ No offline caching / PWA support
-- ❌ No analytics
-- ❌ Permanently on `github.com` — no custom domain
-- ❌ No blog / guide section
 - ❌ Poor discoverability outside GitHub
 
 **Verdict:** Does not meet must-have requirements.
@@ -123,13 +110,9 @@ Key characteristics:
 
 **Description:** [Starlight](https://starlight.astro.build/) is a documentation framework built on Astro, gaining traction as an alternative to Docusaurus.
 
-- ✅ Free, open-source
-- ✅ Built-in search, dark mode, i18n
 - ✅ Framework-agnostic component support
 - ❌ Younger project with a smaller plugin ecosystem
 - ❌ Team has no prior Astro experience (vs. React which is already used)
-- ❌ No PWA/offline plugin as mature as Docusaurus's
-- ❌ No equivalent to `@graphql-markdown/docusaurus`
 
 **Verdict:** Promising but less mature. Lacks the plugin ecosystem needed to satisfy all requirements today.
 
@@ -139,11 +122,8 @@ Key characteristics:
 
 **Description:** [VitePress](https://vitepress.dev/) is a Vue-powered static site generator optimised for speed.
 
-- ✅ Free, open-source, very fast builds
 - ❌ Vue ecosystem — Boxtribute frontend is React-based
-- ❌ No built-in blog plugin
 - ❌ No versioning support
-- ❌ No PWA plugin as capable as Docusaurus's
 
 **Verdict:** Mismatch with existing React ecosystem; missing blog and offline features.
 
@@ -153,11 +133,9 @@ Key characteristics:
 
 **Description:** [Mintlify](https://mintlify.com/) is a developer-documentation SaaS with native OpenAPI support and built-in AI chat.
 
-- ✅ Excellent API-docs experience
 - ✅ AI chat / MCP support
 - ❌ Primarily targeted at developer API docs — not general end-user guides
 - ❌ Free plan is limited; advanced features require paid tiers
-- ❌ No offline/PWA support
 - ❌ Proprietary SaaS; vendor lock-in
 
 **Verdict:** Strong for API docs but does not cover the non-developer audience Boxtribute needs to serve.
@@ -169,16 +147,10 @@ Key characteristics:
 **Description:** [MkDocs](https://www.mkdocs.org/) is a Python-based static site generator designed for project documentation. Combined with the popular [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme, it offers a polished documentation experience.
 
 Key characteristics:
-- ✅ Free, open-source (MIT license)
-- ✅ PWA support with offline caching via built-in `material/pwa` plugin
-- ✅ Full-text client-side search (works offline after first load)
-- ✅ Analytics support (Google Analytics, Plausible, Matomo)
-- ✅ Theming and customisation (Material theme with light/dark mode, custom CSS)
-- ✅ Custom domain (static site, deployable anywhere)
-- ⚠️ Blog plugin available via third-party plugins (`mkdocs-blog-plugin`), but not as mature as Docusaurus
 - ⚠️ Python-based — Boxtribute has Python in the backend, but frontend team is React-focused
 - ❌ No equivalent to `@graphql-markdown/docusaurus` for GraphQL API docs
 - ❌ No MCP server plugin
+- ❌ Single maintainer, last release in Aug 2024; uncertainty about [version 2](https://github.com/mkdocs/mkdocs/discussions/4077)
 
 **Verdict:** Strong contender with excellent PWA/offline support. However, less alignment with the React-based frontend team, less mature blog capabilities, and missing GraphQL documentation plugin make it slightly less optimal than Docusaurus for Boxtribute's specific needs.
 
@@ -188,14 +160,8 @@ Key characteristics:
 
 **Description:** [Read the Docs](https://readthedocs.org/) is a leading platform for hosting documentation automatically built from Git repositories. Very popular in the Python ecosystem.
 
-- ✅ Free for open-source projects
 - ✅ Automatic builds on commit
 - ✅ Version management (multiple doc versions per release)
-- ✅ Full-text Elasticsearch-powered search
-- ✅ Basic analytics included
-- ❌ No PWA/offline caching — requires internet connection
-- ❌ Limited theming (Sphinx/MkDocs themes)
-- ❌ No blog functionality
 - ❌ Primarily suited for technical reference docs, not user guides or case studies
 
 **Verdict:** Excellent for open-source project reference docs but lacks offline support, blog features, and the flexibility needed for Boxtribute's diverse content requirements.
@@ -206,16 +172,9 @@ Key characteristics:
 
 **Description:** [BookStack](https://www.bookstackapp.com/) is a self-hosted, open-source wiki platform with a hierarchical book-chapter-page structure.
 
-- ✅ Free, open-source (MIT license)
 - ✅ WYSIWYG and Markdown editors — very non-tech friendly
-- ✅ Full-text search
-- ✅ Custom theming and dark mode
-- ✅ REST API for integrations
 - ✅ Fine-grained role-based permissions
-- ❌ **No PWA/offline support** — responsive web app but no service worker caching
 - ❌ **Requires self-hosting** — adds maintenance burden (server, backups, updates)
-- ❌ No built-in analytics (requires external tools)
-- ❌ No blog functionality
 
 **Verdict:** Excellent WYSIWYG editing and organisation, but requires ongoing server maintenance (counter to minimal tech maintenance requirement) and lacks offline support.
 
@@ -225,16 +184,9 @@ Key characteristics:
 
 **Description:** [Wiki.js](https://js.wiki/) is a modern, lightweight, open-source wiki engine built on Node.js.
 
-- ✅ Free, open-source (AGPLv3)
 - ✅ WYSIWYG, Markdown, and code editors
-- ✅ Full-text search with Elasticsearch integration
-- ✅ Built-in analytics (page views, popular content) plus Google Analytics/Matomo integration
-- ✅ Theming and custom CSS
 - ✅ Git sync for content versioning
 - ✅ Granular permissions and SSO support
-- ❌ **No PWA/offline support**
-- ❌ **Requires self-hosting** — adds maintenance burden
-- ❌ No blog functionality (wiki-oriented)
 
 **Verdict:** Feature-rich wiki with good analytics and theming, but requires self-hosting and lacks offline support.
 
@@ -244,16 +196,10 @@ Key characteristics:
 
 **Description:** [Outline](https://www.getoutline.com/) is a beautifully designed, team-focused knowledge base with real-time collaboration, available as self-hosted or cloud.
 
-- ✅ Open-source (BSL license, transitioning to AGPLv3)
 - ✅ Modern, fast UI with WYSIWYG editing
 - ✅ Real-time collaboration
-- ✅ Full-text search
-- ✅ Markdown support
 - ✅ Slack integrations
 - ⚠️ Cloud version available (paid) or self-hosted (free but requires maintenance)
-- ❌ **No PWA/offline support**
-- ❌ Self-hosted adds maintenance burden
-- ❌ No blog functionality
 - ❌ No public-facing docs site out of the box (primarily for internal wikis)
 
 **Verdict:** Excellent for internal team knowledge bases but not designed as a public-facing documentation site. Lacks offline support and blog functionality.
@@ -267,13 +213,8 @@ Key characteristics:
 - ✅ Extremely user-friendly for non-technical users
 - ✅ Block-based editor, databases, templates
 - ✅ Real-time collaboration
-- ✅ Offline mode improved significantly in 2025 (desktop/mobile apps)
-- ⚠️ 50% discount for nonprofits (still has cost)
 - ❌ Not open source
-- ❌ Limited theming / public site customisation
 - ❌ Not designed for structured public documentation sites
-- ❌ No built-in analytics for public pages
-- ❌ Search limited on public pages
 
 **Verdict:** Great for internal wikis and team collaboration but not ideal for structured public-facing documentation. Still has ongoing cost even with nonprofit discount.
 
@@ -284,13 +225,9 @@ Key characteristics:
 **Description:** [Document360](https://document360.com/) is an AI-enhanced knowledge base platform for public and private documentation.
 
 - ✅ Powerful Markdown editor
-- ✅ Version control and analytics
-- ✅ Full-text search with AI assistance
 - ✅ Localisation features
 - ❌ Commercial SaaS with limited free tier
-- ❌ No PWA/offline support
 - ❌ Not open source; vendor lock-in
-- ❌ Pricing may be prohibitive for nonprofit
 
 **Verdict:** Feature-rich but commercial SaaS not aligned with Boxtribute's free/open-source requirement.
 
