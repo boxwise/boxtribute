@@ -8,6 +8,7 @@ import {
   STATUS,
   Step,
   TooltipRenderProps,
+  TourData,
 } from "react-joyride";
 import { Box, Button, Flex, Progress, Text } from "@chakra-ui/react";
 import { useWalkthrough } from "./WalkthroughContext";
@@ -35,7 +36,8 @@ function nameToNavId(name: string): string {
 // Chakra UI's Collapse sets `display: none` on collapsed panels after the
 // exit animation, which causes Joyride to report TARGET_NOT_FOUND.
 function makeExpandGroupHook(groupName: string): BeforeHook {
-  return async () => {
+  // eslint-disable-next-line no-unused-vars
+  return async (_data: TourData) => {
     const groupId = nameToNavId(groupName);
     const groupEl = document.getElementById(groupId);
     if (!groupEl) return;
@@ -125,6 +127,20 @@ function TourOverlay() {
         return;
       }
 
+      // Handle target not found - skip to next step or go back to path selection
+      if (type === EVENTS.TARGET_NOT_FOUND) {
+        const nextIndex = index + 1;
+        if (nextIndex < steps.length) {
+          // Skip to next step if available
+          setStepIndex(nextIndex);
+        } else {
+          // No more steps, go back to path selection
+          setRun(false);
+          backToPathSelection();
+        }
+        return;
+      }
+
       if (type === EVENTS.STEP_AFTER) {
         if (action === ACTIONS.NEXT) {
           setStepIndex(index + 1);
@@ -136,7 +152,7 @@ function TourOverlay() {
         }
       }
     },
-    [activePath, completePath, backToPathSelection],
+    [activePath, completePath, backToPathSelection, steps.length],
   );
 
   if (!isActive || !pathDef || steps.length === 0) return null;
