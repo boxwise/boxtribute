@@ -157,9 +157,10 @@ function TourOverlay() {
       options={{
         overlayColor: "rgba(0,0,0,0.5)",
         zIndex: 10000,
-        overlayClickAction: false,
-        dismissKeyAction: false,
-        buttons: ["primary"],
+        overlayClickAction: false as const,
+        dismissKeyAction: false as const,
+        buttons: ["primary"] as const,
+        skipBeacon: true,
       }}
     />
   );
