@@ -300,26 +300,39 @@ Key characteristics:
 
 ### Summary of Options Evaluated
 
-| Option | Free | Non-tech editing | Offline/PWA | Search | Theming | Custom domain | Blog | Self-hosted burden |
-|--------|:----:|:----------------:|:-----------:|:------:|:-------:|:-------------:|:----:|:------------------:|
-| A. Google Docs | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
-| B. GitHub Wiki | ✅ | ⚠️ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
-| **C. GitBook** | ✅* | ✅ | ❌ | ✅ | ✅ | ✅ | ⚠️ | N/A |
-| **D. Docusaurus** | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
-| E. Starlight | ✅ | ⚠️ | ⚠️ | ✅ | ✅ | ✅ | ❌ | N/A |
-| F. VitePress | ✅ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ❌ | N/A |
-| G. Mintlify | ⚠️ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ⚠️ | N/A |
-| H. MkDocs Material | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ⚠️ | N/A |
-| I. Read the Docs | ✅ | ⚠️ | ❌ | ✅ | ⚠️ | ✅ | ❌ | N/A |
-| J. BookStack | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ⚠️ |
-| K. Wiki.js | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ⚠️ |
-| L. Outline | ✅ | ✅ | ❌ | ✅ | ✅ | ⚠️ | ❌ | ⚠️ |
-| M. Notion | ⚠️ | ✅ | ✅ | ⚠️ | ❌ | ⚠️ | ❌ | N/A |
-| N. Document360 | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | N/A |
+| Option | Free | Non-tech editing | Offline/PWA† | Search | Theming | Custom domain | Blog | Analytics | Self-hosted burden |
+|--------|:----:|:----------------:|:------------:|:------:|:-------:|:-------------:|:----:|:---------:|:------------------:|
+| A. Google Docs | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
+| B. GitHub Wiki | ✅ | ⚠️ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
+| **C. GitBook** | ✅* | ✅ | ❌ | ✅ | ✅ | ✅ | ⚠️ | ✅ | N/A |
+| **D. Docusaurus** | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
+| E. Starlight | ✅ | ⚠️ | ⚠️ | ✅ | ✅ | ✅ | ❌ | ⚠️ | N/A |
+| F. VitePress | ✅ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ❌ | ⚠️ | N/A |
+| G. Mintlify | ⚠️ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | N/A |
+| H. MkDocs Material | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ✅ | N/A |
+| I. Read the Docs | ✅ | ⚠️ | ❌ | ✅ | ⚠️ | ✅ | ❌ | ⚠️ | N/A |
+| J. BookStack | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ⚠️ |
+| K. Wiki.js | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ⚠️ |
+| L. Outline | ✅ | ✅ | ❌ | ✅ | ✅ | ⚠️ | ❌ | ❌ | ⚠️ |
+| M. Notion | ⚠️ | ✅ | ✅ | ⚠️ | ❌ | ⚠️ | ❌ | ❌ | N/A |
+| N. Document360 | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
 
 *Legend: ✅ = meets requirement, ⚠️ = partial/limited, ❌ = does not meet*
 
 *\* GitBook Community plan requires application and approval*
+
+*† PWA = Progressive Web App — a web application that uses service workers and modern browser APIs to cache content locally, enabling pages to load offline or in low-connectivity environments after a first visit.*
+
+**Analytics column notes:**
+- **C. GitBook**: Advanced analytics and site insights available on the Community plan.
+- **D. Docusaurus**: Plausible Analytics integration (GDPR-compliant, cookie-free); configured via a script tag in `docusaurus.config.js`. Free self-hosted or paid cloud.
+- **E. Starlight / F. VitePress / G. Mintlify**: No built-in analytics; external scripts (e.g. Plausible, Google Analytics) can be injected via head configuration.
+- **H. MkDocs Material**: Supports Google Analytics, Plausible, and Matomo via built-in configuration.
+- **I. Read the Docs**: Basic built-in page-view analytics; limited detail and not GDPR-focused.
+- **J. BookStack**: No built-in analytics; requires external tools.
+- **K. Wiki.js**: Built-in page-view analytics plus integrations with Google Analytics and Matomo.
+- **L. Outline / M. Notion**: No analytics for public-facing pages.
+- **N. Document360**: Built-in analytics included.
 
 ### Key Findings
 
