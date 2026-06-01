@@ -22,6 +22,14 @@ import {
   selectedBaseAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
+import { useWalkthrough } from "components/Walkthrough";
+
+function nameToNavId(name: string): string {
+  return `nav-${name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")}`;
+}
 
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -33,6 +41,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
   const [allowMultipleAccordionsOpen] = useMediaQuery("(min-height: 1080px)");
+  const { openWalkthrough } = useWalkthrough();
 
   return (
     <>
@@ -57,13 +66,14 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           overflowY="auto"
         >
           {menuItemsGroups.map((menu) => (
-            <AccordionItem key={menu.text}>
+            <AccordionItem key={menu.text} id={nameToNavId(menu.text)}>
               <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
                 <MenuIcon icon={menu.text as Icon} /> {menu.text}
               </AccordionButton>
               {menu.links.map((subMenu) => (
                 <AccordionPanel
                   key={subMenu.name}
+                  id={nameToNavId(subMenu.name)}
                   bg="gray.100"
                   _hover={{ bg: "gray.200" }}
                   as={NavLink}
@@ -95,6 +105,11 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           <AccordionItem>
             <AccordionButton gap={3} as={NavLink} to={ACCOUNT_SETTINGS_URL}>
               <MenuIcon icon="Account" /> Account
+            </AccordionButton>
+          </AccordionItem>
+          <AccordionItem>
+            <AccordionButton gap={3} color="red.500" onClick={openWalkthrough}>
+              Open walkthrough
             </AccordionButton>
           </AccordionItem>
           <AccordionItem>

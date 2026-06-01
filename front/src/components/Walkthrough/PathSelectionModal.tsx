@@ -1,0 +1,175 @@
+import {
+  Box,
+  Button,
+  Flex,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
+  Text,
+} from "@chakra-ui/react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { CheckIcon } from "@chakra-ui/icons";
+import { JWT_ROLE } from "utils/constants";
+import { useWalkthrough } from "./WalkthroughContext";
+import { PathId, WalkthroughPath } from "./paths/types";
+import path1 from "./paths/path1";
+import path2 from "./paths/path2";
+import path3 from "./paths/path3";
+
+function isWarehouseVolunteer(roles: string | string[]): boolean {
+  const roleList = Array.isArray(roles) ? roles : [roles];
+  return roleList.some((r) => r.includes("warehouse_volunteer"));
+}
+
+function isCoordinatorOrAbove(roles: string | string[]): boolean {
+  const roleList = Array.isArray(roles) ? roles : [roles];
+  return roleList.some(
+    (r) => r.includes("coordinator") || r === "administrator" || r === "boxtribute_god",
+  );
+}
+
+interface PathCardProps {
+  path: WalkthroughPath;
+  isCompleted: boolean;
+  onExplore: (id: PathId) => void;
+  onReplay: (id: PathId) => void;
+}
+
+function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
+  return (
+    <Box
+      borderWidth={1}
+      borderRadius="md"
+      p={4}
+      flex={1}
+      minW={200}
+      position="relative"
+      bg={isCompleted ? "gray.50" : "white"}
+      opacity={isCompleted ? 0.85 : 1}
+    >
+      {isCompleted && (
+        <Box
+          position="absolute"
+          top={2}
+          right={2}
+          bg="green.400"
+          borderRadius="full"
+          w={6}
+          h={6}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <CheckIcon color="white" boxSize={3} />
+        </Box>
+      )}
+      <Text fontSize="2xl" mb={2}>
+        {path.icon}
+      </Text>
+      <Text fontWeight="bold" mb={2} color={isCompleted ? "gray.500" : "inherit"}>
+        {path.title}
+      </Text>
+      <Text fontSize="sm" color="gray.600" mb={4}>
+        {path.description}
+      </Text>
+      {isCompleted ? (
+        <Flex gap={2}>
+          <Button size="sm" variant="outline" isDisabled cursor="default">
+            Completed!
+          </Button>
+          <Button size="sm" variant="outline" colorScheme="gray" onClick={() => onReplay(path.id)}>
+            Replay
+          </Button>
+        </Flex>
+      ) : (
+        <Button colorScheme="blue" size="sm" onClick={() => onExplore(path.id)}>
+          Explore
+        </Button>
+      )}
+    </Box>
+  );
+}
+
+function AllDoneMessage() {
+  const { closeWalkthrough } = useWalkthrough();
+  return (
+    <Box
+      bg="green.50"
+      borderWidth={1}
+      borderColor="green.200"
+      borderRadius="md"
+      p={4}
+      textAlign="center"
+      mb={4}
+    >
+      <Text fontWeight="bold" fontSize="lg" mb={1}>
+        Your are all set!
+      </Text>
+      <Text fontSize="sm" color="gray.600" mb={3}>
+        You&apos;ve seen the key parts of Boxtribute. You can always access this tutorial from your
+        Account Settings!
+      </Text>
+      <Button bg="black" color="white" _hover={{ bg: "gray.800" }} onClick={closeWalkthrough}>
+        Close walkthrough
+      </Button>
+    </Box>
+  );
+}
+
+function PathSelectionModal() {
+  const {
+    isWalkthroughActive,
+    currentStep,
+    closeWalkthrough,
+    completedPaths,
+    startPath,
+    replayPath,
+  } = useWalkthrough();
+  const { user } = useAuth0();
+
+  const roles: string | string[] = user?.[JWT_ROLE] ?? [];
+
+  const showPath2 = !isWarehouseVolunteer(roles);
+  const showPath3 = isCoordinatorOrAbove(roles);
+
+  const visiblePaths: WalkthroughPath[] = [
+    path1,
+    ...(showPath2 ? [path2] : []),
+    ...(showPath3 ? [path3] : []),
+  ];
+
+  const allCompleted = visiblePaths.every((p) => completedPaths.has(p.id));
+
+  const isOpen = isWalkthroughActive && currentStep === "pathSelection";
+
+  return (
+    <Modal isOpen={isOpen} onClose={closeWalkthrough} isCentered size="4xl">
+      <ModalOverlay />
+      <ModalContent>
+        <ModalCloseButton />
+        <ModalHeader textAlign="center" pt={8}>
+          Choose Your Path
+        </ModalHeader>
+        <ModalBody pb={8} px={6}>
+          {allCompleted && <AllDoneMessage />}
+          <Flex gap={4} flexWrap="wrap">
+            {visiblePaths.map((p) => (
+              <PathCard
+                key={p.id}
+                path={p}
+                isCompleted={completedPaths.has(p.id)}
+                onExplore={startPath}
+                onReplay={replayPath}
+              />
+            ))}
+          </Flex>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
+}
+
+export default PathSelectionModal;
