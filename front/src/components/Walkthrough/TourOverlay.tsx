@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Joyride,
   BeforeHook,
@@ -31,11 +31,27 @@ function nameToNavId(name: string): string {
     .replace(/[^a-z0-9-]/g, "")}`;
 }
 
+// Returns true when the element and every ancestor up to <body> are visible
+// (no display:none or visibility:hidden in the parent chain).
+function isDomVisible(el: Element): boolean {
+  let node: Element | null = el;
+  while (node && node !== document.body) {
+    if (node instanceof HTMLElement) {
+      const { display, visibility } = getComputedStyle(node);
+      if (display === "none" || visibility === "hidden") return false;
+    }
+    node = node.parentElement;
+  }
+  return true;
+}
+
 // Returns a Joyride `before` hook that expands the named accordion group so
 // the target element is visible when Joyride positions the tooltip.
 // Chakra UI's Collapse sets `display: none` on collapsed panels after the
 // exit animation, which causes Joyride to report TARGET_NOT_FOUND.
-function makeExpandGroupHook(groupName: string): BeforeHook {
+// We poll for actual visibility instead of using a fixed timeout so the hook
+// resolves as soon as the animation completes (or gives up after 1500 ms).
+function makeExpandGroupHook(groupName: string, target: string): BeforeHook {
   // eslint-disable-next-line no-unused-vars
   return async (_data: TourData) => {
     const groupId = nameToNavId(groupName);
@@ -44,19 +60,37 @@ function makeExpandGroupHook(groupName: string): BeforeHook {
     const btn = groupEl.querySelector<HTMLButtonElement>("button[aria-expanded]");
     if (!btn || btn.getAttribute("aria-expanded") === "true") return;
     btn.click();
-    // Wait for Chakra UI's accordion open animation (~300 ms) to finish
-    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+    // Poll until the target element becomes visible (or time out after 1500 ms).
+    const MAX_WAIT_MS = 1500;
+    const POLL_INTERVAL_MS = 50;
+    await new Promise<void>((resolve) => {
+      let elapsed = 0;
+      const id = setInterval(() => {
+        elapsed += POLL_INTERVAL_MS;
+        const el = document.querySelector(target);
+        if ((el && isDomVisible(el)) || elapsed >= MAX_WAIT_MS) {
+          clearInterval(id);
+          resolve();
+        }
+      }, POLL_INTERVAL_MS);
+    });
   };
 }
 
+// Build the Joyride step array from our tour-step definitions.
+// Steps whose target is not present in the DOM at all (e.g. an entire nav group
+// hidden by permission/beta filtering) are silently skipped so the tour doesn't
+// get stuck trying to highlight elements that can never be found.
 function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
-  return tourSteps.map((s) => ({
-    target: s.target,
-    title: s.title,
-    content: s.content,
-    placement: "right" as const,
-    ...(s.expandMenuGroup ? { before: makeExpandGroupHook(s.expandMenuGroup) } : {}),
-  }));
+  return tourSteps
+    .filter((s) => document.querySelector(s.target) !== null)
+    .map((s) => ({
+      target: s.target,
+      title: s.title,
+      content: s.content,
+      placement: "right" as const,
+      ...(s.expandMenuGroup ? { before: makeExpandGroupHook(s.expandMenuGroup, s.target) } : {}),
+    }));
 }
 
 interface CustomTooltipProps extends TooltipRenderProps {
@@ -102,7 +136,11 @@ function TourOverlay() {
 
   const isActive = isWalkthroughActive && currentStep === "tour" && activePath != null;
   const pathDef = activePath ? PATHS[activePath] : null;
-  const steps = pathDef ? buildJoyrideSteps(pathDef.steps) : [];
+  // Compute the step list once when the path changes so Joyride never receives a
+  // new array reference on every render (which would reset its internal state).
+  // buildJoyrideSteps also filters out steps whose targets are absent from the DOM.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [activePath]);
   const totalSteps = steps.length;
 
   // Reset step index whenever the active path changes
