@@ -36,13 +36,14 @@ function nameToNavId(name: string): string {
 // exit animation, which causes Joyride to report TARGET_NOT_FOUND.
 function makeExpandGroupHook(groupName: string): BeforeHook {
   return async () => {
-    const groupEl = document.getElementById(nameToNavId(groupName));
+    const groupId = nameToNavId(groupName);
+    const groupEl = document.getElementById(groupId);
     if (!groupEl) return;
     const btn = groupEl.querySelector<HTMLButtonElement>("button[aria-expanded]");
     if (!btn || btn.getAttribute("aria-expanded") === "true") return;
     btn.click();
     // Wait for Chakra UI's accordion open animation (~300 ms) to finish
-    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
   };
 }
 
@@ -161,6 +162,7 @@ function TourOverlay() {
         dismissKeyAction: false as const,
         buttons: ["primary"] as const,
         skipBeacon: true,
+        targetWaitTimeout: 2000,
       }}
     />
   );
