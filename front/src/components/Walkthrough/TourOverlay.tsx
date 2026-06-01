@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Joyride,
+  BeforeHook,
   EventData,
   EVENTS,
   ACTIONS,
@@ -21,12 +22,37 @@ const PATHS: Record<string, WalkthroughPath> = {
   path3,
 };
 
+// Mirrors the nameToNavId function in MenuDesktop so we can locate accordion items
+function nameToNavId(name: string): string {
+  return `nav-${name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "")}`;
+}
+
+// Returns a Joyride `before` hook that expands the named accordion group so
+// the target element is visible when Joyride positions the tooltip.
+// Chakra UI's Collapse sets `display: none` on collapsed panels after the
+// exit animation, which causes Joyride to report TARGET_NOT_FOUND.
+function makeExpandGroupHook(groupName: string): BeforeHook {
+  return async () => {
+    const groupEl = document.getElementById(nameToNavId(groupName));
+    if (!groupEl) return;
+    const btn = groupEl.querySelector<HTMLButtonElement>("button[aria-expanded]");
+    if (!btn || btn.getAttribute("aria-expanded") === "true") return;
+    btn.click();
+    // Wait for Chakra UI's accordion open animation (~300 ms) to finish
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+  };
+}
+
 function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
   return tourSteps.map((s) => ({
     target: s.target,
     title: s.title,
     content: s.content,
     placement: "right" as const,
+    ...(s.expandMenuGroup ? { before: makeExpandGroupHook(s.expandMenuGroup) } : {}),
   }));
 }
 
