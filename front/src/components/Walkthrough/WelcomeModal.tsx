@@ -11,13 +11,17 @@ import {
 } from "@chakra-ui/react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useWalkthrough } from "./WalkthroughContext";
+import { useAtomValue } from "jotai";
+import { organisationAtom } from "stores/globalPreferenceStore";
 
 function WelcomeModal() {
   const { isWalkthroughActive, currentStep, closeWalkthrough, goToPathSelection } =
     useWalkthrough();
   const { user } = useAuth0();
 
-  const orgName = user?.name ?? "there";
+  const userName = user?.name ?? "there";
+  const organisation = useAtomValue(organisationAtom);
+  const orgName = organisation?.name ?? "your organisation";
   const isOpen = isWalkthroughActive && currentStep === "welcome";
 
   return (
@@ -26,12 +30,12 @@ function WelcomeModal() {
       <ModalContent>
         <ModalCloseButton />
         <ModalHeader textAlign="center" pt={8} fontSize="lg" fontWeight="bold">
-          Welcome to Boxtribute, {orgName}!
+          Welcome to Boxtribute, {userName}!
         </ModalHeader>
         <ModalBody textAlign="center" px={6}>
           <Text mb={4}>
-            You&apos;re now part of your organisation&apos;s workspace. Boxtribute helps your team
-            manage stock, track boxes, and serve beneficiaries — all in one place.
+            You&apos;re now part of {orgName}&apos;s workspace. Boxtribute helps your team manage
+            stock, track boxes, and serve beneficiaries — all in one place.
           </Text>
           <Text>
             Let&apos;s take a quick tour so you know where everything is. It only takes a few

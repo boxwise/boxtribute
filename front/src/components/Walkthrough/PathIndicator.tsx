@@ -1,5 +1,6 @@
-import { Box, Text } from "@chakra-ui/react";
+import { Box, Link, Text } from "@chakra-ui/react";
 import { useWalkthrough } from "./WalkthroughContext";
+import { PATHS } from "./TourOverlay";
 
 const PATH_LABELS: Record<string, string> = {
   path1: `Path 1 – Stock & box management`,
@@ -28,6 +29,11 @@ function PathIndicator() {
       <Text fontSize="sm" fontWeight="semibold">
         {PATH_LABELS[activePath] ?? activePath}
       </Text>
+      {PATHS[activePath].guidanceUrl && (
+        <Link href={PATHS[activePath].guidanceUrl} isExternal fontSize="xs" color="blue.500">
+          Get more guidance on this topic &rsaquo;
+        </Link>
+      )}
     </Box>
   );
 }

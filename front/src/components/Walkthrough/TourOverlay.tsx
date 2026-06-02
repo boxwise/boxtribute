@@ -10,13 +10,13 @@ import {
   TooltipRenderProps,
   TourData,
 } from "react-joyride";
-import { Box, Button, Flex, Link, Progress, Select, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Progress, Text } from "@chakra-ui/react";
 import { useWalkthrough } from "./WalkthroughContext";
 import { nameToNavId } from "components/HeaderMenu/navId";
 import path1 from "./paths/path1";
 import path2 from "./paths/path2";
 import path3 from "./paths/path3";
-import { PathId, WalkthroughPath, TourStep } from "./paths/types";
+import { WalkthroughPath, TourStep } from "./paths/types";
 
 export const PATHS: Record<string, WalkthroughPath> = {
   path1,
@@ -99,7 +99,7 @@ function CustomTooltip({
 
       <Progress value={progress} size="sm" colorScheme="blue" mb={4} borderRadius="full" />
       <Button {...primaryProps} size="sm" colorScheme="blue" width="full" title={undefined}>
-        {isLastStep ? "You are done! Explore another scenario." : "Next"}
+        {isLastStep ? "Scenario complete! Explore another one" : "Next"}
       </Button>
     </Box>
   );

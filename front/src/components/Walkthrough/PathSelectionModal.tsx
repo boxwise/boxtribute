@@ -79,7 +79,7 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
       </Text>
       {isCompleted ? (
         <Flex gap={2}>
-          <Button size="sm" variant="outline" isDisabled cursor="default">
+          <Button size="sm" variant="ghost" isDisabled cursor="default">
             Completed!
           </Button>
           <Button size="sm" variant="outline" colorScheme="gray" onClick={() => onReplay(path.id)}>
@@ -112,7 +112,7 @@ function AllDoneMessage() {
       </Text>
       <Text fontSize="sm" color="gray.600" mb={3}>
         You&apos;ve seen the key parts of Boxtribute. You can always access this tutorial from your
-        Account Settings!
+        Account Settings, or replay below!
       </Text>
       <Button bg="black" color="white" _hover={{ bg: "gray.800" }} onClick={closeWalkthrough}>
         Close walkthrough
