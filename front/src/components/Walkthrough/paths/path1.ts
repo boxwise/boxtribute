@@ -18,7 +18,9 @@ const path1: WalkthroughPath = {
       target: "#nav-print-box-labels",
       title: "Print Box Labels",
       content:
-        "Generate and print QR labels to physically tag boxes in your warehouse. Scan them to pull up contents instantly. Note: this feature is build/adapted specifically for mobile, so try rescaling your browser or opening up on your phone to test it.",
+        "Generate and print QR labels to physically tag boxes in your warehouse. Scan them to pull up contents instantly.",
+      contentNote:
+        "Note: this feature is build/adapted specifically for mobile, so try rescaling your browser or opening up on your phone to test it.",
       expandMenuGroup: "Aid Inventory",
     },
     {

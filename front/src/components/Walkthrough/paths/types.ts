@@ -7,6 +7,8 @@ export interface TourStep {
   title: string;
   /** Explanation text */
   content: string;
+  /** Optional sentence rendered in bold after the main content */
+  contentNote?: string;
   /** Whether to expand a nav accordion group before showing this step */
   expandMenuGroup?: string;
 }
@@ -16,5 +18,7 @@ export interface WalkthroughPath {
   title: string;
   description: string;
   icon: string;
+  /** URL for the "Get more guidance on this topic" link shown in the tooltip footer */
+  guidanceUrl?: string;
   steps: TourStep[];
 }

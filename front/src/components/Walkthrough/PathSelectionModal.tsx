@@ -49,6 +49,8 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
       position="relative"
       bg={isCompleted ? "gray.50" : "white"}
       opacity={isCompleted ? 0.85 : 1}
+      display="flex"
+      flexDirection="column"
     >
       {isCompleted && (
         <Box
@@ -72,7 +74,7 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
       <Text fontWeight="bold" mb={2} color={isCompleted ? "gray.500" : "inherit"}>
         {path.title}
       </Text>
-      <Text fontSize="sm" color="gray.600" mb={4}>
+      <Text fontSize="sm" color="gray.600" mb={4} flex={1}>
         {path.description}
       </Text>
       {isCompleted ? (
