@@ -1,13 +1,10 @@
 import { Box, Text } from "@chakra-ui/react";
 import { useWalkthrough } from "./WalkthroughContext";
-import path1 from "./paths/path1";
-import path2 from "./paths/path2";
-import path3 from "./paths/path3";
 
 const PATH_LABELS: Record<string, string> = {
-  path1: `Path 1 – ${path1.title}`,
-  path2: `Path 2 – ${path2.title}`,
-  path3: `Path 3 – ${path3.title}`,
+  path1: `Path 1 – Stock & box management`,
+  path2: `Path 2 – Beneficiary & distribution management`,
+  path3: `Path 3 – Coordinator overview`,
 };
 
 function PathIndicator() {

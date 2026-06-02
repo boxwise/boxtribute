@@ -106,7 +106,7 @@ function AllDoneMessage() {
       mb={4}
     >
       <Text fontWeight="bold" fontSize="lg" mb={1}>
-        Your are all set!
+        You are all set!
       </Text>
       <Text fontSize="sm" color="gray.600" mb={3}>
         You&apos;ve seen the key parts of Boxtribute. You can always access this tutorial from your

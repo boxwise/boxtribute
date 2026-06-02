@@ -8,24 +8,45 @@ const path3: WalkthroughPath = {
   icon: "📊",
   steps: [
     {
-      target: "#nav-coordinator-admin",
-      title: "Coordinator Admin",
+      target: "#nav-dashboard",
+      title: "Dashboard",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. The Coordinator Admin section gives you full control over your base configuration.",
-      expandMenuGroup: "Coordinator Admin",
+        "Your command center. Stock levels, movement history, and beneficiary numbers across all bases in one view.",
+      expandMenuGroup: "Statistics",
+    },
+    {
+      target: "#nav-sales-reports",
+      title: "Sales Report",
+      content:
+        "Generate reports on what's been distributed. Useful for donor reporting and internal performance reviews.",
+      expandMenuGroup: "Statistics",
     },
     {
       target: "#nav-manage-products",
       title: "Manage Products",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Define and organise the product catalogue used across your warehouse.",
+        "Define your product catalogue: products, categories, and more. This underpins every box and distribution in the system.",
+      expandMenuGroup: "Coordinator Admin",
+    },
+    {
+      target: "#nav-manage-tags",
+      title: "Manage Tags",
+      content:
+        "Create tags to label boxes and beneficiaries with custom attributes. A flexible way to filter and segment your data.",
+      expandMenuGroup: "Coordinator Admin",
+    },
+    {
+      target: "#nav-edit-warehouses",
+      title: "Edit Warehouses",
+      content:
+        "Set up the physical spots in your warehouse where boxes are stored. Locations make it easy to find and move stock quickly.",
       expandMenuGroup: "Coordinator Admin",
     },
     {
       target: "#nav-manage-users",
       title: "Manage Users",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Add, remove, and assign roles to volunteers and coordinators in your base.",
+        "Add team members, assign roles, and control who has access to what across your base.",
       expandMenuGroup: "Coordinator Admin",
     },
   ],

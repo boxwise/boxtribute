@@ -7,25 +7,52 @@ const path2: WalkthroughPath = {
   icon: "👥",
   steps: [
     {
-      target: "#nav-beneficiaries",
-      title: "Beneficiaries",
+      target: "#nav-dashboard",
+      title: "Dashboard",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. The Beneficiaries section is where you manage all the people your organisation supports.",
+        "Check the beneficiary overview at the bottom of the dashboard - see how many people your base has reached and more.",
+      expandMenuGroup: "Statistics",
+    },
+    {
+      target: "#nav-manage-beneficiaries",
+      title: "Manage Beneficiaries",
+      content:
+        "Add, search, and manage the people your organisation supports. Each profile holds personal details and service history.",
       expandMenuGroup: "Beneficiaries",
     },
     {
       target: "#nav-add-beneficiary",
       title: "Add Beneficiary",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Register new beneficiaries and capture their household details so they can access services.",
+        "Create a profile for every person how comes to you for detailed tracking and analysis.",
       expandMenuGroup: "Beneficiaries",
     },
     {
-      target: "#nav-manage-beneficiaries",
-      title: "Manage Beneficiaries",
+      target: "#nav-manage-services",
+      title: "Manage Services",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Search, update, and manage the list of all registered beneficiaries in your base.",
+        "Configure the types of services that your base provides (e.g. learning). Link them to individual beneficiaries.",
       expandMenuGroup: "Beneficiaries",
+    },
+    {
+      target: "#nav-checkout",
+      title: "Checkout",
+      content: "Perform checkout for a beneficiary during a distribution. Helps you track usage.",
+      expandMenuGroup: "Free Shop",
+    },
+    {
+      target: "#nav-stockroom",
+      title: "Stockroom",
+      content:
+        "The free shop stockroom shows what items are available for beneficiaries to choose from during a distribution session.",
+      expandMenuGroup: "Free Shop",
+    },
+    {
+      target: "#nav-stock-planning",
+      title: "Stock Planning",
+      content:
+        "When stock runs low in the free shop, trace it back to boxes here. You'll work closely with the warehouse team.",
+      expandMenuGroup: "Aid Inventory",
     },
   ],
 };

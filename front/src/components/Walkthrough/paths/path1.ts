@@ -11,7 +11,7 @@ const path1: WalkthroughPath = {
       target: "#nav-dashboard",
       title: "Dashboard",
       content:
-        "Get a bird's-eye view of your warehouse. The Dashboard shows key statistics about your stock, shipments, and beneficiary distributions — all in one place.",
+        "Your home base. See a live snapshot of how many boxes and items are in stock across all your locations. You'll always start here, as this tells you the health of your warehouse at a glance.",
       expandMenuGroup: "Statistics",
     },
     {
@@ -25,28 +25,28 @@ const path1: WalkthroughPath = {
       target: "#nav-manage-boxes",
       title: "Manage Boxes",
       content:
-        "Here you can view, filter, and bulk-edit all boxes in your warehouse. Update their location, state, and product contents directly from this list.",
+        "This is where boxes live. Each box holds items of one category and has a label, location, and status. Think of this as your physical shelf, but actually digital and searchable.",
       expandMenuGroup: "Aid Inventory",
     },
     {
       target: "#nav-stock-planning",
       title: "Stock Planning",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Use Stock Planning to get an overview of available items per category and plan your next distribution.",
+        "See what's running low and plan ahead. This section helps you prioritize where you have surplus and shortages.",
       expandMenuGroup: "Aid Inventory",
     },
     {
-      target: "#nav-aid-transfers",
-      title: "Aid Transfers",
+      target: "#nav-manage-network",
+      title: "Manage Network",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Manage shipments and transfer agreements with partner organisations across the Boxtribute network.",
+        "See the other organisations your base collaborates with for sending and receiving stock.",
       expandMenuGroup: "Aid Transfers",
     },
     {
       target: "#nav-manage-shipments",
       title: "Manage Shipments",
       content:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Track the status of outgoing and incoming shipments, and coordinate with receiving bases.",
+        "Need to send boxes to another base? Create a shipment here and track it until it's received.",
       expandMenuGroup: "Aid Transfers",
     },
   ],
