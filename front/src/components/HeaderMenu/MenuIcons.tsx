@@ -4,6 +4,7 @@ import { FaTruckPlane } from "react-icons/fa6";
 import {
   RiAccountCircleFill,
   RiBarChart2Fill,
+  RiCheckboxMultipleBlankLine,
   RiKeyFill,
   RiQrCodeLine,
   RiLockStarFill,
@@ -20,6 +21,7 @@ export type Icon =
   | "Coordinator Admin"
   | "Base"
   | "Account"
+  | "Open walkthrough"
   | "Logout";
 
 function MenuIcons({ icon }: { icon: Icon }) {
@@ -42,6 +44,8 @@ function MenuIcons({ icon }: { icon: Icon }) {
       return <RiBaseStationFill />;
     case "Account":
       return <RiAccountCircleFill />;
+    case "Open walkthrough":
+      return <RiCheckboxMultipleBlankLine />;
     case "Logout":
       return <RiKeyFill style={{ rotate: "90deg" }} />;
     default:
