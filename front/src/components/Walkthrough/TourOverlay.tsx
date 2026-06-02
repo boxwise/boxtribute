@@ -24,50 +24,21 @@ const PATHS: Record<string, WalkthroughPath> = {
   path3,
 };
 
-// Returns true when the element and every ancestor up to <body> are visible
-// (no display:none or visibility:hidden in the parent chain).
-function isDomVisible(el: Element): boolean {
-  let node: Element | null = el;
-  while (node && node !== document.body) {
-    if (node instanceof HTMLElement) {
-      const { display, visibility } = getComputedStyle(node);
-      if (display === "none" || visibility === "hidden") return false;
-    }
-    node = node.parentElement;
-  }
-  return true;
-}
-
 // Returns a Joyride `before` hook that expands the named accordion group so
 // the target element is visible when Joyride positions the tooltip.
 // Chakra UI's Collapse sets `display: none` on collapsed panels after the
 // exit animation, which causes Joyride to report TARGET_NOT_FOUND.
-// We poll for actual visibility instead of using a fixed timeout so the hook
-// resolves as soon as the animation completes (or gives up after 1500 ms).
 //
 // Chakra v2 generates the AccordionButton's id as `accordion-button-{AccordionItem id}`,
 // so we target it directly rather than querying inside the AccordionItem element.
-function makeExpandGroupHook(groupName: string, target: string): BeforeHook {
+function makeExpandGroupHook(groupName: string): BeforeHook {
   // eslint-disable-next-line no-unused-vars
   return async (_data: TourData) => {
     const groupId = nameToNavId(groupName);
     const btn = document.getElementById(`accordion-button-${groupId}`) as HTMLButtonElement | null;
     if (!btn || btn.getAttribute("aria-expanded") === "true") return;
     btn.click();
-    // Poll until the target element becomes visible (or time out after 1500 ms).
-    const MAX_WAIT_MS = 1500;
-    const POLL_INTERVAL_MS = 50;
-    await new Promise<void>((resolve) => {
-      let elapsed = 0;
-      const id = setInterval(() => {
-        elapsed += POLL_INTERVAL_MS;
-        const el = document.querySelector(target);
-        if ((el && isDomVisible(el)) || elapsed >= MAX_WAIT_MS) {
-          clearInterval(id);
-          resolve();
-        }
-      }, POLL_INTERVAL_MS);
-    });
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
   };
 }
 
@@ -83,7 +54,7 @@ function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
       title: s.title,
       content: s.content,
       placement: "right" as const,
-      ...(s.expandMenuGroup ? { before: makeExpandGroupHook(s.expandMenuGroup, s.target) } : {}),
+      ...(s.expandMenuGroup ? { before: makeExpandGroupHook(s.expandMenuGroup) } : {}),
     }));
 }
 
