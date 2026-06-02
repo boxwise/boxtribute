@@ -32,7 +32,7 @@ import {
   availableBasesAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
-import { useWalkthrough } from "components/Walkthrough";
+// import { useWalkthrough } from "components/Walkthrough";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
@@ -60,7 +60,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
-  const { openWalkthrough } = useWalkthrough();
+  // const { openWalkthrough } = useWalkthrough();
 
   return (
     // use zIndex which is lower than the default for Chakra Modals (e.g. in HistoryOverlay)
