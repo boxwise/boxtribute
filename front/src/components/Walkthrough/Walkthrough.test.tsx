@@ -113,8 +113,23 @@ it("Walkthrough - clicking Explore starts the tour path", async () => {
   fireEvent.click(startBtn);
   const exploreButtons = await screen.findAllByRole("button", { name: /Explore/i });
   fireEvent.click(exploreButtons[0]);
-  // Tour is now active (modal closed) - no skip/path indicator in simplified setup
-  await waitFor(() => expect(screen.queryByText(/Choose Your Path/i)).not.toBeInTheDocument());
+  // Path indicator should appear
+  expect(await screen.findByText(/Path 1/i)).toBeInTheDocument();
+  // Skip button should appear
+  expect(screen.getByRole("button", { name: /Skip walkthrough/i })).toBeInTheDocument();
+});
+
+it("Walkthrough - skip button closes the tour", async () => {
+  renderWalkthrough();
+  const startBtn = await screen.findByRole("button", { name: /Start/i });
+  fireEvent.click(startBtn);
+  const exploreButtons = await screen.findAllByRole("button", { name: /Explore/i });
+  fireEvent.click(exploreButtons[0]);
+  const skipBtn = await screen.findByRole("button", { name: /Skip walkthrough/i });
+  fireEvent.click(skipBtn);
+  await waitFor(() =>
+    expect(screen.queryByRole("button", { name: /Skip walkthrough/i })).not.toBeInTheDocument(),
+  );
 });
 
 it("Walkthrough - completed path shows Completed + Replay buttons", async () => {
