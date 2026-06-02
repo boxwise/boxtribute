@@ -1,4 +1,5 @@
-import { Box, Button, Select } from "@chakra-ui/react";
+import { Button, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
 import { PATHS } from "./TourOverlay";
 
@@ -10,17 +11,35 @@ function SkipButton() {
 
   const allPaths = Object.values(PATHS);
   return (
-    <Box position="fixed" top={4} right={4} zIndex={10001}>
-      <Select size="sm" flex={1} value="" onChange={(e) => startPath(e.target.value as PathId)}>
-        <option value="" disabled hidden>
+    <Flex position="fixed" top={4} right={4} zIndex={10001} gap={2} align="center">
+      <Menu>
+        <MenuButton
+          as={Button}
+          size="sm"
+          variant="outline"
+          bg="white"
+          rightIcon={<ChevronDownIcon />}
+          _hover={{ bg: "gray.50" }}
+          _active={{ bg: "gray.100" }}
+        >
           Scenarios
-        </option>
-        {allPaths.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.title}
-          </option>
-        ))}
-      </Select>
+        </MenuButton>
+        <MenuList minW="240px">
+          {allPaths.map((p) => (
+            <MenuItem
+              key={p.id}
+              onClick={() => startPath(p.id)}
+              py={3}
+              gap={2}
+              _hover={{ bg: "gray.100", color: "inherit" }}
+              _focus={{ bg: "gray.100", color: "inherit" }}
+            >
+              <span>{p.icon}</span>
+              {p.title}
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
       <Button
         bg="black"
         color="white"
@@ -30,7 +49,7 @@ function SkipButton() {
       >
         Skip walkthrough
       </Button>
-    </Box>
+    </Flex>
   );
 }
 
