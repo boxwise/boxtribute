@@ -1,45 +1,47 @@
 import { Button, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
-import { PATHS } from "./TourOverlay";
+import { useVisiblePaths } from "./useVisiblePaths";
 
 function WalkthroughNav() {
   const { isWalkthroughActive, currentStep, closeWalkthrough, startPath } = useWalkthrough();
+  const visiblePaths = useVisiblePaths();
 
   // Show when tour is active but not during modals (which have their own close button)
   if (!isWalkthroughActive || currentStep !== "tour") return null;
 
-  const allPaths = Object.values(PATHS);
   return (
     <Flex position="fixed" top={4} right={4} zIndex={10001} gap={2} align="center">
-      <Menu>
-        <MenuButton
-          as={Button}
-          size="sm"
-          variant="outline"
-          bg="white"
-          rightIcon={<ChevronDownIcon />}
-          _hover={{ bg: "gray.50" }}
-          _active={{ bg: "gray.100" }}
-        >
-          Scenarios
-        </MenuButton>
-        <MenuList minW="240px">
-          {allPaths.map((p) => (
-            <MenuItem
-              key={p.id}
-              onClick={() => startPath(p.id)}
-              py={3}
-              gap={2}
-              _hover={{ bg: "gray.100", color: "inherit" }}
-              _focus={{ bg: "gray.100", color: "inherit" }}
-            >
-              <span>{p.icon}</span>
-              {p.title}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </Menu>
+      {visiblePaths.length > 1 && (
+        <Menu>
+          <MenuButton
+            as={Button}
+            size="sm"
+            variant="outline"
+            bg="white"
+            rightIcon={<ChevronDownIcon />}
+            _hover={{ bg: "gray.50" }}
+            _active={{ bg: "gray.100" }}
+          >
+            Scenarios
+          </MenuButton>
+          <MenuList minW="240px">
+            {visiblePaths.map((p) => (
+              <MenuItem
+                key={p.id}
+                onClick={() => startPath(p.id)}
+                py={3}
+                gap={2}
+                _hover={{ bg: "gray.100", color: "inherit" }}
+                _focus={{ bg: "gray.100", color: "inherit" }}
+              >
+                <span>{p.icon}</span>
+                {p.title}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      )}
       <Button
         bg="black"
         color="white"
