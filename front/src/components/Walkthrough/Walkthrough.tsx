@@ -1,7 +1,7 @@
 import WelcomeModal from "./WelcomeModal";
 import PathSelectionModal from "./PathSelectionModal";
 import TourOverlay from "./TourOverlay";
-import SkipButton from "./SkipButton";
+import WalkthroughNav from "./WalkthroughNav";
 import PathIndicator from "./PathIndicator";
 
 function Walkthrough() {
@@ -10,7 +10,7 @@ function Walkthrough() {
       <WelcomeModal />
       <PathSelectionModal />
       <TourOverlay />
-      <SkipButton />
+      <WalkthroughNav />
       <PathIndicator />
     </>
   );

@@ -3,7 +3,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
 import { PATHS } from "./TourOverlay";
 
-function SkipButton() {
+function WalkthroughNav() {
   const { isWalkthroughActive, currentStep, closeWalkthrough, startPath } = useWalkthrough();
 
   // Show when tour is active but not during modals (which have their own close button)
@@ -53,4 +53,4 @@ function SkipButton() {
   );
 }
 
-export default SkipButton;
+export default WalkthroughNav;
