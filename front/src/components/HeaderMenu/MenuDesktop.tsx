@@ -3,6 +3,7 @@ import {
   AccordionItem,
   AccordionButton,
   AccordionPanel,
+  Box,
   Flex,
   useDisclosure,
   useMediaQuery,
@@ -70,22 +71,25 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
               <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
                 <MenuIcon icon={menu.text as Icon} /> {menu.text}
               </AccordionButton>
-              {menu.links.map((subMenu) => (
-                <AccordionPanel
-                  key={subMenu.name}
-                  id={nameToNavId(subMenu.name)}
-                  bg="gray.100"
-                  _hover={{ bg: "gray.200" }}
-                  as={NavLink}
-                  to={subMenu.link}
-                  display="flex"
-                  pb={2}
-                  pl={8}
-                >
-                  {subMenu.name}&nbsp;
-                  {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
-                </AccordionPanel>
-              ))}
+              <AccordionPanel p={0}>
+                {menu.links.map((subMenu) => (
+                  <Box
+                    key={subMenu.name}
+                    id={nameToNavId(subMenu.name)}
+                    bg="gray.100"
+                    _hover={{ bg: "gray.200" }}
+                    as={NavLink}
+                    to={subMenu.link}
+                    display="flex"
+                    pb={2}
+                    pt={2}
+                    pl={8}
+                  >
+                    {subMenu.name}&nbsp;
+                    {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
+                  </Box>
+                ))}
+              </AccordionPanel>
             </AccordionItem>
           ))}
         </Accordion>
