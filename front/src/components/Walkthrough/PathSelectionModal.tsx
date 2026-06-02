@@ -14,6 +14,7 @@ import { CheckIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
 import { PathId, WalkthroughPath } from "./paths/types";
 import { useVisiblePaths } from "./useVisiblePaths";
+import MenuIcon, { Icon } from "components/HeaderMenu/MenuIcons";
 
 interface PathCardProps {
   path: WalkthroughPath;
@@ -52,10 +53,8 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
           <CheckIcon color="white" boxSize={3} />
         </Box>
       )}
-      <Text fontSize="2xl" mb={2}>
-        {path.icon}
-      </Text>
-      <Text fontWeight="bold" mb={2} color={isCompleted ? "gray.500" : "inherit"}>
+      <MenuIcon icon={path.icon as Icon} />
+      <Text fontWeight="bold" mt={2} mb={2} color={isCompleted ? "gray.500" : "inherit"}>
         {path.title}
       </Text>
       <Text fontSize="sm" color="gray.600" mb={4} flex={1}>

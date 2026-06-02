@@ -2,6 +2,7 @@ import { Button, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/r
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
 import { useVisiblePaths } from "./useVisiblePaths";
+import MenuIcon, { Icon } from "components/HeaderMenu/MenuIcons";
 
 function WalkthroughNav() {
   const { isWalkthroughActive, currentStep, closeWalkthrough, startPath } = useWalkthrough();
@@ -35,7 +36,7 @@ function WalkthroughNav() {
                 _hover={{ bg: "gray.100", color: "inherit" }}
                 _focus={{ bg: "gray.100", color: "inherit" }}
               >
-                <span>{p.icon}</span>
+                <MenuIcon icon={p.icon as Icon} />
                 {p.title}
               </MenuItem>
             ))}

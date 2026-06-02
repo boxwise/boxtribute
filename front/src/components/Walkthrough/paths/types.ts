@@ -18,7 +18,7 @@ export interface WalkthroughPath {
   title: string;
   description: string;
   icon: string;
-  /** URL for the "Get more guidance on this topic" link shown in the tooltip footer */
+  /** URL for the "Get more guidance on this topic" link shown in the path indicator */
   guidanceUrl?: string;
   steps: TourStep[];
 }
