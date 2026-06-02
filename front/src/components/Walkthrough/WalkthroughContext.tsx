@@ -45,6 +45,7 @@ function storageKey(userId: string) {
   return `boxtribute_walkthrough_${userId}`;
 }
 
+// Management of walkthrough state machine and persistence in localStorage
 function loadState(userId: string): WalkthroughState {
   try {
     const raw = localStorage.getItem(storageKey(userId));

@@ -4,6 +4,7 @@ import { useWalkthrough } from "./WalkthroughContext";
 import { useVisiblePaths } from "./useVisiblePaths";
 import MenuIcon, { Icon } from "components/HeaderMenu/MenuIcons";
 
+// In-tour fixed top-right controls (scenario switch + skip).
 function WalkthroughNav() {
   const { isWalkthroughActive, currentStep, closeWalkthrough, startPath } = useWalkthrough();
   const visiblePaths = useVisiblePaths();

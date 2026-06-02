@@ -14,6 +14,7 @@ import { useWalkthrough } from "./WalkthroughContext";
 import { useAtomValue } from "jotai";
 import { organisationAtom } from "stores/globalPreferenceStore";
 
+// Welcome modal entry point for first-time users.
 function WelcomeModal() {
   const { isWalkthroughActive, currentStep, closeWalkthrough, goToPathSelection } =
     useWalkthrough();

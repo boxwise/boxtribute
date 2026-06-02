@@ -8,6 +8,7 @@ const PATH_LABELS: Record<string, string> = {
   path3: `Path 3 – Coordinator overview`,
 };
 
+// In-tour fixed top-left path indicator + guidance link.
 function PathIndicator() {
   const { isWalkthroughActive, currentStep, activePath } = useWalkthrough();
 

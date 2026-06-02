@@ -4,6 +4,7 @@ import TourOverlay from "./TourOverlay";
 import WalkthroughNav from "./WalkthroughNav";
 import PathIndicator from "./PathIndicator";
 
+// Composes walkthrough UI pieces.
 function Walkthrough() {
   return (
     <>

@@ -104,6 +104,7 @@ function AllDoneMessage() {
   );
 }
 
+// Role-aware path selection UI + completion/replay states.
 function PathSelectionModal() {
   const {
     isWalkthroughActive,
