@@ -14,7 +14,7 @@ import { CheckIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
 import { PathId, WalkthroughPath } from "./paths/types";
 import { useVisiblePaths } from "./useVisiblePaths";
-import MenuIcon  from "components/HeaderMenu/MenuIcons";
+import MenuIcon from "components/HeaderMenu/MenuIcons";
 
 interface PathCardProps {
   path: WalkthroughPath;

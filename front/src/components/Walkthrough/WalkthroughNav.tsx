@@ -2,7 +2,7 @@ import { Button, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/r
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
 import { useVisiblePaths } from "./useVisiblePaths";
-import MenuIcon  from "components/HeaderMenu/MenuIcons";
+import MenuIcon from "components/HeaderMenu/MenuIcons";
 
 // In-tour fixed top-right controls (path switch + skip).
 function WalkthroughNav() {
