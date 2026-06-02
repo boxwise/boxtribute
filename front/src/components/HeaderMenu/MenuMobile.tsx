@@ -25,12 +25,14 @@ import { IHeaderMenuProps } from "./HeaderMenu";
 import BoxtributeLogo from "./BoxtributeLogo";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
+import { nameToNavId } from "./navId";
 import BaseSwitcher from "./BaseSwitcher";
 import {
   selectedBaseAtom,
   availableBasesAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
+// import { useWalkthrough } from "components/Walkthrough";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
@@ -58,6 +60,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
+  // const { openWalkthrough } = useWalkthrough();
 
   return (
     // use zIndex which is lower than the default for Chakra Modals (e.g. in HistoryOverlay)
@@ -96,7 +99,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                 <MenuDivider />
                 <Accordion defaultIndex={expandedMenuIndex()}>
                   {menuItemsGroups.map((menu) => (
-                    <AccordionItem key={menu.text} border={"none"}>
+                    <AccordionItem key={menu.text} border={"none"} id={nameToNavId(menu.text)}>
                       <AccordionButton
                         px={2}
                         _hover={{ bg: "transparent" }}
@@ -109,6 +112,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                       {menu.links.map((subMenu) => (
                         <AccordionPanel
                           key={subMenu.name}
+                          id={nameToNavId(subMenu.name)}
                           as={NavLink}
                           to={subMenu.link}
                           display="inline-flex"
@@ -151,6 +155,18 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                     Account
                   </SubItemBox>
                 </MenuItem>
+                {/* <MenuItem
+                  px={2}
+                  bg="transparent"
+                  _hover={{ bg: "transparent" }}
+                  color="red.500"
+                  onClick={() => {
+                    onClose();
+                    openWalkthrough();
+                  }}
+                >
+                  <SubItemBox>Open walkthrough</SubItemBox>
+                </MenuItem> */}
                 <MenuItem
                   px={2}
                   bg="transparent"
