@@ -99,7 +99,7 @@ function CustomTooltip({
 
       <Progress value={progress} size="sm" colorScheme="blue" mb={4} borderRadius="full" />
       <Button {...primaryProps} size="sm" colorScheme="blue" width="full" title={undefined}>
-        {isLastStep ? "Scenario complete! Explore another one" : "Next"}
+        {isLastStep ? "Path completed! Explore another one" : "Next"}
       </Button>
     </Box>
   );

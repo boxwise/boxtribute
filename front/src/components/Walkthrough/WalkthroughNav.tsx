@@ -4,7 +4,7 @@ import { useWalkthrough } from "./WalkthroughContext";
 import { useVisiblePaths } from "./useVisiblePaths";
 import MenuIcon  from "components/HeaderMenu/MenuIcons";
 
-// In-tour fixed top-right controls (scenario switch + skip).
+// In-tour fixed top-right controls (path switch + skip).
 function WalkthroughNav() {
   const { isWalkthroughActive, currentStep, closeWalkthrough, startPath } = useWalkthrough();
   const visiblePaths = useVisiblePaths();
@@ -25,7 +25,7 @@ function WalkthroughNav() {
             _hover={{ bg: "gray.50" }}
             _active={{ bg: "gray.100" }}
           >
-            Scenarios
+            Paths
           </MenuButton>
           <MenuList minW="240px">
             {visiblePaths.map((p) => (
