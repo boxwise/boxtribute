@@ -12,6 +12,7 @@ import {
 } from "react-joyride";
 import { Box, Button, Flex, Progress, Text } from "@chakra-ui/react";
 import { useWalkthrough } from "./WalkthroughContext";
+import { nameToNavId } from "components/HeaderMenu/navId";
 import path1 from "./paths/path1";
 import path2 from "./paths/path2";
 import path3 from "./paths/path3";
@@ -22,14 +23,6 @@ const PATHS: Record<string, WalkthroughPath> = {
   path2,
   path3,
 };
-
-// Mirrors the nameToNavId function in MenuDesktop so we can locate accordion items
-function nameToNavId(name: string): string {
-  return `nav-${name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")}`;
-}
 
 // Returns true when the element and every ancestor up to <body> are visible
 // (no display:none or visibility:hidden in the parent chain).
@@ -51,13 +44,14 @@ function isDomVisible(el: Element): boolean {
 // exit animation, which causes Joyride to report TARGET_NOT_FOUND.
 // We poll for actual visibility instead of using a fixed timeout so the hook
 // resolves as soon as the animation completes (or gives up after 1500 ms).
+//
+// Chakra v2 generates the AccordionButton's id as `accordion-button-{AccordionItem id}`,
+// so we target it directly rather than querying inside the AccordionItem element.
 function makeExpandGroupHook(groupName: string, target: string): BeforeHook {
   // eslint-disable-next-line no-unused-vars
   return async (_data: TourData) => {
     const groupId = nameToNavId(groupName);
-    const groupEl = document.getElementById(groupId);
-    if (!groupEl) return;
-    const btn = groupEl.querySelector<HTMLButtonElement>("button[aria-expanded]");
+    const btn = document.getElementById(`accordion-button-${groupId}`) as HTMLButtonElement | null;
     if (!btn || btn.getAttribute("aria-expanded") === "true") return;
     btn.click();
     // Poll until the target element becomes visible (or time out after 1500 ms).

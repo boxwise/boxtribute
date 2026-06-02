@@ -25,6 +25,7 @@ import { IHeaderMenuProps } from "./HeaderMenu";
 import BoxtributeLogo from "./BoxtributeLogo";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
+import { nameToNavId } from "./navId";
 import BaseSwitcher from "./BaseSwitcher";
 import {
   selectedBaseAtom,
@@ -32,13 +33,6 @@ import {
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
 import { useWalkthrough } from "components/Walkthrough";
-
-function nameToNavId(name: string): string {
-  return `nav-${name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-]/g, "")}`;
-}
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
