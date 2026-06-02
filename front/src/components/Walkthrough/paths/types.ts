@@ -1,3 +1,5 @@
+import type { Icon } from "components/HeaderMenu/MenuIcons";
+
 export type PathId = "path1" | "path2" | "path3";
 
 export interface TourStep {
@@ -17,7 +19,7 @@ export interface WalkthroughPath {
   id: PathId;
   title: string;
   description: string;
-  icon: string;
+  icon: Icon;
   /** URL for the "Get more guidance on this topic" link shown in the path indicator */
   guidanceUrl?: string;
   steps: TourStep[];

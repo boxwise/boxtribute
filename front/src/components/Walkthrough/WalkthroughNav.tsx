@@ -36,7 +36,7 @@ function WalkthroughNav() {
                 _hover={{ bg: "gray.100", color: "inherit" }}
                 _focus={{ bg: "gray.100", color: "inherit" }}
               >
-                <MenuIcon icon={p.icon as Icon} />
+                <MenuIcon icon={p.icon} />
                 {p.title}
               </MenuItem>
             ))}

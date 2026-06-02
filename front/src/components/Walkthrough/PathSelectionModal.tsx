@@ -53,7 +53,7 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
           <CheckIcon color="white" boxSize={3} />
         </Box>
       )}
-      <MenuIcon icon={path.icon as Icon} />
+      <MenuIcon icon={path.icon} />
       <Text fontWeight="bold" mt={2} mb={2} color={isCompleted ? "gray.500" : "inherit"}>
         {path.title}
       </Text>
@@ -94,8 +94,8 @@ function AllDoneMessage() {
         You are all set!
       </Text>
       <Text fontSize="sm" color="gray.600" mb={3}>
-        You&apos;ve seen the key parts of Boxtribute. You can always access this tutorial from your
-        Account Settings, or replay below!
+        You&apos;ve seen the key parts of Boxtribute. You can always access this tutorial from the
+        Settings in the bottom left, or replay below!
       </Text>
       <Button bg="black" color="white" _hover={{ bg: "gray.800" }} onClick={closeWalkthrough}>
         Close walkthrough

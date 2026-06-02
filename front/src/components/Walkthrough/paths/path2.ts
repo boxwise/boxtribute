@@ -24,7 +24,7 @@ const path2: WalkthroughPath = {
       target: "#nav-add-beneficiary",
       title: "Add Beneficiary",
       content:
-        "Create a profile for every person how comes to you for detailed tracking and analysis.",
+        "Create a profile for every person who comes to you for detailed tracking and analysis.",
       expandMenuGroup: "Beneficiaries",
     },
     {

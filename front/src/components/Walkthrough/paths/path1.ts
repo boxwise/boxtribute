@@ -4,7 +4,7 @@ const path1: WalkthroughPath = {
   id: "path1",
   title: "How to manage stock & boxes",
   description:
-    "Learn where to start with Boxtribute, setup boxes, track your warehouse inventory, and more!",
+    "Learn where to start with Boxtribute, set up boxes, track your warehouse inventory, and more!",
   icon: "Aid Inventory",
   guidanceUrl: "https://boxtribute.org",
   steps: [
@@ -21,7 +21,7 @@ const path1: WalkthroughPath = {
       content:
         "Generate and print QR labels to physically tag boxes in your warehouse. Scan them to pull up contents instantly.",
       contentNote:
-        "Note: this feature is build/adapted specifically for mobile, so try rescaling your browser or opening up on your phone to test it.",
+        "Note: this feature is built/adapted specifically for mobile, so try rescaling your browser or opening up on your phone to test it.",
       expandMenuGroup: "Aid Inventory",
     },
     {
