@@ -18,7 +18,7 @@ import path2 from "./paths/path2";
 import path3 from "./paths/path3";
 import { PathId, WalkthroughPath, TourStep } from "./paths/types";
 
-const PATHS: Record<string, WalkthroughPath> = {
+export const PATHS: Record<string, WalkthroughPath> = {
   path1,
   path2,
   path3,
@@ -68,59 +68,20 @@ function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
 interface CustomTooltipProps extends TooltipRenderProps {
   totalSteps: number;
   isLastStep: boolean;
-  pathDef: WalkthroughPath | null;
-  allPaths: WalkthroughPath[];
-  onSwitchPath: (id: PathId) => void;
 }
 
 function CustomTooltip({
   index,
   step,
   primaryProps,
-  skipProps,
   tooltipProps,
   totalSteps,
   isLastStep,
-  pathDef,
-  allPaths,
-  onSwitchPath,
 }: CustomTooltipProps) {
   const progress = ((index + 1) / totalSteps) * 100;
-  const pathNumber = pathDef ? pathDef.id.replace("path", "") : null;
 
   return (
     <Box {...tooltipProps} bg="white" borderRadius="md" boxShadow="lg" p={4} maxW={320} minW={260}>
-      {/* Scenarios selector + Skip button */}
-      <Flex align="center" gap={2} mb={3}>
-        <Select
-          size="sm"
-          flex={1}
-          value=""
-          onChange={(e) => onSwitchPath(e.target.value as PathId)}
-        >
-          <option value="" disabled hidden>
-            Scenarios
-          </option>
-          {allPaths.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.title}
-            </option>
-          ))}
-        </Select>
-        <Button
-          {...skipProps}
-          size="sm"
-          colorScheme="blackAlpha"
-          bg="gray.800"
-          color="white"
-          _hover={{ bg: "gray.700" }}
-          flexShrink={0}
-          title={undefined}
-        >
-          Skip walkthrough
-        </Button>
-      </Flex>
-
       {/* Step title + counter */}
       <Flex justify="space-between" align="flex-start" mb={2}>
         <Text fontWeight="bold" flex={1} pr={2}>
@@ -140,37 +101,13 @@ function CustomTooltip({
       <Button {...primaryProps} size="sm" colorScheme="blue" width="full" title={undefined}>
         {isLastStep ? "You are done! Explore another scenario." : "Next"}
       </Button>
-
-      {/* Path indicator footer */}
-      {pathDef && (
-        <Box mt={3} pt={3} borderTopWidth={1} borderColor="gray.100">
-          <Text fontSize="xs" fontWeight="bold" mb={0.5}>
-            Path {pathNumber} — {pathDef.title}
-          </Text>
-          {pathDef.guidanceUrl ? (
-            <Link href={pathDef.guidanceUrl} isExternal fontSize="xs" color="blue.500">
-              Get more guidance on this topic &rsaquo;
-            </Link>
-          ) : (
-            <Text fontSize="xs" color="blue.500">
-              Get more guidance on this topic &rsaquo;
-            </Text>
-          )}
-        </Box>
-      )}
     </Box>
   );
 }
 
 function TourOverlay() {
-  const {
-    isWalkthroughActive,
-    currentStep,
-    activePath,
-    completePath,
-    backToPathSelection,
-    startPath,
-  } = useWalkthrough();
+  const { isWalkthroughActive, currentStep, activePath, completePath, backToPathSelection } =
+    useWalkthrough();
   const [stepIndex, setStepIndex] = useState(0);
   const [run, setRun] = useState(false);
 
@@ -247,9 +184,6 @@ function TourOverlay() {
           {...props}
           totalSteps={totalSteps}
           isLastStep={stepIndex === totalSteps - 1}
-          pathDef={pathDef}
-          allPaths={Object.values(PATHS)}
-          onSwitchPath={startPath}
         />
       )}
       options={{
