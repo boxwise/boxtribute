@@ -50,10 +50,13 @@ function JotaiTestProvider({
   initialValues: Iterable<any>;
   children: any;
 }) {
+  // Cast needed because jotai resolves against @types/react@19 where FunctionComponent
+  // returns ReactNode | Promise<ReactNode>, incompatible with React 18's JSX type system
+  const JotaiProvider = Provider as React.ComponentType<React.PropsWithChildren>;
   return (
-    <Provider>
+    <JotaiProvider>
       <HydrateAtoms initialValues={initialValues}>{children}</HydrateAtoms>
-    </Provider>
+    </JotaiProvider>
   );
 }
 

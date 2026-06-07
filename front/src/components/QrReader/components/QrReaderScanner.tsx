@@ -1,4 +1,4 @@
-import { Scanner, IDetectedBarcode } from "@yudiel/react-qr-scanner";
+import { Scanner, IDetectedBarcode, IScannerError } from "@yudiel/react-qr-scanner";
 import { styles } from "./QrReaderScannerStyles";
 import { ViewFinder } from "./ViewFinder";
 
@@ -12,9 +12,9 @@ export type OnResultFunction = (
    */
   result?: IDetectedBarcode[] | undefined | null,
   /**
-   * The name of the exceptions thrown while reading the QR
+   * The error thrown while reading the QR
    */
-  error?: Error | undefined | null,
+  error?: IScannerError | undefined | null,
 ) => Promise<void>;
 
 export type QrReaderScannerProps = {
@@ -37,7 +37,7 @@ export function QrReaderScanner({
     }
   };
 
-  const handleError = async (error: Error) => {
+  const handleError = async (error: IScannerError) => {
     await onResult(multiScan, null, error);
   };
 

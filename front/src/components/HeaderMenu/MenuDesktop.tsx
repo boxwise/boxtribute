@@ -3,6 +3,7 @@ import {
   AccordionItem,
   AccordionButton,
   AccordionPanel,
+  Box,
   Flex,
   useDisclosure,
   useMediaQuery,
@@ -15,6 +16,7 @@ import BoxtributeLogo from "./BoxtributeLogo";
 import { IHeaderMenuProps } from "./HeaderMenu";
 import MenuIcon, { Icon } from "./MenuIcons";
 import { expandedMenuIndex } from "./expandedMenuIndex";
+import { nameToNavId } from "./navId";
 import BaseSwitcher from "./BaseSwitcher";
 import { useAtomValue } from "jotai";
 import {
@@ -22,6 +24,7 @@ import {
   selectedBaseAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
+import { useWalkthrough } from "components/Walkthrough";
 
 function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -33,6 +36,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
   const [allowMultipleAccordionsOpen] = useMediaQuery("(min-height: 1080px)");
+  const { openWalkthrough } = useWalkthrough();
 
   return (
     <>
@@ -57,25 +61,29 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           overflowY="auto"
         >
           {menuItemsGroups.map((menu) => (
-            <AccordionItem key={menu.text}>
+            <AccordionItem key={menu.text} id={nameToNavId(menu.text)}>
               <AccordionButton _expanded={{ bg: "#DC4F51", color: "white" }} gap={3}>
                 <MenuIcon icon={menu.text as Icon} /> {menu.text}
               </AccordionButton>
-              {menu.links.map((subMenu) => (
-                <AccordionPanel
-                  key={subMenu.name}
-                  bg="gray.100"
-                  _hover={{ bg: "gray.200" }}
-                  as={NavLink}
-                  to={subMenu.link}
-                  display="flex"
-                  pb={2}
-                  pl={8}
-                >
-                  {subMenu.name}&nbsp;
-                  {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
-                </AccordionPanel>
-              ))}
+              <AccordionPanel p={0}>
+                {menu.links.map((subMenu) => (
+                  <Box
+                    key={subMenu.name}
+                    id={nameToNavId(subMenu.name)}
+                    bg="gray.100"
+                    _hover={{ bg: "gray.200" }}
+                    as={NavLink}
+                    to={subMenu.link}
+                    display="flex"
+                    pb={2}
+                    pt={2}
+                    pl={8}
+                  >
+                    {subMenu.name}&nbsp;
+                    {subMenu.beta && <sup style={{ marginTop: "0.5rem" }}>beta</sup>}
+                  </Box>
+                ))}
+              </AccordionPanel>
             </AccordionItem>
           ))}
         </Accordion>
@@ -95,6 +103,11 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
           <AccordionItem>
             <AccordionButton gap={3} as={NavLink} to={ACCOUNT_SETTINGS_URL}>
               <MenuIcon icon="Account" /> Account
+            </AccordionButton>
+          </AccordionItem>
+          <AccordionItem>
+            <AccordionButton gap={3} color="red.500" onClick={openWalkthrough}>
+              <MenuIcon icon="Open walkthrough" /> Open walkthrough
             </AccordionButton>
           </AccordionItem>
           <AccordionItem>

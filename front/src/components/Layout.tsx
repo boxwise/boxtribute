@@ -2,6 +2,7 @@ import { Box, Container, Flex, useMediaQuery } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
 import HeaderMenuContainer from "./HeaderMenu/HeaderMenuContainer";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "./HeaderMenu/consts";
+import { WalkthroughProvider, Walkthrough } from "./Walkthrough";
 
 /**
  * Renders the layout which is sitting in the routing at /bases/:baseId.
@@ -17,25 +18,31 @@ function Layout() {
 
   if (isLargeScreen)
     return (
-      <Container m="inherit" p="inherit" maxWidth="inherit">
-        <Flex direction="row" height="100vh">
+      <WalkthroughProvider>
+        <Walkthrough />
+        <Container m="inherit" p="inherit" maxWidth="inherit">
+          <Flex direction="row" height="100vh">
+            <HeaderMenuContainer />
+            <Box flex={1} mt={8} mx={4} overflowX="auto">
+              <Outlet />
+            </Box>
+          </Flex>
+        </Container>
+      </WalkthroughProvider>
+    );
+
+  return (
+    <WalkthroughProvider>
+      <Walkthrough />
+      <Container maxWidth="container.xl">
+        <Flex direction="column" height="100vh">
           <HeaderMenuContainer />
-          <Box flex={1} mt={8} mx={4} overflowX="auto">
+          <Box flex={1} minHeight="0">
             <Outlet />
           </Box>
         </Flex>
       </Container>
-    );
-
-  return (
-    <Container maxWidth="container.xl">
-      <Flex direction="column" height="100vh">
-        <HeaderMenuContainer />
-        <Box flex={1} minHeight="0">
-          <Outlet />
-        </Box>
-      </Flex>
-    </Container>
+    </WalkthroughProvider>
   );
 }
 

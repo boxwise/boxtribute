@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { IDetectedBarcode } from "@yudiel/react-qr-scanner";
+import { IDetectedBarcode, IScannerError } from "@yudiel/react-qr-scanner";
 import {
   FormControl,
   FormErrorMessage,
@@ -42,12 +42,12 @@ export function QrReader({
     async (
       multiScan: boolean,
       qrReaderResult: IDetectedBarcode[] | undefined | null,
-      error?: Error | undefined | null,
+      error?: IScannerError | undefined | null,
     ) => {
       if (error) {
         //register error with Sentry
         Sentry.captureException(error);
-        console.error("QR Reader error:", error.name);
+        console.error("QR Reader error:", error.kind);
 
         return;
       }
