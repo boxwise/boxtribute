@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import HeaderMenuContainer from "./HeaderMenu/HeaderMenuContainer";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "./HeaderMenu/consts";
 import { WalkthroughProvider, Walkthrough } from "./Walkthrough";
+import { MobileWalkthroughProvider, MobileWalkthrough } from "./MobileWalkthrough";
 
 /**
  * Renders the layout which is sitting in the routing at /bases/:baseId.
@@ -32,8 +33,8 @@ function Layout() {
     );
 
   return (
-    <WalkthroughProvider>
-      <Walkthrough />
+    <MobileWalkthroughProvider>
+      <MobileWalkthrough />
       <Container maxWidth="container.xl">
         <Flex direction="column" height="100vh">
           <HeaderMenuContainer />
@@ -42,7 +43,7 @@ function Layout() {
           </Box>
         </Flex>
       </Container>
-    </WalkthroughProvider>
+    </MobileWalkthroughProvider>
   );
 }
 
