@@ -445,7 +445,7 @@ function Boxes({
         disableFilters: true,
       },
       {
-        Header: "Last Modified",
+        Header: "Last Modified On",
         accessor: "lastModified",
         id: "lastModified",
         Cell: DateCell,

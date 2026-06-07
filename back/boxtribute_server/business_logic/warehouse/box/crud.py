@@ -45,6 +45,7 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.qr_code import QrCode
 from ....models.definitions.size import Size
+from ....models.definitions.size_range_size import SizeRangeSize
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.utils import (
@@ -386,12 +387,13 @@ def update_box(
 
         # Find all tag IDs that are currently assigned to the box
         assigned_tag_ids = set(
-            r.tag_id
-            for r in TagsRelation.select(TagsRelation.tag_id).where(
+            TagsRelation.select(TagsRelation.tag_id)
+            .where(
                 TagsRelation.object_type == TaggableObjectType.Box,
                 TagsRelation.object_id == box.id,
                 TagsRelation.deleted_on.is_null(),
             )
+            .scalars()
         )
         updated_tag_ids = set(tag.id for tag in tags)
 
@@ -647,10 +649,9 @@ def create_boxes(*, user_id, data):
 
     # Find base corresponding to given locations
     location_ids = {row["location_id"] for row in data}
-    base_ids = {
-        loc.base_id
-        for loc in Location.select(Location.base).where(Location.id << location_ids)
-    }
+    base_ids = set(
+        Location.select(Location.base).where(Location.id << location_ids).scalars()
+    )
     if len(base_ids) != 1:
         return InvalidBase(ids=sorted(base_ids))
 
@@ -666,9 +667,9 @@ def create_boxes(*, user_id, data):
 
     # Validation: product and location base must match
     product_ids = {row["product_id"] for row in data}
-    product_base_ids = {
-        p.base_id for p in Product.select(Product.base).where(Product.id << product_ids)
-    }
+    product_base_ids = set(
+        Product.select(Product.base).where(Product.id << product_ids).scalars()
+    )
     if len(product_base_ids) != 1:
         return InvalidBase(ids=sorted(product_base_ids))
     if base_id != list(product_base_ids)[0]:
@@ -743,16 +744,28 @@ def create_boxes(*, user_id, data):
     products = {}
     if sanitized_data:
         create_product_ids = {row["product_id"] for row in sanitized_data}
-        all_sizes = (
-            Product.select(Product.id, Product.size_range, Size.id, Size.label)
-            .left_outer_join(Size, on=(Product.size_range == Size.size_range))
-            .where(Product.id << create_product_ids)
+        # Get ID and size range for all requested products
+        product_rows = list(
+            Product.select(Product.id, Product.size_range).where(
+                Product.id << create_product_ids
+            )
         )
-        for row in all_sizes:
-            products[row.id] = row
-            size = getattr(row, "size", None)
-            if size is not None:
-                sizes_for_product[row.id][size.label.lower()] = size.id
+        products = {p.id: p for p in product_rows}
+        size_range_ids = {p.size_range_id for p in product_rows if p.size_range_id}
+        # For all size ranges of the requested products, get corresponding sizes
+        sizes_for_size_range = defaultdict(dict)
+        for srs in (
+            SizeRangeSize.select(SizeRangeSize.size_range, Size.id, Size.label)
+            .join(Size)
+            .where(SizeRangeSize.size_range << size_range_ids)
+        ):
+            sizes_for_size_range[srs.size_range_id][
+                srs.size.label.lower()
+            ] = srs.size.id
+        # Create mapping of these sizes for each product
+        sizes_for_product = {
+            p.id: sizes_for_size_range.get(p.size_range_id, {}) for p in product_rows
+        }
 
     # Prepare units look-up
     units = {u.symbol: u for u in Unit.select()} if sanitized_data else {}

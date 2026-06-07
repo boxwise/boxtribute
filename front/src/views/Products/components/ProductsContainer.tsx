@@ -68,7 +68,7 @@ function ProductsContainer() {
     defaultTableConfig: {
       columnFilters: [],
       sortBy: [{ id: "name", desc: false }],
-      hiddenColumns: ["inShop", "createdBy", "created", "lastModifiedBy", "lastModified", "id"],
+      hiddenColumns: ["category", "inShop", "createdBy", "lastModifiedBy", "lastModified", "id"],
     },
   });
 
@@ -92,8 +92,8 @@ function ProductsContainer() {
         filter: "includesOneOfMultipleStrings",
         Cell: ProductWithSPCheckmarkCell,
         sortType: (rowA, rowB) => {
-          const a = rowA.values.name.toLowerCase();
-          const b = rowB.values.name.toLowerCase();
+          const a = (rowA.values.name ?? "").toLowerCase();
+          const b = (rowB.values.name ?? "").toLowerCase();
           return a.localeCompare(b);
         },
       },
@@ -133,6 +133,7 @@ function ProductsContainer() {
           </Button>
         ),
       },
+      // category is used for grouping only (hidden via hiddenColumns)
       {
         Header: "Category",
         accessor: "category",
@@ -186,7 +187,7 @@ function ProductsContainer() {
         disableFilters: true,
       },
       {
-        Header: "Last Modified",
+        Header: "Last Modified On",
         accessor: "lastModified",
         id: "lastModified",
         Cell: DateCell,
@@ -201,7 +202,7 @@ function ProductsContainer() {
         filter: "includesOneOfMultipleStrings",
       },
       {
-        Header: "Created",
+        Header: "Created On",
         accessor: "created",
         id: "created",
         Cell: DateCell,
@@ -222,7 +223,10 @@ function ProductsContainer() {
   if (error) throw error;
 
   const tableData = useMemo(
-    () => productsRawToTableDataTransformer(productsRawData),
+    () =>
+      productsRawToTableDataTransformer(productsRawData).sort((a, b) =>
+        a.category.localeCompare(b.category),
+      ),
     [productsRawData],
   );
 

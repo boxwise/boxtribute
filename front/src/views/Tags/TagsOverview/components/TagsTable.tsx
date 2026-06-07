@@ -85,7 +85,7 @@ export function TagsTable({ tableConfig, tableData, columns, onRowClick }: TagsT
         </HStack>
       </Flex>
       <Box overflowX="auto">
-        <Table key="products-table">
+        <Table key="tags-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
           <Tbody>
             {rows.map((row) => {

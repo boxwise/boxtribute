@@ -1,28 +1,16 @@
-import { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Column,
   Filters,
   useTable,
   useFilters,
   useGlobalFilter,
+  useGroupBy,
   useSortBy,
   useRowSelect,
-  usePagination,
+  defaultOrderByFn,
 } from "react-table";
-import {
-  Table,
-  Tr,
-  Tbody,
-  Td,
-  Spacer,
-  Flex,
-  Text,
-  IconButton,
-  HStack,
-  Box,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
+import { Table, Tr, Tbody, Td, Spacer, Flex, HStack, useDisclosure, Box } from "@chakra-ui/react";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import { StandardProductRow } from "./transformers";
 import { removeFilter } from "utils/helpers";
@@ -68,26 +56,26 @@ function StandardProductsTable({
     headerGroups,
     prepareRow,
     allColumns,
-    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
+    rows,
+    state: { globalFilter, filters, sortBy, hiddenColumns },
     setGlobalFilter,
     setAllFilters,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    nextPage,
-    previousPage,
   } = useTable(
     {
       columns,
       data: tableData,
       filterTypes,
+      orderByFn: (rows, sortFns, dirs) => {
+        if (rows.length > 0 && rows[0].isGrouped) {
+          return [...rows].sort((a, b) => String(a.groupByVal).localeCompare(String(b.groupByVal)));
+        }
+        return defaultOrderByFn(rows, sortFns, dirs);
+      },
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
         sortBy: tableConfig.getSortBy(),
-        pageIndex: 0,
-        pageSize: 20,
         filters: tableConfig.getColumnFilters(),
+        groupBy: ["category"],
         ...(tableConfig.getGlobalFilter()
           ? { globalFilter: tableConfig.getGlobalFilter() }
           : undefined),
@@ -95,8 +83,8 @@ function StandardProductsTable({
     },
     useFilters,
     useGlobalFilter,
+    useGroupBy,
     useSortBy,
-    usePagination,
     useRowSelect,
   );
 
@@ -138,7 +126,9 @@ function StandardProductsTable({
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "actionButton")}
+            availableColumns={allColumns.filter(
+              (column) => column.id !== "category" && column.id !== "actionButton",
+            )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
           <FilterPanel
@@ -166,68 +156,55 @@ function StandardProductsTable({
         onRemoveFilter={handleRemoveFilter}
         onClearAllFilters={handleClearFilters}
       />
-      {/* overflowY and flex={1} make the table scrollable vertically and took the other settings from <TableContainer>
-      See https://chakra-ui.com/docs/components/table/usage#table-container */}
-      <Box
-        flex={1}
-        display="block"
-        maxWidth="100%"
-        overflowX="auto"
-        overflowY="auto"
-        whiteSpace="nowrap"
-      >
+      <Box overflowX="auto">
         <Table key="standard-products-table">
           <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
           <Tbody>
-            {page.map((row) => {
+            <Tr key={"header-spacer-std"}>
+              <Td colSpan={headerGroups[0]?.headers.length} p={0} border="none" h="16px" />
+            </Tr>
+
+            {rows.map((row) => {
               prepareRow(row);
-              return (
-                <Tr
-                  backgroundColor={row.values.enabled ? "inherit" : "#D9D9D9"}
-                  {...row.getRowProps()}
-                  key={row.original.id}
-                >
-                  {row.cells.map((cell) => (
-                    <Td {...cell.getCellProps()} key={`${row.values.name}-${cell.column.id}`}>
-                      {cell.render("Cell")}
-                    </Td>
-                  ))}
-                </Tr>
-              );
+
+              if (row.isGrouped) {
+                return (
+                  <React.Fragment key={row.id}>
+                    <Tr backgroundColor="gray.50" fontWeight="bold">
+                      {headerGroups[0]?.headers.map((header) => (
+                        <Td key={header.id}>
+                          {header.id === "enabled"
+                            ? `${row.groupByVal} (${row.subRows.length})`
+                            : null}
+                        </Td>
+                      ))}
+                    </Tr>
+                    {row.subRows.map((subRow) => {
+                      prepareRow(subRow);
+                      return (
+                        <Tr {...subRow.getRowProps()} key={subRow.original.id}>
+                          {subRow.cells.map((cell) =>
+                            cell.isGrouped ? null : (
+                              <Td
+                                {...cell.getCellProps()}
+                                key={`${subRow.values.name}-${cell.column.id}`}
+                              >
+                                {cell.isPlaceholder ? null : cell.render("Cell")}
+                              </Td>
+                            ),
+                          )}
+                        </Tr>
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              }
+
+              return null;
             })}
           </Tbody>
         </Table>
       </Box>
-      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
-        <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={previousPage}
-            isDisabled={!canPreviousPage}
-            icon={<ChevronLeftIcon h={6} w={6} />}
-          />
-        </Flex>
-        <Flex justifyContent="center" m={4}>
-          <Text>
-            Page{" "}
-            <Text fontWeight="bold" as="span">
-              {pageIndex + 1}
-            </Text>{" "}
-            of{" "}
-            <Text fontWeight="bold" as="span">
-              {pageOptions.length}
-            </Text>
-          </Text>
-        </Flex>
-        <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={nextPage}
-            isDisabled={!canNextPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
-          />
-        </Flex>
-      </Flex>
     </Flex>
   );
 }

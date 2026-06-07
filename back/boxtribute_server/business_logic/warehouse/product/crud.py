@@ -135,14 +135,15 @@ def edit_custom_product(
 
 
 def _boxes_still_assigned_to_product(product):
-    return [
-        box.label_identifier
-        for box in Box.select(Box.label_identifier).where(
+    return list(
+        Box.select(Box.label_identifier)
+        .where(
             Box.product == product.id,
             (Box.deleted_on.is_null()) | (Box.deleted_on == 0),
             Box.state << STATES_OF_ACTIVELY_USED_BOXES,
         )
-    ]
+        .scalars()
+    )
 
 
 @safely_handle_deletion
