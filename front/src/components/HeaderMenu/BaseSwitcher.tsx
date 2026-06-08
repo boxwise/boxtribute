@@ -11,7 +11,7 @@ import {
   RadioGroup,
   Stack,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { availableBasesAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -22,20 +22,36 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
   const { pathname } = useLocation();
   const baseId = useAtomValue(selectedBaseIdAtom);
   const availableBases = useAtomValue(availableBasesAtom);
-  const currentOrganisationBases = availableBases.filter((base) => base.id !== baseId);
-  const firstAvailableBaseId = currentOrganisationBases.find((base) => base)?.id;
-  const [value, setValue] = useState(firstAvailableBaseId);
 
-  // Need to set this as soon as we have this value available to set the default radio selection.
-  useEffect(() => {
-    setValue(firstAvailableBaseId);
-  }, [firstAvailableBaseId, baseId]);
+  const currentOrganisationBases = useMemo(
+    () => availableBases.filter((base) => base.id !== baseId),
+    [availableBases, baseId],
+  );
+
+  const firstAvailableBaseId = useMemo(
+    () => currentOrganisationBases[0]?.id,
+    [currentOrganisationBases],
+  );
+
+  const [value, setValue] = useState("");
 
   const switchBase = () => {
     const currentPath = pathname.split(`/bases/${urlBaseId}`)[1];
 
-    navigate(`/bases/${value}${currentPath}`);
+    const actValue = value || firstAvailableBaseId;
+
+    if (!actValue) {
+      return;
+    }
+
+    navigate(`/bases/${actValue}${currentPath}`);
     onClose();
+
+    // Need to reset the default radio selection whenever the available bases change.
+
+    const currentOrganisationBases = availableBases.filter((base) => base.id !== actValue);
+    const newFirstAvailableBaseId = currentOrganisationBases[0]?.id;
+    setValue(newFirstAvailableBaseId || "");
   };
 
   return (
@@ -46,7 +62,7 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
           <ModalHeader>Switch Base to</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <RadioGroup onChange={setValue} value={value}>
+            <RadioGroup onChange={setValue} value={value || firstAvailableBaseId}>
               <Stack ml={"30%"}>
                 {currentOrganisationBases?.map((base) => (
                   <Radio key={base.id} value={base.id}>
@@ -60,7 +76,12 @@ function BaseSwitcher({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
             <Button onClick={onClose} width="100%">
               Nevermind
             </Button>
-            <Button colorScheme="blue" width="100%" onClick={switchBase} isDisabled={!value}>
+            <Button
+              colorScheme="blue"
+              width="100%"
+              onClick={switchBase}
+              isDisabled={!(value || firstAvailableBaseId)}
+            >
               Switch
             </Button>
           </ModalFooter>

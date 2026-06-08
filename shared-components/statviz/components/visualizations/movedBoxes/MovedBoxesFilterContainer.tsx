@@ -28,6 +28,7 @@ import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTag
 import { filterByTags } from "../../../utils/filterByTags";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
+import useIncludeExcludeFilter from "../../../hooks/useIncludeExcludeFilter";
 
 interface IMovedBoxesFilterContainerProps {
   movedBoxes: MovedBoxes;
@@ -61,7 +62,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
+    useIncludeExcludeFilter(
       includedTagFilterValues,
       tagFilterIncludedId,
       excludedTagFilterValues,
@@ -76,7 +77,7 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   const movedBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(movedBoxes?.facts! as MovedBoxesResult[], "movedOn", interval);
+      return filterListByInterval(movedBoxes?.facts as MovedBoxesResult[], "movedOn", interval);
     } catch {
       // TODO show toast with error message?
     }

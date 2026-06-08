@@ -16,29 +16,30 @@ export default function TopCreatedProducts(props: {
   const onExport = getOnExport(BarChart);
   const { boxesOrItems, data } = { ...props };
 
-  const getChartData = () =>
-    tidy(
-      data?.facts as CreatedBoxesResult[],
-      map((row) => ({ ...row, productId: row.productId })),
-      groupBy(
-        ["productId", "gender"],
-        [
-          summarize({
-            itemsCount: sum("itemsCount"),
-            boxesCount: sum("boxesCount"),
-          }),
-        ],
-      ),
-      innerJoin(data?.dimensions?.product as Product[], { by: { id: "productId" } as any }),
-      map((row) => ({
-        id: `${row.name} (${row.gender})`,
-        value: row[boxesOrItems],
-        label: `${row[boxesOrItems]}`,
-      })),
-      arrange([desc("value")]),
-    ).splice(0, 5);
-
-  const chartData = useMemo(getChartData, [data, boxesOrItems]);
+  const chartData = useMemo(
+    () =>
+      tidy(
+        data?.facts as CreatedBoxesResult[],
+        map((row) => ({ ...row, productId: row.productId })),
+        groupBy(
+          ["productId", "gender"],
+          [
+            summarize({
+              itemsCount: sum("itemsCount"),
+              boxesCount: sum("boxesCount"),
+            }),
+          ],
+        ),
+        innerJoin(data?.dimensions?.product as Product[], { by: { id: "productId" } as any }),
+        map((row) => ({
+          id: `${row.name} (${row.gender})`,
+          value: row[boxesOrItems],
+          label: `${row[boxesOrItems]}`,
+        })),
+        arrange([desc("value")]),
+      ).splice(0, 5),
+    [data, boxesOrItems],
+  );
 
   const chartProps = {
     data: chartData,

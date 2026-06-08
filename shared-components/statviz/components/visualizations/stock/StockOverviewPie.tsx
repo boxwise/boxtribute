@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
 import PieChart from "../../nivo/PieChart";
 import VisHeader from "../../VisHeader";
@@ -95,7 +95,6 @@ export default function StockOverviewPie({
   data,
   boxesOrItems,
 }: IStockOverviewPieProps) {
-  const [chartData, setChartData] = useState<object[]>([]);
   const [drilldownPath, setDrilldownPath] = useState<PreparedStockAttributes[]>(["categoryName"]);
   const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
   const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
@@ -135,9 +134,11 @@ export default function StockOverviewPie({
     setDrilldownValues(newDrilldownValues);
   };
 
-  useEffect(() => {
+  const [prevFilterValue, setPrevFilterValue] = useState(filterValue);
+  if (prevFilterValue !== filterValue) {
+    setPrevFilterValue(filterValue);
     setNewDrilldownPath(filterValue.value as PreparedStockAttributes, []);
-  }, [filterValue]);
+  }
 
   const onNextDrilldownChoice = (event) => {
     setDrilldownPath([...drilldownPath, event.target.value]);
@@ -145,7 +146,7 @@ export default function StockOverviewPie({
     closeGroupOptions();
   };
 
-  useMemo(() => {
+  const chartData = useMemo(() => {
     const sizeDim = data?.dimensions.size.map((size) => ({
       sizeId: size.id!,
       sizeName: size.name!,
@@ -172,7 +173,7 @@ export default function StockOverviewPie({
       mappingFunctions[drilldownPath[drilldownPath.length - 1]],
     );
 
-    setChartData(grouped);
+    return grouped;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drilldownPath, drilldownValues, data?.facts, boxesOrItems]);
 

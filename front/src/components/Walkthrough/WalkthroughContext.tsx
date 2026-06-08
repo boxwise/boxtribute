@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { PathId } from "./paths/types";
 
@@ -45,7 +45,6 @@ function storageKey(userId: string) {
   return `boxtribute_walkthrough_${userId}`;
 }
 
-// Management of walkthrough state machine and persistence in localStorage
 function loadState(userId: string): WalkthroughState {
   try {
     const raw = localStorage.getItem(storageKey(userId));
@@ -68,20 +67,20 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const { user } = useAuth0();
   const userId = user?.sub ?? "anonymous";
 
-  const [isWalkthroughActive, setIsWalkthroughActive] = useState(false);
+  // --- LAZY INITIALIZATION TRICK ---
+  // We preload the state once based on the userId. If userId is a key dependency,
+  // we add `key={userId}` to the Provider wrapper below to naturally re-run these.
+  const initialState = useMemo(() => loadState(userId), [userId]);
+
+  const [isWalkthroughActive, setIsWalkthroughActive] = useState(
+    () => !initialState.hasSeenWelcome,
+  );
   const [currentStep, setCurrentStep] = useState<WalkthroughStep>("welcome");
   const [activePath, setActivePath] = useState<PathId | null>(null);
-  const [completedPaths, setCompletedPaths] = useState<Set<PathId>>(new Set());
 
-  // Load persisted state and auto-show welcome for new users
-  useEffect(() => {
-    const state = loadState(userId);
-    setCompletedPaths(new Set(state.completedPaths));
-    if (!state.hasSeenWelcome) {
-      setIsWalkthroughActive(true);
-      setCurrentStep("welcome");
-    }
-  }, [userId]);
+  const [completedPaths, setCompletedPaths] = useState<Set<PathId>>(
+    () => new Set(initialState.completedPaths),
+  );
 
   const persistCompletedPaths = useCallback(
     (paths: Set<PathId>) => {
@@ -95,14 +94,12 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     setIsWalkthroughActive(true);
     setCurrentStep("welcome");
     setActivePath(null);
-    // Mark welcome as seen
     const state = loadState(userId);
     saveState(userId, { ...state, hasSeenWelcome: true });
   }, [userId]);
 
   const goToPathSelection = useCallback(() => {
     setCurrentStep("pathSelection");
-    // Mark welcome as seen
     const state = loadState(userId);
     saveState(userId, { ...state, hasSeenWelcome: true });
   }, [userId]);
@@ -110,7 +107,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const closeWalkthrough = useCallback(() => {
     setIsWalkthroughActive(false);
     setActivePath(null);
-    // Mark welcome as seen when user skips/closes
     const state = loadState(userId);
     saveState(userId, { ...state, hasSeenWelcome: true });
   }, [userId]);
@@ -173,7 +169,14 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     ],
   );
 
-  return <WalkthroughContext.Provider value={value}>{children}</WalkthroughContext.Provider>;
+  return (
+    // KEY TRICK: If the Auth0 userId changes (e.g. logging out and logging into a different account),
+    // changing the key forces React to tear down this provider tree and completely re-initialize
+    // the state lazily from the new user's localStorage record.
+    <WalkthroughContext.Provider key={userId} value={value}>
+      {children}
+    </WalkthroughContext.Provider>
+  );
 }
 
 export function useWalkthrough() {

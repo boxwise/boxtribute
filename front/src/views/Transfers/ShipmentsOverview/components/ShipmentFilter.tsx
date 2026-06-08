@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { VStack, Button, Box, SimpleGrid } from "@chakra-ui/react";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
@@ -14,7 +14,6 @@ const shipmentStateOptions: IFilterValue[] = [
 ];
 
 interface ShipmentFilterProps {
-  isOpen: boolean;
   onClose: () => void;
   columnFilters: ShipmentColumnFilter[];
   onApplyFilters: (filters: ShipmentColumnFilter[]) => void;
@@ -23,7 +22,6 @@ interface ShipmentFilterProps {
 }
 
 export function ShipmentFilter({
-  isOpen,
   onClose,
   columnFilters,
   onApplyFilters,
@@ -31,11 +29,7 @@ export function ShipmentFilter({
   targetBaseOptions,
 }: ShipmentFilterProps) {
   const [stagedFilters, setStagedFilters] = useState<Partial<Record<ShipmentFilterId, string[]>>>(
-    {},
-  );
-
-  useEffect(() => {
-    if (isOpen) {
+    () => {
       const filtersMap: Partial<Record<ShipmentFilterId, string[]>> = {};
       columnFilters.forEach((filter) => {
         if (filter.value == null) {
@@ -45,9 +39,9 @@ export function ShipmentFilter({
           ? filter.value.map(String)
           : [String(filter.value)];
       });
-      setStagedFilters(filtersMap);
-    }
-  }, [isOpen, columnFilters]);
+      return filtersMap;
+    },
+  );
 
   const handleFilterChange = useCallback((filterId: ShipmentFilterId, values: string[]) => {
     setStagedFilters((prev) => ({

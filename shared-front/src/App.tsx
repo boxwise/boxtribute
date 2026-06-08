@@ -106,6 +106,16 @@ function App() {
     }
   }, [data?.resolveLink?.data]);
 
+  // Redirect to full URL with view param once link data has loaded
+  useEffect(() => {
+    if (data && !view && data?.resolveLink?.view) {
+      const urlParams = data?.resolveLink?.urlParameters ?? "nofilters=true";
+      const hasBoiParam = urlParams.includes("boi=");
+      const boiParam = hasBoiParam ? "" : `&boi=${boxesOrItemsFilterValues[0].urlId}`;
+      window.location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${urlParams}${boiParam}&code=${code}`;
+    }
+  }, [data, view, code]);
+
   if (error) {
     return <ErrorPage>{matchErrorMessage(error.message)}</ErrorPage>;
   }
@@ -133,11 +143,6 @@ function App() {
 
   // Prepend Search Params with fetched link data params and reload the page while displaying a skeleton loader.
   if (!view) {
-    const urlParams = data?.resolveLink?.urlParameters ?? "nofilters=true";
-    const hasBoiParam = urlParams.includes("boi=");
-    const boiParam = hasBoiParam ? "" : `&boi=${boxesOrItemsFilterValues[0].urlId}`;
-    location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${urlParams}${boiParam}&code=${code}`;
-
     return (
       <>
         <BoxtributeLogo w={156} backgroundSize="contain" p={2} />

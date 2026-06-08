@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 // TODO: Move common utils to shared-components, use alias for imports.
@@ -14,7 +14,7 @@ import {
 } from "../components/filter/BoxesOrItemsSelect";
 import { tagFilterIncludedId, tagFilterExcludedId } from "../components/filter/TabbedTagFilter";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../state/filter";
-import useMultiSelectFilter from "./useMultiSelectFilter";
+import useIncludeExcludeFilter from "./useIncludeExcludeFilter";
 
 const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
 
@@ -48,7 +48,6 @@ export default function useShareableLink({
   const { createToast } = useNotification();
   const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
-  const [alertType, setAlertType] = useState<"info" | "warning" | undefined>();
   const [submittedGlobalParams, setSubmittedGlobalParams] = useState<string | undefined>();
   const { filterValue: boi } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
@@ -58,7 +57,7 @@ export default function useShareableLink({
   const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
   const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
   const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
+    useIncludeExcludeFilter(
       includedTagFilterValues,
       tagFilterIncludedId,
       excludedTagFilterValues,
@@ -74,15 +73,11 @@ export default function useShareableLink({
 
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
-  useEffect(() => {
-    if (submittedGlobalParams) {
-      if (searchParams.toString() !== submittedGlobalParams) {
-        setAlertType("warning");
-      } else {
-        setAlertType("info");
-      }
-    }
-  }, [searchParams, submittedGlobalParams]);
+  const alertType: "info" | "warning" | undefined = submittedGlobalParams
+    ? searchParams.toString() !== submittedGlobalParams
+      ? "warning"
+      : "info"
+    : undefined;
 
   const copyLinkToClipboard = useCallback(
     async (code?: string) => {
@@ -93,7 +88,7 @@ export default function useShareableLink({
 
       try {
         await navigator.clipboard.writeText(linkTobeCopied);
-      } catch (error) {
+      } catch {
         createToast({
           type: "error",
           message: "Failed to copy to clipboard.",
@@ -118,7 +113,6 @@ export default function useShareableLink({
       }).then(({ data }) => {
         if (data?.createShareableLink?.__typename === "ShareableLink") {
           setShareableLink(data.createShareableLink.code);
-          setAlertType("info");
           setExpirationDate(new Date(data.createShareableLink.validUntil || "").toUTCString());
           setSubmittedGlobalParams(searchParams.toString());
           copyLinkToClipboard(data.createShareableLink.code);

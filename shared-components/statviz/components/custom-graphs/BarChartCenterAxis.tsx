@@ -58,7 +58,13 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     if (firstRender && chart.rendered) {
       chart.rendered(firstRender);
     }
-  });
+
+    return () => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+      }
+    };
+  }, [chart]);
 
   const fields = { ...chart };
 
@@ -74,7 +80,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     tooltipOpen: false,
   });
 
-  let tooltipTimeout: number;
+  const tooltipTimeoutRef = useRef<number | undefined>(undefined);
 
   if (!fields.settings) {
     fields.settings = {};
@@ -174,10 +180,10 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   x={x}
                   y={Math.round(y - barHight / 2)}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                    tooltipTimeoutRef.current = window.setTimeout(() => hideTooltip(), 300);
                   }}
                   onMouseMove={(event) => {
-                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
                     const localY = localPoint(event)?.y ?? 0;
                     showTooltip({
                       tooltipData: tooltip,
@@ -205,10 +211,10 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   y={Math.round(y - barHight / 2)}
                   fill={fields.colorBarRight}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                    tooltipTimeoutRef.current = window.setTimeout(() => hideTooltip(), 300);
                   }}
                   onMouseMove={(event) => {
-                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
                     const localY = localPoint(event)?.y ?? 0;
 
                     showTooltip({

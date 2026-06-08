@@ -209,7 +209,12 @@ Apply the following rules to name files:
 ├── README.md
 ├── package.json
 ├── tsconfig.json
-├── .eslintrc.cjs
+├── .prettierignore
+├── .dockerignore
+├── eslint.config.js
+├── .eslintrc
+├── .prettierrc
+└── .gitignore
 ├── ../Dockerfile
 └── ../.prettierrc
 ```

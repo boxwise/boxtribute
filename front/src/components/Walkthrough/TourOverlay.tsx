@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Joyride,
   BeforeHook,
@@ -8,7 +8,6 @@ import {
   STATUS,
   Step,
   TooltipRenderProps,
-  TourData,
 } from "react-joyride";
 import { Box, Button, Flex, Progress, Text } from "@chakra-ui/react";
 import { useWalkthrough } from "./WalkthroughContext";
@@ -32,8 +31,7 @@ export const PATHS: Record<string, WalkthroughPath> = {
 // Chakra v2 generates the AccordionButton's id as `accordion-button-{AccordionItem id}`,
 // so we target it directly rather than querying inside the AccordionItem element.
 function makeExpandGroupHook(groupName: string): BeforeHook {
-  // eslint-disable-next-line no-unused-vars
-  return async (_data: TourData) => {
+  return async () => {
     const groupId = nameToNavId(groupName);
     const btn = document.getElementById(`accordion-button-${groupId}`) as HTMLButtonElement | null;
     if (!btn || btn.getAttribute("aria-expanded") === "true") return;
@@ -108,62 +106,55 @@ function CustomTooltip({
 function TourOverlay() {
   const { isWalkthroughActive, currentStep, activePath, completePath, backToPathSelection } =
     useWalkthrough();
+
+  // 1. Keep track of the index, but we don't need a separate 'run' state anymore.
   const [stepIndex, setStepIndex] = useState(0);
-  const [run, setRun] = useState(false);
 
   const isActive = isWalkthroughActive && currentStep === "tour" && activePath != null;
   const pathDef = activePath ? PATHS[activePath] : null;
-  // Compute the step list once when the path changes so Joyride never receives a
-  // new array reference on every render (which would reset its internal state).
-  // buildJoyrideSteps also filters out steps whose targets are absent from the DOM.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [activePath]);
+
+  const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [pathDef]);
   const totalSteps = steps.length;
 
-  // Reset step index whenever the active path changes
-  useEffect(() => {
-    if (!isActive) {
-      setRun(false);
-      return;
-    }
-    setStepIndex(0);
-    // Small delay to allow DOM to settle before joyride starts
-    const t = setTimeout(() => setRun(true), 100);
-    return () => clearTimeout(t);
-  }, [isActive, activePath]);
+  // 2. COMPUTE 'run' dynamically.
+  // Joyride should only run if the tour is active and we actually have steps to show.
+  const run = isActive && steps.length > 0;
+
+  // 3. Reset the step index when the path changes, but do it safely inside the handler
+  // or handle it implicitly by using a `key` on the Joyride component (see below).
 
   const handleEvent = useCallback(
     (data: EventData) => {
       const { status, action, index, type } = data;
 
+      // When the tour finishes or is skipped, wrap it up
       if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
-        setRun(false);
         if (activePath) completePath(activePath);
+        setStepIndex(0); // Reset cleanly on completion
         return;
       }
 
-      // Handle target not found - skip to next step or go back to path selection
+      // Handle missing targets
       if (type === EVENTS.TARGET_NOT_FOUND) {
         const nextIndex = index + 1;
         if (nextIndex < steps.length) {
-          // Skip to next step if available
           setStepIndex(nextIndex);
         } else {
-          // No more steps, go back to path selection
-          setRun(false);
           backToPathSelection();
+          setStepIndex(0);
         }
         return;
       }
 
+      // Progressing through steps
       if (type === EVENTS.STEP_AFTER) {
         if (action === ACTIONS.NEXT) {
           setStepIndex(index + 1);
         } else if (action === ACTIONS.PREV) {
           setStepIndex(Math.max(0, index - 1));
         } else if (action === ACTIONS.CLOSE || action === ACTIONS.SKIP) {
-          setRun(false);
           backToPathSelection();
+          setStepIndex(0);
         }
       }
     },
@@ -174,6 +165,10 @@ function TourOverlay() {
 
   return (
     <Joyride
+      // KEY TRICK: Changing the key forces Joyride to completely recreate itself
+      // whenever the active path changes, resetting its internal state automatically
+      // without needing a complex useEffect.
+      key={activePath}
       steps={steps}
       run={run}
       stepIndex={stepIndex}
@@ -189,11 +184,11 @@ function TourOverlay() {
       options={{
         overlayColor: "rgba(0,0,0,0.5)",
         zIndex: 10000,
-        overlayClickAction: false as const,
-        dismissKeyAction: false as const,
-        buttons: ["primary"] as const,
+        overlayClickAction: false,
+        dismissKeyAction: false,
+        buttons: ["primary"],
         skipBeacon: true,
-        targetWaitTimeout: 2000,
+        targetWaitTimeout: 2000, // This replaces your 100ms setTimeout!
       }}
     />
   );
