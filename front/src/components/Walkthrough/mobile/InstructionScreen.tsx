@@ -75,7 +75,7 @@ function InstructionScreen() {
 
       {/* Scrollable body */}
       <Box flex={1} overflowY="auto" px={4} pb={4}>
-        <Image boxShadow="base" src={slide.imageSrc} />
+        <Image boxShadow="base" src={slide.imageSrc} alt={slide.title} />
 
         <Text fontWeight="bold" fontSize="xl" textAlign="center" mt={6} mb={3}>
           {slide.title}
