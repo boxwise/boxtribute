@@ -106,6 +106,31 @@ def number_of_boxes_created_between(start, end):
     ).dicts()
 
 
+def number_of_items_in_boxes_created_between(start, end):
+    """Compute total sum of items in boxes created between start and end dates,
+    grouped per base and organisation.
+    NULL item counts (boxes with no items recorded) are treated as 0 via COALESCE.
+    """
+    return (
+        Box.select(
+            Organisation.id.alias("organisation_id"),
+            Organisation.name.alias("organisation_name"),
+            Base.id.alias("base_id"),
+            Base.name.alias("base_name"),
+            fn.COALESCE(fn.SUM(Box.number_of_items), 0).alias("number"),
+        )
+        .join(Location)
+        .join(Base)
+        .join(Organisation)
+        .where(
+            Box.created_on >= start,
+            Box.created_on <= end,
+            exclude_test_organisation(),
+        )
+        .group_by(Organisation.id, Base.id)
+    ).dicts()
+
+
 def number_of_beneficiaries_registered_between(start, end):
     # Beneficiaries might be hard-deleted from the people table, hence we have to use
     # the history table for reliable information about their creation. However some

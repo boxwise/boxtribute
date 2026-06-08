@@ -13,6 +13,7 @@ from ..business_logic.metrics.crud import (
     number_of_beneficiaries_reached_between,
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
+    number_of_items_in_boxes_created_between,
 )
 from ..models.utils import utcnow
 from .formatting import format_as_table
@@ -102,11 +103,20 @@ def get_internal_data():
         "Unique active users": get_data_for_number_of_active_users(),
     }
 
-    # All-time computations without trends
-    for title, func in zip(TITLES[:2], funcs[:2]):
-        result = func(START, now)
-        data = format_as_table(result, column_names=["all time"])
-        yield {"title": title, "data": data}
+    # "All time created boxes": two columns — box count and items sum
+    result_boxes = number_of_boxes_created_between(START, now)
+    result_items = number_of_items_in_boxes_created_between(START, now)
+    data = format_as_table(
+        result_boxes,
+        result_items,
+        column_names=["boxes (all time)", "items (all time)"],
+    )
+    yield {"title": TITLES[0], "data": data}
+
+    # "All time registered beneficiaries": unchanged
+    result = number_of_beneficiaries_registered_between(START, now)
+    data = format_as_table(result, column_names=["all time"])
+    yield {"title": TITLES[1], "data": data}
 
     for title, func in zip(TITLES[2:], funcs[2:]):
         results = []
