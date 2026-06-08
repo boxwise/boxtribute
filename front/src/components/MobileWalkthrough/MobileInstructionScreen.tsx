@@ -98,7 +98,7 @@ function MobileInstructionScreen() {
       {/* Navigation buttons — always at the bottom */}
       <Flex px={4} pb={8} pt={2} justifyContent="space-between">
         <Button
-          leftIcon={<ArrowBackIcon />}
+          leftIcon={<ArrowBackIcon boxSize={6} />}
           bg={isFirst ? "gray.300" : "blue.300"}
           color="white"
           _hover={{ bg: isFirst ? "gray.300" : "blue.400" }}
@@ -109,7 +109,7 @@ function MobileInstructionScreen() {
           px={6}
         />
         <Button
-          rightIcon={<ArrowForwardIcon />}
+          rightIcon={<ArrowForwardIcon boxSize={6} />}
           colorScheme="blue"
           onClick={next}
           aria-label={isLast ? "Finish" : "Next slide"}
