@@ -32,7 +32,7 @@ import {
   availableBasesAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
-// import { useWalkthrough } from "components/Walkthrough";
+import { useMobileWalkthrough } from "components/Walkthrough";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
@@ -60,7 +60,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
-  // const { openWalkthrough } = useWalkthrough();
+  const { openWalkthrough } = useMobileWalkthrough();
 
   return (
     // use zIndex which is lower than the default for Chakra Modals (e.g. in HistoryOverlay)
@@ -155,7 +155,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                     Account
                   </SubItemBox>
                 </MenuItem>
-                {/* <MenuItem
+                <MenuItem
                   px={2}
                   bg="transparent"
                   _hover={{ bg: "transparent" }}
@@ -165,8 +165,10 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                     openWalkthrough();
                   }}
                 >
-                  <SubItemBox>Open walkthrough</SubItemBox>
-                </MenuItem> */}
+                  <SubItemBox>
+                    <MenuIcon icon="Open walkthrough" /> Open walkthrough
+                  </SubItemBox>
+                </MenuItem>
                 <MenuItem
                   px={2}
                   bg="transparent"
