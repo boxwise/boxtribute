@@ -25,7 +25,7 @@ function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
   return { onTouchStart, onTouchEnd };
 }
 
-function MobileInstructionScreen() {
+function InstructionScreen() {
   const { step, slideIndex, goToSlide, closeWalkthrough, finishTour } = useMobileWalkthrough();
 
   const slides = useVisibleSlides();
@@ -115,4 +115,4 @@ function MobileInstructionScreen() {
   );
 }
 
-export default MobileInstructionScreen;
+export default InstructionScreen;

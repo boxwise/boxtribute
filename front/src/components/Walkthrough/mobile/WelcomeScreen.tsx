@@ -4,7 +4,7 @@ import BoxtributeLogo from "components/HeaderMenu/BoxtributeLogo";
 import { organisationAtom } from "stores/globalPreferenceStore";
 import { useMobileWalkthrough } from "./MobileWalkthroughContext";
 
-function MobileWelcomeScreen() {
+function WelcomeScreen() {
   const { step, startTour, closeWalkthrough } = useMobileWalkthrough();
   const organisation = useAtomValue(organisationAtom);
   const orgName = organisation?.name ?? "your organisation";
@@ -66,4 +66,4 @@ function MobileWelcomeScreen() {
   );
 }
 
-export default MobileWelcomeScreen;
+export default WelcomeScreen;

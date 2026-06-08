@@ -1,7 +1,7 @@
 import { Box, Button, Text } from "@chakra-ui/react";
 import { useMobileWalkthrough } from "./MobileWalkthroughContext";
 
-function MobileFinalScreen() {
+function FinalScreen() {
   const { step, closeWalkthrough, replayTour, isCoordinator } = useMobileWalkthrough();
 
   if (step !== "done") return null;
@@ -62,4 +62,4 @@ function MobileFinalScreen() {
   );
 }
 
-export default MobileFinalScreen;
+export default FinalScreen;
