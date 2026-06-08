@@ -19,7 +19,7 @@ function MobileFinalScreen() {
       px={6}
     >
       {/* Green overlay card */}
-      <Box bg="green.100" borderRadius="2xl" px={6} py={8} w="full" maxW="420px" textAlign="center">
+      <Box bg="green.100" borderRadius="md" px={6} py={8} w="full" maxW="420px" textAlign="center">
         <Text fontWeight="bold" fontSize="xl" mb={4}>
           You are all set!
         </Text>
@@ -30,9 +30,6 @@ function MobileFinalScreen() {
           locations, users, and full reports is much easier on desktop, where tables and data have
           the space they need. Head there for the expanded experience!
         </Text>
-
-        {/* Divider */}
-        <Box h="1px" bg="green.300" mb={6} />
 
         <Button
           bg="black"
@@ -47,8 +44,9 @@ function MobileFinalScreen() {
         </Button>
 
         <Button
-          variant="outline"
+          variant="ghost"
           w="full"
+          bg="white"
           onClick={replayTour}
           data-testid="mobile-walkthrough-replay"
         >

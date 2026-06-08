@@ -56,6 +56,7 @@ function MobileWelcomeScreen() {
         w="full"
         variant="ghost"
         size="lg"
+        bg="gray.200"
         onClick={closeWalkthrough}
         data-testid="mobile-walkthrough-skip-welcome"
       >

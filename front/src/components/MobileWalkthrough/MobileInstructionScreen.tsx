@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Box, Button, Flex, Progress, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Image, Progress, Text } from "@chakra-ui/react";
 import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { useMobileWalkthrough } from "./MobileWalkthroughContext";
 import slides from "./slides";
@@ -23,36 +23,6 @@ function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
   }
 
   return { onTouchStart, onTouchEnd };
-}
-
-/** Placeholder image with a vignette (shade at borders) when no imageSrc is provided. */
-function SlidePlaceholderImage({ src }: { src?: string }) {
-  return (
-    <Box
-      borderRadius="xl"
-      overflow="hidden"
-      position="relative"
-      w="full"
-      h={56}
-      bg={src ? "transparent" : "gray.300"}
-    >
-      {src ? (
-        <Box as="img" src={src} w="full" h="full" objectFit="cover" />
-      ) : (
-        // Dummy grey box — real screenshots to be supplied later
-        <Box w="full" h="full" bg="gray.300" />
-      )}
-      {/* Vignette overlay */}
-      <Box
-        position="absolute"
-        inset={0}
-        style={{
-          background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.18) 100%)",
-          pointerEvents: "none",
-        }}
-      />
-    </Box>
-  );
 }
 
 function MobileInstructionScreen() {
@@ -104,7 +74,7 @@ function MobileInstructionScreen() {
 
       {/* Scrollable body */}
       <Box flex={1} overflowY="auto" px={4} pb={4}>
-        <SlidePlaceholderImage src={slide.imageSrc} />
+        <Image boxShadow="base" src={slide.imageSrc} />
 
         <Text fontWeight="bold" fontSize="xl" textAlign="center" mt={6} mb={3}>
           {slide.title}
@@ -117,9 +87,9 @@ function MobileInstructionScreen() {
         {/* Progress bar */}
         <Progress
           value={progress}
-          size="sm"
+          size="md"
           colorScheme="green"
-          borderRadius="full"
+          borderRadius="0"
           mt={6}
           mb={2}
         />
