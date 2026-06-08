@@ -85,14 +85,7 @@ function MobileInstructionScreen() {
         </Text>
 
         {/* Progress bar */}
-        <Progress
-          value={progress}
-          size="md"
-          colorScheme="green"
-          borderRadius="0"
-          mt={6}
-          mb={2}
-        />
+        <Progress value={progress} size="md" colorScheme="green" borderRadius="0" mt={6} mb={2} />
       </Box>
 
       {/* Navigation buttons — always at the bottom */}
