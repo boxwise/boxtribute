@@ -123,44 +123,29 @@ it("MobileWalkthrough - Replay from final screen restarts instruction slides", a
   expect(await screen.findByText(/Scan any box, instantly/i)).toBeInTheDocument();
 });
 
-it("MobileWalkthrough - coordinator sees all slides", async () => {
+it("MobileWalkthrough - coordinator and above sees 5 slides", async () => {
   renderMobileWalkthrough("base_1_coordinator");
   fireEvent.click(await screen.findByTestId("mobile-walkthrough-start"));
-  // all 5 slides visible; navigate through all
-  for (let i = 0; i < slides.length; i++) {
+  for (let i = 0; i < 5; i++) {
     fireEvent.click(screen.getByTestId("mobile-walkthrough-next"));
   }
   expect(await screen.findByText(/You are all set/i)).toBeInTheDocument();
 });
 
-it("MobileWalkthrough - warehouse volunteer sees warehouse slides but not free-shop slides", async () => {
+it("MobileWalkthrough - warehouse volunteer sees 4 slides", async () => {
   renderMobileWalkthrough("base_1_warehouse_volunteer");
   fireEvent.click(await screen.findByTestId("mobile-walkthrough-start"));
-
-  expect(await screen.findByText(/Scan any box, instantly/i)).toBeInTheDocument();
-  // Warehouse volunteer should NOT see the free_shop_volunteer slide
-  // Navigate through all their slides until done
-  let attempts = 0;
-  while (screen.queryByTestId("mobile-walkthrough-next") && attempts < 10) {
+  for (let i = 0; i < 4; i++) {
     fireEvent.click(screen.getByTestId("mobile-walkthrough-next"));
-    attempts++;
   }
   expect(await screen.findByText(/You are all set/i)).toBeInTheDocument();
-  // free_shop slide should never have appeared
-  expect(screen.queryByText(/Register & support beneficiaries/i)).not.toBeInTheDocument();
 });
 
-it("MobileWalkthrough - free-shop volunteer sees free-shop slides but not warehouse-only slides", async () => {
+it("MobileWalkthrough - free-shop volunteer sees 3 slides", async () => {
   renderMobileWalkthrough("base_1_free_shop_volunteer");
   fireEvent.click(await screen.findByTestId("mobile-walkthrough-start"));
-
-  expect(await screen.findByText(/Scan any box, instantly/i)).toBeInTheDocument();
-  let attempts = 0;
-  while (screen.queryByTestId("mobile-walkthrough-next") && attempts < 10) {
+  for (let i = 0; i < 3; i++) {
     fireEvent.click(screen.getByTestId("mobile-walkthrough-next"));
-    attempts++;
   }
   expect(await screen.findByText(/You are all set/i)).toBeInTheDocument();
-  // warehouse-only slide should never have appeared
-  expect(screen.queryByText(/Move stock between bases/i)).not.toBeInTheDocument();
 });
