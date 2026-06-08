@@ -2,7 +2,7 @@ import { Box, Button, Text } from "@chakra-ui/react";
 import { useMobileWalkthrough } from "./MobileWalkthroughContext";
 
 function MobileFinalScreen() {
-  const { step, closeWalkthrough, replayTour } = useMobileWalkthrough();
+  const { step, closeWalkthrough, replayTour, isCoordinator } = useMobileWalkthrough();
 
   if (step !== "done") return null;
 
@@ -26,9 +26,14 @@ function MobileFinalScreen() {
 
         <Text color="gray.700" lineHeight="tall" mb={6}>
           You&apos;ve seen the key parts of Boxtribute on mobile, and you can revisit this tour
-          anytime from <strong>Settings</strong>. Have a coordinator role? Managing products,
-          locations, users, and full reports is much easier on desktop, where tables and data have
-          the space they need. Head there for the expanded experience!
+          anytime from the <strong>Menu</strong>.{" "}
+          {isCoordinator && (
+            <>
+              <br />
+              Managing products, locations, users, and full reports is much easier on desktop, where
+              tables and data have the space they need. Head there for the expanded experience!
+            </>
+          )}
         </Text>
 
         <Button

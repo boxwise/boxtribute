@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import { JWT_ROLE } from "utils/constants";
+import { isCoordinatorOrAbove } from "../roles";
 
 type MobileWalkthroughStep = "idle" | "welcome" | "instruction" | "done";
 
@@ -16,6 +18,7 @@ interface MobileWalkthroughContextType {
   goToSlide: (index: number) => void;
   finishTour: () => void;
   replayTour: () => void;
+  isCoordinator: boolean;
 }
 
 const noop = () => {};
@@ -29,6 +32,7 @@ const defaultContext: MobileWalkthroughContextType = {
   goToSlide: noop,
   finishTour: noop,
   replayTour: noop,
+  isCoordinator: false,
 };
 
 const MobileWalkthroughContext = createContext<MobileWalkthroughContextType>(defaultContext);
@@ -58,6 +62,8 @@ function saveState(userId: string, state: MobileWalkthroughState) {
 export function MobileWalkthroughProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth0();
   const userId = user?.sub ?? "anonymous";
+  const roles: string | string[] = user?.[JWT_ROLE] ?? [];
+  const isCoordinator = isCoordinatorOrAbove(roles);
 
   const [step, setStep] = useState<MobileWalkthroughStep>("idle");
   const [slideIndex, setSlideIndex] = useState(0);
@@ -113,6 +119,7 @@ export function MobileWalkthroughProvider({ children }: { children: React.ReactN
       goToSlide,
       finishTour,
       replayTour,
+      isCoordinator,
     }),
     [
       step,
@@ -123,6 +130,7 @@ export function MobileWalkthroughProvider({ children }: { children: React.ReactN
       goToSlide,
       finishTour,
       replayTour,
+      isCoordinator,
     ],
   );
 
