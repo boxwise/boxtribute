@@ -2,23 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { JWT_ROLE } from "utils/constants";
 import { MobileSlide } from "./types";
 import slides from "./slides";
-
-function isWarehouseVolunteer(roles: string | string[]): boolean {
-  const roleList = Array.isArray(roles) ? roles : [roles];
-  return roleList.some((r) => r.includes("warehouse_volunteer"));
-}
-
-function isFreeShopVolunteer(roles: string | string[]): boolean {
-  const roleList = Array.isArray(roles) ? roles : [roles];
-  return roleList.some((r) => r.includes("free_shop_volunteer"));
-}
-
-function isCoordinatorOrAbove(roles: string | string[]): boolean {
-  const roleList = Array.isArray(roles) ? roles : [roles];
-  return roleList.some(
-    (r) => r.includes("coordinator") || r === "administrator" || r === "boxtribute_god",
-  );
-}
+import { isFreeShopVolunteer, isCoordinatorOrAbove, isWarehouseVolunteer } from "../roles";
 
 /**
  * Returns the mobile walkthrough slides visible to the current user based on their roles.
