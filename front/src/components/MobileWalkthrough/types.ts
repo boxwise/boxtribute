@@ -1,11 +1,10 @@
+import React from "react";
+
 export interface MobileSlide {
   /** Bold headline shown below the image */
   title: string;
   /** Body text below the title */
-  text: string;
-  /**
-   * Optional path to a screenshot image.
-   * When omitted a grey placeholder with a vignette border is rendered instead.
-   */
+  text: React.ReactNode;
+  /** Path to a screenshot image. */
   imageSrc?: string;
 }
