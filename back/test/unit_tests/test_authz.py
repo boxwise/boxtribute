@@ -330,7 +330,12 @@ def test_check_user_beta_level():
 
     # User with level 4 can additionally access Product pages
     current_user._max_beta_level = 4
-    for mutation in ["createTag", "createBeneficiary", "createBeneficiaries"]:
+    for mutation in [
+        "createTag",
+        "createBeneficiary",
+        "createBoxFromBox",
+        "createBeneficiaries",
+    ]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
@@ -342,7 +347,7 @@ def test_check_user_beta_level():
 
     # Level 5 is the default, hence users with unknown level have the same permissions
     current_user._max_beta_level = 50
-    for mutation in ["createBeneficiary", "createBeneficiaries", "createBoxFromBox"]:
+    for mutation in ["createBeneficiary", "createBeneficiaries"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[DEFAULT_MAX_BETA_LEVEL]:
@@ -357,7 +362,7 @@ def test_check_user_beta_level():
 
     # User with level 5 can additionally run tag mutations
     current_user._max_beta_level = 5
-    for mutation in ["createBeneficiary", "createBeneficiaries", "createBoxFromBox"]:
+    for mutation in ["createBeneficiary", "createBeneficiaries"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
@@ -369,7 +374,7 @@ def test_check_user_beta_level():
 
     # User with level 6 can additionally run bulk mutations
     current_user._max_beta_level = 6
-    for mutation in ["createBeneficiary", "createBoxFromBox"]:
+    for mutation in ["createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
         assert not check_user_beta_level(payload, current_user=current_user)
     for mutation in MUTATIONS_FOR_BETA_LEVEL[max_beta_level]:
@@ -404,7 +409,7 @@ def test_check_user_beta_level():
         current_user=current_user,
     )
 
-    # User with level 7 can additionally run createBoxFromBox
+    # User with level 7 has the same permissions as level 6
     current_user._max_beta_level = 7
     for mutation in ["createBeneficiary"]:
         payload = f"mutation {{ {mutation} }}"
