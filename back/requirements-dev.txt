@@ -7,7 +7,7 @@ pytest-mock==3.15.1
 pytest-cov==7.1.0
 pytest-clarity==1.0.1
 mypy==2.1.0
-types-Flask-Cors==6.0.0.20260518
+types-Flask-Cors==6.0.3.20260608
 types-peewee==4.0.5.20260518
 types-setuptools==82.0.0.20260518
 types-PyMySQL==1.1.0.20260518
