@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Box, Button, Flex, Image, Progress, Text } from "@chakra-ui/react";
 import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { useMobileWalkthrough } from "./MobileWalkthroughContext";
-import slides from "./slides";
+import { useVisibleSlides } from "./useVisibleSlides";
 
 /** Returns touch-event handlers for left/right swipe detection. */
 function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
@@ -28,6 +28,7 @@ function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void) {
 function MobileInstructionScreen() {
   const { step, slideIndex, goToSlide, closeWalkthrough, finishTour } = useMobileWalkthrough();
 
+  const slides = useVisibleSlides();
   const total = slides.length;
   const slide = slides[slideIndex];
   const isFirst = slideIndex === 0;

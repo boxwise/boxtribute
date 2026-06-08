@@ -1,9 +1,9 @@
 import { MobileSlide } from "./types";
-import Slide01Image from "../../assets/images/walkthrough/01-scanner.png";
-import Slide02Image from "../../assets/images/walkthrough/02-dashboard.png";
-import Slide03Image from "../../assets/images/walkthrough/03-manageboxes.png";
-import Slide04Image from "../../assets/images/walkthrough/04-manageshipments.png";
-import Slide05Image from "../../assets/images/walkthrough/05-addbeneficiary.png";
+import Slide01Image from "../../../assets/images/walkthrough/01-scanner.png";
+import Slide02Image from "../../../assets/images/walkthrough/02-dashboard.png";
+import Slide03Image from "../../../assets/images/walkthrough/03-manageboxes.png";
+import Slide04Image from "../../../assets/images/walkthrough/04-manageshipments.png";
+import Slide05Image from "../../../assets/images/walkthrough/05-addbeneficiary.png";
 
 const slides: MobileSlide[] = [
   {

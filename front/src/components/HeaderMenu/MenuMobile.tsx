@@ -32,7 +32,7 @@ import {
   availableBasesAtom,
   selectedBaseIdAtom,
 } from "stores/globalPreferenceStore";
-import { useMobileWalkthrough } from "components/MobileWalkthrough";
+import { useMobileWalkthrough } from "components/Walkthrough";
 
 function SubItemBox({ children, py = 1 }: { children: ReactNode | ReactNode[]; py?: number }) {
   return (
