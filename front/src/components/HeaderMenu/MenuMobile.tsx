@@ -155,18 +155,6 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                     Account
                   </SubItemBox>
                 </MenuItem>
-                {/* <MenuItem
-                  px={2}
-                  bg="transparent"
-                  _hover={{ bg: "transparent" }}
-                  color="red.500"
-                  onClick={() => {
-                    onClose();
-                    openWalkthrough();
-                  }}
-                >
-                  <SubItemBox>Open walkthrough</SubItemBox>
-                </MenuItem> */}
                 <MenuItem
                   px={2}
                   bg="transparent"
