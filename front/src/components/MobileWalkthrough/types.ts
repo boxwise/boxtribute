@@ -7,4 +7,6 @@ export interface MobileSlide {
   text: React.ReactNode;
   /** Path to a screenshot image. */
   imageSrc?: string;
+  /** Optional: minimum required user role to view the slide */
+  requiredRole?: string;
 }

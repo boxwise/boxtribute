@@ -35,6 +35,7 @@ const slides: MobileSlide[] = [
       </>
     ),
     imageSrc: Slide03Image,
+    requiredRole: "warehouse_volunteer",
   },
   {
     title: "Move stock between bases",
@@ -44,6 +45,7 @@ const slides: MobileSlide[] = [
       </>
     ),
     imageSrc: Slide04Image,
+    requiredRole: "warehouse_volunteer",
   },
   {
     title: "Register & support beneficiaries",
@@ -53,6 +55,7 @@ const slides: MobileSlide[] = [
       </>
     ),
     imageSrc: Slide05Image,
+    requiredRole: "free_shop_volunteer",
   },
 ];
 
