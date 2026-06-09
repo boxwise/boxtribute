@@ -8,29 +8,32 @@ Author: @pylipp
 
 Proposed
 
-## Context or Problem Statement
+## Problem Statement
 
-As a humanitarian-aid tech non-profit, Boxtribute needs a public-facing place to share documentation, FAQs, guides, case studies, and best practices about its web application. This knowledge hub should also be linked from within the app at the right touchpoints to guide users.
+As a humanitarian-aid tech non-profit, Boxtribute needs a place to provide extended contextual information on demand to Boxtribute users in a structured way. This contextual information might include FAQs, guided training or microlearning, best practice, and common scenarios and solutions, or traditional platform oriented documentation. The goal is to 1) engage users who are onboarding to quickly and effectively learn how to use the Boxtribute platform to effectively deliver their humanitarian programming or relief activities. 2) identify and surface users experiencing operational challenges and pressures, and respond to their needs by helping them discover knowledge and solutions most relevant to their challenges in a medium that encourages easily absorption and application.
 
 Currently, documentation is scattered (GitHub README files, internal wikis, ad-hoc Notion pages), there is no central and publicly accessible place for end-users or partner organisations to find help, and no structured way for non-technical team members to contribute content.
 
 ## Decision Drivers
 
-1. **Non-tech editability** – content editors (operations, partnerships) must be able to add or modify pages without developer involvement.
+1. **Non-tech usability**
+    - easy to update and keep track of interrelated content, e. g. through versioning, content blocks, etc.
+    - fast learning curve - quick to get polished content output
+    - content editors (operations, partnerships) must be able to add or modify pages without developer involvement.
 2. **Tech maintenance burden** – the platform must require minimal ongoing effort from the engineering team.
 3. **Free / affordable** – Boxtribute is an open-source non-profit; solutions must have a perpetually free or OSS plan.
 4. **Anonymized visitor analytics** – GDPR-compliant, cookie-free tracking of page visits, clicks, and time on page.
 5. **Search** – full-text search across all content.
 6. **Theming / branding** – ability to match Boxtribute's visual identity.
-7. **Offline / low connectivity caching** – aids deployed to refugee camps often work in low-connectivity environments; docs should be accessible after a first visit.
-8. **Custom domain** – the docs site should live under a Boxtribute-owned domain.
-9. **Blog / guides / case studies** – the platform must support rich long-form content, not only reference pages.
-10. **"How to get in touch" page** – a static contact/support subpage.
+7. **Custom domain** – the docs site should live under a Boxtribute-owned domain (unified experience as part of the Boxtribute product ecosystem. Self hosted is one aspect probably but should ideally also be able to navigate back and forth from the web app)
+8. **Interactivity and multimedia support** - clickable sections, etc. to support engagement and context provision
 
 Nice-to-have:
+- **Offline / low connectivity caching** – aids deployed to refugee camps often work in low-connectivity environments; docs should be accessible after a first visit.
 - Release log / What's New section.
 - GraphQL API reference for developers.
 - MCP (Model Context Protocol) integration so docs can be consumed by an AI assistant.
+- SCORM/xAPI support to support future integration into LMS systems
 
 ## Considered Options
 
@@ -112,7 +115,6 @@ Key characteristics:
 
 - ✅ Framework-agnostic component support
 - ❌ Younger project with a smaller plugin ecosystem
-- ❌ Team has no prior Astro experience (vs. React which is already used)
 
 **Verdict:** Promising but less mature. Lacks the plugin ecosystem needed to satisfy all requirements today.
 
@@ -162,7 +164,6 @@ Key characteristics:
 
 - ✅ Automatic builds on commit
 - ✅ Version management (multiple doc versions per release)
-- ❌ Primarily suited for technical reference docs, not user guides or case studies
 
 **Verdict:** Excellent for open-source project reference docs but lacks offline support, blog features, and the flexibility needed for Boxtribute's diverse content requirements.
 
