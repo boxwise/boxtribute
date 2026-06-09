@@ -72,7 +72,7 @@ def compute_with_trend(func, end_date, duration, *args):
 
 
 TITLES = [
-    "All time created boxes",
+    "All time created boxes/items",
     "All time registered beneficiaries",
     "Newly created boxes",
     "Newly registered beneficiaries",
@@ -103,7 +103,7 @@ def get_internal_data():
         "Unique active users": get_data_for_number_of_active_users(),
     }
 
-    # "All time created boxes": two columns — box count and items sum
+    # "All time created boxes": two columns (box count and items sum)
     result_boxes = number_of_boxes_created_between(START, now)
     result_items = number_of_items_in_boxes_created_between(START, now)
     data = format_as_table(
@@ -113,7 +113,6 @@ def get_internal_data():
     )
     yield {"title": TITLES[0], "data": data}
 
-    # "All time registered beneficiaries": unchanged
     result = number_of_beneficiaries_registered_between(START, now)
     data = format_as_table(result, column_names=["all time"])
     yield {"title": TITLES[1], "data": data}
