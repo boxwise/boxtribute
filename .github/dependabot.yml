@@ -63,6 +63,9 @@ updates:
       - dependency-name: "jsdom"
         update-types:
           - "version-update:semver-major"
+      # Major SDK upgrade, cf. https://trello.com/c/I4BqskML
+      - dependency-name: "@apollo/client"
+        versions: ["4.x"]
     groups:
       front-dev-minor-update:
         dependency-type: development

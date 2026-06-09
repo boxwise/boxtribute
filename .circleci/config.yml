@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   gcp-cli: circleci/gcp-cli@3.1.1
   slack: circleci/slack@3.4.2
-  codecov: codecov/codecov@5.4.3
+  codecov: codecov/codecov@6.0.0
   queue: eddiewebb/queue@3.2.1
 executors:
   node-executor:
@@ -357,12 +357,6 @@ jobs:
                 echo -e "\ninstance_class: F2" >> app-<< parameters.serviceName >>.yaml
             fi;
       - run:
-          name: Compress deployment artificats
-          command: tar -cvzf ~/deploy.tar.gz ~/back
-      - store_artifacts:
-          name: Store copy of deployment artifacts
-          path: ~/deploy.tar.gz
-      - run:
           name: Authenticate the gcloud orb
           command: |
             gcloud version
@@ -450,12 +444,6 @@ jobs:
           paths:
             - ~/docs/graphql-api/node_modules
       - run:
-          name: Compress deployment artificats
-          command: tar -cvzf ~/deploy.tar.gz ~/back
-      - store_artifacts:
-          name: Store copy of deployment artifacts
-          path: ~/deploy.tar.gz
-      - run:
           name: Authenticate the gcloud orb
           command: |
             echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
@@ -517,12 +505,6 @@ jobs:
           name: Generate GAE app.yaml file
           command: |
             sed 's/service: shared-staging/service: << parameters.serviceName >>/g' app-shared.yaml > app-<< parameters.serviceName >>.yaml
-      - run:
-          name: Compress deployment artificats
-          command: tar -cvzf ~/deploy.tar.gz ~/back
-      - store_artifacts:
-          name: Store copy of deployment artifacts
-          path: ~/deploy.tar.gz
       - run:
           name: Authenticate the gcloud orb
           command: |
