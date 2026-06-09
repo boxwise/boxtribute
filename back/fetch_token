@@ -28,7 +28,7 @@ def _create_cli_parser():
     parser.add_argument(
         "-u",
         "--username",
-        help="defaults to AUTH0_USERNAME from env (required unless -m or -t)",
+        help="defaults to AUTH0_USERNAME from env (required unless -m or -t given)",
     )
     parser.add_argument(
         "-p",
@@ -76,7 +76,7 @@ def main():
     ):
         # Exit with help message if no CLI arguments passed
         parser.print_help()
-        raise SystemExit(0)
+        raise SystemExit(1)
 
     parameters = dict(
         audience=os.environ["AUTH0_AUDIENCE"],
