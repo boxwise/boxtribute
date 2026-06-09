@@ -86,13 +86,26 @@ def exclude_test_organisation():
 
 
 def number_of_boxes_created_between(start, end):
+    return _number_of_boxes_or_items_created_between(start, end)
+
+
+def number_of_items_in_boxes_created_between(start, end):
+    return _number_of_boxes_or_items_created_between(start, end, items_number=True)
+
+
+def _number_of_boxes_or_items_created_between(start, end, items_number=False):
+    if items_number:
+        # NULL item counts (boxes with no items recorded) are treated as 0 via COALESCE
+        field = fn.COALESCE(fn.SUM(Box.number_of_items), 0)
+    else:
+        field = fn.COUNT(Box.id)
     return (
         Box.select(
             Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
             Base.id.alias("base_id"),
             Base.name.alias("base_name"),
-            fn.COUNT(Box.id).alias("number"),
+            field.alias("number"),
         )
         .join(Location)
         .join(Base)
