@@ -6,6 +6,7 @@ another .env file to load.
 """
 
 import argparse
+import getpass
 import logging
 import os
 import sys
@@ -48,7 +49,6 @@ def main():
 
     if (
         options.username is None
-        and options.password is None
         and options.dotenv_filepath is None
         and not options.test
         and not options.management_api
@@ -89,11 +89,14 @@ def main():
             password=None,
         )
     else:
+        username = options.username or os.environ["AUTH0_USERNAME"]
         extras = dict(
             client_id=os.environ["AUTH0_CLIENT_ID"],
             client_secret=os.environ["AUTH0_CLIENT_SECRET"],
-            username=options.username or os.environ["AUTH0_USERNAME"],
-            password=options.password or os.environ["AUTH0_PASSWORD"],
+            username=username,
+            password=options.password
+            or os.getenv("AUTH0_PASSWORD")
+            or getpass.getpass(f"Password for {username}: "),
         )
     parameters.update(extras)
 
@@ -105,4 +108,7 @@ def main():
 
 
 if __name__ == "__main__":
-    print(main())
+    try:
+        print(main())
+    except KeyboardInterrupt:
+        raise SystemExit("Cancelled by user.")
