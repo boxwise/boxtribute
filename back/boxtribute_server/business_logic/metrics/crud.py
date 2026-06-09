@@ -86,38 +86,26 @@ def exclude_test_organisation():
 
 
 def number_of_boxes_created_between(start, end):
-    return (
-        Box.select(
-            Organisation.id.alias("organisation_id"),
-            Organisation.name.alias("organisation_name"),
-            Base.id.alias("base_id"),
-            Base.name.alias("base_name"),
-            fn.COUNT(Box.id).alias("number"),
-        )
-        .join(Location)
-        .join(Base)
-        .join(Organisation)
-        .where(
-            Box.created_on >= start,
-            Box.created_on <= end,
-            exclude_test_organisation(),
-        )
-        .group_by(Organisation.id, Base.id)
-    ).dicts()
+    return _number_of_boxes_or_items_created_between(start, end)
 
 
 def number_of_items_in_boxes_created_between(start, end):
-    """Compute total sum of items in boxes created between start and end dates,
-    grouped per base and organisation.
-    NULL item counts (boxes with no items recorded) are treated as 0 via COALESCE.
-    """
+    return _number_of_boxes_or_items_created_between(start, end, items_number=True)
+
+
+def _number_of_boxes_or_items_created_between(start, end, items_number=False):
+    if items_number:
+        # NULL item counts (boxes with no items recorded) are treated as 0 via COALESCE
+        field = fn.COALESCE(fn.SUM(Box.number_of_items), 0).alias("number")
+    else:
+        field = fn.COUNT(Box.id).alias("number")
     return (
         Box.select(
             Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
             Base.id.alias("base_id"),
             Base.name.alias("base_name"),
-            fn.COALESCE(fn.SUM(Box.number_of_items), 0).alias("number"),
+            field,
         )
         .join(Location)
         .join(Base)
