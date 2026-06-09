@@ -25,8 +25,8 @@ logger.addHandler(logging.StreamHandler())
 
 def _create_cli_parser():
     parser = argparse.ArgumentParser(description=globals()["__doc__"])
-    parser.add_argument("-u", "--username")
-    parser.add_argument("-p", "--password")
+    parser.add_argument("-u", "--username", help="mandatory if none of -m or -t given")
+    parser.add_argument("-p", "--password", help="will prompt if not specified")
     parser.add_argument("-d", "--dotenv-filepath")
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="show env variables"
@@ -38,7 +38,10 @@ def _create_cli_parser():
         help="fetch JWT for test user, ignoring -u and -p options",
     )
     parser.add_argument(
-        "-m", "--management-api", action="store_true", help="fetch management API token"
+        "-m",
+        "--management-api",
+        action="store_true",
+        help="fetch management API token, ignoring -u and -p options",
     )
     return parser
 
