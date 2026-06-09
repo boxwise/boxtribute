@@ -2,7 +2,12 @@ import { Box, Container, Flex, useMediaQuery } from "@chakra-ui/react";
 import { Outlet } from "react-router-dom";
 import HeaderMenuContainer from "./HeaderMenu/HeaderMenuContainer";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "./HeaderMenu/consts";
-import { WalkthroughProvider, Walkthrough } from "./Walkthrough";
+import {
+  WalkthroughProvider,
+  Walkthrough,
+  MobileWalkthroughProvider,
+  MobileWalkthrough,
+} from "./Walkthrough";
 
 /**
  * Renders the layout which is sitting in the routing at /bases/:baseId.
@@ -32,8 +37,8 @@ function Layout() {
     );
 
   return (
-    <WalkthroughProvider>
-      <Walkthrough />
+    <MobileWalkthroughProvider>
+      <MobileWalkthrough />
       <Container maxWidth="container.xl">
         <Flex direction="column" height="100vh">
           <HeaderMenuContainer />
@@ -42,7 +47,7 @@ function Layout() {
           </Box>
         </Flex>
       </Container>
-    </WalkthroughProvider>
+    </MobileWalkthroughProvider>
   );
 }
 
