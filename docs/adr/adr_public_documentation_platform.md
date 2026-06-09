@@ -1,319 +1,282 @@
-# ADR: Public Documentation Hosting Platform
+# ADR: Documentation and Knowledge-Base Platform for Boxtribute Users
 
-Decision Deadline: 2025-07-15
+Trello-card: https://trello.com/c/uNLO1p1f
 
-Author: @pylipp
+Decision Deadline: 2026-06-16
+
+Discussion Participants: [Philipp Metzner](https://github.com/pylipp), [Roanna Kong](https://github.com/aerinsol)
 
 ## Status
 
 Proposed
 
-## Problem Statement
+## Context or Problem Statement
 
-As a humanitarian-aid tech non-profit, Boxtribute needs a place to provide extended contextual information on demand to Boxtribute users in a structured way. This contextual information might include FAQs, guided training or microlearning, best practice, and common scenarios and solutions, or traditional platform oriented documentation. The goal is to 1) engage users who are onboarding to quickly and effectively learn how to use the Boxtribute platform to effectively deliver their humanitarian programming or relief activities. 2) identify and surface users experiencing operational challenges and pressures, and respond to their needs by helping them discover knowledge and solutions most relevant to their challenges in a medium that encourages easily absorption and application.
+As a humanitarian-aid tech non-profit, Boxtribute needs a central, publicly accessible place to provide structured contextual information to end users and partner organisations. This covers FAQs, guided training / microlearning, best practice, common scenarios, and traditional platform documentation.
 
-Currently, documentation is scattered (GitHub README files, internal wikis, ad-hoc Notion pages), there is no central and publicly accessible place for end-users or partner organisations to find help, and no structured way for non-technical team members to contribute content.
+Currently documentation is scattered across GitHub README files, internal wikis, and ad-hoc Notion pages. There is no central hub for end-users or partners to find help, and no structured way for non-technical team members (operations, partnerships) to contribute content without developer involvement.
+
+The platform must serve two goals:
+1. **Onboarding** – help new users quickly and effectively learn how to use Boxtribute to deliver their humanitarian programming.
+2. **Operational support** – surface knowledge and solutions for users experiencing challenges in a medium that is easy to absorb and apply.
 
 ## Decision Drivers
 
-1. **Non-tech usability**
-    - easy to update and keep track of interrelated content, e. g. through versioning, content blocks, etc.
-    - fast learning curve - quick to get polished content output
-    - content editors (operations, partnerships) must be able to add or modify pages without developer involvement.
-2. **Tech maintenance burden** – the platform must require minimal ongoing effort from the engineering team.
-3. **Free / affordable** – Boxtribute is an open-source non-profit; solutions must have a perpetually free or OSS plan.
+1. **Non-tech usability** – content editors (operations, partnerships) must be able to add or modify pages without developer involvement; fast learning curve; support for versioning and interrelated content blocks.
+2. **Tech maintenance burden** – minimal ongoing effort from the engineering team.
+3. **Free / affordable** – must have a perpetually free or OSS plan suitable for a non-profit.
 4. **Anonymized visitor analytics** – GDPR-compliant, cookie-free tracking of page visits, clicks, and time on page.
 5. **Search** – full-text search across all content.
 6. **Theming / branding** – ability to match Boxtribute's visual identity.
-7. **Custom domain** – the docs site should live under a Boxtribute-owned domain (unified experience as part of the Boxtribute product ecosystem. Self hosted is one aspect probably but should ideally also be able to navigate back and forth from the web app)
-8. **Interactivity and multimedia support** - clickable sections, etc. to support engagement and context provision
+7. **Custom domain** – docs should live under a Boxtribute-owned domain.
+8. **Interactivity and multimedia support** – clickable sections, embedded media, collapsible blocks to support engagement.
 
 Nice-to-have:
-- **Offline / low connectivity caching** – aids deployed to refugee camps often work in low-connectivity environments; docs should be accessible after a first visit.
+- Offline / low-connectivity caching (PWA) for field workers in refugee camps.
 - Release log / What's New section.
 - GraphQL API reference for developers.
-- MCP (Model Context Protocol) integration so docs can be consumed by an AI assistant.
-- SCORM/xAPI support to support future integration into LMS systems
+- MCP (Model Context Protocol) integration for AI-assistant consumption.
+- SCORM/xAPI support for future LMS integration.
 
 ## Considered Options
 
-### Option A – Google Doc / collection of Markdown links
+### Option 1: GitBook (recommended)
 
-**Description:** Use a shared Google Drive folder for guides and link to individual documents from the README or in-app tooltips.
+[GitBook](https://www.gitbook.com) is a managed SaaS documentation platform with a browser-based WYSIWYG editor. Its rendering engine is open source (GPL v3); the content management back-end is proprietary SaaS.
 
-- ❌ Does not scale; no navigation structure
+**Cost**: Free **Community Plan** for qualifying non-profits and open-source projects (application required at gitbook.com/community). Grants access to nearly all Ultimate-tier features (custom domain, advanced analytics, AI-powered search, theming, GitHub/GitLab sync, API playgrounds, adaptive content) with the sole exception of SAML SSO. *Note: eligibility for a humanitarian NGO vs. a pure open-source software project should be confirmed with GitBook directly before adopting.*
 
-**Verdict:** Does not meet must-have requirements.
+**Non-tech editing**: Native block-based browser editor comparable to Notion. Non-technical content editors can create, reorder, and publish pages with no Markdown or Git knowledge. Supports content blocks, embeds, callouts, tables, and reusable content snippets.
 
----
+**Search**: Built-in full-text search and AI-powered semantic answers ("Ask Eddy"), included in the Community plan.
 
-### Option B – GitHub Wiki
+**Theming / branding**: Custom primary colours, logo, favicon, font, and header/footer links. Full custom CSS injection is available on Business/Enterprise tiers; the Community plan provides constrained branding controls.
 
-**Description:** Activate the built-in GitHub Wiki on the Boxtribute repository.
+**Custom domain**: Fully supported on the Community plan.
 
-- ✅ Basic non-tech editing via GitHub web UI
-- ❌ Poor discoverability outside GitHub
+**Interactivity**: Expandable sections, tabs, hints, inline code runners, embeds (YouTube, Figma, Loom, etc.), and API playground for interactive API exploration. Supports MDX/custom components via GitHub sync.
 
-**Verdict:** Does not meet must-have requirements.
+**Analytics**: GitBook does not provide a native Plausible/Fathom integration in the same way as Mintlify. On paid/community tiers, a Plausible tracking script can be injected via the Integrations settings tab, giving GDPR-compliant cookie-free analytics — but this is a configuration step rather than a one-click first-class integration, and plan-level availability should be verified.
 
----
+**Self-hosted burden**: None – fully managed SaaS; zero infrastructure to maintain. (Technically, the rendering layer can be partially self-hosted via the GPL v3 open-source renderer, but the content back-end remains on GitBook.com.)
 
-### Option C – GitBook (SaaS, free Community/Sponsored plan for OSS/non-profits)
+**Offline / PWA**: Not supported natively; no service-worker caching.
 
-**Description:** GitBook is a cloud-hosted documentation platform with a WYSIWYG block editor. It offers two free options for qualifying open-source and non-profit organisations:
+**MCP**: No official GitBook MCP server exists. A community-maintained third-party project (`gitbook-mcp` on GitHub) exposes GitBook's API over MCP, but it is not an officially supported integration.
 
-1. **Community Plan** (requires application and approval): Access to nearly all Ultimate plan features (except SAML SSO), including custom domains, custom branding, AI assistant, advanced analytics, and unlimited contributors.
-2. **Sponsored Plan** (no application required): Free for open-source projects; includes custom domains, most features, but shows small ethical ads on the documentation site. Revenue from ads supports the project.
-
-Key characteristics:
-- Block-based WYSIWYG editor — non-tech friendly out of the box.
-- Two-way GitHub sync — docs can live in the repo and be edited via GitBook UI.
-- Fast full-text search built in.
-- AI-powered search and content assistant.
-- ✅ **Custom domain available on Community/Sponsored plans** (corrected from initial research).
-- ✅ **Advanced analytics and site insights available on Community plan**.
-- Custom fonts and branding (Community plan).
-- Slack, GitHub, and Linear integrations.
-- ❌ **No native offline / PWA support** — GitBook is a cloud-first platform and requires an active internet connection at all times. There is no service worker or PWA caching built in. Users can export to PDF for offline reading, but this is not the same as browsing cached pages offline.
-- Not open source; vendor lock-in risk.
-
-**Verdict:** GitBook's Community plan is significantly more capable than initially assessed—it includes custom domains, advanced analytics, and AI features. However, **it still fails the offline/low-connectivity requirement**, which is critical for aid workers in refugee camps with intermittent connectivity. Vendor lock-in remains a concern for a long-lived OSS project.
+**Setup time**: Hours to a couple of days to get a polished, branded, public site live.
 
 ---
 
-### Option D – Docusaurus (open-source static site generator)
+### Option 2: Mintlify
 
-**Description:** [Docusaurus](https://docusaurus.io/) is a React-based open-source static site generator maintained by Meta, widely adopted by major OSS projects (React, Jest, Redux, etc.). The generated site can be deployed as a static site on any host.
+[Mintlify](https://mintlify.com) is a fully managed docs-as-code SaaS platform primarily aimed at developer / API documentation, with a sleek out-of-the-box design and industry-leading AI/MCP integration.
 
-Key characteristics:
+**Cost**: Free "Starter" tier (1 editor seat, unlimited pages, `*.mintlify.app` subdomain). Custom domain and team collaboration require the Growth plan (~$150/month). **No formal non-profit programme is publicly documented**; Boxtribute should contact Mintlify sales to explore discounts.
 
-| Requirement | How Docusaurus addresses it |
-|---|---|
-| Free pricing | MIT license; hosting on Vercel (already used by Boxtribute for `boxtribute.org`) at zero cost |
-| Search | Algolia DocSearch — free for qualifying OSS projects; full-text, instant |
-| Theming / branding | Full React + CSS customisation; first-class dark mode; swizzling for component overrides |
-| Offline / low-connectivity | Official `@docusaurus/plugin-pwa` adds a service worker; previously visited pages are served from cache |
-| Custom domain | Full control; can live at `docs.boxtribute.org` |
-| Blog / guides / case studies | Built-in blog plugin with tags, authors, pagination, RSS |
-| FAQ / documentation | Core feature (docs plugin, sidebar navigation, versioning) |
-| "How to get in touch" page | Any static page in MDX |
-| Anonymized analytics | Plausible Analytics integration (GDPR compliant, cookie-free, script tag in `docusaurus.config.js`) — free self-hosted or paid cloud |
-| Release log | Blog plugin doubles as a changelog; dedicated `changelog` page possible |
-| GraphQL API docs | [`@graphql-markdown/docusaurus`](https://graphql-markdown.dev/) plugin generates docs from the existing GraphQL schema, complementing or replacing the current SpectaQL setup |
-| MCP integration | [`docusaurus-plugin-mcp-server`](https://www.npmjs.com/package/docusaurus-plugin-mcp-server) exposes an MCP server endpoint so docs can be used as context for AI assistants |
-| Hosting maintenance | Vercel CI/CD deploy on push; essentially zero ongoing ops |
+**Non-tech editing**: A web editor at `app.mintlify.com` allows browser-based editing with preview. The experience is closer to "structured Markdown with a GUI" than a true WYSIWYG; non-technical editors can use it but may need orientation. The underlying content lives as MDX files in a GitHub repository.
 
-**Non-technical editing:** The main trade-off is that content changes go through Git (markdown files in the repository). Non-tech editors can use the GitHub web UI to create/edit markdown files and open pull requests without touching the terminal. For teams that prefer a WYSIWYG interface, [Decap CMS](https://decapcms.org/) (formerly Netlify CMS, open-source) can be layered on top of Docusaurus to provide a browser-based editor backed by Git — no proprietary dependency. Alternatively, editors can draft in Google Docs and have a developer commit the markdown; the frequency of documentation updates at Boxtribute is low enough that this is manageable.
+**Search**: Built-in full-text semantic search out of the box. No external configuration required.
 
-**Verdict:** Meets all must-have requirements. Covers all nice-to-have requirements with available plugins. Fits Boxtribute's existing infrastructure (Vercel, GitHub, React).
+**Theming / branding**: Excellent — full colour palette (light/dark), logo, favicon, fonts, custom CSS, and custom JavaScript all configurable via `docs.json`. Stable CSS selectors (`data-component-name`) for reliable overrides.
 
----
+**Custom domain**: Supported on Growth plan (~$150/month); not on the free Starter tier. This is a significant cost barrier without a non-profit discount.
 
-### Option E – Starlight (Astro-based)
+**Interactivity**: Very rich — Tabs, Accordions, Code groups, Mermaid diagrams, OpenAPI playground, Cards, Steps, embedded videos, and full React/MDX components.
 
-**Description:** [Starlight](https://starlight.astro.build/) is a documentation framework built on Astro, gaining traction as an alternative to Docusaurus.
+**Analytics**: The strongest of all evaluated hosted platforms. First-class native integrations for **Plausible** (cookie-free, GDPR-compliant), **Fathom** (cookie-free, GDPR-compliant), PostHog, Pirsch, Amplitude, Heap, Mixpanel, Segment, and others — all configured via a single `docs.json` field. No consent banner required when using Plausible or Fathom.
 
-- ✅ Framework-agnostic component support
-- ❌ Younger project with a smaller plugin ecosystem
+**Self-hosted burden**: None — fully managed SaaS.
 
-**Verdict:** Promising but less mature. Lacks the plugin ecosystem needed to satisfy all requirements today.
+**Offline / PWA**: Not natively supported.
+
+**MCP**: **Industry-leading.** Two official MCP servers: (1) a read-only **Search MCP** hosted at `/mcp` on the docs domain, allowing AI tools (Claude, Cursor, ChatGPT) to search and retrieve published content; (2) a write-access **Admin MCP** at `mcp.mintlify.com` enabling AI tools to create/edit pages and update configuration. Mintlify also auto-generates `llms.txt` and `llms-full.txt` at the site root for LLM indexing.
+
+**Setup time**: Under 30 minutes from sign-up to live site.
+
+**Assessment**: Technically the strongest all-round hosted platform (analytics, MCP, setup speed), but the cost model is a barrier — custom domain requires ~$150/month without a non-profit agreement. Also primarily designed for developer/API documentation, which may not perfectly serve Boxtribute's mixed-audience knowledge base.
 
 ---
 
-### Option F – VitePress (Vue-based)
+### Option 3: Docusaurus
 
-**Description:** [VitePress](https://vitepress.dev/) is a Vue-powered static site generator optimised for speed.
+[Docusaurus](https://docusaurus.io) (Meta, MIT) is an open-source static-site generator built on React.
 
-- ❌ Vue ecosystem — Boxtribute frontend is React-based
-- ❌ No versioning support
+**Cost**: Free (MIT); hosting on GitHub Pages / Netlify / Vercel free tiers.
 
-**Verdict:** Mismatch with existing React ecosystem; missing blog and offline features.
+**Non-tech editing**: Markdown / MDX files committed to Git. Third-party CMS front-ends (Editsaurus, Holocron, Spinal) can add a browser editor layer but require additional setup and maintenance.
 
----
+**Search**: Algolia DocSearch (free for OSS) or local lunr.js plugin.
 
-### Option G – Mintlify (SaaS)
+**Theming / branding**: Full via CSS variables and custom React components.
 
-**Description:** [Mintlify](https://mintlify.com/) is a developer-documentation SaaS with native OpenAPI support and built-in AI chat.
+**Custom domain**: Yes.
 
-- ✅ AI chat / MCP support
-- ❌ Primarily targeted at developer API docs — not general end-user guides
-- ❌ Free plan is limited; advanced features require paid tiers
-- ❌ Proprietary SaaS; vendor lock-in
+**Interactivity**: Full React component support, rich MDX.
 
-**Verdict:** Strong for API docs but does not cover the non-developer audience Boxtribute needs to serve.
+**Analytics**: Any analytics provider injectable.
 
----
+**Offline / PWA**: Official `@docusaurus/plugin-pwa`.
 
-### Option H – MkDocs with Material theme (open-source static site generator)
+**Self-hosted burden**: Low (static files); but CI/CD pipeline, build tooling, and theming require developer effort to establish and maintain.
 
-**Description:** [MkDocs](https://www.mkdocs.org/) is a Python-based static site generator designed for project documentation. Combined with the popular [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/) theme, it offers a polished documentation experience.
+**Setup time**: Several days of developer work for initial setup, theming, CI, and CMS integration.
 
-Key characteristics:
-- ⚠️ Python-based — Boxtribute has Python in the backend, but frontend team is React-focused
-- ❌ No equivalent to `@graphql-markdown/docusaurus` for GraphQL API docs
-- ❌ No MCP server plugin
-- ❌ Single maintainer, last release in Aug 2024; uncertainty about [version 2](https://github.com/mkdocs/mkdocs/discussions/4077)
+**MCP / AI**: No native MCP server; sitemap.xml is auto-generated, enabling LLM crawling, but not MCP protocol.
 
-**Verdict:** Strong contender with excellent PWA/offline support. However, less alignment with the React-based frontend team, less mature blog capabilities, and missing GraphQL documentation plugin make it slightly less optimal than Docusaurus for Boxtribute's specific needs.
+**Assessment**: Powerful but requires significant and ongoing developer investment; non-technical editing is not native.
 
 ---
 
-### Option I – Read the Docs (open-source hosting platform)
+### Option 4: MkDocs + Material for MkDocs
 
-**Description:** [Read the Docs](https://readthedocs.org/) is a leading platform for hosting documentation automatically built from Git repositories. Very popular in the Python ecosystem.
+[MkDocs](https://www.mkdocs.org) with the [Material](https://squidfunk.github.io/mkdocs-material/) theme is a Python-based static-site generator (MIT licence).
 
-- ✅ Automatic builds on commit
-- ✅ Version management (multiple doc versions per release)
+**Cost**: Free (MIT). Community features are fully featured. An optional "Insiders" tier (GitHub Sponsors, from ~$15/month) unlocks additional premium features (social cards, privacy plugin, etc.) that eventually ship to the community release.
 
-**Verdict:** Excellent for open-source project reference docs but lacks offline support, blog features, and the flexibility needed for Boxtribute's diverse content requirements.
+**Non-tech editing**: Pure Markdown files committed to Git. No built-in web editor. Non-technical editors must use GitHub's web editor or a separately configured headless CMS. This is a significant barrier.
 
----
+**Search**: Excellent built-in client-side lunr.js search with language support and highlighting. Works completely offline without any third-party service — verified from source as "privacy-respecting" and offline-capable by default.
 
-### Option J – BookStack (self-hosted open-source wiki)
+**Theming / branding**: Extensive Material Design customisation via `mkdocs.yml` (colors, fonts, logo, dark/light mode) and custom CSS overrides. Professional look without custom CSS.
 
-**Description:** [BookStack](https://www.bookstackapp.com/) is a self-hosted, open-source wiki platform with a hierarchical book-chapter-page structure.
+**Custom domain**: Yes, free on GitHub Pages / Netlify / Vercel.
 
-- ✅ WYSIWYG and Markdown editors — very non-tech friendly
-- ✅ Fine-grained role-based permissions
-- ❌ **Requires self-hosting** — adds maintenance burden (server, backups, updates)
+**Interactivity**: Admonitions, tabs, expandable sections, Mermaid diagrams, math (MathJax/KaTeX), grids, cards. Less React-rich than Docusaurus but covers most documentation needs.
 
-**Verdict:** Excellent WYSIWYG editing and organisation, but requires ongoing server maintenance (counter to minimal tech maintenance requirement) and lacks offline support.
+**Analytics**: Google Analytics 4 natively; any other provider (Plausible, Fathom, Umami) via a small custom `overrides/analytics/custom.html` partial. The Insiders privacy plugin can auto-download and self-host all external assets (fonts, scripts) to eliminate third-party requests entirely.
 
----
+**Offline / PWA**: Native built-in offline plugin (since v9.0.0) for distributing documentation offline; the client-side lunr.js search also works fully offline.
 
-### Option K – Wiki.js (self-hosted open-source wiki)
+**Self-hosted burden**: Minimal — `pip install mkdocs-material && mkdocs build` produces a static folder. GitHub Actions handles builds automatically.
 
-**Description:** [Wiki.js](https://js.wiki/) is a modern, lightweight, open-source wiki engine built on Node.js.
+**Setup time**: ~2–4 hours for a developer. Non-technical contributors still need Git/Markdown training.
 
-- ✅ WYSIWYG, Markdown, and code editors
-- ✅ Git sync for content versioning
-- ✅ Granular permissions and SSO support
+**MCP / AI**: No native MCP server; static `llms.txt` can be manually added.
 
-**Verdict:** Feature-rich wiki with good analytics and theming, but requires self-hosting and lacks offline support.
+**Assessment**: The best offline/search experience of all evaluated options. Editing barrier remains too high for non-technical contributors without additional CMS tooling.
 
 ---
 
-### Option L – Outline (open-source knowledge base)
+### Option 5: Starlight (Astro)
 
-**Description:** [Outline](https://www.getoutline.com/) is a beautifully designed, team-focused knowledge base with real-time collaboration, available as self-hosted or cloud.
+[Starlight](https://starlight.astro.build) is an Astro-based documentation framework (MIT licence). It generates fully static sites with built-in Pagefind search, i18n support, and an accessibility-first design.
 
-- ✅ Modern, fast UI with WYSIWYG editing
-- ✅ Real-time collaboration
-- ✅ Slack integrations
-- ⚠️ Cloud version available (paid) or self-hosted (free but requires maintenance)
-- ❌ No public-facing docs site out of the box (primarily for internal wikis)
+**Cost**: Free (MIT). Hosting free on Netlify / Vercel / GitHub Pages / Cloudflare Pages.
 
-**Verdict:** Excellent for internal team knowledge bases but not designed as a public-facing documentation site. Lacks offline support and blog functionality.
+**Non-tech editing**: MDX files in Git. No native browser editor; same barrier as MkDocs/Docusaurus. Can be paired with a Git-based CMS (Keystatic, Decap CMS) but requires additional developer setup.
+
+**Search**: **Pagefind built-in** — static, local, privacy-respecting, fully offline-capable, no API keys or external services required. Algolia DocSearch is also available as an alternative plugin.
+
+**Theming / branding**: CSS custom properties (`--sl-font`, `--sl-color-accent`, etc.), custom logo (light/dark), custom CSS files, custom fonts. Component overriding for advanced customisation.
+
+**Custom domain**: Yes, free on any static host.
+
+**Interactivity**: Astro Islands architecture — arbitrary React/Vue/Svelte components can be embedded, making this the most flexible for interactive content. Mermaid via community plugin, callout/aside components, tabbed content.
+
+**Analytics**: Full control via Astro `<head>` injection; Plausible, Fathom, Umami all work. Astro's `partytown` integration can isolate analytics scripts in a web worker to improve performance.
+
+**Offline / PWA**: Supported via `@vite-pwa/astro` integration; Pagefind search works offline once cached.
+
+**Self-hosted burden**: Minimal — Node.js build, static HTML output.
+
+**Setup time**: ~2–4 hours for a developer.
+
+**MCP / AI**: No native MCP server; Pagefind index could theoretically be wrapped, but not out-of-box.
+
+**Assessment**: Strongest offline/interactivity combination of the static generators; newer ecosystem means more DIY. Editing barrier is the same as other static generators.
 
 ---
 
-### Option M – Notion (SaaS workspace with nonprofit discount)
+### Option 6: Outline (self-hosted wiki)
 
-**Description:** [Notion](https://www.notion.so/) is an all-in-one workspace popular for wikis, project management, and documentation. Offers 50% discount for nonprofits (via TechSoup).
+[Outline](https://www.getoutline.com) is an open-source collaborative wiki (Prosemirror-based WYSIWYG, similar to Notion). Licensed under **BSL 1.1** (Business Source License — not OSI-approved; free for non-commercial self-hosting, but legal interpretation for humanitarian NGOs should be confirmed).
 
-- ✅ Extremely user-friendly for non-technical users
-- ✅ Block-based editor, databases, templates
-- ✅ Real-time collaboration
-- ❌ Not open source
-- ❌ Not designed for structured public documentation sites
+**Cost**: Self-hosted: free under BSL 1.1 (non-commercial). Cloud: ~$10/user/month (Business plan). No formal non-profit programme documented.
 
-**Verdict:** Great for internal wikis and team collaboration but not ideal for structured public-facing documentation. Still has ongoing cost even with nonprofit discount.
+**Non-tech editing**: Excellent WYSIWYG editor — non-technical team members can write and organise content in collections with no training. However, Outline is designed as an *internal* team wiki, not a public-facing branded documentation site.
+
+**Search**: Built-in full-text search (PostgreSQL full-text on the back-end).
+
+**Theming / branding**: Limited — custom logo and basic colour accent only. Not designed for a branded public help centre; extensive customisation requires source code modification.
+
+**Custom domain**: Self-hosted: yes. Cloud Business plan: yes.
+
+**Interactivity**: Rich editor blocks — images, tables, checklists, embeds (YouTube, Figma, Loom), link previews, collaborative real-time editing.
+
+**Analytics**: Cloud: admin-level only, not configurable by operators. Self-hosted: analytics scripts can be added via source-level modification only.
+
+**Offline / PWA**: React SPA with no documented PWA or service-worker offline mode. Not suitable for field use.
+
+**Self-hosted burden**: **High** — full application stack required: Node.js, PostgreSQL, Redis, S3-compatible storage, SMTP server, reverse proxy. Significant DevOps expertise and ongoing maintenance needed.
+
+**Setup time**: Cloud ~2 hours; self-hosted: several days to weeks for a production-grade deployment.
+
+**MCP / AI**: No MCP server; REST API only.
+
+**Assessment**: Best suited for internal team knowledge bases. The combination of high self-hosting burden, limited public-facing branding, BSL licence ambiguity, and no PWA support makes this a poor fit for Boxtribute's requirements.
 
 ---
 
-### Option N – Document360 (SaaS knowledge base)
+## Summary Comparison Table
 
-**Description:** [Document360](https://document360.com/) is an AI-enhanced knowledge base platform for public and private documentation.
+| Criterion | GitBook (Community) | Mintlify (Growth) | Docusaurus | MkDocs + Material | Starlight | Outline |
+|---|---|---|---|---|---|---|
+| **Financial cost** | Free if approved (non-profit) | ~$150/month (no non-profit plan) | Free | Free | Free | Free (self-host, BSL 1.1) |
+| **Non-tech editing** | ✅ Native WYSIWYG | ⚠️ Structured Markdown GUI | ⚠️ Needs add-on CMS | ⚠️ Git/Markdown | ⚠️ Git/Markdown | ✅ WYSIWYG (internal wiki) |
+| **Offline / PWA** | ❌ None | ❌ None | ✅ Official plugin | ✅ Native built-in plugin | ✅ Via Astro PWA | ❌ None |
+| **Search** | ✅ Built-in + AI | ✅ Built-in semantic | ✅ Algolia / lunr | ✅ Built-in offline (lunr) | ✅ Pagefind offline | ✅ Full-text (PostgreSQL) |
+| **Theming / branding** | ✅ Good (constrained CSS) | ✅ Excellent | ✅ Full React theming | ✅ Full Material theming | ✅ Good (CSS properties) | ⚠️ Limited |
+| **Custom domain** | ✅ Community plan | ✅ Growth plan ($150/mo) | ✅ Free | ✅ Free | ✅ Free | ✅ Self-host / paid cloud |
+| **Interactivity** | ✅ Rich blocks, embeds, API playground | ✅ MDX components, API playground | ✅ Full React | ⚠️ Moderate (no React) | ✅ Astro Islands (any framework) | ⚠️ Wiki blocks only |
+| **Analytics (GDPR)** | ⚠️ Via script injection (plan-dependent) | ✅ **Native** Plausible + Fathom | ✅ Full control (custom config) | ✅ Full control (custom partial) | ✅ Full control (Astro head) | ⚠️ Self-host source only |
+| **Self-hosted burden** | ✅ None (SaaS) | ✅ None (SaaS) | ✅ Minimal (static + CI) | ✅ Minimal (static + CI) | ✅ Minimal (static + CI) | ❌ High (Node + PostgreSQL + Redis + S3) |
+| **Time to set up** | ✅ Hours | ✅ < 30 minutes | ⚠️ Several days (dev) | ⚠️ 2–4 hours (dev) | ⚠️ 2–4 hours (dev) | ⚠️ Hours (cloud) / weeks (self-host) |
+| **MCP / AI** | ⚠️ Community third-party only | ✅ **Two official MCPs + llms.txt** | ❌ None native | ❌ None native | ❌ None native | ❌ None |
 
-- ✅ Powerful Markdown editor
-- ✅ Localisation features
-- ❌ Commercial SaaS with limited free tier
-- ❌ Not open source; vendor lock-in
-
-**Verdict:** Feature-rich but commercial SaaS not aligned with Boxtribute's free/open-source requirement.
+Legend: ✅ Fully meets requirement · ⚠️ Partial / needs additional work · ❌ Not supported / significant gap
 
 ## Decision
 
-**Adopt Docusaurus** as Boxtribute's public documentation platform.
+**Adopt GitBook using the Community Plan (non-profit)** as Boxtribute's public-facing documentation and knowledge-base platform, contingent on successful Community Plan approval.
 
-### Summary of Options Evaluated
+GitBook uniquely satisfies the two most critical decision drivers simultaneously:
+1. **Non-tech usability**: The native WYSIWYG browser editor means operations and partnerships staff can create and edit content immediately, with no Markdown, Git, or developer involvement.
+2. **Minimal maintenance burden**: Fully managed SaaS — zero infrastructure for the engineering team to operate or maintain.
 
-| Option | Free | Non-tech editing | Offline/PWA† | Search | Theming | Custom domain | Blog | Analytics | Self-hosted burden |
-|--------|:----:|:----------------:|:------------:|:------:|:-------:|:-------------:|:----:|:---------:|:------------------:|
-| A. Google Docs | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
-| B. GitHub Wiki | ✅ | ⚠️ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | N/A |
-| **C. GitBook** | ✅* | ✅ | ❌ | ✅ | ✅ | ✅ | ⚠️ | ✅ | N/A |
-| **D. Docusaurus** | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
-| E. Starlight | ✅ | ⚠️ | ⚠️ | ✅ | ✅ | ✅ | ❌ | ⚠️ | N/A |
-| F. VitePress | ✅ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ❌ | ⚠️ | N/A |
-| G. Mintlify | ⚠️ | ⚠️ | ❌ | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | N/A |
-| H. MkDocs Material | ✅ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ✅ | N/A |
-| I. Read the Docs | ✅ | ⚠️ | ❌ | ✅ | ⚠️ | ✅ | ❌ | ⚠️ | N/A |
-| J. BookStack | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ⚠️ |
-| K. Wiki.js | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ⚠️ |
-| L. Outline | ✅ | ✅ | ❌ | ✅ | ✅ | ⚠️ | ❌ | ❌ | ⚠️ |
-| M. Notion | ⚠️ | ✅ | ✅ | ⚠️ | ❌ | ⚠️ | ❌ | ❌ | N/A |
-| N. Document360 | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
+No other option satisfies both. Mintlify comes closest on technical features (superior GDPR analytics, industry-leading MCP) but lacks a non-profit pricing programme and requires ~$150/month for custom domain access. The static-site generators (Docusaurus, MkDocs, Starlight) offer offline/PWA support and full analytics control but all require developer involvement for both initial setup and ongoing content authoring.
 
-*Legend: ✅ = meets requirement, ⚠️ = partial/limited, ❌ = does not meet*
+The primary gaps relative to the decision drivers are:
 
-*\* GitBook Community plan requires application and approval*
+- **GDPR analytics**: GitBook does not have a native one-click Plausible integration comparable to Mintlify's. A Plausible tracking script can be injected via the Integrations settings on the Community plan; plan-level availability should be confirmed during onboarding.
+- **MCP**: No official GitBook MCP server exists. A community third-party project (`gitbook-mcp`) exposes GitBook's API over MCP as a workaround.
+- **Offline / PWA**: Not available; accepted as a nice-to-have for the initial rollout.
 
-*† PWA = Progressive Web App — a web application that uses service workers and modern browser APIs to cache content locally, enabling pages to load offline or in low-connectivity environments after a first visit.*
+**Fallback**: If the GitBook Community Plan application is rejected, the recommended alternative is **Docusaurus** (or MkDocs Material) hosted on Netlify/GitHub Pages (free), paired with a Git-based CMS overlay (e.g. Decap CMS / Keystatic) to reduce the editing barrier, and a Plausible script injection for analytics. This requires a one-time developer investment of ~1–2 weeks but has zero ongoing cost and full feature control.
 
-**Analytics column notes:**
-- **C. GitBook**: Advanced analytics and site insights available on the Community plan.
-- **D. Docusaurus**: Plausible Analytics integration (GDPR-compliant, cookie-free); configured via a script tag in `docusaurus.config.js`. Free self-hosted or paid cloud.
-- **E. Starlight / F. VitePress / G. Mintlify**: No built-in analytics; external scripts (e.g. Plausible, Google Analytics) can be injected via head configuration.
-- **H. MkDocs Material**: Supports Google Analytics, Plausible, and Matomo via built-in configuration.
-- **I. Read the Docs**: Basic built-in page-view analytics; limited detail and not GDPR-focused.
-- **J. BookStack**: No built-in analytics; requires external tools.
-- **K. Wiki.js**: Built-in page-view analytics plus integrations with Google Analytics and Matomo.
-- **L. Outline / M. Notion**: No analytics for public-facing pages.
-- **N. Document360**: Built-in analytics included.
+### Recommended implementation steps
 
-### Key Findings
-
-**GitBook (Option C)** is more capable than initially assessed—the Community plan includes custom domains, advanced analytics, and AI features. However, its **lack of offline/PWA support is a critical blocker** for Boxtribute's use case (aid workers in refugee camps with intermittent connectivity).
-
-**Docusaurus (Option D) and MkDocs Material (Option H)** are the only options that meet all must-have requirements, including offline/PWA caching. Docusaurus is preferred because:
-1. **React alignment** — Boxtribute's frontend is React-based; Docusaurus uses React/MDX.
-2. **Mature blog plugin** — Built-in, well-documented blog functionality.
-3. **GraphQL API docs** — `@graphql-markdown/docusaurus` plugin can generate docs from the existing schema.
-4. **MCP integration** — `docusaurus-plugin-mcp-server` available for AI assistant context.
-5. **Ecosystem** — Larger community, more themes, more plugins.
-
-### Implementation Plan
-
-The site will be:
-- Maintained as a directory (e.g. `/docs-site`) inside the existing monorepo, or as a dedicated repository (`boxwise/docs`).
-- Deployed to Vercel (already in use for `boxtribute.org`) under `docs.boxtribute.org`.
-- Built and deployed automatically on every push to `main` via Vercel's GitHub integration.
-- Tracked with Plausible Analytics (cookie-free, GDPR-compliant, anonymized).
-- Equipped with `@docusaurus/plugin-pwa` for offline/low-connectivity caching.
-- Integrated with Algolia DocSearch (free for OSS) for full-text search.
-
-Content will be authored in Markdown/MDX and committed to Git. Non-technical team members will use the GitHub web UI for edits. If the editing friction proves too high after a trial period, Decap CMS will be evaluated as a WYSIWYG overlay.
-
-The SpectaQL GraphQL API documentation workflow (built in CircleCI, hosted on GCloud) can be migrated or supplemented by the `@graphql-markdown/docusaurus` plugin at a later stage, consolidating all documentation into one place.
+1. Contact GitBook (gitbook.com/community) and submit a Community Plan application for the Boxtribute non-profit organisation.
+2. Confirm that Plausible Analytics can be injected under the Community plan before fully committing.
+3. Create a new GitBook space, connect it to the `boxwise/boxtribute` (or a dedicated `boxwise/docs`) GitHub repository for version-controlled content sync.
+4. Configure the custom domain (e.g. `docs.boxtribute.org`).
+5. Enable Plausible Analytics via the GitBook Integrations settings.
+6. Set up initial content structure: Getting Started, Features, FAQs, What's New.
+7. Grant edit access to operations and partnerships team members; provide a short onboarding session on the GitBook editor.
+8. Establish a lightweight content governance process (e.g. draft → review → publish workflow using GitBook's change-request feature).
 
 ## Consequences
 
-**Positive:**
-- Single, searchable, branded, publicly accessible documentation hub.
-- Full control over content, hosting, and data — no vendor lock-in.
-- Offline caching satisfies the low-connectivity requirement for field teams.
-- Docs live alongside code in Git, enabling code-review-style quality control and version history.
-- Extensible: GraphQL API docs and MCP server can be added incrementally.
-- Zero additional hosting cost (Vercel free tier).
+**Easier**:
+- Non-technical team members can create and update documentation without any developer involvement.
+- Polished, branded public docs site is live in hours, not weeks.
+- All content is version-controlled in Git via GitHub sync, enabling migration to another platform if needed.
+- Built-in AI-powered search (Ask Eddy) is available immediately without configuration.
 
-**Negative / trade-offs:**
-- Initial setup requires engineering effort (estimated 1–2 days to scaffold and configure).
-- Non-technical editors must learn basic GitHub markdown editing or use the GitHub web UI; this is an unfamiliar workflow for some team members.
-- Algolia DocSearch requires an application and review period for the free OSS plan.
-- PWA offline cache only covers pages the user has already visited; first-time load requires connectivity.
-
-**Out of scope for this ADR:**
-- Specific information architecture / content structure of the docs site.
-- Decision on monorepo vs. separate repo for the docs source.
-- Migration timeline for existing SpectaQL API docs.
+**More difficult / watch-outs**:
+- **Community Plan eligibility is not guaranteed.** If the application is rejected, the paid Premium plan ($65/site/month) or the static-site fallback (Docusaurus + CMS) must be evaluated.
+- **GDPR analytics requires a setup step.** Plausible is not a native one-click integration in GitBook; it requires injecting a script via the Integrations settings. Plan-level availability and exact steps must be confirmed during onboarding.
+- **MCP is community-maintained, not official.** The third-party `gitbook-mcp` server may lag behind GitBook API changes. If MCP integration becomes a firm requirement, Mintlify should be re-evaluated.
+- **Offline / PWA support is absent.** If low-connectivity field access proves critical in practice, a follow-up technical solution will be needed (e.g. a PWA shell wrapping GitBook's Git-exported static content).
+- **GitBook is a commercial SaaS.** Changes to pricing or Community Plan eligibility rules could affect future costs. Mitigation: content is mirrored in Git, enabling migration at low cost.
+- **Advanced branding requires Business tier or Git sync.** Deep CSS customisation beyond GitBook's theming panel requires MDX/code changes via Git sync (developer involvement), though this is only needed for edge cases.
