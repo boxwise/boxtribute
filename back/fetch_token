@@ -25,8 +25,16 @@ logger.addHandler(logging.StreamHandler())
 
 def _create_cli_parser():
     parser = argparse.ArgumentParser(description=globals()["__doc__"])
-    parser.add_argument("-u", "--username", help="mandatory if none of -m or -t given")
-    parser.add_argument("-p", "--password", help="will prompt if not specified")
+    parser.add_argument(
+        "-u",
+        "--username",
+        help="defaults to AUTH0_USERNAME from env (required unless -m or -t)",
+    )
+    parser.add_argument(
+        "-p",
+        "--password",
+        help="defaults to AUTH0_PASSWORD from env; prompts if missing",
+    )
     parser.add_argument("-d", "--dotenv-filepath")
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="show env variables"
@@ -50,16 +58,6 @@ def main():
     parser = _create_cli_parser()
     options = parser.parse_args()
 
-    if (
-        options.username is None
-        and options.dotenv_filepath is None
-        and not options.test
-        and not options.management_api
-    ):
-        # Exit with help message if no CLI arguments passed
-        parser.print_help()
-        raise SystemExit(0)
-
     if options.verbose:
         logger.setLevel(logging.DEBUG)
 
@@ -69,6 +67,16 @@ def main():
     for k, v in sorted(os.environ.items()):
         if "AUTH0" in k:
             logger.debug(f"{k}={v}")
+
+    if (
+        options.username is None
+        and os.getenv("AUTH0_USERNAME") is None
+        and not options.test
+        and not options.management_api
+    ):
+        # Exit with help message if no CLI arguments passed
+        parser.print_help()
+        raise SystemExit(0)
 
     parameters = dict(
         audience=os.environ["AUTH0_AUDIENCE"],
