@@ -40,7 +40,56 @@ Nice-to-have:
 
 ## Considered Options
 
-### Option 1: GitBook (recommended)
+### Category A: E-Learning Authoring Tools (Interactive Learning Focus)
+
+#### 1. Genially
+- **Description**: Interactive presentation and e-learning platform with visual editor
+- **Pricing**: $30/year nonprofit discount via TechSoup (budget \<$1M); 85% discount for larger orgs. Free tier available with limitations.
+- **Strengths**: 1000+ templates, branching scenarios, quizzes, gamification, SCORM export (higher tiers), AI-assisted editing, analytics
+- **Weaknesses**: Not designed as documentation platform; limited search across content; hosted solution
+
+#### 2. Compozer
+- **Description**: E-learning authoring tool with drag-and-drop interface
+- **Pricing**: Freemium (A$0/mo, 1 course); Lite A$19/mo; Grow A$49/mo; Pro A$99/mo
+- **Strengths**: 100+ templates, quiz engine, SCORM/xAPI export, white labeling, mobile-friendly
+- **Weaknesses**: Limited complex branching; not a documentation platform; primarily course-focused
+
+#### 3. Raptivity
+- **Description**: Interactive e-learning content creation tool
+- **Pricing**: $30/month; $199/year annual subscription
+- **Strengths**: 200+ interaction templates, quizzes/knowledge checks, gamification, no coding required
+- **Weaknesses**: No free tier; focused on learning objects not documentation; limited integration options
+
+### Category B: Documentation Platforms
+
+#### 4. GitBook
+- **Description**: Cloud-based documentation platform with clean editor
+- **Pricing**: Free Basic plan; Community plan (free for qualifying nonprofits/OSS with Ultimate features); Premium $65/mo/site; Ultimate $249/mo/site
+- **Strengths**: WYSIWYG + Markdown, real-time collaboration, GitHub sync, custom domains (paid), built-in analytics, AI-powered features
+- **Weaknesses**: Limited interactivity; no branching scenarios; paid tiers required for full customization
+
+#### 5. Docusaurus
+- **Description**: Open-source static site generator by Meta
+- **Pricing**: Free (self-hosted)
+- **Strengths**: Fully customizable (React-based), PWA plugin for offline, full-text search (Algolia), version control, GraphQL API docs support, MCP integration possible
+- **Weaknesses**: Requires developer setup; Git-based workflow; no built-in analytics (needs Plausible/Fathom integration); no native interactive learning features
+
+#### 6. Notion
+- **Description**: All-in-one workspace for docs, wikis, databases
+- **Pricing**: Free tier; Plus $10/user/mo ($5/user/mo nonprofit discount via TechSoup)
+- **Strengths**: Extremely easy WYSIWYG editing, real-time collaboration, public pages, powerful search, databases
+- **Weaknesses**: Limited customization/branding; no offline support; basic versioning; performance issues with large workspaces; no interactive learning features
+
+#### 7. Mintlify
+- **Description**: Modern documentation platform with AI features
+- **Pricing**: Free tier (limited); Pro $150/mo
+- **Strengths**: AI-powered search and chat, custom domains, analytics dashboard, beautiful design
+- **Weaknesses**: Expensive for full features; focused on API documentation; limited interactivity
+
+<details>
+  <summary>Extended evaluation of documentation platforms. </summary>
+
+**GitBook**
 
 [GitBook](https://www.gitbook.com) is a managed SaaS documentation platform with a browser-based WYSIWYG editor. Its rendering engine is open source (GPL v3); the content management back-end is proprietary SaaS.
 
@@ -68,7 +117,7 @@ Nice-to-have:
 
 ---
 
-### Option 2: Mintlify
+**Mintlify**
 
 [Mintlify](https://mintlify.com) is a fully managed docs-as-code SaaS platform primarily aimed at developer / API documentation, with a sleek out-of-the-box design and industry-leading AI/MCP integration.
 
@@ -98,7 +147,7 @@ Nice-to-have:
 
 ---
 
-### Option 3: Docusaurus
+**Docusaurus**
 
 [Docusaurus](https://docusaurus.io) (Meta, MIT) is an open-source static-site generator built on React.
 
@@ -128,7 +177,7 @@ Nice-to-have:
 
 ---
 
-### Option 4: MkDocs + Material for MkDocs
+**MkDocs + Material for MkDocs**
 
 [MkDocs](https://www.mkdocs.org) with the [Material](https://squidfunk.github.io/mkdocs-material/) theme is a Python-based static-site generator (MIT licence).
 
@@ -158,7 +207,7 @@ Nice-to-have:
 
 ---
 
-### Option 5: Starlight (Astro)
+**Starlight (Astro)**
 
 [Starlight](https://starlight.astro.build) is an Astro-based documentation framework (MIT licence). It generates fully static sites with built-in Pagefind search, i18n support, and an accessibility-first design.
 
@@ -185,58 +234,99 @@ Nice-to-have:
 **MCP / AI**: No native MCP server; Pagefind index could theoretically be wrapped, but not out-of-box.
 
 **Assessment**: Strongest offline/interactivity combination of the static generators; newer ecosystem means more DIY. Editing barrier is the same as other static generators.
+</details>
 
 ---
 
-### Option 6: Outline (self-hosted wiki)
+### Category C: Open-Source/Self-Hosted Interactive Content
 
-[Outline](https://www.getoutline.com) is an open-source collaborative wiki (Prosemirror-based WYSIWYG, similar to Notion). Licensed under **BSL 1.1** (Business Source License — not OSI-approved; free for non-commercial self-hosting, but legal interpretation for humanitarian NGOs should be confirmed).
+#### 13. H5P
+- **Description**: Open-source framework for interactive content
+- **Pricing**: Free (self-hosted); H5P.com hosted plans available
+- **Strengths**: MIT license, branching scenarios, quizzes, 40+ content types, xAPI support, integrates with WordPress/Moodle/Drupal
+- **Weaknesses**: Requires CMS/LMS hosting; not a complete documentation solution; no native search across content
 
-**Cost**: Self-hosted: free under BSL 1.1 (non-commercial). Cloud: ~$10/user/month (Business plan). No formal non-profit programme documented.
+#### 14. Adapt Learning
+- **Description**: Open-source responsive e-learning framework
+- **Pricing**: Free (self-hosted)
+- **Strengths**: SCORM 1.2/2004 support, branching via plugins, offline HTML5 export, fully customizable
+- **Weaknesses**: Requires technical setup; focused on courses not documentation; limited analytics
 
-**Non-tech editing**: Excellent WYSIWYG editor — non-technical team members can write and organise content in collections with no training. However, Outline is designed as an *internal* team wiki, not a public-facing branded documentation site.
+## Summary Evaluation Table
 
-**Search**: Built-in full-text search (PostgreSQL full-text on the back-end).
+| Criteria | Genially | Compozer | Raptivity | H5P | GitBook | Docusaurus | Notion |
+|----------|----------|----------|-----------|-----|---------|------------|--------|
+| **Financial Cost** | ✅ $30/yr nonprofit | ⚠️ A$19+/mo | ❌ $30/mo | ✅ Free OSS | ✅ Free Community | ✅ Free OSS | ✅ $5/user/mo nonprofit |
+| **Non-tech Editing** | ✅ Excellent | ✅ Good | ✅ Good | ⚠️ Moderate | ✅ Excellent | ❌ Requires dev | ✅ Excellent |
+| **Offline/PWA** | ❌ No | ❌ No | ❌ No | ⚠️ Via LMS apps | ❌ No | ✅ PWA plugin | ❌ No |
+| **Search** | ⚠️ Within creations | ⚠️ Limited | ❌ No | ❌ No | ✅ Built-in | ✅ Algolia/local | ✅ Built-in |
+| **Theming/Branding** | ✅ Templates | ✅ Brand kits | ⚠️ Limited | ✅ CSS theming | ✅ Paid plans | ✅ Full control | ⚠️ Limited |
+| **Custom Domain** | ❌ No | ❌ No | ❌ No | ⚠️ Depends on host | ✅ Paid plans | ✅ Self-hosted | ❌ Limited |
+| **Interactivity** | ✅ Excellent | ✅ Good | ✅ Excellent | ✅ Excellent | ❌ Limited | ❌ Limited | ❌ Basic |
+| **Analytics** | ✅ Built-in | ⚠️ Basic | ⚠️ Basic | ⚠️ Via xAPI/LRS | ✅ Built-in | ⚠️ Needs integration | ⚠️ Basic |
+| **Self-hosted Burden** | ✅ None (SaaS) | ✅ None (SaaS) | ✅ None (SaaS) | ⚠️ Moderate | ✅ None (SaaS) | ❌ High | ✅ None (SaaS) |
+| **Time to Setup** | ✅ Quick | ✅ Quick | ✅ Quick | ⚠️ Moderate | ✅ Quick | ⚠️ Moderate | ✅ Quick |
+| **SCORM/xAPI** | ✅ Higher tiers | ✅ Yes | ⚠️ Limited | ✅ xAPI native | ❌ No | ❌ No | ❌ No |
+| **Branching Scenarios** | ✅ Yes | ⚠️ Basic | ⚠️ Limited | ✅ Yes | ❌ No | ❌ No | ❌ No |
+| **Quiz/Knowledge Check** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No | ❌ No | ❌ No |
+| **Learner Progress** | ⚠️ Basic | ⚠️ Basic | ⚠️ Basic | ✅ Via xAPI | ❌ No | ❌ No | ❌ No |
 
-**Theming / branding**: Limited — custom logo and basic colour accent only. Not designed for a branded public help centre; extensive customisation requires source code modification.
+**Legend:** ✅ Meets requirement | ⚠️ Partially meets | ❌ Does not meet
 
-**Custom domain**: Self-hosted: yes. Cloud Business plan: yes.
+## Decision I
 
-**Interactivity**: Rich editor blocks — images, tables, checklists, embeds (YouTube, Figma, Loom), link previews, collaborative real-time editing.
+**Hybrid Approach: Docusaurus + H5P Integration**
 
-**Analytics**: Cloud: admin-level only, not configurable by operators. Self-hosted: analytics scripts can be added via source-level modification only.
+Given the dual requirements for traditional documentation AND interactive learning content, a hybrid approach is recommended:
 
-**Offline / PWA**: React SPA with no documented PWA or service-worker offline mode. Not suitable for field use.
+### Primary Platform: Docusaurus
+- **Rationale**: Free, open-source, fully customizable, supports PWA for offline use, custom domain via self-hosting, excellent for traditional documentation, API reference (GraphQL), release logs, and technical content.
+- **Analytics**: Integrate Plausible Analytics ($9/mo) for GDPR-compliant, cookie-free tracking.
+- **MCP Integration**: Feasible through custom development.
 
-**Self-hosted burden**: **High** — full application stack required: Node.js, PostgreSQL, Redis, S3-compatible storage, SMTP server, reverse proxy. Significant DevOps expertise and ongoing maintenance needed.
+### Interactive Learning: H5P
+- **Rationale**: Free open-source, excellent branching scenarios, quizzes, knowledge checks, and interactive content. Can be embedded within Docusaurus pages or linked separately.
+- **Hosting Options**:
+  - Self-host via WordPress/Drupal plugin
+  - Use H5P.com for managed hosting
+  - Embed interactive content via iframes in Docusaurus
 
-**Setup time**: Cloud ~2 hours; self-hosted: several days to weeks for a production-grade deployment.
+### Alternative Consideration: Genially
+If the primary goal shifts toward learning-first content with less emphasis on traditional documentation:
+- **Genially** offers exceptional nonprofit pricing ($30/year via TechSoup) with excellent interactive features, branching scenarios, and quizzes.
+- Best for teams where non-technical content editors are the primary authors.
+- Limitation: Not suitable as a comprehensive documentation platform.
 
-**MCP / AI**: No MCP server; REST API only.
+## Consequences
 
-**Assessment**: Best suited for internal team knowledge bases. The combination of high self-hosting burden, limited public-facing branding, BSL licence ambiguity, and no PWA support makes this a poor fit for Boxtribute's requirements.
+### Benefits
+- **Full ownership**: Self-hosted Docusaurus provides complete control over content and branding
+- **Cost-effective**: Core infrastructure is free; only analytics requires minimal cost
+- **Flexible interactivity**: H5P provides excellent branching scenarios without vendor lock-in
+- **Future-proof**: Open standards (xAPI) support future LMS integration
+- **Offline-capable**: PWA support addresses low-connectivity field deployment needs
 
----
+### Trade-offs
+- **Initial setup effort**: Requires developer time to configure Docusaurus, H5P integration, and analytics
+- **Dual-platform management**: Content editors need to work across two systems
+- **Analytics complexity**: GDPR-compliant analytics requires separate integration (Plausible)
+- **Learning curve**: Non-technical editors may need initial training on Markdown/Docusaurus workflow
 
-## Summary Comparison Table
+### Mitigation Strategies
+1. Create comprehensive content contribution guidelines
+2. Set up Git-based workflows with preview deployments for content review
+3. Develop templates and H5P presets for common interactive content types
+4. Consider GitBook Community Plan as a simpler alternative if developer resources are constrained
 
-| Criterion | GitBook (Community) | Mintlify (Growth) | Docusaurus | MkDocs + Material | Starlight | Outline |
-|---|---|---|---|---|---|---|
-| **Financial cost** | Free if approved (non-profit) | ~$150/month (no non-profit plan) | Free | Free | Free | Free (self-host, BSL 1.1) |
-| **Non-tech editing** | ✅ Native WYSIWYG | ⚠️ Structured Markdown GUI | ⚠️ Needs add-on CMS | ⚠️ Git/Markdown | ⚠️ Git/Markdown | ✅ WYSIWYG (internal wiki) |
-| **Offline / PWA** | ❌ None | ❌ None | ✅ Official plugin | ✅ Native built-in plugin | ✅ Via Astro PWA | ❌ None |
-| **Search** | ✅ Built-in + AI | ✅ Built-in semantic | ✅ Algolia / lunr | ✅ Built-in offline (lunr) | ✅ Pagefind offline | ✅ Full-text (PostgreSQL) |
-| **Theming / branding** | ✅ Good (constrained CSS) | ✅ Excellent | ✅ Full React theming | ✅ Full Material theming | ✅ Good (CSS properties) | ⚠️ Limited |
-| **Custom domain** | ✅ Community plan | ✅ Growth plan ($150/mo) | ✅ Free | ✅ Free | ✅ Free | ✅ Self-host / paid cloud |
-| **Interactivity** | ✅ Rich blocks, embeds, API playground | ✅ MDX components, API playground | ✅ Full React | ⚠️ Moderate (no React) | ✅ Astro Islands (any framework) | ⚠️ Wiki blocks only |
-| **Analytics (GDPR)** | ⚠️ Via script injection (plan-dependent) | ✅ **Native** Plausible + Fathom | ✅ Full control (custom config) | ✅ Full control (custom partial) | ✅ Full control (Astro head) | ⚠️ Self-host source only |
-| **Self-hosted burden** | ✅ None (SaaS) | ✅ None (SaaS) | ✅ Minimal (static + CI) | ✅ Minimal (static + CI) | ✅ Minimal (static + CI) | ❌ High (Node + PostgreSQL + Redis + S3) |
-| **Time to set up** | ✅ Hours | ✅ < 30 minutes | ⚠️ Several days (dev) | ⚠️ 2–4 hours (dev) | ⚠️ 2–4 hours (dev) | ⚠️ Hours (cloud) / weeks (self-host) |
-| **MCP / AI** | ⚠️ Community third-party only | ✅ **Two official MCPs + llms.txt** | ❌ None native | ❌ None native | ❌ None native | ❌ None |
+## References
 
-Legend: ✅ Fully meets requirement · ⚠️ Partial / needs additional work · ❌ Not supported / significant gap
+- [Docusaurus Documentation](https://docusaurus.io/)
+- [H5P Official Site](https://h5p.org/)
+- [Genially for Nonprofits](https://www.techsoup.org/genially)
+- [GitBook Community Plan](https://gitbook.com/docs/account-management/plans/community)
+- [Plausible Analytics](https://plausible.io/)
 
-## Decision
+## Decision II
 
 **Adopt GitBook using the Community Plan (non-profit)** as Boxtribute's public-facing documentation and knowledge-base platform, contingent on successful Community Plan approval.
 
