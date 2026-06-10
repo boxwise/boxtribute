@@ -10,7 +10,8 @@ import {
   TooltipRenderProps,
   TourData,
 } from "react-joyride";
-import { Box, Button, Flex, Progress, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, Progress, Text } from "@chakra-ui/react";
+import { BiChevronLeft } from "react-icons/bi";
 import { useWalkthrough } from "./WalkthroughContext";
 import { nameToNavId } from "components/HeaderMenu/navId";
 import path1 from "./paths/path1";
@@ -67,13 +68,13 @@ function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
 
 interface CustomTooltipProps extends TooltipRenderProps {
   totalSteps: number;
-  isLastStep: boolean;
 }
 
 function CustomTooltip({
   index,
   step,
   primaryProps,
+  backProps,
   tooltipProps,
   totalSteps,
   isLastStep,
@@ -83,7 +84,15 @@ function CustomTooltip({
   return (
     <Box {...tooltipProps} bg="white" borderRadius="md" boxShadow="lg" p={4} maxW={320} minW={260}>
       {/* Step title + counter */}
-      <Flex justify="space-between" align="flex-start" mb={2}>
+      <Flex justify="space-between" align="center" mb={2}>
+        {index > 0 && (
+          <IconButton
+            {...backProps}
+            _hover={{ bg: "transparent" }}
+            variant="ghost"
+            icon={<BiChevronLeft size="2em" />}
+          />
+        )}
         <Text fontWeight="bold" flex={1} pr={2}>
           {step.title as string}
         </Text>
@@ -179,13 +188,7 @@ function TourOverlay() {
       stepIndex={stepIndex}
       continuous
       onEvent={handleEvent}
-      tooltipComponent={(props) => (
-        <CustomTooltip
-          {...props}
-          totalSteps={totalSteps}
-          isLastStep={stepIndex === totalSteps - 1}
-        />
-      )}
+      tooltipComponent={(props) => <CustomTooltip {...props} totalSteps={totalSteps} />}
       options={{
         overlayColor: "rgba(0,0,0,0.5)",
         zIndex: 10000,
