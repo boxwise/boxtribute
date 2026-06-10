@@ -28,8 +28,8 @@ const path2: WalkthroughPath = {
       expandMenuGroup: "Beneficiaries",
     },
     {
-      target: "#nav-manage-services",
-      title: "Manage Services",
+      target: "#nav-use-service",
+      title: "Services",
       content:
         "Configure the types of services that your base provides (e.g. learning). Link them to individual beneficiaries.",
       expandMenuGroup: "Beneficiaries",
