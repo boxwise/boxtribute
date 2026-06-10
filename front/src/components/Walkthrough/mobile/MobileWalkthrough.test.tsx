@@ -123,10 +123,10 @@ it("MobileWalkthrough - Replay from final screen restarts instruction slides", a
   expect(await screen.findByText(/Scan any box, instantly/i)).toBeInTheDocument();
 });
 
-it("MobileWalkthrough - coordinator and above sees 5 slides", async () => {
+it("MobileWalkthrough - coordinator and above sees 6 slides", async () => {
   renderMobileWalkthrough("base_1_coordinator");
   fireEvent.click(await screen.findByTestId("mobile-walkthrough-start"));
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     fireEvent.click(screen.getByTestId("mobile-walkthrough-next"));
   }
   expect(await screen.findByText(/You are all set/i)).toBeInTheDocument();
@@ -141,10 +141,10 @@ it("MobileWalkthrough - warehouse volunteer sees 4 slides", async () => {
   expect(await screen.findByText(/You are all set/i)).toBeInTheDocument();
 });
 
-it("MobileWalkthrough - free-shop volunteer sees 3 slides", async () => {
+it("MobileWalkthrough - free-shop volunteer sees 4 slides", async () => {
   renderMobileWalkthrough("base_1_free_shop_volunteer");
   fireEvent.click(await screen.findByTestId("mobile-walkthrough-start"));
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 4; i++) {
     fireEvent.click(screen.getByTestId("mobile-walkthrough-next"));
   }
   expect(await screen.findByText(/You are all set/i)).toBeInTheDocument();
