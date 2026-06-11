@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { PathId } from "./paths/types";
+import { useVisiblePaths } from "./useVisiblePaths";
 
 type WalkthroughStep = "welcome" | "pathSelection" | "tour";
 
@@ -72,6 +73,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const [currentStep, setCurrentStep] = useState<WalkthroughStep>("welcome");
   const [activePath, setActivePath] = useState<PathId | null>(null);
   const [completedPaths, setCompletedPaths] = useState<Set<PathId>>(new Set());
+  const visiblePaths = useVisiblePaths();
 
   // Load persisted state and auto-show welcome for new users
   useEffect(() => {
@@ -102,6 +104,12 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
 
   const goToPathSelection = useCallback(() => {
     setIsWalkthroughActive(true);
+
+    // short-cut to only path
+    if (visiblePaths.length === 1) {
+      startPath(visiblePaths[0].id);
+      return;
+    }
     setCurrentStep("pathSelection");
     // Mark welcome as seen
     const state = loadState(userId);
