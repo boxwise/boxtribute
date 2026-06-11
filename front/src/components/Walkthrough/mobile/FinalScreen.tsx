@@ -24,7 +24,7 @@ function FinalScreen() {
           You are all set!
         </Text>
 
-        <Text color="gray.700" lineHeight="tall" mb={6}>
+        <Text color="black" lineHeight="tall" mb={6}>
           You&apos;ve seen the key parts of Boxtribute on mobile, and you can revisit this tour
           anytime from the <strong>Menu</strong>.{" "}
           {isCoordinator && (

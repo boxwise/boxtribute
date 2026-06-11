@@ -65,7 +65,7 @@ function InstructionScreen() {
       <Flex justifyContent="flex-end" px={4} pt={4} pb={2}>
         <Button
           variant="ghost"
-          size="sm"
+          size="md"
           onClick={closeWalkthrough}
           data-testid="mobile-walkthrough-skip"
         >
@@ -93,9 +93,7 @@ function InstructionScreen() {
       <Flex px={4} pb={8} pt={2} justifyContent="space-between">
         <Button
           leftIcon={<ArrowBackIcon boxSize={6} />}
-          bg={isFirst ? "gray.300" : "blue.300"}
-          color="white"
-          _hover={{ bg: isFirst ? "gray.300" : "blue.400" }}
+          colorScheme="blue"
           onClick={prev}
           isDisabled={isFirst}
           aria-label="Previous slide"
