@@ -101,6 +101,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   }, [userId]);
 
   const goToPathSelection = useCallback(() => {
+    setIsWalkthroughActive(true);
     setCurrentStep("pathSelection");
     // Mark welcome as seen
     const state = loadState(userId);
