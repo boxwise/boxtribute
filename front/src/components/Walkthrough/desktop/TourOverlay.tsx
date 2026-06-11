@@ -18,6 +18,7 @@ import path1 from "./paths/path1";
 import path2 from "./paths/path2";
 import path3 from "./paths/path3";
 import { WalkthroughPath, TourStep } from "./paths/types";
+import { useVisiblePaths } from "./useVisiblePaths";
 
 export const PATHS: Record<string, WalkthroughPath> = {
   path1,
@@ -68,6 +69,7 @@ function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
 
 interface CustomTooltipProps extends TooltipRenderProps {
   totalSteps: number;
+  isLastPath: boolean;
 }
 
 function CustomTooltip({
@@ -77,9 +79,18 @@ function CustomTooltip({
   backProps,
   tooltipProps,
   totalSteps,
+  isLastPath,
   isLastStep,
 }: CustomTooltipProps) {
   const progress = ((index + 1) / totalSteps) * 100;
+  let buttonLabel: string;
+  if (isLastStep && isLastPath) {
+    buttonLabel = "Onboarding completed!";
+  } else if (isLastStep) {
+    buttonLabel = "Path completed! Explore another one";
+  } else {
+    buttonLabel = "Next";
+  }
 
   return (
     <Box {...tooltipProps} bg="white" borderRadius="md" boxShadow="lg" p={4} maxW={320} minW={260}>
@@ -108,15 +119,22 @@ function CustomTooltip({
 
       <Progress value={progress} size="sm" colorScheme="green" mb={4} borderRadius="0" />
       <Button {...primaryProps} size="sm" colorScheme="blue" width="full" title={undefined}>
-        {isLastStep ? "Path completed! Explore another one" : "Next"}
+        {buttonLabel}
       </Button>
     </Box>
   );
 }
 
 function TourOverlay() {
-  const { isWalkthroughActive, currentStep, activePath, completePath, backToPathSelection } =
-    useWalkthrough();
+  const {
+    completedPaths,
+    isWalkthroughActive,
+    currentStep,
+    activePath,
+    completePath,
+    backToPathSelection,
+  } = useWalkthrough();
+  const visiblePaths = useVisiblePaths();
   const [stepIndex, setStepIndex] = useState(0);
   const [run, setRun] = useState(false);
 
@@ -128,6 +146,13 @@ function TourOverlay() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [activePath]);
   const totalSteps = steps.length;
+
+  const isLastPath = useMemo(
+    () =>
+      activePath != null &&
+      visiblePaths.filter((p) => p.id !== activePath).every((p) => completedPaths.has(p.id)),
+    [activePath, visiblePaths, completedPaths],
+  );
 
   // Reset step index whenever the active path changes
   useEffect(() => {
@@ -188,7 +213,9 @@ function TourOverlay() {
       stepIndex={stepIndex}
       continuous
       onEvent={handleEvent}
-      tooltipComponent={(props) => <CustomTooltip {...props} totalSteps={totalSteps} />}
+      tooltipComponent={(props) => (
+        <CustomTooltip {...props} isLastPath={isLastPath} totalSteps={totalSteps} />
+      )}
       options={{
         overlayColor: "rgba(0,0,0,0.5)",
         zIndex: 10000,
