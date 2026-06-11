@@ -106,7 +106,7 @@ function CustomTooltip({
         {step.content}
       </Text>
 
-      <Progress value={progress} size="sm" colorScheme="blue" mb={4} borderRadius="full" />
+      <Progress value={progress} size="sm" colorScheme="green" mb={4} borderRadius="0" />
       <Button {...primaryProps} size="sm" colorScheme="blue" width="full" title={undefined}>
         {isLastStep ? "Path completed! Explore another one" : "Next"}
       </Button>
