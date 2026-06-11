@@ -240,17 +240,11 @@ Nice-to-have:
 
 ### Category C: Open-Source/Self-Hosted Interactive Content
 
-#### 13. H5P
+#### 8. H5P
 - **Description**: Open-source framework for interactive content
 - **Pricing**: Free (self-hosted); H5P.com hosted plans available
 - **Strengths**: MIT license, branching scenarios, quizzes, 40+ content types, xAPI support, integrates with WordPress/Moodle/Drupal
 - **Weaknesses**: Requires CMS/LMS hosting; not a complete documentation solution; no native search across content
-
-#### 14. Adapt Learning
-- **Description**: Open-source responsive e-learning framework
-- **Pricing**: Free (self-hosted)
-- **Strengths**: SCORM 1.2/2004 support, branching via plugins, offline HTML5 export, fully customizable
-- **Weaknesses**: Requires technical setup; focused on courses not documentation; limited analytics
 
 ## Summary Evaluation Table
 
@@ -273,50 +267,58 @@ Nice-to-have:
 
 **Legend:** ✅ Meets requirement | ⚠️ Partially meets | ❌ Does not meet
 
-## Decision I
+## Conclusion
 
-**Hybrid Approach: Docusaurus + H5P Integration**
+Use **GitBook** as knowledge-base platform with learning experience integrated from e.g. Genially.
+Given the time constraints to unblock content creation and to achieve a first prototype, we should expose ourselves to the risk of self-hosting a doc/learning platform.
 
-Given the dual requirements for traditional documentation AND interactive learning content, a hybrid approach is recommended:
+> [!IMPORTANT]
+> Boxtribute has to be accepted for the GitBook Community plan as non-profit/OSS project.
+> Also, if Genially is selected, apply for a [Tech soup](https://www.techsoup.org/genially) membership.
 
-### Primary Platform: Docusaurus
-- **Rationale**: Free, open-source, fully customizable, supports PWA for offline use, custom domain via self-hosting, excellent for traditional documentation, API reference (GraphQL), release logs, and technical content.
-- **Analytics**: Integrate Plausible Analytics ($9/mo) for GDPR-compliant, cookie-free tracking.
-- **MCP Integration**: Feasible through custom development.
+### Advantages
 
-### Interactive Learning: H5P
-- **Rationale**: Free open-source, excellent branching scenarios, quizzes, knowledge checks, and interactive content. Can be embedded within Docusaurus pages or linked separately.
-- **Hosting Options**:
-  - Self-host via WordPress/Drupal plugin
-  - Use H5P.com for managed hosting
-  - Embed interactive content via iframes in Docusaurus
+- very little dev/tech team involvement needed for setup and maintenance
+- creating content is intuitive through WYSIWYG editor for non-tech team
+- content can be synced as Markdown and version-controlled in a GitHub repository
+- Genially and H5P URLs are embeddable (GitBook [uses](https://iframely.com/domains/h5p) [Iframely](https://iframely.com/domains/genially) under the hood)
+- lots of features enabled out-of-the-box (search, AI assistant, theming, analytics)
+- also integrates with [Heap](https://www.gitbook.com/integrations/heap) for analytics
+- each published GitBook site includes an MCP server (URL + `/~gitbook/mcp`)
 
-### Alternative Consideration: Genially
-If the primary goal shifts toward learning-first content with less emphasis on traditional documentation:
-- **Genially** offers exceptional nonprofit pricing ($30/year via TechSoup) with excellent interactive features, branching scenarios, and quizzes.
-- Best for teams where non-technical content editors are the primary authors.
-- Limitation: Not suitable as a comprehensive documentation platform.
+### Drawbacks
 
-## Consequences
+- potential vendor lock-in, being dependent on company pricing plans
+- no offline/PWA support (nice-to-have)
 
-### Benefits
-- **Full ownership**: Self-hosted Docusaurus provides complete control over content and branding
-- **Cost-effective**: Core infrastructure is free; only analytics requires minimal cost
-- **Flexible interactivity**: H5P provides excellent branching scenarios without vendor lock-in
-- **Future-proof**: Open standards (xAPI) support future LMS integration
-- **Offline-capable**: PWA support addresses low-connectivity field deployment needs
+## Alternative
 
-### Trade-offs
-- **Initial setup effort**: Requires developer time to configure Docusaurus, H5P integration, and analytics
-- **Dual-platform management**: Content editors need to work across two systems
-- **Analytics complexity**: GDPR-compliant analytics requires separate integration (Plausible)
-- **Learning curve**: Non-technical editors may need initial training on Markdown/Docusaurus workflow
+If the GitBook Community Plan application is rejected, the recommended alternative is **Docusaurus** hosted on Vercel with learning experience integrated from Genially and/or H5P.
 
-### Mitigation Strategies
-1. Create comprehensive content contribution guidelines
-2. Set up Git-based workflows with preview deployments for content review
-3. Develop templates and H5P presets for common interactive content types
-4. Consider GitBook Community Plan as a simpler alternative if developer resources are constrained
+### Advantages
+
+- free, OSS framework
+- full feature and branding/theming control
+- modularity and extensibility
+- integrate content from H5P or Genially
+
+### Drawbacks
+
+- considerate dev involvement for setup and maintenance (modules for search, MCP, PWA, analytics)
+- no intuitive non-tech editing; use Git-based CMS overlay (e.g. [Tina CMS](https://tina.io/docs/guides/docusaurus)) to reduce the editing barrier
+- modularity comes with risk of having to upgrade unmaintained integrations
+
+<details>
+  <summary>Recommended implementation steps</summary>
+
+1. Contact GitBook (gitbook.com/community) and submit a Community Plan application for the Boxtribute non-profit organisation.
+3. Create a new GitBook space, connect it to the `boxwise/boxtribute` (or a dedicated `boxwise/docs`) GitHub repository for version-controlled content sync.
+4. Configure the custom domain (e.g. `docs.boxtribute.org`).
+5. Enable Heap Analytics via the GitBook Integrations settings.
+6. Set up initial content structure: Getting Started, Features, FAQs, What's New.
+7. Grant edit access to operations and partnerships team members; provide a short onboarding session on the GitBook editor.
+8. Establish a lightweight content governance process (e.g. draft → review → publish workflow using GitBook's change-request feature).
+</details>
 
 ## References
 
@@ -324,49 +326,3 @@ If the primary goal shifts toward learning-first content with less emphasis on t
 - [H5P Official Site](https://h5p.org/)
 - [Genially for Nonprofits](https://www.techsoup.org/genially)
 - [GitBook Community Plan](https://gitbook.com/docs/account-management/plans/community)
-- [Plausible Analytics](https://plausible.io/)
-
-## Decision II
-
-**Adopt GitBook using the Community Plan (non-profit)** as Boxtribute's public-facing documentation and knowledge-base platform, contingent on successful Community Plan approval.
-
-GitBook uniquely satisfies the two most critical decision drivers simultaneously:
-1. **Non-tech usability**: The native WYSIWYG browser editor means operations and partnerships staff can create and edit content immediately, with no Markdown, Git, or developer involvement.
-2. **Minimal maintenance burden**: Fully managed SaaS — zero infrastructure for the engineering team to operate or maintain.
-
-No other option satisfies both. Mintlify comes closest on technical features (superior GDPR analytics, industry-leading MCP) but lacks a non-profit pricing programme and requires ~$150/month for custom domain access. The static-site generators (Docusaurus, MkDocs, Starlight) offer offline/PWA support and full analytics control but all require developer involvement for both initial setup and ongoing content authoring.
-
-The primary gaps relative to the decision drivers are:
-
-- **GDPR analytics**: GitBook does not have a native one-click Plausible integration comparable to Mintlify's. A Plausible tracking script can be injected via the Integrations settings on the Community plan; plan-level availability should be confirmed during onboarding.
-- **MCP**: No official GitBook MCP server exists. A community third-party project (`gitbook-mcp`) exposes GitBook's API over MCP as a workaround.
-- **Offline / PWA**: Not available; accepted as a nice-to-have for the initial rollout.
-
-**Fallback**: If the GitBook Community Plan application is rejected, the recommended alternative is **Docusaurus** (or MkDocs Material) hosted on Netlify/GitHub Pages (free), paired with a Git-based CMS overlay (e.g. Decap CMS / Keystatic) to reduce the editing barrier, and a Plausible script injection for analytics. This requires a one-time developer investment of ~1–2 weeks but has zero ongoing cost and full feature control.
-
-### Recommended implementation steps
-
-1. Contact GitBook (gitbook.com/community) and submit a Community Plan application for the Boxtribute non-profit organisation.
-2. Confirm that Plausible Analytics can be injected under the Community plan before fully committing.
-3. Create a new GitBook space, connect it to the `boxwise/boxtribute` (or a dedicated `boxwise/docs`) GitHub repository for version-controlled content sync.
-4. Configure the custom domain (e.g. `docs.boxtribute.org`).
-5. Enable Plausible Analytics via the GitBook Integrations settings.
-6. Set up initial content structure: Getting Started, Features, FAQs, What's New.
-7. Grant edit access to operations and partnerships team members; provide a short onboarding session on the GitBook editor.
-8. Establish a lightweight content governance process (e.g. draft → review → publish workflow using GitBook's change-request feature).
-
-## Consequences
-
-**Easier**:
-- Non-technical team members can create and update documentation without any developer involvement.
-- Polished, branded public docs site is live in hours, not weeks.
-- All content is version-controlled in Git via GitHub sync, enabling migration to another platform if needed.
-- Built-in AI-powered search (Ask Eddy) is available immediately without configuration.
-
-**More difficult / watch-outs**:
-- **Community Plan eligibility is not guaranteed.** If the application is rejected, the paid Premium plan ($65/site/month) or the static-site fallback (Docusaurus + CMS) must be evaluated.
-- **GDPR analytics requires a setup step.** Plausible is not a native one-click integration in GitBook; it requires injecting a script via the Integrations settings. Plan-level availability and exact steps must be confirmed during onboarding.
-- **MCP is community-maintained, not official.** The third-party `gitbook-mcp` server may lag behind GitBook API changes. If MCP integration becomes a firm requirement, Mintlify should be re-evaluated.
-- **Offline / PWA support is absent.** If low-connectivity field access proves critical in practice, a follow-up technical solution will be needed (e.g. a PWA shell wrapping GitBook's Git-exported static content).
-- **GitBook is a commercial SaaS.** Changes to pricing or Community Plan eligibility rules could affect future costs. Mitigation: content is mirrored in Git, enabling migration at low cost.
-- **Advanced branding requires Business tier or Git sync.** Deep CSS customisation beyond GitBook's theming panel requires MDX/code changes via Git sync (developer involvement), though this is only needed for edge cases.
