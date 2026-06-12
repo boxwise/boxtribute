@@ -111,11 +111,12 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       setCurrentStep("tour");
       return;
     }
+
     setCurrentStep("pathSelection");
     // Mark welcome as seen
     const state = loadState(userId);
     saveState(userId, { ...state, hasSeenWelcome: true });
-  }, [userId]);
+  }, [userId, visiblePaths]);
 
   const closeWalkthrough = useCallback(() => {
     setIsWalkthroughActive(false);
