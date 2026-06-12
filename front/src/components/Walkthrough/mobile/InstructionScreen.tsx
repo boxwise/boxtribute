@@ -65,7 +65,7 @@ function InstructionScreen() {
       <Flex justifyContent="flex-end" px={4} pt={4} pb={2}>
         <Button
           variant="ghost"
-          size="sm"
+          size="md"
           onClick={closeWalkthrough}
           data-testid="mobile-walkthrough-skip"
         >
@@ -75,7 +75,7 @@ function InstructionScreen() {
 
       {/* Scrollable body */}
       <Box flex={1} overflowY="auto" px={4} pb={4}>
-        <Image boxShadow="base" src={slide.imageSrc} alt={slide.title} />
+        <Image boxShadow="base" border="1px solid #F4F4F4" src={slide.imageSrc} alt={slide.title} />
 
         <Text fontWeight="bold" fontSize="xl" textAlign="center" mt={6} mb={3}>
           {slide.title}
@@ -84,18 +84,22 @@ function InstructionScreen() {
         <Text textAlign="center" color="gray.700" lineHeight="tall">
           {slide.text}
         </Text>
-
-        {/* Progress bar */}
-        <Progress value={progress} size="md" colorScheme="green" borderRadius="0" mt={6} mb={2} />
       </Box>
 
-      {/* Navigation buttons — always at the bottom */}
+      <Progress
+        value={progress}
+        size="md"
+        colorScheme="green"
+        borderRadius="0"
+        mx={4}
+        mt={4}
+        mb={2}
+      />
+
       <Flex px={4} pb={8} pt={2} justifyContent="space-between">
         <Button
           leftIcon={<ArrowBackIcon boxSize={6} />}
-          bg={isFirst ? "gray.300" : "blue.300"}
-          color="white"
-          _hover={{ bg: isFirst ? "gray.300" : "blue.400" }}
+          colorScheme="blue"
           onClick={prev}
           isDisabled={isFirst}
           aria-label="Previous slide"

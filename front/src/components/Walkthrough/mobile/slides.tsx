@@ -4,6 +4,7 @@ import Slide02Image from "../../../assets/images/walkthrough/02-dashboard.png";
 import Slide03Image from "../../../assets/images/walkthrough/03-manageboxes.png";
 import Slide04Image from "../../../assets/images/walkthrough/04-manageshipments.png";
 import Slide05Image from "../../../assets/images/walkthrough/05-addbeneficiary.png";
+import Slide06Image from "../../../assets/images/walkthrough/06-stockplanning.png";
 
 const slides: MobileSlide[] = [
   {
@@ -63,6 +64,18 @@ const slides: MobileSlide[] = [
       </>
     ),
     imageSrc: Slide05Image,
+    requiredRole: "free_shop_volunteer",
+  },
+  {
+    title: "Run a distribution session",
+    text: (
+      <>
+        See what&apos;s available in the free shop stockroom and log <strong>Checkouts</strong> in
+        real time. Find your record of what went to whom under <strong>Free Shop</strong> or use the{" "}
+        <strong>Services</strong> section for tracking custom actions and activities.
+      </>
+    ),
+    imageSrc: Slide06Image,
     requiredRole: "free_shop_volunteer",
   },
 ];

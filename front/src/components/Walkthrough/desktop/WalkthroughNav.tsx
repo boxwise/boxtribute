@@ -1,8 +1,7 @@
-import { Button, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { Box, Text, Button, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useWalkthrough } from "./WalkthroughContext";
 import { useVisiblePaths } from "./useVisiblePaths";
-import MenuIcon from "components/HeaderMenu/MenuIcons";
 
 // In-tour fixed top-right controls (path switch + skip).
 function WalkthroughNav() {
@@ -37,7 +36,19 @@ function WalkthroughNav() {
                 _hover={{ bg: "gray.100", color: "inherit" }}
                 _focus={{ bg: "gray.100", color: "inherit" }}
               >
-                <MenuIcon icon={p.icon} />
+                <Box
+                  bg="black"
+                  borderRadius="full"
+                  w={6}
+                  h={6}
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Text color="white" fontWeight="bold" fontSize="lg" lineHeight={1}>
+                    {p.id.slice(-1)}
+                  </Text>
+                </Box>
                 {p.title}
               </MenuItem>
             ))}

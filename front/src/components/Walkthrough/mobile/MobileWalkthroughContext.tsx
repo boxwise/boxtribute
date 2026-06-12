@@ -12,7 +12,6 @@ interface MobileWalkthroughState {
 interface MobileWalkthroughContextType {
   step: MobileWalkthroughStep;
   slideIndex: number;
-  openWalkthrough: () => void;
   closeWalkthrough: () => void;
   startTour: () => void;
   goToSlide: (index: number) => void;
@@ -26,7 +25,6 @@ const noop = () => {};
 const defaultContext: MobileWalkthroughContextType = {
   step: "idle",
   slideIndex: 0,
-  openWalkthrough: noop,
   closeWalkthrough: noop,
   startTour: noop,
   goToSlide: noop,
@@ -80,11 +78,6 @@ export function MobileWalkthroughProvider({ children }: { children: React.ReactN
     saveState(userId, { hasSeenWelcome: true });
   }, [userId]);
 
-  const openWalkthrough = useCallback(() => {
-    setStep("welcome");
-    setSlideIndex(0);
-  }, []);
-
   const closeWalkthrough = useCallback(() => {
     setStep("idle");
     markSeen();
@@ -113,7 +106,6 @@ export function MobileWalkthroughProvider({ children }: { children: React.ReactN
     () => ({
       step,
       slideIndex,
-      openWalkthrough,
       closeWalkthrough,
       startTour,
       goToSlide,
@@ -124,7 +116,6 @@ export function MobileWalkthroughProvider({ children }: { children: React.ReactN
     [
       step,
       slideIndex,
-      openWalkthrough,
       closeWalkthrough,
       startTour,
       goToSlide,

@@ -36,7 +36,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
   const [allowMultipleAccordionsOpen] = useMediaQuery("(min-height: 1080px)");
-  const { openWalkthrough } = useWalkthrough();
+  const { goToPathSelection } = useWalkthrough();
 
   return (
     <>
@@ -106,7 +106,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
             </AccordionButton>
           </AccordionItem>
           <AccordionItem>
-            <AccordionButton gap={3} color="red.500" onClick={openWalkthrough}>
+            <AccordionButton gap={3} color="red.500" onClick={goToPathSelection}>
               <MenuIcon icon="Open walkthrough" /> Open walkthrough
             </AccordionButton>
           </AccordionItem>

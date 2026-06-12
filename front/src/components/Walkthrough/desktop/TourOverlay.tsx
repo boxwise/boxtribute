@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Joyride,
   BeforeHook,
@@ -10,13 +10,15 @@ import {
   TooltipRenderProps,
   TourData,
 } from "react-joyride";
-import { Box, Button, Flex, Progress, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, Progress, Text } from "@chakra-ui/react";
+import { BiChevronLeft } from "react-icons/bi";
 import { useWalkthrough } from "./WalkthroughContext";
 import { nameToNavId } from "components/HeaderMenu/navId";
 import path1 from "./paths/path1";
 import path2 from "./paths/path2";
 import path3 from "./paths/path3";
 import { WalkthroughPath, TourStep } from "./paths/types";
+import { useVisiblePaths } from "./useVisiblePaths";
 
 export const PATHS: Record<string, WalkthroughPath> = {
   path1,
@@ -67,23 +69,50 @@ function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
 
 interface CustomTooltipProps extends TooltipRenderProps {
   totalSteps: number;
-  isLastStep: boolean;
+  isLastPath: boolean;
 }
 
 function CustomTooltip({
   index,
   step,
   primaryProps,
+  backProps,
   tooltipProps,
   totalSteps,
+  isLastPath,
   isLastStep,
 }: CustomTooltipProps) {
   const progress = ((index + 1) / totalSteps) * 100;
+  let buttonLabel: ReactNode;
+  if (isLastStep && isLastPath) {
+    buttonLabel = "Onboarding completed!";
+  } else if (isLastStep) {
+    buttonLabel = (
+      <>
+        Path completed!
+        <br />
+        Explore another one
+      </>
+    );
+  } else {
+    buttonLabel = "Next";
+  }
 
   return (
     <Box {...tooltipProps} bg="white" borderRadius="md" boxShadow="lg" p={4} maxW={320} minW={260}>
       {/* Step title + counter */}
-      <Flex justify="space-between" align="flex-start" mb={2}>
+      <Flex justify="space-between" align="center" mb={2}>
+        {index > 0 && (
+          <IconButton
+            {...backProps}
+            p={0}
+            minW="auto"
+            ml={-2}
+            _hover={{ bg: "transparent" }}
+            variant="ghost"
+            icon={<BiChevronLeft size="2em" />}
+          />
+        )}
         <Text fontWeight="bold" flex={1} pr={2}>
           {step.title as string}
         </Text>
@@ -97,17 +126,33 @@ function CustomTooltip({
         {step.content}
       </Text>
 
-      <Progress value={progress} size="sm" colorScheme="blue" mb={4} borderRadius="full" />
-      <Button {...primaryProps} size="sm" colorScheme="blue" width="full" title={undefined}>
-        {isLastStep ? "Path completed! Explore another one" : "Next"}
+      <Progress value={progress} size="sm" colorScheme="green" mb={4} borderRadius="0" />
+      <Button
+        {...primaryProps}
+        size="sm"
+        colorScheme="blue"
+        width="full"
+        height="auto"
+        whiteSpace="normal"
+        py={2}
+        title={undefined}
+      >
+        {buttonLabel}
       </Button>
     </Box>
   );
 }
 
 function TourOverlay() {
-  const { isWalkthroughActive, currentStep, activePath, completePath, backToPathSelection } =
-    useWalkthrough();
+  const {
+    completedPaths,
+    isWalkthroughActive,
+    currentStep,
+    activePath,
+    completePath,
+    backToPathSelection,
+  } = useWalkthrough();
+  const visiblePaths = useVisiblePaths();
   const [stepIndex, setStepIndex] = useState(0);
   const [run, setRun] = useState(false);
 
@@ -119,6 +164,13 @@ function TourOverlay() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [activePath]);
   const totalSteps = steps.length;
+
+  const isLastPath = useMemo(
+    () =>
+      activePath != null &&
+      visiblePaths.filter((p) => p.id !== activePath).every((p) => completedPaths.has(p.id)),
+    [activePath, visiblePaths, completedPaths],
+  );
 
   // Reset step index whenever the active path changes
   useEffect(() => {
@@ -180,11 +232,7 @@ function TourOverlay() {
       continuous
       onEvent={handleEvent}
       tooltipComponent={(props) => (
-        <CustomTooltip
-          {...props}
-          totalSteps={totalSteps}
-          isLastStep={stepIndex === totalSteps - 1}
-        />
+        <CustomTooltip {...props} isLastPath={isLastPath} totalSteps={totalSteps} />
       )}
       options={{
         overlayColor: "rgba(0,0,0,0.5)",

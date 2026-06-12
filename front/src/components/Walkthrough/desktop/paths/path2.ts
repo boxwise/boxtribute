@@ -4,7 +4,6 @@ const path2: WalkthroughPath = {
   id: "path2",
   title: "How to register & support beneficiaries",
   description: "Learn where to add beneficiaries, assign services, and tokens!",
-  icon: "Beneficiaries",
   steps: [
     {
       target: "#nav-dashboard",
@@ -28,8 +27,8 @@ const path2: WalkthroughPath = {
       expandMenuGroup: "Beneficiaries",
     },
     {
-      target: "#nav-manage-services",
-      title: "Manage Services",
+      target: "#nav-use-service",
+      title: "Services",
       content:
         "Configure the types of services that your base provides (e.g. learning). Link them to individual beneficiaries.",
       expandMenuGroup: "Beneficiaries",

@@ -60,7 +60,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
   const baseName = selectedBase?.name;
   const currentOrganisationHasMoreThanOneBaseAvailable =
     (availableBases.filter((base) => base.id !== baseId).length || 0) >= 1;
-  const { openWalkthrough } = useMobileWalkthrough();
+  const { startTour } = useMobileWalkthrough();
 
   return (
     // use zIndex which is lower than the default for Chakra Modals (e.g. in HistoryOverlay)
@@ -162,7 +162,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                   color="red.500"
                   onClick={() => {
                     onClose();
-                    openWalkthrough();
+                    startTour();
                   }}
                 >
                   <SubItemBox>

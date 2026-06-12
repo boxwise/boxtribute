@@ -27,7 +27,7 @@ function PathIndicator() {
       py={1}
       boxShadow="md"
     >
-      <Text fontSize="sm" fontWeight="semibold">
+      <Text fontSize="md" fontWeight="semibold">
         {PATH_LABELS[activePath] ?? activePath}
       </Text>
       {PATHS[activePath].guidanceUrl && (

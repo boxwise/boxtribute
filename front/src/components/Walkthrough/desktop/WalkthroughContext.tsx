@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { PathId } from "./paths/types";
+import { useVisiblePaths } from "./useVisiblePaths";
 
 type WalkthroughStep = "welcome" | "pathSelection" | "tour";
 
@@ -14,7 +15,6 @@ interface WalkthroughContextType {
   currentStep: WalkthroughStep;
   activePath: PathId | null;
   completedPaths: Set<PathId>;
-  openWalkthrough: () => void;
   closeWalkthrough: () => void;
   goToPathSelection: () => void;
   startPath: (pathId: PathId) => void;
@@ -30,7 +30,6 @@ const defaultContext: WalkthroughContextType = {
   currentStep: "welcome",
   activePath: null,
   completedPaths: new Set(),
-  openWalkthrough: noop,
   closeWalkthrough: noop,
   goToPathSelection: noop,
   startPath: noop,
@@ -72,6 +71,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const [currentStep, setCurrentStep] = useState<WalkthroughStep>("welcome");
   const [activePath, setActivePath] = useState<PathId | null>(null);
   const [completedPaths, setCompletedPaths] = useState<Set<PathId>>(new Set());
+  const visiblePaths = useVisiblePaths();
 
   // Load persisted state and auto-show welcome for new users
   useEffect(() => {
@@ -91,21 +91,21 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     [userId],
   );
 
-  const openWalkthrough = useCallback(() => {
-    setIsWalkthroughActive(true);
-    setCurrentStep("welcome");
-    setActivePath(null);
-    // Mark welcome as seen
-    const state = loadState(userId);
-    saveState(userId, { ...state, hasSeenWelcome: true });
-  }, [userId]);
-
   const goToPathSelection = useCallback(() => {
-    setCurrentStep("pathSelection");
+    setIsWalkthroughActive(true);
     // Mark welcome as seen
     const state = loadState(userId);
     saveState(userId, { ...state, hasSeenWelcome: true });
-  }, [userId]);
+
+    // short-cut to only path
+    if (visiblePaths.length === 1) {
+      setActivePath(visiblePaths[0].id);
+      setCurrentStep("tour");
+      return;
+    }
+
+    setCurrentStep("pathSelection");
+  }, [userId, visiblePaths]);
 
   const closeWalkthrough = useCallback(() => {
     setIsWalkthroughActive(false);
@@ -150,7 +150,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       currentStep,
       activePath,
       completedPaths,
-      openWalkthrough,
       closeWalkthrough,
       goToPathSelection,
       startPath,
@@ -163,7 +162,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       currentStep,
       activePath,
       completedPaths,
-      openWalkthrough,
       closeWalkthrough,
       goToPathSelection,
       startPath,
