@@ -107,7 +107,8 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
 
     // short-cut to only path
     if (visiblePaths.length === 1) {
-      startPath(visiblePaths[0].id);
+      setActivePath(visiblePaths[0].id);
+      setCurrentStep("tour");
       return;
     }
     setCurrentStep("pathSelection");
