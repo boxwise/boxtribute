@@ -70,8 +70,8 @@ const slides: MobileSlide[] = [
     title: "Run a distribution session",
     text: (
       <>
-        See what&apos;s available in the free shop stockroom and log <strong>Checkouts</strong> in real
-        time. Find your record of what went to whom under <strong>Free Shop</strong> or use the{" "}
+        See what&apos;s available in the free shop stockroom and log <strong>Checkouts</strong> in
+        real time. Find your record of what went to whom under <strong>Free Shop</strong> or use the{" "}
         <strong>Services</strong> section for tracking custom actions and activities.
       </>
     ),
