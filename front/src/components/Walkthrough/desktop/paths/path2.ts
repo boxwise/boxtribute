@@ -4,7 +4,6 @@ const path2: WalkthroughPath = {
   id: "path2",
   title: "How to register & support beneficiaries",
   description: "Learn where to add beneficiaries, assign services, and tokens!",
-  icon: "Beneficiaries",
   steps: [
     {
       target: "#nav-dashboard",
