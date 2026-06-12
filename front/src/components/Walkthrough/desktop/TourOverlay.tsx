@@ -99,6 +99,9 @@ function CustomTooltip({
         {index > 0 && (
           <IconButton
             {...backProps}
+            p={0}
+            minW="auto"
+            ml={-2}
             _hover={{ bg: "transparent" }}
             variant="ghost"
             icon={<BiChevronLeft size="2em" />}
