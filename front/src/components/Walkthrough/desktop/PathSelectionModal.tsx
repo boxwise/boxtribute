@@ -140,7 +140,7 @@ function PathSelectionModal() {
       <ModalContent>
         <ModalCloseButton />
         <ModalHeader textAlign="center" pt={8}>
-          Choose Your Path
+          {visiblePaths.length > 1 && "Choose Your Path"}
         </ModalHeader>
         <ModalBody pb={8} px={6}>
           {allCompleted && <AllDoneMessage />}
