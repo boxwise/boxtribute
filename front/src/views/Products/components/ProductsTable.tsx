@@ -157,7 +157,7 @@ function ProductsTable({
             Add New Product
           </Button>
         </Link>
-        <HStack spacing={2} mb={2} ml={{ md: "auto" }}>
+        <Flex wrap="wrap" mb={2} ml={{ md: "auto" }} gap={2} alignItems="center">
           <FormControl display="flex" alignItems="center" width="auto">
             <Switch
               id="show-only-assort"
@@ -174,28 +174,30 @@ function ProductsTable({
               </Box>
             </FormLabel>
           </FormControl>
-          <ColumnSelector
-            availableColumns={allColumns.filter(
-              (column) => column.id !== "category" && column.id !== "actionButton",
-            )}
-          />
-          <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
-          <FilterPanel
-            isOpen={filterDisclosure.isOpen}
-            onOpen={filterDisclosure.onOpen}
-            onClose={filterDisclosure.onClose}
-          >
-            <ProductsFilter
-              isOpen={filterDisclosure.isOpen}
-              onClose={filterDisclosure.onClose}
-              columnFilters={filters}
-              onApplyFilters={handleApplyFilters}
-              categoryOptions={categoryOptions}
-              genderOptions={genderOptions}
-              sizeRangeOptions={sizeRangeOptions}
+          <HStack spacing={2} ml="auto">
+            <ColumnSelector
+              availableColumns={allColumns.filter(
+                (column) => column.id !== "category" && column.id !== "actionButton",
+              )}
             />
-          </FilterPanel>
-        </HStack>
+            <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+            <FilterPanel
+              isOpen={filterDisclosure.isOpen}
+              onOpen={filterDisclosure.onOpen}
+              onClose={filterDisclosure.onClose}
+            >
+              <ProductsFilter
+                isOpen={filterDisclosure.isOpen}
+                onClose={filterDisclosure.onClose}
+                columnFilters={filters}
+                onApplyFilters={handleApplyFilters}
+                categoryOptions={categoryOptions}
+                genderOptions={genderOptions}
+                sizeRangeOptions={sizeRangeOptions}
+              />
+            </FilterPanel>
+          </HStack>
+        </Flex>
       </Flex>
       <ProductsFilterChips
         filters={filters}
