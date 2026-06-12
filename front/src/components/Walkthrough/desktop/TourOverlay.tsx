@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Joyride,
   BeforeHook,
@@ -83,11 +83,17 @@ function CustomTooltip({
   isLastStep,
 }: CustomTooltipProps) {
   const progress = ((index + 1) / totalSteps) * 100;
-  let buttonLabel: string;
+  let buttonLabel: ReactNode;
   if (isLastStep && isLastPath) {
     buttonLabel = "Onboarding completed!";
   } else if (isLastStep) {
-    buttonLabel = "Path completed! Explore another one";
+    buttonLabel = (
+      <>
+        Path completed!
+        <br />
+        Explore another one
+      </>
+    );
   } else {
     buttonLabel = "Next";
   }
@@ -121,7 +127,16 @@ function CustomTooltip({
       </Text>
 
       <Progress value={progress} size="sm" colorScheme="green" mb={4} borderRadius="0" />
-      <Button {...primaryProps} size="sm" colorScheme="blue" width="full" title={undefined}>
+      <Button
+        {...primaryProps}
+        size="sm"
+        colorScheme="blue"
+        width="full"
+        height="auto"
+        whiteSpace="normal"
+        py={2}
+        title={undefined}
+      >
         {buttonLabel}
       </Button>
     </Box>
