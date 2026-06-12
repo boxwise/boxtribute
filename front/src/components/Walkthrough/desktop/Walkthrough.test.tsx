@@ -81,6 +81,7 @@ it("Walkthrough - warehouse volunteer does NOT see path 2 or 3", async () => {
   renderWalkthrough("base_1_warehouse_volunteer");
   const startBtn = await screen.findByRole("button", { name: /Start/i });
   fireEvent.click(startBtn);
+  expect(await screen.findByText(/Path 1/i)).toBeInTheDocument();
   expect(
     screen.queryByText(/How to register & support beneficiaries/i, { selector: "p" }),
   ).not.toBeInTheDocument();
