@@ -84,12 +84,18 @@ function InstructionScreen() {
         <Text textAlign="center" color="gray.700" lineHeight="tall">
           {slide.text}
         </Text>
-
-        {/* Progress bar */}
-        <Progress value={progress} size="md" colorScheme="green" borderRadius="0" mt={6} mb={2} />
       </Box>
 
-      {/* Navigation buttons — always at the bottom */}
+      <Progress
+        value={progress}
+        size="md"
+        colorScheme="green"
+        borderRadius="0"
+        mx={4}
+        mt={4}
+        mb={2}
+      />
+
       <Flex px={4} pb={8} pt={2} justifyContent="space-between">
         <Button
           leftIcon={<ArrowBackIcon boxSize={6} />}
