@@ -163,3 +163,13 @@ def resolve_distribution_events_in_return_state(base_obj, *_):
     return get_base_distribution_events(
         base_id=base_obj.id, states=[DistributionEventState.ReturnedFromDistribution]
     )
+
+
+@base.field("instockBoxesCount")
+def resolve_base_instock_boxes_count(base_obj, info):
+    return info.context["instock_boxes_count_for_base_loader"].load(base_obj.id)
+
+
+@base.field("instockItemsCount")
+def resolve_base_instock_items_count(base_obj, info):
+    return info.context["instock_items_count_for_base_loader"].load(base_obj.id)

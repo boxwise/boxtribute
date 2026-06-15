@@ -10,6 +10,8 @@ def test_bases_query(client, default_base, deleted_base, default_beneficiaries, 
                     name
                     currencyName
                     deletedOn
+                    instockBoxesCount
+                    instockItemsCount
                     beneficiaries { elements { id } }
                 }
             }"""
@@ -22,6 +24,8 @@ def test_bases_query(client, default_base, deleted_base, default_beneficiaries, 
             "name": default_base["name"],
             "currencyName": default_base["currency_name"],
             "deletedOn": None,
+            "instockBoxesCount": 2,
+            "instockItemsCount": 15,
             "beneficiaries": {},
         }
     ]

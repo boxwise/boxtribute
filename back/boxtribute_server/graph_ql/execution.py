@@ -11,6 +11,8 @@ from .loaders import (
     BaseLoader,
     BoxLoader,
     HistoryForBoxLoader,
+    InstockBoxesCountForBaseLoader,
+    InstockItemsCountForBaseLoader,
     InstockItemsCountForProductLoader,
     LocationLoader,
     OrganisationLoader,
@@ -65,6 +67,8 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             "base_loader": BaseLoader(),
             "box_loader": BoxLoader(),
             "history_for_box_loader": HistoryForBoxLoader(),
+            "instock_boxes_count_for_base_loader": InstockBoxesCountForBaseLoader(),
+            "instock_items_count_for_base_loader": InstockItemsCountForBaseLoader(),
             "instock_items_count_for_product_loader": InstockItemsCountForProductLoader(),  # noqa
             "transfer_items_count_for_product_loader": TransferItemsCountForProductLoader(),  # noqa
             "location_loader": LocationLoader(),
