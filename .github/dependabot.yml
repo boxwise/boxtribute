@@ -68,9 +68,8 @@ updates:
         versions: ["4.x"]
     groups:
       front-visx-update:
-        dependency-type: production
         patterns:
-          - "@visx*"
+          - "@visx/*"
       front-dev-minor-update:
         dependency-type: development
         update-types:
