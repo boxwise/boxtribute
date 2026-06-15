@@ -64,8 +64,8 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
       '@visx/group':
-        specifier: ^3.12.0
-        version: 3.12.0(react@18.3.1)
+        specifier: ^4.0.0
+        version: 4.0.0(@types/react@18.3.14)(react@18.3.1)
       '@visx/mock-data':
         specifier: ^3.12.0
         version: 3.12.0
@@ -2140,6 +2140,15 @@ packages:
     resolution: {integrity: sha512-Dye8iS1alVXPv7nj/7M37gJe6sSKqJLH7x6sEWAsRQ9clI0kFvjbKcKgF+U3aAVQr0NCohheFV+DtR8trfK/Ag==}
     peerDependencies:
       react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+
+  '@visx/group@4.0.0':
+    resolution: {integrity: sha512-HGAq8BCqn5x0t94CJOLJeKtWss9LFpF3HY69HbuO1PlR+B9c4aVT9xbjfudmU8wGQZLT6JNt+PJvxbO2aJ+1aA==}
+    peerDependencies:
+      '@types/react': ^18.3.13
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@visx/mock-data@3.12.0':
     resolution: {integrity: sha512-HI8LKdO3sU2tIBv16ZYRTc2JYsu0Ai/hQc7YUOBqbjhXUW993iCBe98pAgEdHDrSWqK2yvXY4En5ceBTAP34Jw==}
@@ -7211,6 +7220,13 @@ snapshots:
       classnames: 2.5.1
       prop-types: 15.8.1
       react: 18.3.1
+
+  '@visx/group@4.0.0(@types/react@18.3.14)(react@18.3.1)':
+    dependencies:
+      classnames: 2.5.1
+      react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.14
 
   '@visx/mock-data@3.12.0':
     dependencies:
