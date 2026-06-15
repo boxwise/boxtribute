@@ -69,7 +69,7 @@ updates:
     groups:
       front-visx-update:
         patterns:
-          - "@visx/*"
+          - "*visx*"
       front-dev-minor-update:
         dependency-type: development
         update-types:
