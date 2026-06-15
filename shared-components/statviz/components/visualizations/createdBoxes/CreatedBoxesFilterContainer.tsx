@@ -1,7 +1,8 @@
+import { Wrap, WrapItem, Box } from "@chakra-ui/react";
 import { useEffect, useMemo } from "react";
 import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
 import { useReactiveVar } from "@apollo/client";
-import CreatedBoxesCharts from "./CreatedBoxesCharts";
+import CreatedBoxes from "./CreatedBoxes";
 import { filterListByInterval } from "../../../../utils/helpers";
 import useTimerange from "../../../hooks/useTimerange";
 import useValueFilter from "../../../hooks/useValueFilter";
@@ -29,10 +30,10 @@ import {
   categoryFilterValuesVar,
 } from "../../../state/filter";
 import { filterByTags } from "../../../utils/filterByTags";
-import { CreatedBoxes, CreatedBoxesResult } from "../../../../../graphql/types";
+import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
 
 interface ICreatedBoxesFilterContainerProps {
-  createdBoxes: CreatedBoxes;
+  createdBoxes: CreatedBoxesType;
 }
 
 export default function CreatedBoxesFilterContainer({
@@ -167,5 +168,18 @@ export default function CreatedBoxesFilterContainer({
     dimensions: createdBoxes?.dimensions,
   };
 
-  return <CreatedBoxesCharts data={filteredCreatedBoxesCube} boxesOrItems={filterValue.value} />;
+  return (
+    <Wrap gap={6}>
+      <WrapItem overflow="auto" padding="5px">
+        <Box>
+          <CreatedBoxes
+            width="900px"
+            height="400px"
+            boxesOrItems={filterValue.value}
+            data={filteredCreatedBoxesCube}
+          />
+        </Box>
+      </WrapItem>
+    </Wrap>
+  );
 }
