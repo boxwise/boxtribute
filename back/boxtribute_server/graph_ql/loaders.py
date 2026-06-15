@@ -624,6 +624,7 @@ class InstockCountForBaseLoader(DataLoader):
                 Location.base << base_ids,
                 Box.state == BoxStateEnum.InStock,
                 (Box.deleted_on.is_null() | ~Box.deleted_on),
+                authorized_bases_filter(Location),
             )
             .group_by(Location.base)
         }
