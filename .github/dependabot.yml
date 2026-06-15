@@ -70,6 +70,10 @@ updates:
       front-visx-update:
         patterns:
           - "*visx*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
       front-dev-minor-update:
         dependency-type: development
         update-types:
