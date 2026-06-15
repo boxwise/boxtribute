@@ -70,8 +70,8 @@ importers:
         specifier: ^3.12.0
         version: 3.12.0
       '@visx/responsive':
-        specifier: ^3.12.0
-        version: 3.12.0(react@18.3.1)
+        specifier: ^4.0.0
+        version: 4.0.0(@types/react@18.3.14)(react@18.3.1)
       '@visx/scale':
         specifier: ^3.12.0
         version: 3.12.0
@@ -2147,10 +2147,14 @@ packages:
   '@visx/point@3.12.0':
     resolution: {integrity: sha512-I6UrHoJAEVbx3RORQNupgTiX5EzjuZpiwLPxn8L2mI5nfERotPKi1Yus12Cq2WtXqEBR/WgqTnoImlqOXBykcA==}
 
-  '@visx/responsive@3.12.0':
-    resolution: {integrity: sha512-GV1BTYwAGlk/K5c9vH8lS2syPnTuIqEacI7L6LRPbsuaLscXMNi+i9fZyzo0BWvAdtRV8v6Urzglo++lvAXT1Q==}
+  '@visx/responsive@4.0.0':
+    resolution: {integrity: sha512-MGPK8AeiBIhzz34o9TNJIyUDQIdWEj5mt+U/Je4qVRRXpXSMhor1IE7v71czAS5b90OrFxC9L3w27AV+szG25w==}
     peerDependencies:
-      react: ^16.0.0-0 || ^17.0.0-0 || ^18.0.0-0
+      '@types/react': ^18.3.13
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@visx/scale@3.12.0':
     resolution: {integrity: sha512-+ubijrZ2AwWCsNey0HGLJ0YKNeC/XImEFsr9rM+Uef1CM3PNM43NDdNTrdBejSlzRq0lcfQPWYMYQFSlkLcPOg==}
@@ -7219,13 +7223,11 @@ snapshots:
 
   '@visx/point@3.12.0': {}
 
-  '@visx/responsive@3.12.0(react@18.3.1)':
+  '@visx/responsive@4.0.0(@types/react@18.3.14)(react@18.3.1)':
     dependencies:
-      '@types/lodash': 4.17.13
-      '@types/react': 18.3.14
-      lodash: 4.18.1
-      prop-types: 15.8.1
       react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.14
 
   '@visx/scale@3.12.0':
     dependencies:
