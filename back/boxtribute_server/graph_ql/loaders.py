@@ -605,7 +605,11 @@ class TransferItemsCountForProductLoader(ItemsCountForProductLoader):
 
 class InstockCountForBaseLoader(DataLoader):
     def __init__(self, count_boxes=True):
-        self.metric = fn.COUNT(Box.id) if count_boxes else fn.SUM(Box.number_of_items)
+        self.metric = (
+            fn.COUNT(Box.id)
+            if count_boxes
+            else fn.COALESCE(fn.SUM(Box.number_of_items), 0)
+        )
         super().__init__()
 
     async def batch_load_fn(self, base_ids):
