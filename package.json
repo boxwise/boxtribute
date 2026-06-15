@@ -33,7 +33,7 @@
     "@nivo/theming": "0.99.0",
     "@sentry/react": "^10.56.0",
     "@tidyjs/tidy": "^2.6.1",
-    "@visx/axis": "^3.12.0",
+    "@visx/axis": "^4.0.0",
     "@visx/event": "^3.12.0",
     "@visx/grid": "^3.12.0",
     "@visx/group": "^3.12.0",
