@@ -3,7 +3,6 @@ import TimeRangeSelect from "../components/filter/TimeRangeSelect";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";
-import StockOverview from "./StockOverview";
 import BoxesOrItemsSelect, {
   boxesOrItemsFilterValues,
 } from "../components/filter/BoxesOrItemsSelect";
@@ -83,7 +82,6 @@ export default function Dashboard() {
         <ItemsAndBoxes />
         <MovedBoxes />
         <Demographics />
-        <StockOverview />
       </Accordion>
     </div>
   );
