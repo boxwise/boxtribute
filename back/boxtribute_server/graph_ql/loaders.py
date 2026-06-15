@@ -603,32 +603,17 @@ class TransferItemsCountForProductLoader(ItemsCountForProductLoader):
     ]
 
 
-class InstockBoxesCountForBaseLoader(DataLoader):
+class InstockCountForBaseLoader(DataLoader):
+    def __init__(self, count_boxes=True):
+        self.metric = fn.COUNT(Box.id) if count_boxes else fn.SUM(Box.number_of_items)
+        super().__init__()
+
     async def batch_load_fn(self, base_ids):
         counts = {
-            row.location.base_id: row.boxes_count
+            row.location.base_id: row.metric
             for row in Box.select(
                 Location.base,
-                fn.COUNT(Box.id).alias("boxes_count"),
-            )
-            .join(Location, on=(Box.location == Location.id))
-            .where(
-                Location.base << base_ids,
-                Box.state == BoxStateEnum.InStock,
-                (Box.deleted_on.is_null() | ~Box.deleted_on),
-            )
-            .group_by(Location.base)
-        }
-        return [counts.get(i, 0) for i in base_ids]
-
-
-class InstockItemsCountForBaseLoader(DataLoader):
-    async def batch_load_fn(self, base_ids):
-        counts = {
-            row.location.base_id: row.total_items
-            for row in Box.select(
-                Location.base,
-                fn.SUM(Box.number_of_items).alias("total_items"),
+                self.metric.alias("metric"),
             )
             .join(Location, on=(Box.location == Location.id))
             .where(
