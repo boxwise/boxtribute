@@ -2,7 +2,14 @@ from auth import mock_user_for_request
 from utils import assert_successful_request
 
 
-def test_bases_query(client, default_base, deleted_base, default_beneficiaries, mocker):
+def test_bases_query(
+    client,
+    default_base,
+    deleted_base,
+    default_beneficiaries,
+    mocker,
+    base1_instock_boxes,
+):
     # Test case 99.1.1
     query = """query {
                 bases {
@@ -10,6 +17,8 @@ def test_bases_query(client, default_base, deleted_base, default_beneficiaries, 
                     name
                     currencyName
                     deletedOn
+                    instockBoxesCount
+                    instockItemsCount
                     beneficiaries { elements { id } }
                 }
             }"""
@@ -22,6 +31,8 @@ def test_bases_query(client, default_base, deleted_base, default_beneficiaries, 
             "name": default_base["name"],
             "currencyName": default_base["currency_name"],
             "deletedOn": None,
+            "instockBoxesCount": len(base1_instock_boxes),
+            "instockItemsCount": sum(b["number_of_items"] for b in base1_instock_boxes),
             "beneficiaries": {},
         }
     ]

@@ -603,6 +603,34 @@ class TransferItemsCountForProductLoader(ItemsCountForProductLoader):
     ]
 
 
+class InstockCountForBaseLoader(DataLoader):
+    def __init__(self, count_boxes=True):
+        self.metric = (
+            fn.COUNT(Box.id)
+            if count_boxes
+            else fn.COALESCE(fn.SUM(Box.number_of_items), 0)
+        )
+        super().__init__()
+
+    async def batch_load_fn(self, base_ids):
+        counts = {
+            row.location.base_id: row.metric
+            for row in Box.select(
+                Location.base,
+                self.metric.alias("metric"),
+            )
+            .join(Location, on=(Box.location == Location.id))
+            .where(
+                Location.base << base_ids,
+                Box.state == BoxStateEnum.InStock,
+                (Box.deleted_on.is_null() | ~Box.deleted_on),
+                authorized_bases_filter(Location),
+            )
+            .group_by(Location.base)
+        }
+        return [counts.get(i, 0) for i in base_ids]
+
+
 class SizesForSizeRangeLoader(DataLoader):
     async def batch_load_fn(self, keys):
         authorize(permission="size:read")
