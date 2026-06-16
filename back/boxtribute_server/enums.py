@@ -128,7 +128,7 @@ class TaggableObjectType(enum.Enum):
 
 
 class TargetType(enum.IntEnum):
-    Shipment = 1
+    OutgoingShipment = 1
     OutgoingLocation = enum.auto()
     BoxState = enum.auto()
 

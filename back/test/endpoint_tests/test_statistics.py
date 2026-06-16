@@ -400,7 +400,7 @@ def test_query_moved_boxes(
                 {
                     "id": base_name,
                     "name": base_name,
-                    "type": TargetType.Shipment.name,
+                    "type": TargetType.OutgoingShipment.name,
                 },
                 {
                     "id": BoxState.Lost.name,

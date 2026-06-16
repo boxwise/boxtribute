@@ -89,7 +89,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
             isNegative: target.isNegative,
           };
         }
-        if (target.type === "Shipment") {
+        if (target.type === "OutgoingShipment") {
           return {
             source: outgoingNode.id,
             target: shipmentNode.id,
@@ -109,7 +109,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
           isNegative: movedBox.isNegative,
         };
       }
-      if (movedBox.type === "Shipment") {
+      if (movedBox.type === "OutgoingShipment") {
         return {
           source: shipmentNode.id,
           target: movedBox.targetId,

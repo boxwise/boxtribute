@@ -408,7 +408,7 @@ def compute_moved_boxes(*base_ids):
         TargetType.BoxState.name,
         TargetType.OutgoingLocation.name,
         TargetType.OutgoingLocation.name,
-        TargetType.Shipment.name,
+        TargetType.OutgoingShipment.name,
         base_ids,
         TargetType.BoxState.name,
         base_ids,
@@ -424,7 +424,7 @@ def compute_moved_boxes(*base_ids):
             facts=facts,
         )["target"]
         + _generate_dimensions(
-            target_type=TargetType.Shipment,
+            target_type=TargetType.OutgoingShipment,
             facts=facts,
         )["target"]
         + _generate_dimensions(
