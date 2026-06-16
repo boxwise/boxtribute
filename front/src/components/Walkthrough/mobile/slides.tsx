@@ -34,9 +34,9 @@ const slides: MobileSlide[] = [
     text: (
       <>
         Create, update, and organize boxes by category, location, and status.{" "}
-        <strong>Print QR labels</strong> to physically tag them in the warehouse,{" "}
-        <strong>Manage Boxes</strong>, and <strong>Plan Stocks</strong> - find all these features
-        under <strong>Aid Inventory</strong>.
+        <strong>Print Box Labels</strong> to physically tag them in the warehouse,{" "}
+        <strong>Manage Boxes</strong>, and perform <strong>Stock Planning</strong> - find all these
+        features under <strong>Aid Inventory</strong>.
       </>
     ),
     imageSrc: Slide03Image,
@@ -46,8 +46,8 @@ const slides: MobileSlide[] = [
     title: "Move stock between bases",
     text: (
       <>
-        Create shipments and track boxes in transit to partner organizations. Find{" "}
-        <strong>Manage Shipments</strong> and <strong>Network</strong> under{" "}
+        Create shipments and track boxes in transit from and to partner organizations. Find{" "}
+        <strong>Manage Shipments</strong> and <strong>Manage Network</strong> under{" "}
         <strong>Aid Transfers</strong> in your main navigation.
       </>
     ),
@@ -58,8 +58,8 @@ const slides: MobileSlide[] = [
     title: "Register & support beneficiaries",
     text: (
       <>
-        Add new people, view their profile and service history. Update details on the go, assign{" "}
-        <strong>Tokens</strong>, manage <strong>Services</strong> - all from the{" "}
+        Add new people, view their profile and service history. Update details on the go and{" "}
+        <strong>Manage Services</strong> for tracking custom activities - all from the{" "}
         <strong>Beneficiaries</strong> section.
       </>
     ),
@@ -70,9 +70,9 @@ const slides: MobileSlide[] = [
     title: "Run a distribution session",
     text: (
       <>
-        See what&apos;s available in the free shop stockroom and log <strong>Checkouts</strong> in
-        real time. Find your record of what went to whom under <strong>Free Shop</strong> or use the{" "}
-        <strong>Services</strong> section for tracking custom actions and activities.
+        See what&apos;s available in the free shop <strong>Stockroom</strong>, log{" "}
+        <strong>Checkout</strong>s in real time, and <strong>Give Tokens</strong>. Find your record
+        of what went to whom under <strong>Free Shop</strong>.
       </>
     ),
     imageSrc: Slide06Image,
