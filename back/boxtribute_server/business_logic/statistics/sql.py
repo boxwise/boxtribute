@@ -382,6 +382,53 @@ GROUP BY sh.source_base_id, moved_on, p.category_id, p.name, p.gender_id, t.sour
 
 UNION ALL
 
+-- Collect information about all boxes sent and received to the specified base as target, that
+-- were not removed from the shipment during preparation
+SELECT
+    sh.target_base_id AS base_id,
+    DATE(sh.receiving_started_on) AS moved_on,
+    p.category_id,
+    TRIM(LOWER(p.name)) AS product_name,
+    p.gender_id AS gender,
+    t.target_size_id AS size_id,
+    -- neglect possible history of box's measure_value
+    ROUND(b.measure_value, 3 - FLOOR(LOG10(b.measure_value) + 1)) AS absolute_measure_value,
+    u.dimension_id,
+    t.tag_ids,
+    -- this is the source base name
+    c.name AS target_id,
+    o.label AS organisation_name,
+    %s AS target_type,
+    COUNT(t.box_id) AS boxes_count,
+    SUM(t.target_quantity) AS items_count
+FROM (
+    SELECT
+        d.shipment_id,
+        d.box_id,
+        d.target_product_id,
+        d.target_size_id,
+        d.target_quantity,
+        GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
+    FROM shipment_detail d
+    LEFT OUTER JOIN tags_relations tr ON tr.object_id = d.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
+    WHERE d.removed_on IS NULL
+    GROUP BY d.box_id, d.shipment_id, d.target_product_id, d.target_size_id, d.target_quantity
+) t
+JOIN
+    shipment sh
+ON
+    t.shipment_id = sh.id AND
+    sh.target_base_id IN %s AND
+    sh.receiving_started_on IS NOT NULL
+JOIN camps c ON c.id = sh.source_base_id
+JOIN organisations o on o.id = c.organisation_id
+JOIN products p ON p.id = t.target_product_id
+JOIN stock b ON b.id = t.box_id
+LEFT OUTER JOIN units u ON u.id = b.display_unit_id
+GROUP BY sh.target_base_id, moved_on, p.category_id, p.name, p.gender_id, t.target_size_id, c.name, absolute_measure_value, dimension_id, tag_ids
+
+UNION ALL
+
 -- Collect information about boxes that were turned into Lost/Scrap state; it is
 -- assumed that these boxes have not been further moved but still are part of the
 -- specified base
