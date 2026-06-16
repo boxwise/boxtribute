@@ -38,7 +38,7 @@ function WalkthroughNav() {
                 _focus={{ bg: "gray.100", color: "inherit" }}
               >
                 <MenuIcon icon={p.icon} />
-                {p.title}
+                {p.id.slice(-1)}. {p.title}
               </MenuItem>
             ))}
           </MenuList>

@@ -55,7 +55,7 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
       )}
       <MenuIcon icon={path.icon} />
       <Text fontWeight="bold" mt={2} mb={2} color={isCompleted ? "gray.500" : "inherit"}>
-        {path.title}
+        {path.id.slice(-1)}. {path.title}
       </Text>
       <Text fontSize="sm" color="gray.600" mb={4} flex={1}>
         {path.description}
@@ -126,7 +126,7 @@ function PathSelectionModal() {
       <ModalContent>
         <ModalCloseButton />
         <ModalHeader textAlign="center" pt={8}>
-          Choose Your Path
+          {visiblePaths.length > 1 && "Choose Your Path"}
         </ModalHeader>
         <ModalBody pb={8} px={6}>
           {allCompleted && <AllDoneMessage />}

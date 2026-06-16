@@ -3,7 +3,7 @@ import { useWalkthrough } from "./WalkthroughContext";
 import { PATHS } from "./TourOverlay";
 
 const PATH_LABELS: Record<string, string> = {
-  path1: `Path 1 – Stock & box management`,
+  path1: `Path 1 – Stock management`,
   path2: `Path 2 – Beneficiary & distribution management`,
   path3: `Path 3 – Coordinator overview`,
 };
@@ -27,7 +27,7 @@ function PathIndicator() {
       py={1}
       boxShadow="md"
     >
-      <Text fontSize="sm" fontWeight="semibold">
+      <Text fontSize="md" fontWeight="semibold">
         {PATH_LABELS[activePath] ?? activePath}
       </Text>
       {PATHS[activePath].guidanceUrl && (
