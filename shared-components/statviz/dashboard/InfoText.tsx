@@ -35,7 +35,7 @@ function pluralize(count: number, singular: string, plural: string | undefined =
   return count === 1 ? singular : (plural ?? singular + "s");
 }
 
-export default function DashboardInfoText() {
+export default function InfoText() {
   const { data, loading } = useQuery(DASHBOARD_INFO_QUERY);
 
   if (loading) {
