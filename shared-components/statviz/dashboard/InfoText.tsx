@@ -5,6 +5,7 @@ import { graphql } from "../../../graphql/graphql";
 const DASHBOARD_INFO_QUERY = graphql(`
   query dashboardInfo {
     bases {
+      id
       name
       locations {
         id
@@ -75,7 +76,7 @@ export default function InfoText() {
       </Text>
       <Flex gap={3} flexWrap="wrap">
         {bases.map((base) => (
-          <Box key={base.name} borderRadius={5} bg="gray.100" padding="10px 16px" minW="160px">
+          <Box key={base.id} borderRadius={5} bg="gray.100" padding="10px 16px" minW="160px">
             <Text fontSize="sm" color="black">
               {base.name}
             </Text>
