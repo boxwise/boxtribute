@@ -5,6 +5,7 @@ const path3: WalkthroughPath = {
   title: "How to coordinate the whole operation",
   description:
     "Get an overview of how to manage stock, products, users, locations, and other coordination features!",
+  icon: "Coordinator Admin",
   steps: [
     {
       target: "#nav-dashboard",
