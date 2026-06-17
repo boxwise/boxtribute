@@ -31,6 +31,10 @@ function HighlightedText({ value }: { value: string }) {
   );
 }
 
+function pluralize(count: number, singular: string, plural: string) {
+  return count === 1 ? singular : plural;
+}
+
 export default function DashboardInfoText() {
   const { data, loading } = useQuery(DASHBOARD_INFO_QUERY);
 
@@ -53,9 +57,10 @@ export default function DashboardInfoText() {
     return (
       <Text color="gray.500" fontSize="lg" fontWeight="bold" marginBottom="15px">
         Your current stock in <HighlightedText value={base.name} /> base is placed in{" "}
-        <HighlightedNumber value={totalLocations} /> locations and includes{" "}
-        <HighlightedNumber value={totalItems} /> items in{" "}
-        <HighlightedNumber value={totalBoxes} /> boxes.
+        <HighlightedNumber value={totalLocations} />{" "}
+        {pluralize(totalLocations, "location", "locations")} and includes{" "}
+        <HighlightedNumber value={totalItems} /> {pluralize(totalItems, "item", "items")} in{" "}
+        <HighlightedNumber value={totalBoxes} /> {pluralize(totalBoxes, "box", "boxes")}.
       </Text>
     );
   }
@@ -64,10 +69,12 @@ export default function DashboardInfoText() {
   return (
     <Box marginBottom="15px">
       <Text color="gray.500" fontSize="lg" fontWeight="bold" marginBottom="10px">
-        Your current stock is split between <HighlightedNumber value={bases.length} /> bases, placed
-        in <HighlightedNumber value={totalLocations} /> locations, and includes{" "}
-        <HighlightedNumber value={totalItems} /> in-stock items in{" "}
-        <HighlightedNumber value={totalBoxes} /> boxes.
+        Your current stock is split between <HighlightedNumber value={bases.length} />{" "}
+        {pluralize(bases.length, "base", "bases")}, placed in{" "}
+        <HighlightedNumber value={totalLocations} />{" "}
+        {pluralize(totalLocations, "location", "locations")}, and includes{" "}
+        <HighlightedNumber value={totalItems} /> in-stock {pluralize(totalItems, "item", "items")}{" "}
+        in <HighlightedNumber value={totalBoxes} /> {pluralize(totalBoxes, "box", "boxes")}.
       </Text>
       <Flex gap={3} flexWrap="wrap">
         {bases.map((base) => (
@@ -79,11 +86,11 @@ export default function DashboardInfoText() {
               <Text as="span" fontSize="3xl">
                 {base.instockBoxesCount.toLocaleString()}
               </Text>{" "}
-              boxes {">"}{" "}
+              {pluralize(base.instockBoxesCount, "box", "boxes")} {">"}{" "}
               <Text as="span" fontSize="3xl">
                 {base.instockItemsCount.toLocaleString()}
               </Text>{" "}
-              items
+              {pluralize(base.instockItemsCount, "item", "items")}
             </Text>
           </Box>
         ))}
