@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
+import ErrorCard, { predefinedErrors } from "../components/ErrorCard";
 import { graphql } from "../../../graphql/graphql";
 
 const DASHBOARD_INFO_QUERY = graphql(`
@@ -37,10 +38,15 @@ function pluralize(count: number, singular: string, plural: string | undefined =
 }
 
 export default function InfoText() {
-  const { data, loading } = useQuery(DASHBOARD_INFO_QUERY);
-
+  const { data, loading, error } = useQuery(DASHBOARD_INFO_QUERY);
+  if (error) {
+    return <ErrorCard error={error.message} />;
+  }
   if (loading) {
     return <Spinner size="md" />;
+  }
+  if (data === undefined) {
+    return <ErrorCard error={predefinedErrors.noData} />;
   }
 
   const bases = data?.bases ?? [];
