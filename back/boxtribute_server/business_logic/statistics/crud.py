@@ -44,11 +44,9 @@ def _validate_existing_base(base_id):
     Base.select(Base.id).where(Base.id == base_id).get()
 
 
-def _generate_dimensions(*names, target_type=None, facts):
+def _generate_dimensions(*names, facts):
     """Return a dictionary holding information (ID, name) about dimensions with
     specified names.
-    If `target_type` is set, add a 'target' field containing information about a target
-    with given type.
     """
     dimensions = {}
 
@@ -94,14 +92,16 @@ def _generate_dimensions(*names, target_type=None, facts):
             .dicts()
         )
 
-    if target_type is not None:
-        target_ids = {
-            f["target_id"] for f in facts if TargetType[f["target_type"]] == target_type
-        }
-        # Target ID and name are identical for now
-        dimensions["target"] = [
-            {"id": i, "name": i, "type": target_type} for i in target_ids
-        ]
+    if "target" in names:
+        dimensions["target"] = []
+        for target_type in TargetType:
+            target_ids = {
+                f["target_id"] for f in facts if f["target_type"] == target_type.name
+            }
+            # Target ID and name are identical for now
+            dimensions["target"].extend(
+                [{"id": i, "name": i, "type": target_type} for i in target_ids]
+            )
 
     return dimensions
 
@@ -419,25 +419,7 @@ def compute_moved_boxes(*base_ids):
     for fact in facts:
         fact["tag_ids"] = convert_ids(fact["tag_ids"])
 
-    dimensions = _generate_dimensions("category", "size", "tag", facts=facts)
-    dimensions["target"] = (
-        _generate_dimensions(
-            target_type=TargetType.OutgoingLocation,
-            facts=facts,
-        )["target"]
-        + _generate_dimensions(
-            target_type=TargetType.OutgoingShipment,
-            facts=facts,
-        )["target"]
-        + _generate_dimensions(
-            target_type=TargetType.IncomingShipment,
-            facts=facts,
-        )["target"]
-        + _generate_dimensions(
-            target_type=TargetType.BoxState,
-            facts=facts,
-        )["target"]
-    )
+    dimensions = _generate_dimensions("category", "size", "tag", "target", facts=facts)
     return DataCube(facts=facts, dimensions=dimensions, type="MovedBoxesData")
 
 

@@ -394,14 +394,14 @@ def test_query_moved_boxes(
         "dimensions": {
             "target": [
                 {
-                    "id": location_name,
-                    "name": location_name,
-                    "type": TargetType.OutgoingLocation.name,
-                },
-                {
                     "id": base_name,
                     "name": base_name,
                     "type": TargetType.OutgoingShipment.name,
+                },
+                {
+                    "id": location_name,
+                    "name": location_name,
+                    "type": TargetType.OutgoingLocation.name,
                 },
                 {
                     "id": BoxState.Lost.name,
