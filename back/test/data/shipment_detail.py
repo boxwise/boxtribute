@@ -169,7 +169,7 @@ def data():
             "removed_by": None,
             "lost_on": None,
             "lost_by": None,
-            "received_on": TIME,
+            "received_on": None,
             "received_by": default_user_data()["id"],
         },
     ]
