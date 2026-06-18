@@ -349,7 +349,7 @@ SELECT
     ROUND(b.measure_value, 3 - FLOOR(LOG10(b.measure_value) + 1)) AS absolute_measure_value,
     u.dimension_id,
     t.tag_ids,
-    c.name AS target_id,
+    CONCAT("going-to-", c.name) AS target_id,
     o.label AS organisation_name,
     %s AS target_type,
     COUNT(t.box_id) AS boxes_count,
@@ -396,7 +396,7 @@ SELECT
     u.dimension_id,
     t.tag_ids,
     -- this is the source base name
-    c.name AS target_id,
+    CONCAT("sent-from-", c.name) AS target_id,
     o.label AS organisation_name,
     %s AS target_type,
     COUNT(t.box_id) AS boxes_count,

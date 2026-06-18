@@ -343,7 +343,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": base_name,
+                "targetId": f"going-to-{base_name}",
                 "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [],
@@ -357,7 +357,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": base_name,
+                "targetId": f"going-to-{base_name}",
                 "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [3],
@@ -371,7 +371,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": base_name,
+                "targetId": f"going-to-{base_name}",
                 "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [],
@@ -394,7 +394,7 @@ def test_query_moved_boxes(
         "dimensions": {
             "target": [
                 {
-                    "id": base_name,
+                    "id": f"going-to-{base_name}",
                     "name": base_name,
                     "type": TargetType.OutgoingShipment.name,
                 },
@@ -437,7 +437,7 @@ def test_query_moved_boxes(
 
     # MovedBoxes stat with an incoming shipment (ID 7 with another_box sent to base 3)
     mock_user_for_request(mocker, organisation_id=2, base_ids=[3])
-    query = query.replace("1", "3")
+    query = query.replace("baseId: 1", "baseId: 3")
     data = assert_successful_request(client, query, endpoint="graphql")
     base_name = default_base["name"]
     org_name = default_organisation["name"]
@@ -450,18 +450,18 @@ def test_query_moved_boxes(
                 "dimensionId": None,
                 "gender": "Women",
                 "itemsCount": 10,
-                "movedOn": "2026-06-17",
+                "movedOn": date.today().isoformat(),
                 "organisationName": org_name,
                 "productName": "new product",
                 "sizeId": 1,
                 "tagIds": [],
-                "targetId": base_name,
+                "targetId": f"sent-from-{base_name}",
             },
         ],
         "dimensions": {
             "target": [
                 {
-                    "id": base_name,
+                    "id": f"sent-from-{base_name}",
                     "name": base_name,
                     "type": TargetType.IncomingShipment.name,
                 },

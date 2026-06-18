@@ -98,9 +98,16 @@ def _generate_dimensions(*names, facts):
             target_ids = {
                 f["target_id"] for f in facts if f["target_type"] == target_type.name
             }
-            # Target ID and name are identical for now
+            # Target ID and name are identical for BoxState and OutgoingLocation
             dimensions["target"].extend(
-                [{"id": i, "name": i, "type": target_type} for i in target_ids]
+                [
+                    {
+                        "id": i,
+                        "name": i.replace("sent-from-", "").replace("going-to-", ""),
+                        "type": target_type,
+                    }
+                    for i in target_ids
+                ]
             )
 
     return dimensions
