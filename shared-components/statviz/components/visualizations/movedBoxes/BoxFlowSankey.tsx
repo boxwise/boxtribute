@@ -40,9 +40,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
   const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
-  const movedBoxesFacts = (data?.facts as MovedBoxesResult[]).filter(
-    (fact) => fact.type !== "IncomingShipment",
-  );
+  const movedBoxesFacts = data?.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
     movedBoxesFacts satisfies MovedBoxesResult[],
@@ -102,30 +100,32 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         return undefined;
       })
       .filter((e) => e !== undefined),
-    ...movedBoxes.map((movedBox) => {
-      if (movedBox.type === "OutgoingLocation") {
+    ...movedBoxes
+      .filter((e) => e.type !== "IncomingShipment")
+      .map((movedBox) => {
+        if (movedBox.type === "OutgoingLocation") {
+          return {
+            source: selfReportedNode.id,
+            target: movedBox.targetId,
+            value: movedBox.count,
+            isNegative: movedBox.isNegative,
+          };
+        }
+        if (movedBox.type === "OutgoingShipment") {
+          return {
+            source: shipmentNode.id,
+            target: movedBox.targetId,
+            value: movedBox.count,
+            isNegative: movedBox.isNegative,
+          };
+        }
         return {
-          source: selfReportedNode.id,
+          source: outgoingNode.id,
           target: movedBox.targetId,
           value: movedBox.count,
           isNegative: movedBox.isNegative,
         };
-      }
-      if (movedBox.type === "OutgoingShipment") {
-        return {
-          source: shipmentNode.id,
-          target: movedBox.targetId,
-          value: movedBox.count,
-          isNegative: movedBox.isNegative,
-        };
-      }
-      return {
-        source: outgoingNode.id,
-        target: movedBox.targetId,
-        value: movedBox.count,
-        isNegative: movedBox.isNegative,
-      };
-    }),
+      }),
   ];
 
   const nodes = [
