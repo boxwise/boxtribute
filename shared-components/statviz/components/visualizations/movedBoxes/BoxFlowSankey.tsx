@@ -40,7 +40,9 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
   const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
-  const movedBoxesFacts = data?.facts as MovedBoxesResult[];
+  const movedBoxesFacts = (data?.facts as MovedBoxesResult[]).filter(
+    (fact) => fact.type !== "IncomingShipment",
+  );
 
   const movedBoxes = tidy(
     movedBoxesFacts satisfies MovedBoxesResult[],
