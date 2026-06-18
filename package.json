@@ -19,7 +19,7 @@
     "rebuild-restart": "pnpm i && docker compose build && docker compose up -d"
   },
   "dependencies": {
-    "@apollo/client": "^3.13.9",
+    "@apollo/client": "^3.14.1",
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "2.8.2",
     "@emotion/react": "^11.14.0",
@@ -31,7 +31,7 @@
     "@nivo/sankey": "0.99.0",
     "@nivo/sunburst": "0.99.0",
     "@nivo/theming": "0.99.0",
-    "@sentry/react": "^10.56.0",
+    "@sentry/react": "^10.58.0",
     "@tidyjs/tidy": "^2.6.1",
     "@visx/axis": "^3.12.0",
     "@visx/event": "^3.12.0",
@@ -44,8 +44,8 @@
     "@visx/tooltip": "^3.12.0",
     "chakra-react-select": "5.1.1",
     "date-fns": "^4.4.0",
-    "dom-to-image-more": "^3.7.2",
-    "gql.tada": "^1.9.2",
+    "dom-to-image-more": "^3.10.0",
+    "gql.tada": "^1.11.2",
     "graphql": "^16.14.1",
     "lodash": "^4.18.1",
     "react": "^18.3.1",
