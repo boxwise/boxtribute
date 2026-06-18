@@ -130,22 +130,24 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
 
   const nodes = [
     outgoingNode,
-    ...movedBoxes.map((movedBox) => {
-      const getName = () => {
-        if (movedBox.organisationName) {
-          return `${movedBox.name} | ${movedBox.organisationName} `;
-        }
-        return movedBox.name;
-      };
+    ...movedBoxes
+      .filter((e) => e.type !== "IncomingShipment")
+      .map((movedBox) => {
+        const getName = () => {
+          if (movedBox.organisationName) {
+            return `${movedBox.name} | ${movedBox.organisationName} `;
+          }
+          return movedBox.name;
+        };
 
-      return {
-        id: movedBox.targetId,
-        name: movedBox.isNegative ? `${getName()} removed` : getName(),
-        nodeColor: movedBox.isNegative
-          ? "red"
-          : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
-      };
-    }),
+        return {
+          id: movedBox.targetId,
+          name: movedBox.isNegative ? `${getName()} removed` : getName(),
+          nodeColor: movedBox.isNegative
+            ? "red"
+            : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+        };
+      }),
   ];
 
   const nodeIsTargetedByLink = (node) => links.findIndex((link) => link?.target === node.id) !== -1;
