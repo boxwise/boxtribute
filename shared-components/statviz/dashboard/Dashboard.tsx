@@ -13,6 +13,7 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { date2String } from "../../utils/helpers";
 import { subMonths } from "date-fns";
+import InfoText from "./InfoText";
 
 export default function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +43,7 @@ export default function Dashboard() {
   return (
     <div>
       <Heading style={{ marginBottom: "15px" }}>Dashboard</Heading>
+      <InfoText />
 
       <Wrap
         borderWidth="1"

@@ -11,6 +11,7 @@ from .loaders import (
     BaseLoader,
     BoxLoader,
     HistoryForBoxLoader,
+    InstockCountForBaseLoader,
     InstockItemsCountForProductLoader,
     LocationLoader,
     OrganisationLoader,
@@ -62,9 +63,12 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
         # Create DataLoaders and persist them for the time of processing the request.
         # DataLoaders require an event loop which is set up by asyncio.run
         context = {
+            # fmt: off
             "base_loader": BaseLoader(),
             "box_loader": BoxLoader(),
             "history_for_box_loader": HistoryForBoxLoader(),
+            "instock_boxes_count_for_base_loader": InstockCountForBaseLoader(),
+            "instock_items_count_for_base_loader": InstockCountForBaseLoader(count_boxes=False),  # noqa
             "instock_items_count_for_product_loader": InstockItemsCountForProductLoader(),  # noqa
             "transfer_items_count_for_product_loader": TransferItemsCountForProductLoader(),  # noqa
             "location_loader": LocationLoader(),
@@ -90,6 +94,7 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             "units_for_dimension_loader": UnitsForDimensionLoader(),
             "unit_loader": UnitLoader(),
             "user_loader": UserLoader(),
+            # fmt: on
         }
 
         # Execute the GraphQL request against schema, passing in context
