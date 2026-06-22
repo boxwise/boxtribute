@@ -91,20 +91,30 @@ export function MovementFilters({
               <FormLabel fontSize="sm">From</FormLabel>
               <Input
                 type="date"
-                size="sm"
+                size="md"
                 value={staged.dateFrom}
                 max={new Date().toISOString().substring(0, 10)}
                 onChange={(e) => setStaged((prev) => ({ ...prev, dateFrom: e.target.value }))}
+                border="2px"
+                borderRadius="0"
+                borderColor="gray.300"
+                _hover={{ borderColor: "gray.300" }}
+                _focus={{ borderColor: "gray.300", boxShadow: "none" }}
               />
             </Box>
             <Box>
               <FormLabel fontSize="sm">To</FormLabel>
               <Input
                 type="date"
-                size="sm"
+                size="md"
                 value={staged.dateTo}
                 max={new Date().toISOString().substring(0, 10)}
                 onChange={(e) => setStaged((prev) => ({ ...prev, dateTo: e.target.value }))}
+                border="2px"
+                borderRadius="0"
+                borderColor="gray.300"
+                _hover={{ borderColor: "gray.300" }}
+                _focus={{ borderColor: "gray.300", boxShadow: "none" }}
               />
             </Box>
           </HStack>
