@@ -78,7 +78,7 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
       </AccordionButton>
       <AccordionPanel>
         <VStack align="stretch" spacing={4}>
-          <HStack spacing={2}>
+          <HStack justify="flex-end" spacing={2}>
             <Select
               size="md"
               value={boxesOrItems}

@@ -3,6 +3,7 @@ import {
   AccordionItem,
   AccordionButton,
   Heading,
+  HStack,
   AccordionIcon,
   AccordionPanel,
   Wrap,
@@ -57,20 +58,22 @@ export default function Demographics({ tags }: DemographicsProps) {
       </AccordionButton>
       <AccordionPanel>
         <VStack align="stretch" spacing={4}>
-          <FilterPanel
-            label="Demographics Filters"
-            isOpen={isOpen}
-            onOpen={onOpen}
-            onClose={onClose}
-          >
-            <DemographicsFilters
+          <HStack justify="flex-end">
+            <FilterPanel
+              label="Demographics Filters"
               isOpen={isOpen}
+              onOpen={onOpen}
               onClose={onClose}
-              appliedFilters={appliedFilters}
-              tags={tags}
-              onApply={handleApplyFilters}
-            />
-          </FilterPanel>
+            >
+              <DemographicsFilters
+                isOpen={isOpen}
+                onClose={onClose}
+                appliedFilters={appliedFilters}
+                tags={tags}
+                onApply={handleApplyFilters}
+              />
+            </FilterPanel>
+          </HStack>
           <Wrap gap={6}>
             <WrapItem overflow="auto" padding="5px">
               <DemographicDataContainer appliedFilters={appliedFilters} />
