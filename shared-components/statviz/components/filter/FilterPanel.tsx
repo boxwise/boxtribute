@@ -9,11 +9,10 @@ import {
   IconButton,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { SettingsIcon } from "@chakra-ui/icons";
+import { MdFilterList } from "react-icons/md";
 
 interface FilterPanelProps {
-  label: string;
-  ariaLabel: string;
+  label?: string;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
@@ -21,8 +20,7 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({
-  label,
-  ariaLabel,
+  label = "Filters",
   isOpen,
   onOpen,
   onClose,
@@ -35,10 +33,10 @@ export function FilterPanel({
   return (
     <>
       <IconButton
-        aria-label={ariaLabel}
-        icon={<SettingsIcon />}
-        size="sm"
-        variant="outline"
+        icon={<MdFilterList color={"black"} size={25} />}
+        aria-label="Open ${label}"
+        size="md"
+        data-testid="${label.replaceAll(' ', '').lower()}-drawer-button"
         onClick={onOpen}
       />
       <Drawer isOpen={isOpen} onClose={onClose} placement={placement} size={size}>

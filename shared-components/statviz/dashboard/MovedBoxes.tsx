@@ -1,4 +1,5 @@
 import {
+  useDisclosure,
   AccordionItem,
   AccordionButton,
   Heading,
@@ -12,7 +13,8 @@ import {
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import MovedBoxesDataContainer from "../components/visualizations/movedBoxes/MovedBoxesDataContainer";
-import MovementFilterPanel from "../components/filter/MovementFilterPanel";
+import { FilterPanel } from "./../components/filter/FilterPanel";
+import { MovementFilters } from "./../components/filter/MovementFilters";
 import {
   MOVEMENT_URL_PARAMS,
   readMovementFiltersFromUrl,
@@ -64,6 +66,8 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
     [searchParams, setSearchParams],
   );
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <AccordionItem>
       <AccordionButton padding="15px 10px">
@@ -76,7 +80,7 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
         <VStack align="stretch" spacing={4}>
           <HStack spacing={2}>
             <Select
-              size="sm"
+              size="md"
               value={boxesOrItems}
               onChange={handleBoxesOrItemsChange}
               width="120px"
@@ -84,13 +88,17 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
               <option value="boxesCount">Boxes</option>
               <option value="itemsCount">Items</option>
             </Select>
-            <MovementFilterPanel
-              appliedFilters={appliedFilters}
-              products={products}
-              categories={categories}
-              tags={tags}
-              onApply={handleApplyFilters}
-            />
+            <FilterPanel label="Movement Filters" isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+              <MovementFilters
+                isOpen={isOpen}
+                onClose={onClose}
+                appliedFilters={appliedFilters}
+                products={products}
+                categories={categories}
+                tags={tags}
+                onApply={handleApplyFilters}
+              />
+            </FilterPanel>
           </HStack>
           <MovedBoxesDataContainer appliedFilters={appliedFilters} boxesOrItems={boxesOrItems} />
         </VStack>

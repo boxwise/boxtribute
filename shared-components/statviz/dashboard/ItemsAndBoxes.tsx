@@ -1,4 +1,5 @@
 import {
+  useDisclosure,
   Box,
   AccordionItem,
   AccordionButton,
@@ -12,7 +13,6 @@ import {
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import CreatedBoxesDataContainer from "../components/visualizations/createdBoxes/CreatedBoxesDataContainer";
-import StockFilterPanel from "../components/filter/StockFilterPanel";
 import {
   STOCK_URL_PARAMS,
   readStockFiltersFromUrl,
@@ -24,6 +24,8 @@ import {
   type ITagOption,
 } from "../utils/dashboardFilters";
 import type { BoxesOrItems } from "../components/filter/BoxesOrItemsSelect";
+import { FilterPanel } from "./../components/filter/FilterPanel";
+import { StockFilters } from "./../components/filter/StockFilters";
 
 export type BoxesOrItemsCount = "boxesCount" | "itemsCount";
 
@@ -70,6 +72,7 @@ export default function ItemsAndBoxes({
     [searchParams, setSearchParams],
   );
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <AccordionItem>
       <AccordionButton padding="15px 10px">
@@ -82,7 +85,7 @@ export default function ItemsAndBoxes({
         <VStack align="stretch" spacing={4}>
           <HStack spacing={2}>
             <Select
-              size="sm"
+              size="md"
               value={boxesOrItems}
               onChange={handleBoxesOrItemsChange}
               width="120px"
@@ -90,14 +93,18 @@ export default function ItemsAndBoxes({
               <option value="boxesCount">Boxes</option>
               <option value="itemsCount">Items</option>
             </Select>
-            <StockFilterPanel
-              appliedFilters={appliedFilters}
-              products={products}
-              categories={categories}
-              locations={locations}
-              tags={tags}
-              onApply={handleApplyFilters}
-            />
+            <FilterPanel label="Stock Filters" isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+              <StockFilters
+                isOpen={isOpen}
+                onClose={onClose}
+                appliedFilters={appliedFilters}
+                products={products}
+                categories={categories}
+                locations={locations}
+                tags={tags}
+                onApply={handleApplyFilters}
+              />
+            </FilterPanel>
           </HStack>
           <CreatedBoxesDataContainer appliedFilters={appliedFilters} boxesOrItems={boxesOrItems} />
         </VStack>

@@ -1,4 +1,5 @@
 import {
+  useDisclosure,
   AccordionItem,
   AccordionButton,
   Heading,
@@ -12,13 +13,14 @@ import {
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import DemographicDataContainer from "../components/visualizations/demographic/DemographicDataContainer";
-import DemographicsFilterPanel from "../components/filter/DemographicsFilterPanel";
 import {
   readDemographicsFiltersFromUrl,
   writeDemographicsFiltersToUrl,
   type DemographicsAppliedFilters,
   type ITagOption,
 } from "../utils/dashboardFilters";
+import { FilterPanel } from "./../components/filter/FilterPanel";
+import { DemographicsFilters } from "./../components/filter/DemographicsFilters";
 
 interface DemographicsProps {
   tags: ITagOption[];
@@ -43,6 +45,8 @@ export default function Demographics({ tags }: DemographicsProps) {
     [searchParams, setSearchParams],
   );
 
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <AccordionItem>
       <AccordionButton padding="15px 10px">
@@ -53,11 +57,20 @@ export default function Demographics({ tags }: DemographicsProps) {
       </AccordionButton>
       <AccordionPanel>
         <VStack align="stretch" spacing={4}>
-          <DemographicsFilterPanel
-            appliedFilters={appliedFilters}
-            tags={tags}
-            onApply={handleApplyFilters}
-          />
+          <FilterPanel
+            label="Demographics Filters"
+            isOpen={isOpen}
+            onOpen={onOpen}
+            onClose={onClose}
+          >
+            <DemographicsFilters
+              isOpen={isOpen}
+              onClose={onClose}
+              appliedFilters={appliedFilters}
+              tags={tags}
+              onApply={handleApplyFilters}
+            />
+          </FilterPanel>
           <Wrap gap={6}>
             <WrapItem overflow="auto" padding="5px">
               <DemographicDataContainer appliedFilters={appliedFilters} />
