@@ -79,7 +79,59 @@ def test_query_beneficiary_reach(client):
             tag { id }
         } } }"""
     data = assert_successful_request(client, query, endpoint="graphql")
-    assert data == {"facts": [], "dimensions": {"beneficiary": None, "tag": None}}
+    assert data == {
+        "dimensions": {"beneficiary": None, "tag": None},
+        "facts": [
+            {
+                "beneficiaryId": 1,
+                "count": 1,
+                "reachType": "Creation",
+                "reachedOn": "2020-06-30",
+            },
+            {
+                "beneficiaryId": 2,
+                "count": 1,
+                "reachType": "Creation",
+                "reachedOn": "2021-06-30",
+            },
+            {
+                "beneficiaryId": 3,
+                "count": 1,
+                "reachType": "Creation",
+                "reachedOn": "2022-01-30",
+            },
+            {
+                "beneficiaryId": 5,
+                "count": 1,
+                "reachType": "Creation",
+                "reachedOn": "2021-06-30",
+            },
+            {
+                "beneficiaryId": 6,
+                "count": 1,
+                "reachType": "Creation",
+                "reachedOn": "2026-05-31",
+            },
+            {
+                "beneficiaryId": 1,
+                "count": 1,
+                "reachType": "ServiceUsed",
+                "reachedOn": "2025-11-24",
+            },
+            {
+                "beneficiaryId": 1,
+                "count": 1,
+                "reachType": "TagApplied",
+                "reachedOn": "2022-01-01",
+            },
+            {
+                "beneficiaryId": 6,
+                "count": 1,
+                "reachType": "TagApplied",
+                "reachedOn": "2023-01-01",
+            },
+        ],
+    }
 
 
 def test_query_created_boxes(
