@@ -13,6 +13,7 @@ import {
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import CreatedBoxesDataContainer from "../components/visualizations/createdBoxes/CreatedBoxesDataContainer";
+import StockOverviewRingDataContainer from "../components/visualizations/stock/StockOverviewRingDataContainer";
 import {
   STOCK_URL_PARAMS,
   readStockFiltersFromUrl,
@@ -107,6 +108,10 @@ export default function ItemsAndBoxes({
             </FilterPanel>
           </HStack>
           <CreatedBoxesDataContainer appliedFilters={appliedFilters} boxesOrItems={boxesOrItems} />
+          <StockOverviewRingDataContainer
+            appliedFilters={appliedFilters}
+            boxesOrItems={boxesOrItems}
+          />
         </VStack>
       </AccordionPanel>
     </AccordionItem>
