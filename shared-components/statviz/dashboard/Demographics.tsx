@@ -7,7 +7,7 @@ import {
   Wrap,
   WrapItem,
   Box,
-  HStack,
+  VStack,
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -49,21 +49,21 @@ export default function Demographics({ tags }: DemographicsProps) {
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Beneficiary Overview</Heading>
         </Box>
-        <HStack spacing={2} onClick={(e) => e.stopPropagation()} mr={2}>
+        <AccordionIcon />
+      </AccordionButton>
+      <AccordionPanel>
+        <VStack align="stretch" spacing={4}>
           <DemographicsFilterPanel
             appliedFilters={appliedFilters}
             tags={tags}
             onApply={handleApplyFilters}
           />
-        </HStack>
-        <AccordionIcon />
-      </AccordionButton>
-      <AccordionPanel>
-        <Wrap gap={6}>
-          <WrapItem overflow="auto" padding="5px">
-            <DemographicDataContainer appliedFilters={appliedFilters} />
-          </WrapItem>
-        </Wrap>
+          <Wrap gap={6}>
+            <WrapItem overflow="auto" padding="5px">
+              <DemographicDataContainer appliedFilters={appliedFilters} />
+            </WrapItem>
+          </Wrap>
+        </VStack>
       </AccordionPanel>
     </AccordionItem>
   );

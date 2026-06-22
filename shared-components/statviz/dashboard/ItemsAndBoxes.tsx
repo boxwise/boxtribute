@@ -7,6 +7,7 @@ import {
   AccordionPanel,
   HStack,
   Select,
+  VStack,
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -75,24 +76,31 @@ export default function ItemsAndBoxes({
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Stock Overview</Heading>
         </Box>
-        <HStack spacing={2} onClick={(e) => e.stopPropagation()} mr={2}>
-          <Select size="sm" value={boxesOrItems} onChange={handleBoxesOrItemsChange} width="120px">
-            <option value="boxesCount">Boxes</option>
-            <option value="itemsCount">Items</option>
-          </Select>
-          <StockFilterPanel
-            appliedFilters={appliedFilters}
-            products={products}
-            categories={categories}
-            locations={locations}
-            tags={tags}
-            onApply={handleApplyFilters}
-          />
-        </HStack>
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel>
-        <CreatedBoxesDataContainer appliedFilters={appliedFilters} boxesOrItems={boxesOrItems} />
+        <VStack align="stretch" spacing={4}>
+          <HStack spacing={2}>
+            <Select
+              size="sm"
+              value={boxesOrItems}
+              onChange={handleBoxesOrItemsChange}
+              width="120px"
+            >
+              <option value="boxesCount">Boxes</option>
+              <option value="itemsCount">Items</option>
+            </Select>
+            <StockFilterPanel
+              appliedFilters={appliedFilters}
+              products={products}
+              categories={categories}
+              locations={locations}
+              tags={tags}
+              onApply={handleApplyFilters}
+            />
+          </HStack>
+          <CreatedBoxesDataContainer appliedFilters={appliedFilters} boxesOrItems={boxesOrItems} />
+        </VStack>
       </AccordionPanel>
     </AccordionItem>
   );
