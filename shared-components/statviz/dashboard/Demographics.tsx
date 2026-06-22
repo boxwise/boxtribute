@@ -7,22 +7,61 @@ import {
   Wrap,
   WrapItem,
   Box,
+  HStack,
 } from "@chakra-ui/react";
+import { useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import DemographicDataContainer from "../components/visualizations/demographic/DemographicDataContainer";
+import DemographicsFilterPanel from "../components/filter/DemographicsFilterPanel";
+import {
+  readDemographicsFiltersFromUrl,
+  writeDemographicsFiltersToUrl,
+  type DemographicsAppliedFilters,
+  type ITagOption,
+} from "../utils/dashboardFilters";
 
-export default function Demographics() {
+interface DemographicsProps {
+  tags: ITagOption[];
+}
+
+export default function Demographics({ tags }: DemographicsProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const appliedFilters = useMemo(
+    () => readDemographicsFiltersFromUrl(searchParams, tags),
+    // We intentionally only re-derive when URL params change, not when option arrays change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [searchParams],
+  );
+
+  const handleApplyFilters = useCallback(
+    (filters: DemographicsAppliedFilters) => {
+      const newParams = new URLSearchParams(searchParams);
+      writeDemographicsFiltersToUrl(filters, newParams);
+      setSearchParams(newParams);
+    },
+    [searchParams, setSearchParams],
+  );
+
   return (
     <AccordionItem>
       <AccordionButton padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Beneficiary Overview</Heading>
         </Box>
+        <HStack spacing={2} onClick={(e) => e.stopPropagation()} mr={2}>
+          <DemographicsFilterPanel
+            appliedFilters={appliedFilters}
+            tags={tags}
+            onApply={handleApplyFilters}
+          />
+        </HStack>
         <AccordionIcon />
       </AccordionButton>
       <AccordionPanel>
         <Wrap gap={6}>
           <WrapItem overflow="auto" padding="5px">
-            <DemographicDataContainer />
+            <DemographicDataContainer appliedFilters={appliedFilters} />
           </WrapItem>
         </Wrap>
       </AccordionPanel>

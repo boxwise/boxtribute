@@ -1,116 +1,39 @@
 import { Wrap, WrapItem, Box } from "@chakra-ui/react";
-import { useEffect, useMemo } from "react";
-import { TidyFn, distinct, filter, tidy } from "@tidyjs/tidy";
-import { useReactiveVar } from "@apollo/client";
+import { useMemo } from "react";
+import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import CreatedBoxes from "./CreatedBoxes";
 import { filterListByInterval } from "../../../../utils/helpers";
-import useTimerange from "../../../hooks/useTimerange";
-import useValueFilter from "../../../hooks/useValueFilter";
-import {
-  IBoxesOrItemsFilter,
-  boxesOrItemsFilterValues,
-  boxesOrItemsUrlId,
-  defaultBoxesOrItems,
-} from "../../filter/BoxesOrItemsSelect";
-import {
-  genderFilterId,
-  genders,
-  productFilterId,
-  categoryFilterId,
-  productToFilterValue,
-  categoryToFilterValue,
-} from "../../filter/GenderProductFilter";
-import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import { tagToFilterValue } from "../../filter/TagFilter";
-import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
-import {
-  productFilterValuesVar,
-  tagFilterIncludedValuesVar,
-  tagFilterExcludedValuesVar,
-  categoryFilterValuesVar,
-} from "../../../state/filter";
+import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
 
 interface ICreatedBoxesFilterContainerProps {
   createdBoxes: CreatedBoxesType;
+  appliedFilters: StockAppliedFilters;
+  boxesOrItems: BoxesOrItems;
+  /** Optional time interval for filtering by creation date */
+  interval?: { start: Date; end: Date };
 }
 
 export default function CreatedBoxesFilterContainer({
   createdBoxes,
+  appliedFilters,
+  boxesOrItems,
+  interval,
 }: ICreatedBoxesFilterContainerProps) {
-  const { interval } = useTimerange();
-
-  const { filterValue } = useValueFilter<IBoxesOrItemsFilter>(
-    boxesOrItemsFilterValues,
-    defaultBoxesOrItems,
-    boxesOrItemsUrlId,
-  );
-  const productFilterValues = useReactiveVar(productFilterValuesVar);
-  const categoryFilterValues = useReactiveVar(categoryFilterValuesVar);
-
-  const { filterValue: filterProductGenders } = useMultiSelectFilter(genders, genderFilterId);
-  const { filterValue: filterProducts } = useMultiSelectFilter(
-    productFilterValues,
-    productFilterId,
-  );
-  const { filterValue: filterCategories } = useMultiSelectFilter(
-    categoryFilterValues,
-    categoryFilterId,
-  );
-
-  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
-      includedTagFilterValues,
-      tagFilterIncludedId,
-      excludedTagFilterValues,
-      tagFilterExcludedId,
-    );
-
-  // use products from the createdBoxes query to feed the global products and Tags for Boxes filter
-  // Beneficiary and All Tags are merged inside the DemographicFilterContainer
-  // and filter the product filter by filtered product genders
-  useEffect(() => {
-    const p = createdBoxes?.dimensions!.product!.map((e) => productToFilterValue(e!));
-    if (filterProductGenders.length > 0 && p?.length) {
-      productFilterValuesVar([
-        ...filterProducts,
-        ...p.filter(
-          (product) => filterProductGenders.findIndex((fPG) => fPG.value === product.gender) !== -1,
-        ),
-      ]);
-    } else {
-      productFilterValuesVar(p);
-    }
-
-    const c = createdBoxes?.dimensions!.category!.map((e) => categoryToFilterValue(e!));
-    categoryFilterValuesVar(c);
-
-    const boxTags = createdBoxes?.dimensions!.tag!.map((e) => tagToFilterValue(e!));
-    if (boxTags?.length) {
-      const distinctTagFilterValues = tidy(
-        [...includedTagFilterValues, ...boxTags],
-        distinct(["id"]),
-      );
-
-      // Populate the tag filter values for both included and excluded
-      tagFilterIncludedValuesVar(distinctTagFilterValues);
-      tagFilterExcludedValuesVar(distinctTagFilterValues);
-    }
-    // we only need to update products if the product gender selection is updated
-    // including filterProducts would cause unnecessary rerenders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createdBoxes?.dimensions, filterProductGenders]);
+  const { products, genders, categories, includedTags, excludedTags } = appliedFilters;
 
   const createdBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(
-        (createdBoxes?.facts as CreatedBoxesResult[]) ?? [],
-        "createdOn",
-        interval,
-      );
+      if (interval) {
+        return filterListByInterval(
+          (createdBoxes?.facts as CreatedBoxesResult[]) ?? [],
+          "createdOn",
+          interval,
+        );
+      }
+      return (createdBoxes?.facts as CreatedBoxesResult[]) ?? [];
     } catch {
       // TODO useError
     }
@@ -119,29 +42,16 @@ export default function CreatedBoxesFilterContainer({
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
-    if (filterProductGenders.length > 0) {
-      filters.push(
-        filter(
-          (fact: CreatedBoxesResult) =>
-            filterProductGenders.find((fPG) => fPG.value === fact.gender!) !== undefined,
-        ),
-      );
+    if (genders.length > 0) {
+      filters.push(filter((fact: CreatedBoxesResult) => genders.includes(fact.gender ?? "")));
     }
-    if (filterProducts.length > 0) {
-      filters.push(
-        filter(
-          (fact: CreatedBoxesResult) =>
-            filterProducts.find((fBP) => fBP?.id === fact.productId!) !== undefined,
-        ),
-      );
+    if (products.length > 0) {
+      const productIds = new Set(products.map((p) => p.id));
+      filters.push(filter((fact: CreatedBoxesResult) => productIds.has(fact.productId!)));
     }
-    if (filterCategories.length > 0) {
-      filters.push(
-        filter(
-          (fact: CreatedBoxesResult) =>
-            filterCategories.find((fC) => fC?.id === fact.categoryId!) !== undefined,
-        ),
-      );
+    if (categories.length > 0) {
+      const categoryIds = new Set(categories.map((c) => c.id));
+      filters.push(filter((fact: CreatedBoxesResult) => categoryIds.has(fact.categoryId!)));
     }
 
     let filtered = createdBoxesFacts;
@@ -154,14 +64,7 @@ export default function CreatedBoxesFilterContainer({
     filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
-  }, [
-    createdBoxesFacts,
-    filterProductGenders,
-    filterProducts,
-    filterCategories,
-    includedTags,
-    excludedTags,
-  ]);
+  }, [createdBoxesFacts, genders, products, categories, includedTags, excludedTags]);
 
   const filteredCreatedBoxesCube = {
     facts: filteredFacts,
@@ -175,7 +78,7 @@ export default function CreatedBoxesFilterContainer({
           <CreatedBoxes
             width="900px"
             height="400px"
-            boxesOrItems={filterValue.value}
+            boxesOrItems={boxesOrItems}
             data={filteredCreatedBoxesCube}
           />
         </Box>

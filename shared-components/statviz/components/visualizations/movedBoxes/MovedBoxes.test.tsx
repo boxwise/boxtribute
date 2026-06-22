@@ -2,6 +2,7 @@ import { it, expect } from "vitest";
 import MovedBoxesDataContainer, { MOVED_BOXES_QUERY } from "./MovedBoxesDataContainer";
 import { render, screen } from "../../../../tests/testUtils";
 import { GraphQLError } from "graphql";
+import { defaultMovementFilters } from "../../../utils/dashboardFilters";
 
 export class FakeGraphQLError extends GraphQLError {
   constructor(errorCode?: string, errorDescription?: string) {
@@ -42,11 +43,17 @@ const movedBoxesDataTests = [
 
 movedBoxesDataTests.forEach(({ name, mocks, alert }) => {
   it(name, async () => {
-    render(<MovedBoxesDataContainer />, {
-      routePath: "/bases/:baseId/",
-      initialUrl: "/bases/1/",
-      mocks,
-    });
+    render(
+      <MovedBoxesDataContainer
+        appliedFilters={defaultMovementFilters()}
+        boxesOrItems="boxesCount"
+      />,
+      {
+        routePath: "/bases/:baseId/",
+        initialUrl: "/bases/1/",
+        mocks,
+      },
+    );
 
     expect(await screen.findByText(alert)).toBeInTheDocument();
   });
