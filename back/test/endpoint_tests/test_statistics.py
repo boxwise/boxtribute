@@ -71,6 +71,17 @@ def test_query_beneficiary_demographics(
     }
 
 
+def test_query_beneficiary_reach(client):
+    query = """query { beneficiaryReach(baseId: 1) {
+        facts { reachedOn beneficiaryId reachType count }
+        dimensions {
+            beneficiary { id age gender tagIds }
+            tag { id }
+        } } }"""
+    data = assert_successful_request(client, query, endpoint="graphql")
+    assert data == {"facts": [], "dimensions": {"beneficiary": None, "tag": None}}
+
+
 def test_query_created_boxes(
     client, base1_undeleted_products, product_categories, tags
 ):

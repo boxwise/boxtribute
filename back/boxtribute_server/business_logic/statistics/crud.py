@@ -180,6 +180,15 @@ def compute_beneficiary_demographics(base_id):
     )
 
 
+def compute_beneficiary_reach(base_id):
+    """Obtain data about beneficiary interactions (categorized by BeneficiaryReachType).
+    Related to the reachedBeneficiariesNumbers metric which is an aggregated form of
+    this data.
+    """
+    _validate_existing_base(base_id)
+    return DataCube(facts=[], dimensions={}, type="BeneficiaryReachData")
+
+
 def compute_created_boxes(base_id):
     """For each combination of product ID, category ID, gender, and day-truncated
     creation date count the number of created boxes, and the contained items, in the
