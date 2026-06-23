@@ -128,6 +128,7 @@ export default function StockOverviewRing({
         chartProps={chartProps}
         maxWidthPx={600}
         customIncludes={[{ prop: { centerData }, value: "include center data" }]}
+        view="StockOverview"
       />
       <CardBody>
         <Wrap mb={4}>
