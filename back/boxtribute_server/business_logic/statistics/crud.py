@@ -216,6 +216,20 @@ def compute_beneficiary_reach(base_id):
             ).where(Beneficiary.base == base_id)
         )
         | (
+            Transaction.select(
+                fn.DATE(Transaction.created_on).alias("reached_on"),
+                Transaction.beneficiary.alias("beneficiary_id"),
+                SQL('"Checkout"').alias("reach_type"),
+            ).join(
+                Beneficiary,
+                on=(
+                    (Beneficiary.id == Transaction.beneficiary)
+                    & (Beneficiary.base == base_id)
+                    & (Transaction.count > 0)
+                ),
+            ),
+        )
+        | (
             ServicesRelation.select(
                 fn.DATE(ServicesRelation.created_on).alias("reached_on"),
                 ServicesRelation.beneficiary.alias("beneficiary_id"),
