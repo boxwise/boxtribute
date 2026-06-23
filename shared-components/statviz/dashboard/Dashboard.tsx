@@ -1,4 +1,4 @@
-import { Accordion, Heading, Spinner } from "@chakra-ui/react";
+import { Accordion, Heading } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useMemo } from "react";
@@ -42,7 +42,7 @@ export const DASHBOARD_FILTER_DATA_QUERY = graphql(`
 
 export default function Dashboard() {
   const { baseId } = useParams();
-  const { data, loading, error } = useQuery(DASHBOARD_FILTER_DATA_QUERY, {
+  const { data, error } = useQuery(DASHBOARD_FILTER_DATA_QUERY, {
     variables: { baseId: baseId! },
   });
 
@@ -99,7 +99,6 @@ export default function Dashboard() {
     <div>
       <Heading style={{ marginBottom: "15px" }}>Dashboard</Heading>
       <InfoText />
-      {loading && <Spinner />}
 
       <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
         <ItemsAndBoxes
