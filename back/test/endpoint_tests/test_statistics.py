@@ -137,6 +137,30 @@ def test_query_beneficiary_reach(client):
                 "reachedOn": "2019-01-15",
             },
             {
+                "beneficiaryId": 2,
+                "count": 1,
+                "reachType": "Checkout",
+                "reachedOn": "2021-01-15",
+            },
+            {
+                "beneficiaryId": 5,
+                "count": 1,
+                "reachType": "Checkout",
+                "reachedOn": "2021-01-15",
+            },
+            {
+                "beneficiaryId": 2,
+                "count": 1,
+                "reachType": "Checkout",
+                "reachedOn": "2020-01-15",
+            },
+            {
+                "beneficiaryId": 5,
+                "count": 1,
+                "reachType": "Checkout",
+                "reachedOn": "2020-01-15",
+            },
+            {
                 "beneficiaryId": 1,
                 "count": 1,
                 "reachType": "ServiceUsed",

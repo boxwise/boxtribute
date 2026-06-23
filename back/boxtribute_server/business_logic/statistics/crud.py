@@ -187,6 +187,7 @@ def compute_beneficiary_reach(base_id):
     this data.
     """
     _validate_existing_base(base_id)
+    FamilyMember = Beneficiary.alias()
     Interactions = (
         # created/edited (persistently logged in history table)
         DbChangeHistory.select(
@@ -216,6 +217,7 @@ def compute_beneficiary_reach(base_id):
             ).where(Beneficiary.base == base_id)
         )
         | (
+            # involved in transactions (family heads)
             Transaction.select(
                 fn.DATE(Transaction.created_on).alias("reached_on"),
                 Transaction.beneficiary.alias("beneficiary_id"),
@@ -227,6 +229,27 @@ def compute_beneficiary_reach(base_id):
                     & (Beneficiary.base == base_id)
                     & (Transaction.count > 0)
                 ),
+            ),
+        )
+        | (
+            # Family members of a beneficiary who had a transaction are also
+            # counted as reached via "Checkout" on the same date
+            Transaction.select(
+                fn.DATE(Transaction.created_on).alias("reached_on"),
+                FamilyMember.id.alias("beneficiary_id"),
+                SQL('"Checkout"').alias("reach_type"),
+            )
+            .join(
+                Beneficiary,
+                on=(
+                    (Beneficiary.id == Transaction.beneficiary)
+                    & (Beneficiary.base == base_id)
+                    & (Transaction.count > 0)
+                ),
+            )
+            .join(
+                FamilyMember,
+                on=(FamilyMember.family_head == Transaction.beneficiary),
             ),
         )
         | (
