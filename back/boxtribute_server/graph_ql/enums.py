@@ -4,6 +4,7 @@ from typing import List, Type, Union
 from ariadne import EnumType
 
 from ..enums import (
+    BeneficiaryReachType,
     BoxState,
     DistributionEventState,
     DistributionEventsTrackingGroupState,
@@ -36,6 +37,7 @@ enum_types: List[Union[EnumType, Type[Enum]]] = [
     TagType,
     EnumType("TaggableResourceType", TaggableObjectType),
     TargetType,
+    BeneficiaryReachType,
     TransferAgreementState,
     TransferAgreementType,
     ProductType,

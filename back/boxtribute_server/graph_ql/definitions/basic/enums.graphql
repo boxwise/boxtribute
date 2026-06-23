@@ -127,8 +127,7 @@ enum ShareableView {
 }
 
 enum BeneficiaryReachType {
-  Creation
-  Editing
+  CreatedOrEdited
   TagApplied
   ServiceUsed
   Checkout

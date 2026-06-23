@@ -6,7 +6,12 @@ from boxtribute_server.business_logic.statistics.crud import (
     get_data_for_number_of_moved_boxes,
     number_of_boxes_moved_between,
 )
-from boxtribute_server.enums import BoxState, ProductGender, TargetType
+from boxtribute_server.enums import (
+    BeneficiaryReachType,
+    BoxState,
+    ProductGender,
+    TargetType,
+)
 from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.location import Location
 from boxtribute_server.models.utils import compute_age
@@ -85,97 +90,97 @@ def test_query_beneficiary_reach(client):
             {
                 "beneficiaryId": 1,
                 "count": 1,
-                "reachType": "Creation",
+                "reachType": BeneficiaryReachType.CreatedOrEdited.name,
                 "reachedOn": "2020-06-30",
             },
             {
                 "beneficiaryId": 2,
                 "count": 1,
-                "reachType": "Creation",
+                "reachType": BeneficiaryReachType.CreatedOrEdited.name,
                 "reachedOn": "2021-06-30",
             },
             {
                 "beneficiaryId": 3,
                 "count": 1,
-                "reachType": "Creation",
+                "reachType": BeneficiaryReachType.CreatedOrEdited.name,
                 "reachedOn": "2022-01-30",
             },
             {
                 "beneficiaryId": 5,
                 "count": 1,
-                "reachType": "Creation",
+                "reachType": BeneficiaryReachType.CreatedOrEdited.name,
                 "reachedOn": "2021-06-30",
             },
             {
                 "beneficiaryId": 6,
                 "count": 1,
-                "reachType": "Creation",
+                "reachType": BeneficiaryReachType.CreatedOrEdited.name,
                 "reachedOn": "2026-05-31",
             },
             {
                 "beneficiaryId": 1,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2021-01-15",
             },
             {
                 "beneficiaryId": 1,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2020-01-15",
             },
             {
                 "beneficiaryId": 3,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2020-01-15",
             },
             {
                 "beneficiaryId": 3,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2019-01-15",
             },
             {
                 "beneficiaryId": 2,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2021-01-15",
             },
             {
                 "beneficiaryId": 5,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2021-01-15",
             },
             {
                 "beneficiaryId": 2,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2020-01-15",
             },
             {
                 "beneficiaryId": 5,
                 "count": 1,
-                "reachType": "Checkout",
+                "reachType": BeneficiaryReachType.Checkout.name,
                 "reachedOn": "2020-01-15",
             },
             {
                 "beneficiaryId": 1,
                 "count": 1,
-                "reachType": "ServiceUsed",
+                "reachType": BeneficiaryReachType.ServiceUsed.name,
                 "reachedOn": "2025-11-24",
             },
             {
                 "beneficiaryId": 1,
                 "count": 1,
-                "reachType": "TagApplied",
+                "reachType": BeneficiaryReachType.TagApplied.name,
                 "reachedOn": "2022-01-01",
             },
             {
                 "beneficiaryId": 6,
                 "count": 1,
-                "reachType": "TagApplied",
+                "reachType": BeneficiaryReachType.TagApplied.name,
                 "reachedOn": "2023-01-01",
             },
         ],

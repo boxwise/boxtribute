@@ -8,7 +8,7 @@ from typing import Any
 from peewee import JOIN, SQL, fn
 
 from ...db import execute_sql
-from ...enums import BoxState, TaggableObjectType, TargetType
+from ...enums import BeneficiaryReachType, BoxState, TaggableObjectType, TargetType
 from ...errors import InvalidDate
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
@@ -193,7 +193,7 @@ def compute_beneficiary_reach(base_id):
         DbChangeHistory.select(
             fn.DATE(DbChangeHistory.change_date).alias("reached_on"),
             DbChangeHistory.record_id.alias("beneficiary_id"),
-            SQL('"Creation"').alias("reach_type"),
+            SQL(f"{BeneficiaryReachType.CreatedOrEdited.value}").alias("reach_type"),
         )
         .join(
             Beneficiary,
@@ -213,7 +213,9 @@ def compute_beneficiary_reach(base_id):
             Beneficiary.select(
                 fn.DATE(Beneficiary.created_on).alias("reached_on"),
                 Beneficiary.id.alias("beneficiary_id"),
-                SQL('"Creation"').alias("reach_type"),
+                SQL(f"{BeneficiaryReachType.CreatedOrEdited.value}").alias(
+                    "reach_type"
+                ),
             ).where(Beneficiary.base == base_id)
         )
         | (
@@ -221,7 +223,7 @@ def compute_beneficiary_reach(base_id):
             Transaction.select(
                 fn.DATE(Transaction.created_on).alias("reached_on"),
                 Transaction.beneficiary.alias("beneficiary_id"),
-                SQL('"Checkout"').alias("reach_type"),
+                SQL(f"{BeneficiaryReachType.Checkout.value}").alias("reach_type"),
             ).join(
                 Beneficiary,
                 on=(
@@ -237,7 +239,7 @@ def compute_beneficiary_reach(base_id):
             Transaction.select(
                 fn.DATE(Transaction.created_on).alias("reached_on"),
                 FamilyMember.id.alias("beneficiary_id"),
-                SQL('"Checkout"').alias("reach_type"),
+                SQL(f"{BeneficiaryReachType.Checkout.value}").alias("reach_type"),
             )
             .join(
                 Beneficiary,
@@ -256,7 +258,7 @@ def compute_beneficiary_reach(base_id):
             ServicesRelation.select(
                 fn.DATE(ServicesRelation.created_on).alias("reached_on"),
                 ServicesRelation.beneficiary.alias("beneficiary_id"),
-                SQL('"ServiceUsed"').alias("reach_type"),
+                SQL(f"{BeneficiaryReachType.ServiceUsed.value}").alias("reach_type"),
             ).join(
                 Beneficiary,
                 on=(
@@ -269,7 +271,7 @@ def compute_beneficiary_reach(base_id):
             TagsRelation.select(
                 fn.DATE(TagsRelation.created_on).alias("reached_on"),
                 TagsRelation.object_id.alias("beneficiary_id"),
-                SQL('"TagApplied"').alias("reach_type"),
+                SQL(f"{BeneficiaryReachType.TagApplied.value}").alias("reach_type"),
             )
             .join(
                 Beneficiary,
@@ -298,6 +300,8 @@ def compute_beneficiary_reach(base_id):
         .dicts()
         .execute()
     )
+    for fact in facts:
+        fact["reach_type"] = BeneficiaryReachType(fact["reach_type"])
     return DataCube(facts=facts, dimensions={}, type="BeneficiaryReachData")
 
 
