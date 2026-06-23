@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useSearchParams } from "react-router-dom";
 import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
@@ -12,7 +12,12 @@ import BoxesOrItemsSelect, {
   boxesOrItemsFilterValues,
   type BoxesOrItems,
 } from "@boxtribute/shared-components/statviz/components/filter/BoxesOrItemsSelect";
-import { DEFAULT_STOCK_FILTERS } from "@boxtribute/shared-components/statviz/utils/dashboardFilters";
+import {
+  readStockFiltersFromUrl,
+  type ICategoryOption,
+  type ILocationOption,
+  type ITagOption,
+} from "@boxtribute/shared-components/statviz/utils/dashboardFilters";
 
 const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
@@ -101,6 +106,42 @@ function App() {
 
   const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
 
+  const allCategories = useMemo<ICategoryOption[]>(
+    () =>
+      (data?.resolveLink?.data[0]?.dimensions?.category ?? []).map((c) => ({
+        id: Number(c.id),
+        name: c.name ?? "",
+      })),
+    [data],
+  );
+
+  const allLocations = useMemo<ILocationOption[]>(
+    () =>
+      (data?.resolveLink?.data[0]?.dimensions?.location ?? []).map((l) => ({
+        id: Number(l.id),
+        name: l.name ?? "",
+      })),
+    [data],
+  );
+
+  const allTags = useMemo<ITagOption[]>(
+    () =>
+      (data?.resolveLink?.data[0]?.dimensions?.tag ?? []).map((t) => ({
+        id: Number(t.id),
+        name: t.name ?? "",
+        color: t.color ?? "#999",
+        value: String(t.id),
+        label: t.name ?? "",
+        urlId: String(t.id),
+      })),
+    [data],
+  );
+
+  const appliedFilters = useMemo(
+    () => readStockFiltersFromUrl(routerSearchParams, [], allCategories, allLocations, allTags),
+    [routerSearchParams, allCategories, allLocations, allTags],
+  );
+
   if (error) {
     return <ErrorPage>{matchErrorMessage(error.message)}</ErrorPage>;
   }
@@ -165,7 +206,7 @@ function App() {
       {/* TODO: Match view with view returned from data once other views are implemented. */}
       <StockOverviewRingFilterContainer
         stockOverview={data.resolveLink.data[0]}
-        appliedFilters={DEFAULT_STOCK_FILTERS}
+        appliedFilters={appliedFilters}
         boxesOrItems={boxesOrItems}
       />
     </>
