@@ -9,6 +9,7 @@ from boxtribute_server.business_logic.statistics.crud import (
 from boxtribute_server.enums import (
     BeneficiaryReachType,
     BoxState,
+    HumanGender,
     ProductGender,
     TargetType,
 )
@@ -76,7 +77,7 @@ def test_query_beneficiary_demographics(
     }
 
 
-def test_query_beneficiary_reach(client):
+def test_query_beneficiary_reach(client, default_beneficiaries):
     query = """query { beneficiaryReach(baseId: 1) {
         facts { reachedOn beneficiaryId reachType count }
         dimensions {
@@ -84,10 +85,19 @@ def test_query_beneficiary_reach(client):
             tag { id }
         } } }"""
     data = assert_successful_request(client, query, endpoint="graphql")
+    age = compute_age(default_beneficiaries[0]["date_of_birth"])
+    ages = [age, None, None, None, age]
+    all_tag_ids = [[1, 3], [], [], [], [1]]
     assert data == {
         "dimensions": {
             "beneficiary": [
-                {"age": 31, "gender": "Male", "id": 1, "tagIds": [1, 3]},
+                {
+                    "age": age,
+                    "gender": (b.get("gender") or HumanGender.Diverse).name,
+                    "id": b["id"],
+                    "tagIds": tag_ids,
+                }
+                for b, age, tag_ids in zip(default_beneficiaries, ages, all_tag_ids)
             ],
             "tag": [{"id": 1}, {"id": 3}],
         },
