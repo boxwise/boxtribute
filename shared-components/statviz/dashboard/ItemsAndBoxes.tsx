@@ -1,4 +1,5 @@
 import {
+  SimpleGrid,
   useDisclosure,
   Box,
   AccordionItem,
@@ -107,11 +108,16 @@ export default function ItemsAndBoxes({
               />
             </FilterPanel>
           </HStack>
-          <CreatedBoxesDataContainer appliedFilters={appliedFilters} boxesOrItems={boxesOrItems} />
-          <StockOverviewRingDataContainer
-            appliedFilters={appliedFilters}
-            boxesOrItems={boxesOrItems}
-          />
+          <SimpleGrid minChildWidth="400px" spacing={4}>
+            <StockOverviewRingDataContainer
+              appliedFilters={appliedFilters}
+              boxesOrItems={boxesOrItems}
+            />
+            <CreatedBoxesDataContainer
+              appliedFilters={appliedFilters}
+              boxesOrItems={boxesOrItems}
+            />
+          </SimpleGrid>
         </VStack>
       </AccordionPanel>
     </AccordionItem>

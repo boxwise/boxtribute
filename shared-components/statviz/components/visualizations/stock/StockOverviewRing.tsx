@@ -138,6 +138,7 @@ export default function StockOverviewRing({
               onFilterChange={onFilterChange}
               filterId={ringGroupingUrlId}
               fieldLabel="Group by"
+              inlineLabel={true}
             />
           </WrapItem>
         </Wrap>

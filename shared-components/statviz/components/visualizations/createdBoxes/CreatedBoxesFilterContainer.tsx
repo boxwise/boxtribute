@@ -1,4 +1,4 @@
-import { Wrap, WrapItem, Box } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import CreatedBoxes from "./CreatedBoxes";
@@ -72,17 +72,13 @@ export default function CreatedBoxesFilterContainer({
   };
 
   return (
-    <Wrap gap={6}>
-      <WrapItem overflow="auto" padding="5px">
-        <Box>
-          <CreatedBoxes
-            width="900px"
-            height="400px"
-            boxesOrItems={boxesOrItems}
-            data={filteredCreatedBoxesCube}
-          />
-        </Box>
-      </WrapItem>
-    </Wrap>
+    <Box display="flex" justifyContent="center">
+      <CreatedBoxes
+        width="700px"
+        height="400px"
+        boxesOrItems={boxesOrItems}
+        data={filteredCreatedBoxesCube}
+      />
+    </Box>
   );
 }
