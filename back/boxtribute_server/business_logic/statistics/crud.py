@@ -93,6 +93,30 @@ def _generate_dimensions(*names, facts):
             .dicts()
         )
 
+    if "beneficiary" in names:
+        beneficiary_ids = {f["beneficiary_id"] for f in facts}
+        age = fn.IF(
+            Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
+        )
+        dimensions["beneficiary"] = (
+            Beneficiary.select(
+                Beneficiary.id,
+                age.alias("age"),
+                Beneficiary.gender,
+                fn.GROUP_CONCAT(TagsRelation.tag.distinct()).alias("tag_ids"),
+            )
+            .left_outer_join(
+                TagsRelation,
+                on=(
+                    (TagsRelation.object_id == Beneficiary.id)
+                    & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                    & (TagsRelation.deleted_on.is_null())
+                ),
+            )
+            .where(Beneficiary.id << beneficiary_ids)
+            .dicts()
+        )
+
     if "target" in names:
         dimensions["target"] = []
         for target_type in TargetType:
@@ -302,7 +326,11 @@ def compute_beneficiary_reach(base_id):
     )
     for fact in facts:
         fact["reach_type"] = BeneficiaryReachType(fact["reach_type"])
-    return DataCube(facts=facts, dimensions={}, type="BeneficiaryReachData")
+    dimensions = _generate_dimensions("beneficiary", facts=facts)
+    for b in dimensions["beneficiary"]:
+        b["tag_ids"] = sorted(convert_ids(b["tag_ids"]))
+    dimensions.update(_generate_dimensions("tag", facts=dimensions["beneficiary"]))
+    return DataCube(facts=facts, dimensions=dimensions, type="BeneficiaryReachData")
 
 
 def compute_created_boxes(base_id):

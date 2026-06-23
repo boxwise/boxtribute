@@ -85,7 +85,12 @@ def test_query_beneficiary_reach(client):
         } } }"""
     data = assert_successful_request(client, query, endpoint="graphql")
     assert data == {
-        "dimensions": {"beneficiary": None, "tag": None},
+        "dimensions": {
+            "beneficiary": [
+                {"age": 31, "gender": "Male", "id": 1, "tagIds": [1, 3]},
+            ],
+            "tag": [{"id": 1}, {"id": 3}],
+        },
         "facts": [
             {
                 "beneficiaryId": 1,

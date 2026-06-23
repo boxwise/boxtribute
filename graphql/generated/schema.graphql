@@ -209,7 +209,7 @@ type BeneficiaryReachDimensions {
 
 type BeneficiaryDimensionInfo {
   id: Int!
-  age: Int!
+  age: Int
   tagIds: [Int!]
   gender: HumanGender!
 }
