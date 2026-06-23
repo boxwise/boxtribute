@@ -1,20 +1,18 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { gql, useQuery } from "@apollo/client";
+import { useSearchParams } from "react-router-dom";
 import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
 
 import BoxtributeLogo from "./BoxtributeLogo";
-import StockDataFilter from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockDataFilter";
+import StockOverviewRingFilterContainer from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockOverviewRingFilterContainer";
 import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
-import {
-  tagFilterIncludedValuesVar,
-  tagFilterExcludedValuesVar,
-} from "@boxtribute/shared-components/statviz/state/filter";
-import { tagToFilterValue } from "@boxtribute/shared-components/statviz/components/filter/TagFilter";
 import BoxesOrItemsSelect, {
   boxesOrItemsFilterValues,
+  type BoxesOrItems,
 } from "@boxtribute/shared-components/statviz/components/filter/BoxesOrItemsSelect";
+import { DEFAULT_STOCK_FILTERS } from "@boxtribute/shared-components/statviz/utils/dashboardFilters";
 
 const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
@@ -95,16 +93,13 @@ function App() {
   const code = searchParams.get("code");
   const view = searchParams.get("view");
 
-  const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
+  const [routerSearchParams] = useSearchParams();
+  const boiUrlId = routerSearchParams.get("boi");
+  const boxesOrItems: BoxesOrItems = (
+    boxesOrItemsFilterValues.find((f) => f.urlId === boiUrlId) ?? boxesOrItemsFilterValues[0]
+  ).value;
 
-  // Get tag filters.
-  useEffect(() => {
-    const tags = data?.resolveLink?.data[0].dimensions?.tag?.map((t) => tagToFilterValue(t!));
-    if (tags?.length) {
-      tagFilterIncludedValuesVar(tags);
-      tagFilterExcludedValuesVar(tags);
-    }
-  }, [data?.resolveLink?.data]);
+  const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
 
   if (error) {
     return <ErrorPage>{matchErrorMessage(error.message)}</ErrorPage>;
@@ -168,7 +163,11 @@ function App() {
         </WrapItem>
       </Flex>
       {/* TODO: Match view with view returned from data once other views are implemented. */}
-      <StockDataFilter stockOverview={data.resolveLink.data[0]} />
+      <StockOverviewRingFilterContainer
+        stockOverview={data.resolveLink.data[0]}
+        appliedFilters={DEFAULT_STOCK_FILTERS}
+        boxesOrItems={boxesOrItems}
+      />
     </>
   );
 }
