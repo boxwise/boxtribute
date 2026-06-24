@@ -28,6 +28,19 @@ import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTag
 import { filterByTags } from "../../../utils/filterByTags";
 import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
+import { IFilterValue } from "../../filter/ValueFilter";
+
+export interface IShipmentDirectionFilter {
+  value: "outgoing" | "incoming";
+}
+
+export const shipmentDirectionOptions: (IFilterValue & IShipmentDirectionFilter)[] = [
+  { value: "outgoing", label: "Outgoing", urlId: "out" },
+  { value: "incoming", label: "Incoming", urlId: "in" },
+];
+
+// sdir = shipment direction
+export const shipmentDirectionUrlId = "sdir";
 
 interface IMovedBoxesFilterContainerProps {
   movedBoxes: MovedBoxes;
@@ -40,6 +53,12 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     boxesOrItemsFilterValues,
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
+  );
+
+  const { filterValue: directionFilter } = useValueFilter(
+    shipmentDirectionOptions,
+    shipmentDirectionOptions[0],
+    shipmentDirectionUrlId,
   );
 
   const productsFilterValues = useReactiveVar(productFilterValuesVar);
@@ -145,5 +164,11 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     facts: filteredFacts,
     dimensions: movedBoxes?.dimensions,
   };
-  return <MovedBoxesCharts movedBoxes={filteredMovedBoxesCube} boxesOrItems={filterValue.value} />;
+  return (
+    <MovedBoxesCharts
+      movedBoxes={filteredMovedBoxesCube}
+      boxesOrItems={filterValue.value}
+      isIncoming={directionFilter.value === "incoming"}
+    />
+  );
 }

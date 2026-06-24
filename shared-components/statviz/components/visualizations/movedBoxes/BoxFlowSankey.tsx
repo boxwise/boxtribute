@@ -27,19 +27,29 @@ const outgoingNode = {
   name: "outgoing boxes",
   nodeColor: "#1fcc30",
 };
+const incomingNode = {
+  id: "incomingYp9WMJiNbEvi",
+  name: "incoming boxes",
+  nodeColor: "#1fcc30",
+};
 
 interface IBoxFlowSankeyProps {
   width: string;
   height: string;
   data: Partial<MovedBoxes>;
   boxesOrItems: BoxesOrItemsCount;
+  isIncoming: boolean;
 }
 
-export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBoxFlowSankeyProps) {
+export default function BoxFlowSankey({
+  width,
+  height,
+  data,
+  boxesOrItems,
+  isIncoming,
+}: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
 
-  outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
-  const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
   const movedBoxesFacts = data?.facts as MovedBoxesResult[];
 
   const movedBoxes = tidy(
@@ -62,6 +72,87 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
       by: { id: "targetId" },
     }),
   );
+
+  // ── Incoming mode ───────────────────────────────────────────────────────────
+  if (isIncoming) {
+    incomingNode.name = boxesOrItems === "boxesCount" ? "incoming boxes" : "incoming items";
+    const heading = boxesOrItems === "boxesCount" ? "incoming boxes" : "incoming items";
+
+    const incomingBoxes = movedBoxes.filter((e) => e.type === "IncomingShipment");
+
+    const links = [
+      // org → shipmentNode
+      ...incomingBoxes.map((movedBox) => ({
+        source: movedBox.targetId,
+        target: shipmentNode.id,
+        value: movedBox.count,
+        isNegative: movedBox.isNegative,
+      })),
+      // shipmentNode → incomingNode (one aggregated link)
+      ...(incomingBoxes.length > 0
+        ? [
+            {
+              source: shipmentNode.id,
+              target: incomingNode.id,
+              value: incomingBoxes.reduce((acc, b) => acc + b.count, 0),
+              isNegative: false,
+            },
+          ]
+        : []),
+    ];
+
+    const nodes = [
+      incomingNode,
+      shipmentNode,
+      ...incomingBoxes.map((movedBox) => {
+        const getName = () => {
+          if (movedBox.organisationName) {
+            return `${movedBox.name} | ${movedBox.organisationName} `;
+          }
+          return movedBox.name;
+        };
+        return {
+          id: movedBox.targetId,
+          name: movedBox.isNegative ? `${getName()} removed` : getName(),
+          nodeColor: movedBox.isNegative
+            ? "red"
+            : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+        };
+      }),
+    ];
+
+    const chartData = { nodes, links } as ISankeyData;
+    const chartProps = { width, height, data: chartData };
+
+    if (chartData.nodes.length < 2) {
+      return <NoDataCard header={heading} />;
+    }
+
+    return (
+      <Card>
+        <VisHeader
+          onExport={onExport}
+          defaultHeight={500}
+          defaultWidth={1000}
+          heading={heading}
+          chartProps={chartProps}
+          maxWidthPx={1000}
+        />
+        <CardBody>
+          <Wrap>
+            <WrapItem>
+              <Targetfilter />
+            </WrapItem>
+          </Wrap>
+          <SankeyChart {...chartProps} />
+        </CardBody>
+      </Card>
+    );
+  }
+
+  // ── Outgoing mode (original behaviour) ──────────────────────────────────────
+  outgoingNode.name = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
+  const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
 
   const movedBoxesByTargetType = tidy(
     movedBoxes,
