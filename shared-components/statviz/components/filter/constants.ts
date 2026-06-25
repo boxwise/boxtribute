@@ -52,4 +52,3 @@ export const genders: IFilterValue[] = [
     urlId: "women",
   },
 ];
-
