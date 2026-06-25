@@ -38,9 +38,7 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
 
   const appliedFilters = useMemo(
     () => readMovementFiltersFromUrl(searchParams, products, categories, tags),
-    // We intentionally only re-derive when URL params change, not when option arrays change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchParams],
+    [searchParams, products, categories, tags],
   );
 
   const boxesOrItems: BoxesOrItems =

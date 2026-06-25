@@ -32,9 +32,7 @@ export default function Demographics({ tags }: DemographicsProps) {
 
   const appliedFilters = useMemo(
     () => readDemographicsFiltersFromUrl(searchParams, tags),
-    // We intentionally only re-derive when URL params change, not when option arrays change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchParams],
+    [searchParams, tags],
   );
 
   const handleApplyFilters = useCallback(

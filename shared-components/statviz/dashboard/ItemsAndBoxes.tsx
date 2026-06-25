@@ -49,9 +49,7 @@ export default function ItemsAndBoxes({
 
   const appliedFilters = useMemo(
     () => readStockFiltersFromUrl(searchParams, products, categories, locations, tags),
-    // We intentionally only re-derive when URL params change, not when option arrays change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [searchParams],
+    [searchParams, products, categories, locations, tags],
   );
 
   const boxesOrItems: BoxesOrItems =
