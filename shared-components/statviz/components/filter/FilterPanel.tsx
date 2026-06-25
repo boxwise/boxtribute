@@ -33,10 +33,10 @@ export function FilterPanel({
   return (
     <>
       <IconButton
-        icon={<MdFilterList color={"black"} size={25} />}
-        aria-label="Open ${label}"
+        icon={<MdFilterList color="black" size={25} />}
+        aria-label={`Open ${label}`}
         size="md"
-        data-testid="${label.replaceAll(' ', '').lower()}-drawer-button"
+        data-testid={`${label.replaceAll(" ", "").toLowerCase()}-drawer-button`}
         onClick={onOpen}
       />
       <Drawer isOpen={isOpen} onClose={onClose} placement={placement} size={size}>
