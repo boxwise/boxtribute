@@ -1,4 +1,5 @@
 from auth import mock_user_for_request
+from boxtribute_server.enums import HumanGender
 from utils import assert_successful_request
 
 
@@ -82,6 +83,8 @@ def test_base_query(
                     tags {{ id }}
                     beneficiaryFigures {{
                         averageFamilySize
+                        averageFamilyHeadGender
+                        averageFamilyHeadPercentage
                     }}
                     distributionSpots {{ id }}
                     distributionEvents {{ id }}
@@ -105,6 +108,8 @@ def test_base_query(
         ],
         "beneficiaryFigures": {
             "averageFamilySize": 5 / 3,
+            "averageFamilyHeadGender": HumanGender.Male.name,
+            "averageFamilyHeadPercentage": 2 / 3,
         },
         "distributionSpots": [{"id": str(distribution_spot["id"])}],
         "distributionEvents": [

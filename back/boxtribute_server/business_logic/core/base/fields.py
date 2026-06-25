@@ -1,4 +1,5 @@
 from ariadne import ObjectType
+from peewee import fn
 
 from ....authz import authorize
 from ....enums import (
@@ -184,6 +185,24 @@ def resolve_base_instock_items_count(base_obj, info):
 @base.field("beneficiaryFigures")
 def resolve_base_beneficiary_figures(base_obj, _):
     base_id = base_obj.id
+
+    # Family head gender (select first row even though there's only one in total)
+    gender_distribution = (
+        Beneficiary.select(
+            fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Male, 1, 0)).alias("Male"),
+            fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Female, 1, 0)).alias(
+                "Female"
+            ),
+            fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Diverse, 1, 0)).alias(
+                "Diverse"
+            ),
+        )
+        .where(Beneficiary.family_head.is_null(), Beneficiary.base == base_id)
+        .dicts()
+    )[0]
+    # Sort by value (i.e. index 1 of dict element) and select largest
+    gender_majority = sorted(gender_distribution, key=lambda e: e[1])[0]
+
     # Average family size
     number_of_family_heads = (
         Beneficiary.select()
@@ -194,8 +213,9 @@ def resolve_base_beneficiary_figures(base_obj, _):
         Beneficiary.select().where(Beneficiary.base == base_id).count()
     )
     return {
-        "average_family_head_gender": HumanGender.Female,
-        "average_family_head_percentage": 0,
+        "average_family_head_gender": HumanGender[gender_majority],
+        "average_family_head_percentage": gender_distribution[gender_majority]
+        / number_of_family_heads,
         "average_family_size": number_of_beneficiaries / number_of_family_heads,
         "average_items_per_visit_per_beneficiary": 0,
         "average_total_items_per_beneficiary": 0,
