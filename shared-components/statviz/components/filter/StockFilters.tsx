@@ -10,23 +10,7 @@ import type {
   StockAppliedFilters,
 } from "../../utils/dashboardFilters";
 import { genders } from "./constants";
-import type { IFilterValue } from "./ValueFilter";
-
-function toFilterValues(items: { id: number; name: string }[]): IFilterValue[] {
-  return items.map((item) => ({
-    value: String(item.id),
-    label: item.name,
-    urlId: String(item.id),
-  }));
-}
-
-function toProductFilterValues(products: IProductOption[]): IFilterValue[] {
-  return products.map((p) => ({
-    value: String(p.id),
-    label: p.gender ? `${p.name} (${p.gender})` : p.name,
-    urlId: String(p.id),
-  }));
-}
+import { toFilterValues, toProductFilterValues } from "../../utils/dashboardFilters";
 
 interface StockFiltersProps {
   isOpen: boolean;

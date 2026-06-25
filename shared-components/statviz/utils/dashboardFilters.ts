@@ -1,6 +1,7 @@
 import { date2String } from "../../utils/helpers";
 import { subMonths } from "date-fns";
 import { ProductGender } from "../../../graphql/types";
+import type { IFilterValue } from "../components/filter/ValueFilter";
 
 // ---------------------------------------------------------------------------
 // Option types for filter dropdowns
@@ -372,4 +373,20 @@ export function writeDemographicsFiltersToUrl(
     DEMOGRAPHICS_URL_PARAMS.excludedTags,
     serializeIds(filters.excludedTags.map((t) => t.id)),
   );
+}
+
+export function toFilterValues(items: { id: number; name: string }[]): IFilterValue[] {
+  return items.map((item) => ({
+    value: String(item.id),
+    label: item.name,
+    urlId: String(item.id),
+  }));
+}
+
+export function toProductFilterValues(products: IProductOption[]): IFilterValue[] {
+  return products.map((p) => ({
+    value: String(p.id),
+    label: p.gender ? `${p.name} (${p.gender})` : p.name,
+    urlId: String(p.id),
+  }));
 }
