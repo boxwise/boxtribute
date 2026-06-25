@@ -1,5 +1,5 @@
-import { graphql } from "../../../../../graphql/graphql";
-import { TAG_FRAGMENT } from "../../../queries/fragments";
+import { graphql } from "../../../graphql/graphql";
+import { TAG_FRAGMENT } from "./fragments";
 
 export const STOCK_QUERY = graphql(
   `
@@ -38,3 +38,4 @@ export const STOCK_QUERY = graphql(
   `,
   [TAG_FRAGMENT],
 );
+

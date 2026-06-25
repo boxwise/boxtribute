@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import StockOverviewRingFilterContainer from "./StockOverviewRingFilterContainer";
-import { STOCK_QUERY } from "./StockDataContainer";
+import { STOCK_QUERY } from "../../../queries/queries";
 import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 
