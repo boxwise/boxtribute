@@ -1,10 +1,13 @@
 import { Box } from "@chakra-ui/react";
-import { useReactiveVar } from "@apollo/client";
+import { makeVar, useReactiveVar } from "@apollo/client";
 import { ResultOf } from "gql.tada";
 import MultiSelectFilter from "./MultiSelectFilter";
 import useMultiSelectFilter from "../../hooks/useMultiSelectFilter";
-import { ITagFilterValue, tagFilterIncludedValuesVar } from "../../state/filter";
+import { ITagFilterValue } from "../../state/filter";
 import { TAG_DIMENSION_INFO_FRAGMENT } from "../../queries/fragments";
+
+export const tagFilterIncludedValuesVar = makeVar<ITagFilterValue[]>([]);
+export const tagFilterExcludedValuesVar = makeVar<ITagFilterValue[]>([]);
 
 export const tagFilterId = "tags";
 export const tagFilterIncludedId = tagFilterId;

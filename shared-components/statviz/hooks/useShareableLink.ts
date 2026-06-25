@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 // TODO: Move common utils to shared-components, use alias for imports.
 import { graphql } from "../../../graphql/graphql";
 import { useNotification } from "../../../front/src/hooks/useNotification";
-import { useMutation, useReactiveVar } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import useValueFilter from "./useValueFilter";
 import {
   boxesOrItemsFilterValues,
@@ -12,9 +12,6 @@ import {
   defaultBoxesOrItems,
   IBoxesOrItemsFilter,
 } from "../components/filter/BoxesOrItemsSelect";
-import { tagFilterIncludedId, tagFilterExcludedId } from "../components/filter/TagFilter";
-import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../state/filter";
-import useMultiSelectFilter from "./useMultiSelectFilter";
 
 const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
 
@@ -55,15 +52,6 @@ export default function useShareableLink({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
-  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
-      includedTagFilterValues,
-      tagFilterIncludedId,
-      excludedTagFilterValues,
-      tagFilterExcludedId,
-    );
   const [expirationDate, setExpirationDate] = useState<string | undefined>();
 
   // Remove the JSX from the hook
@@ -140,8 +128,6 @@ export default function useShareableLink({
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-    includedTags,
-    excludedTags,
     boi,
     expirationDate,
   };
