@@ -1,6 +1,38 @@
 import { graphql } from "../../../graphql/graphql";
 import { TAG_FRAGMENT } from "./fragments";
 
+export const CREATED_BOXES_QUERY = graphql(`
+  query createdBoxes($baseId: Int!) {
+    createdBoxes(baseId: $baseId) {
+      facts {
+        boxesCount
+        productId
+        categoryId
+        createdOn
+        tagIds
+        gender
+        itemsCount
+      }
+      dimensions {
+        product {
+          id
+          name
+          gender
+        }
+        category {
+          id
+          name
+        }
+        tag {
+          id
+          name
+          color
+        }
+      }
+    }
+  }
+`);
+
 export const STOCK_QUERY = graphql(
   `
     query stockOverview($baseId: Int!) {

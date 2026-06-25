@@ -2,52 +2,20 @@ import { Spinner } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
-import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";
-import { graphql } from "../../../../../graphql/graphql";
+import BoxCreationCalendarFilterContainer from "./BoxCreationCalendarFilterContainer";
+import { CREATED_BOXES_QUERY } from "../../../queries/queries";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 
-export const CREATED_BOXES_QUERY = graphql(`
-  query createdBoxes($baseId: Int!) {
-    createdBoxes(baseId: $baseId) {
-      facts {
-        boxesCount
-        productId
-        categoryId
-        createdOn
-        tagIds
-        gender
-        itemsCount
-      }
-      dimensions {
-        product {
-          id
-          name
-          gender
-        }
-        category {
-          id
-          name
-        }
-        tag {
-          id
-          name
-          color
-        }
-      }
-    }
-  }
-`);
-
-interface CreatedBoxesDataContainerProps {
+interface BoxCreationCalendarDataContainerProps {
   appliedFilters: StockAppliedFilters;
   boxesOrItems: BoxesOrItems;
 }
 
-export default function CreatedBoxesDataContainer({
+export default function BoxCreationCalendarDataContainer({
   appliedFilters,
   boxesOrItems,
-}: CreatedBoxesDataContainerProps) {
+}: BoxCreationCalendarDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(CREATED_BOXES_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
@@ -63,7 +31,7 @@ export default function CreatedBoxesDataContainer({
     return <ErrorCard error={predefinedErrors.noData} />;
   }
   return (
-    <CreatedBoxesFilterContainer
+    <BoxCreationCalendarFilterContainer
       createdBoxes={data.createdBoxes!}
       appliedFilters={appliedFilters}
       boxesOrItems={boxesOrItems}

@@ -1,44 +1,39 @@
-import { Box } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
-import CreatedBoxes from "./CreatedBoxes";
+import { subYears } from "date-fns";
+import BoxCreationCalendar from "./BoxCreationCalendar";
 import { filterListByInterval } from "../../../../utils/helpers";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
 
-interface ICreatedBoxesFilterContainerProps {
+interface BoxCreationCalendarFilterContainerProps {
   createdBoxes: CreatedBoxesType;
   appliedFilters: StockAppliedFilters;
   boxesOrItems: BoxesOrItems;
-  /** Optional time interval for filtering by creation date */
-  interval?: { start: Date; end: Date };
 }
 
-export default function CreatedBoxesFilterContainer({
+export default function BoxCreationCalendarFilterContainer({
   createdBoxes,
   appliedFilters,
   boxesOrItems,
-  interval,
-}: ICreatedBoxesFilterContainerProps) {
+}: BoxCreationCalendarFilterContainerProps) {
   const { products, genders, categories, includedTags, excludedTags } = appliedFilters;
 
-  const createdBoxesFacts = useMemo(() => {
+  // Filter to past 12 months
+  const past12MonthsFacts = useMemo(() => {
+    const interval = { start: subYears(new Date(), 1), end: new Date() };
     try {
-      if (interval) {
-        return filterListByInterval(
-          (createdBoxes?.facts as CreatedBoxesResult[]) ?? [],
-          "createdOn",
-          interval,
-        );
-      }
-      return (createdBoxes?.facts as CreatedBoxesResult[]) ?? [];
+      return filterListByInterval(
+        (createdBoxes?.facts as CreatedBoxesResult[]) ?? [],
+        "createdOn",
+        interval,
+      );
     } catch {
-      // TODO useError
+      return [];
     }
-    return [];
-  }, [interval, createdBoxes]);
+  }, [createdBoxes]);
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
@@ -54,31 +49,28 @@ export default function CreatedBoxesFilterContainer({
       filters.push(filter((fact: CreatedBoxesResult) => categoryIds.has(fact.categoryId!)));
     }
 
-    let filtered = createdBoxesFacts;
+    let filtered = past12MonthsFacts;
     if (filters.length > 0) {
       // @ts-expect-error spread of tidy filter functions not fully typed
-      filtered = tidy(createdBoxesFacts, ...filters) as CreatedBoxesResult[];
+      filtered = tidy(past12MonthsFacts, ...filters) as CreatedBoxesResult[];
     }
 
-    // Apply tag filter (included/excluded)
     filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
-  }, [createdBoxesFacts, genders, products, categories, includedTags, excludedTags]);
+  }, [past12MonthsFacts, genders, products, categories, includedTags, excludedTags]);
 
-  const filteredCreatedBoxesCube = {
+  const filteredData = {
     facts: filteredFacts,
     dimensions: createdBoxes?.dimensions,
   };
 
   return (
-    <Box display="flex" justifyContent="center">
-      <CreatedBoxes
-        width="700px"
-        height="400px"
-        boxesOrItems={boxesOrItems}
-        data={filteredCreatedBoxesCube}
-      />
-    </Box>
+    <BoxCreationCalendar
+      width="100%"
+      height="200px"
+      boxesOrItems={boxesOrItems}
+      data={filteredData}
+    />
   );
 }
