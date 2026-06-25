@@ -9,7 +9,7 @@ import type {
   ITagOption,
   StockAppliedFilters,
 } from "../../utils/dashboardFilters";
-import { genders } from "./GenderProductFilter";
+import { genders } from "./constants";
 import type { IFilterValue } from "./ValueFilter";
 
 function toFilterValues(items: { id: number; name: string }[]): IFilterValue[] {

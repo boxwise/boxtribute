@@ -7,6 +7,8 @@ import { ITagFilterValue, tagFilterIncludedValuesVar } from "../../state/filter"
 import { TAG_DIMENSION_INFO_FRAGMENT } from "../../queries/fragments";
 
 export const tagFilterId = "tags";
+export const tagFilterIncludedId = tagFilterId;
+export const tagFilterExcludedId = "notags";
 
 export const tagToFilterValue = (
   tag: ResultOf<typeof TAG_DIMENSION_INFO_FRAGMENT>,

@@ -7,7 +7,6 @@ import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
-import Targetfilter from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../../queries/fragments";
 
@@ -185,11 +184,6 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         maxWidthPx={1000}
       />
       <CardBody>
-        <Wrap>
-          <WrapItem>
-            <Targetfilter />
-          </WrapItem>
-        </Wrap>
         <SankeyChart {...chartProps} />
         <Wrap align="center">
           <WrapItem>

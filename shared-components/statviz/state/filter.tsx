@@ -1,13 +1,5 @@
 import { makeVar } from "@apollo/client";
 import { IFilterValue } from "../components/filter/ValueFilter";
-import { ProductGender, TargetType } from "../../../graphql/types";
-
-export interface IProductFilterValue extends IFilterValue {
-  id: number;
-  name: string;
-  gender: ProductGender;
-}
-export const productFilterValuesVar = makeVar<IProductFilterValue[]>([]);
 
 export interface ITagFilterValue extends IFilterValue {
   color: string;
@@ -18,15 +10,3 @@ export const tagFilterIncludedValuesVar = makeVar<ITagFilterValue[]>([]);
 
 // Reactive variable for excluded tags (tags to filter data OUT)
 export const tagFilterExcludedValuesVar = makeVar<ITagFilterValue[]>([]);
-
-export interface ITargetFilterValue extends IFilterValue {
-  id: string;
-  type: TargetType;
-}
-export const targetFilterValuesVar = makeVar<ITargetFilterValue[]>([]);
-
-export interface ICategoryFilterValue extends IFilterValue {
-  id: number;
-  name: string;
-}
-export const categoryFilterValuesVar = makeVar<ICategoryFilterValue[]>([]);

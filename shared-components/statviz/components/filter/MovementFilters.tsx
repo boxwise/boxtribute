@@ -8,7 +8,7 @@ import type {
   ITagOption,
   MovementAppliedFilters,
 } from "../../utils/dashboardFilters";
-import { genders } from "./GenderProductFilter";
+import { genders } from "./constants";
 import type { IFilterValue } from "./ValueFilter";
 
 function toProductFilterValues(products: IProductOption[]): IFilterValue[] {

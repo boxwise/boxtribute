@@ -12,7 +12,7 @@ import {
   defaultBoxesOrItems,
   IBoxesOrItemsFilter,
 } from "../components/filter/BoxesOrItemsSelect";
-import { tagFilterIncludedId, tagFilterExcludedId } from "../components/filter/TabbedTagFilter";
+import { tagFilterIncludedId, tagFilterExcludedId } from "../components/filter/TagFilter";
 import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../state/filter";
 import useMultiSelectFilter from "./useMultiSelectFilter";
 
