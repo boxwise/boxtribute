@@ -20,7 +20,7 @@ import {
   type DemographicsAppliedFilters,
   type ITagOption,
 } from "../utils/dashboardFilters";
-import { FilterPanel } from "./../components/filter/FilterPanel";
+import { FilterPanel } from "../../filter/FilterPanel";
 import { DemographicsFilters } from "./../components/filter/DemographicsFilters";
 
 interface DemographicsProps {

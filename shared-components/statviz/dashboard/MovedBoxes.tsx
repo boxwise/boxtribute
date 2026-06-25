@@ -14,7 +14,7 @@ import { useCallback, useMemo } from "react";
 import type React from "react";
 import { useSearchParams } from "react-router-dom";
 import MovedBoxesDataContainer from "../components/visualizations/movedBoxes/MovedBoxesDataContainer";
-import { FilterPanel } from "./../components/filter/FilterPanel";
+import { FilterPanel } from "../../filter/FilterPanel";
 import { MovementFilters } from "./../components/filter/MovementFilters";
 import {
   MOVEMENT_URL_PARAMS,

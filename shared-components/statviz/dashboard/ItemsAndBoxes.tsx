@@ -27,7 +27,7 @@ import {
   type ITagOption,
 } from "../utils/dashboardFilters";
 import type { BoxesOrItems } from "../components/filter/BoxesOrItemsSelect";
-import { FilterPanel } from "./../components/filter/FilterPanel";
+import { FilterPanel } from "../../filter/FilterPanel";
 import { StockFilters } from "./../components/filter/StockFilters";
 
 export type BoxesOrItemsCount = "boxesCount" | "itemsCount";
