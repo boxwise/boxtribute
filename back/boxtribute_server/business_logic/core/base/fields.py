@@ -1,7 +1,13 @@
 from ariadne import ObjectType
 
 from ....authz import authorize
-from ....enums import DistributionEventState, LocationType, TaggableObjectType, TagType
+from ....enums import (
+    DistributionEventState,
+    HumanGender,
+    LocationType,
+    TaggableObjectType,
+    TagType,
+)
 from ....graph_ql.filtering import derive_beneficiary_filter, derive_product_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.beneficiary import Beneficiary
@@ -173,3 +179,26 @@ def resolve_base_instock_boxes_count(base_obj, info):
 @base.field("instockItemsCount")
 def resolve_base_instock_items_count(base_obj, info):
     return info.context["instock_items_count_for_base_loader"].load(base_obj.id)
+
+
+@base.field("beneficiaryFigures")
+def resolve_base_beneficiary_figures(base_obj, _):
+    base_id = base_obj.id
+    # Average family size
+    number_of_family_heads = (
+        Beneficiary.select()
+        .where(Beneficiary.family_head.is_null(), Beneficiary.base == base_id)
+        .count()
+    )
+    number_of_beneficiaries = (
+        Beneficiary.select().where(Beneficiary.base == base_id).count()
+    )
+    return {
+        "average_family_head_gender": HumanGender.Female,
+        "average_family_head_percentage": 0,
+        "average_family_size": number_of_beneficiaries / number_of_family_heads,
+        "average_items_per_visit_per_beneficiary": 0,
+        "average_total_items_per_beneficiary": 0,
+        "new_registrations_last_month": 0,
+        "percentage_without_freeshop_visit_in90_days": 0,
+    }

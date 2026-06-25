@@ -80,6 +80,9 @@ def test_base_query(
                     locations {{ id }}
                     products(filterInput: {{ type: All }}) {{ id }}
                     tags {{ id }}
+                    beneficiaryFigures {{
+                        averageFamilySize
+                    }}
                     distributionSpots {{ id }}
                     distributionEvents {{ id }}
                     distributionEventsBeforeReturnedFromDistributionState {{ id }}
@@ -100,6 +103,9 @@ def test_base_query(
         "locations": [
             {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
         ],
+        "beneficiaryFigures": {
+            "averageFamilySize": 5 / 3,
+        },
         "distributionSpots": [{"id": str(distribution_spot["id"])}],
         "distributionEvents": [
             {"id": str(event["id"])} for event in distro_spot5_distribution_events
