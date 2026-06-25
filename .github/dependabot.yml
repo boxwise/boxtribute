@@ -18,7 +18,6 @@ updates:
         exclude-patterns:
           # Exclude because package versions are v0.x, hence minor updates might contain breaking changes
           - "aiodataloader"
-          - "ariadne"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"

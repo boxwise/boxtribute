@@ -21,7 +21,7 @@ import {
 } from "components/Table/Filter";
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
-import { FilterPanel } from "components/Table/FilterPanel";
+import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { ProductsFilter } from "./ProductsFilter";
 import { ProductsFilterChips } from "./ProductsFilterChips";
