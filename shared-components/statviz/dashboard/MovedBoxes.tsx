@@ -11,6 +11,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
+import type React from "react";
 import { useSearchParams } from "react-router-dom";
 import MovedBoxesDataContainer from "../components/visualizations/movedBoxes/MovedBoxesDataContainer";
 import { FilterPanel } from "./../components/filter/FilterPanel";

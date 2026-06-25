@@ -12,6 +12,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
+import type React from "react";
 import { useSearchParams } from "react-router-dom";
 import CreatedBoxesDataContainer from "../components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 import StockOverviewRingDataContainer from "../components/visualizations/stock/StockOverviewRingDataContainer";
