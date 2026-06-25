@@ -99,7 +99,7 @@ function App() {
   const view = searchParams.get("view");
 
   const [routerSearchParams] = useSearchParams();
-  const boiUrlId = routerSearchParams.get("boi");
+  const boiUrlId = routerSearchParams.get("sboi");
   const boxesOrItems: BoxesOrItems = (
     boxesOrItemsFilterValues.find((f) => f.urlId === boiUrlId) ?? boxesOrItemsFilterValues[0]
   ).value;
