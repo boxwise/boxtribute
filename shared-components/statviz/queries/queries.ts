@@ -38,4 +38,3 @@ export const STOCK_QUERY = graphql(
   `,
   [TAG_FRAGMENT],
 );
-
