@@ -280,14 +280,14 @@ def resolve_base_beneficiary_figures(base_obj, _):
 
     # fmt: off
     return {
-        "average_family_head_gender": HumanGender[gender_majority],
-        "average_family_head_percentage":
+        "major_family_head_gender": HumanGender[gender_majority],
+        "major_family_head_gender_percentage":
             gender_distribution[gender_majority] / number_of_family_heads,
         "average_family_size": number_of_beneficiaries / number_of_family_heads,
         "average_items_per_visit_per_beneficiary": avg_items_per_visit_per_beneficiary,
         "average_total_items_per_beneficiary": avg_total_items_per_beneficiary,
         "new_registrations_last_30_days": nr_registrations,
-        "percentage_without_freeshop_visit_in_90_days":
+        "percentage_without_freeshop_visit_last_90_days":
             number_of_beneficiaries_without_recent_visit / number_of_family_heads,
     }
     # fmt: on

@@ -1275,16 +1275,16 @@ type Beneficiary {
 }
 
 type BeneficiaryFigures {
-  averageFamilyHeadGender: HumanGender!
-  " Value between 0 and 1
-  averageFamilyHeadPercentage: Float!
-  " Number of beneficiaries divided by number of family heads
+  majorFamilyHeadGender: HumanGender!
+  " Value between 0 and 1 "
+  majorFamilyHeadGenderPercentage: Float!
+  " Number of beneficiaries divided by number of family heads "
   averageFamilySize: Float!
   averageItemsPerVisitPerBeneficiary: Float!
   averageTotalItemsPerBeneficiary: Float!
   newRegistrationsLast30Days: Int!
-  " Value between 0 and 1. Relative to number of family heads
-  percentageWithoutFreeshopVisitIn90Days: Float!
+  " Value between 0 and 1. Relative to number of family heads "
+  percentageWithoutFreeshopVisitLast90Days: Float!
 }
 """
 Representation of a transaction executed by a beneficiary (spending or receiving tokens).

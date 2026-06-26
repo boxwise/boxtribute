@@ -83,12 +83,12 @@ def test_base_query(
                     tags {{ id }}
                     beneficiaryFigures {{
                         averageFamilySize
-                        averageFamilyHeadGender
-                        averageFamilyHeadPercentage
+                        majorFamilyHeadGender
+                        majorFamilyHeadGenderPercentage
                         averageItemsPerVisitPerBeneficiary
                         averageTotalItemsPerBeneficiary
                         newRegistrationsLast30Days
-                        percentageWithoutFreeshopVisitIn90Days
+                        percentageWithoutFreeshopVisitLast90Days
                     }}
                     distributionSpots {{ id }}
                     distributionEvents {{ id }}
@@ -112,12 +112,12 @@ def test_base_query(
         ],
         "beneficiaryFigures": {
             "averageFamilySize": 5 / 3,
-            "averageFamilyHeadGender": HumanGender.Male.name,
-            "averageFamilyHeadPercentage": 2 / 3,
+            "majorFamilyHeadGender": HumanGender.Male.name,
+            "majorFamilyHeadGenderPercentage": 2 / 3,
             "averageItemsPerVisitPerBeneficiary": 16 / 4,
             "averageTotalItemsPerBeneficiary": 16 / 2,
             "newRegistrationsLast30Days": 1,
-            "percentageWithoutFreeshopVisitIn90Days": 1,
+            "percentageWithoutFreeshopVisitLast90Days": 1,
         },
         "distributionSpots": [{"id": str(distribution_spot["id"])}],
         "distributionEvents": [
