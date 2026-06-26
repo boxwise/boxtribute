@@ -1,5 +1,4 @@
 import {
-  SimpleGrid,
   useDisclosure,
   Box,
   AccordionItem,
@@ -10,12 +9,14 @@ import {
   HStack,
   Select,
   VStack,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import type React from "react";
 import { useSearchParams } from "react-router-dom";
-import CreatedBoxesDataContainer from "../components/visualizations/createdBoxes/CreatedBoxesDataContainer";
+import BoxCreationCalendarDataContainer from "../components/visualizations/createdBoxes/BoxCreationCalendarDataContainer";
 import StockOverviewRingDataContainer from "../components/visualizations/stock/StockOverviewRingDataContainer";
+import StockOverviewBarsDataContainer from "../components/visualizations/stock/StockOverviewBarsDataContainer";
 import {
   STOCK_URL_PARAMS,
   readStockFiltersFromUrl,
@@ -112,11 +113,15 @@ export default function ItemsAndBoxes({
               appliedFilters={appliedFilters}
               boxesOrItems={boxesOrItems}
             />
-            <CreatedBoxesDataContainer
+            <StockOverviewBarsDataContainer
               appliedFilters={appliedFilters}
               boxesOrItems={boxesOrItems}
             />
           </SimpleGrid>
+          <BoxCreationCalendarDataContainer
+            appliedFilters={appliedFilters}
+            boxesOrItems={boxesOrItems}
+          />
         </VStack>
       </AccordionPanel>
     </AccordionItem>
