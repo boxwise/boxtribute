@@ -46,6 +46,7 @@ def create_location(
         Location.is_donated,
         Location.is_lost,
         Location.is_scrap,
+        Location.visible,
     ],
 )
 def update_location(
@@ -74,6 +75,7 @@ def update_location(
         location.is_donated = box_state == BoxState.Donated
         location.is_lost = box_state == BoxState.Lost
         location.is_scrap = box_state == BoxState.Scrap
+        location.visible = box_state == BoxState.InStock
     if is_stockroom is not None:
         location.is_stockroom = is_stockroom
     if is_shop is not None:
