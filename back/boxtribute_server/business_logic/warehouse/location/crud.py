@@ -30,6 +30,7 @@ def create_location(
         is_donated=box_state == BoxState.Donated,
         is_lost=box_state == BoxState.Lost,
         is_scrap=box_state == BoxState.Scrap,
+        visible=box_state == BoxState.InStock,
         created_on=now,
         created_by=user_id,
     )
