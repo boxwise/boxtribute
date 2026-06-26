@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
-import { subYears } from "date-fns";
+import { useSearchParams } from "react-router-dom";
 import BoxCreationCalendar from "./BoxCreationCalendar";
 import { filterListByInterval } from "../../../../utils/helpers";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
+import { readCalendarFiltersFromUrl } from "../../../utils/dashboardFilters";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
 
@@ -21,9 +22,11 @@ export default function BoxCreationCalendarFilterContainer({
 }: BoxCreationCalendarFilterContainerProps) {
   const { products, genders, categories, includedTags, excludedTags } = appliedFilters;
 
-  // Filter to past 12 months
-  const past12MonthsFacts = useMemo(() => {
-    const interval = { start: subYears(new Date(), 1), end: new Date() };
+  const [searchParams] = useSearchParams();
+  const { dateFrom, dateTo } = readCalendarFiltersFromUrl(searchParams);
+
+  const intervalFacts = useMemo(() => {
+    const interval = { start: new Date(dateFrom), end: new Date(dateTo) };
     try {
       return filterListByInterval(
         (createdBoxes?.facts as CreatedBoxesResult[]) ?? [],
@@ -33,7 +36,7 @@ export default function BoxCreationCalendarFilterContainer({
     } catch {
       return [];
     }
-  }, [createdBoxes]);
+  }, [createdBoxes, dateFrom, dateTo]);
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
@@ -49,16 +52,16 @@ export default function BoxCreationCalendarFilterContainer({
       filters.push(filter((fact: CreatedBoxesResult) => categoryIds.has(fact.categoryId!)));
     }
 
-    let filtered = past12MonthsFacts;
+    let filtered = intervalFacts;
     if (filters.length > 0) {
       // @ts-expect-error spread of tidy filter functions not fully typed
-      filtered = tidy(past12MonthsFacts, ...filters) as CreatedBoxesResult[];
+      filtered = tidy(intervalFacts, ...filters) as CreatedBoxesResult[];
     }
 
     filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
-  }, [past12MonthsFacts, genders, products, categories, includedTags, excludedTags]);
+  }, [intervalFacts, genders, products, categories, includedTags, excludedTags]);
 
   const filteredData = {
     facts: filteredFacts,

@@ -1,13 +1,19 @@
-import { Card, CardBody } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { Card, CardBody, HStack, Input, Text } from "@chakra-ui/react";
+import { useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { groupBy, sum, summarize, tidy, map } from "@tidyjs/tidy";
-import { format, subYears, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import CalendarChart from "../../nivo/CalendarChart";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
+import {
+  readCalendarFiltersFromUrl,
+  writeCalendarFiltersToUrl,
+} from "../../../utils/dashboardFilters";
+import { date2String } from "../../../../utils/helpers";
 
 interface BoxCreationCalendarProps {
   width: string;
@@ -24,10 +30,26 @@ export default function BoxCreationCalendar({
 }: BoxCreationCalendarProps) {
   const onExport = getOnExport(CalendarChart);
 
-  const now = new Date();
-  const fromDate = subYears(now, 1);
-  const from = format(fromDate, "yyyy-MM-dd");
-  const to = format(now, "yyyy-MM-dd");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { dateFrom: from, dateTo: to } = readCalendarFiltersFromUrl(searchParams);
+
+  const handleFromChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newParams = new URLSearchParams(searchParams);
+      writeCalendarFiltersToUrl({ dateFrom: e.target.value, dateTo: to }, newParams);
+      setSearchParams(newParams);
+    },
+    [searchParams, setSearchParams, to],
+  );
+
+  const handleToChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newParams = new URLSearchParams(searchParams);
+      writeCalendarFiltersToUrl({ dateFrom: from, dateTo: e.target.value }, newParams);
+      setSearchParams(newParams);
+    },
+    [searchParams, setSearchParams, from],
+  );
 
   const calendarData = useMemo(() => {
     const facts = (data?.facts as CreatedBoxesResult[]) ?? [];
@@ -71,6 +93,27 @@ export default function BoxCreationCalendar({
         chartProps={chartProps}
       />
       <CardBody>
+        <HStack mb={4} spacing={2} align="center">
+          <Text>From</Text>
+          <Input
+            type="date"
+            size="sm"
+            value={from}
+            max={to}
+            onChange={handleFromChange}
+            width="auto"
+          />
+          <Text>to</Text>
+          <Input
+            type="date"
+            size="sm"
+            value={to}
+            min={from}
+            max={date2String(new Date())}
+            onChange={handleToChange}
+            width="auto"
+          />
+        </HStack>
         <CalendarChart {...chartProps} />
       </CardBody>
     </Card>
