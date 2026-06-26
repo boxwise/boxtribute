@@ -1,7 +1,7 @@
 import { Card, CardBody } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { groupBy, sum, summarize, tidy, map } from "@tidyjs/tidy";
-import { format, subYears } from "date-fns";
+import { format, subYears, parseISO } from "date-fns";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import CalendarChart from "../../nivo/CalendarChart";
@@ -36,7 +36,7 @@ export default function BoxCreationCalendar({
       facts.filter((f) => f.createdOn !== null),
       map((row) => ({
         ...row,
-        createdOn: String(row.createdOn),
+        createdOn: format(parseISO(String(row.createdOn)), "yyyy-MM-dd"),
       })),
       groupBy("createdOn", summarize({ value: sum(boxesOrItems) })),
       map((row) => ({
