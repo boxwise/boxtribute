@@ -8,6 +8,7 @@ from boxtribute_server.business_logic.metrics.crud import (
     number_of_active_users_between,
 )
 from boxtribute_server.cli.service import ServiceBase
+from boxtribute_server.enums import HumanGender
 from utils import assert_successful_request
 
 
@@ -253,3 +254,41 @@ def test_number_of_active_users_between(
     mock_service.get_users.side_effect = ValueError()
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
     assert get_data_for_number_of_active_users() == ([], [])
+
+
+def test_beneficiary_figures(client, mocker):
+    test_id = 1
+    query = f"""query {{
+                beneficiaryFigures(baseId: {test_id}) {{
+                    averageFamilySize
+                    majorFamilyHeadGender
+                    majorFamilyHeadGenderPercentage
+                    averageItemsPerVisitPerBeneficiary
+                    averageTotalItemsPerBeneficiary
+                    newRegistrationsLast30Days
+                    percentageWithoutFreeshopVisitLast90Days
+                }} }}"""
+
+    figures = assert_successful_request(client, query)
+    assert figures == {
+        "averageFamilySize": 5 / 3,
+        "majorFamilyHeadGender": HumanGender.Male.name,
+        "majorFamilyHeadGenderPercentage": 2 / 3,
+        "averageItemsPerVisitPerBeneficiary": 16 / 4,
+        "averageTotalItemsPerBeneficiary": 16 / 2,
+        "newRegistrationsLast30Days": 1,
+        "percentageWithoutFreeshopVisitLast90Days": 1,
+    }
+
+    mock_user_for_request(mocker, base_ids=[4])
+    query = query.replace("baseId: 1", "baseId: 4")
+    figures = assert_successful_request(client, query)
+    assert figures == {
+        "averageFamilySize": 0.0,
+        "majorFamilyHeadGender": HumanGender.Diverse.name,
+        "majorFamilyHeadGenderPercentage": 0.0,
+        "averageItemsPerVisitPerBeneficiary": 0.0,
+        "averageTotalItemsPerBeneficiary": 0.0,
+        "newRegistrationsLast30Days": 0,
+        "percentageWithoutFreeshopVisitLast90Days": 0.0,
+    }
