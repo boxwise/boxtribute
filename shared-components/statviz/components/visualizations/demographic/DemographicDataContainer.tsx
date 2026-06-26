@@ -6,6 +6,7 @@ import { graphql } from "../../../../../graphql/graphql";
 import DemographicFilterContainer from "./DemographicFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import NoDataCard from "../../NoDataCard";
+import type { DemographicsAppliedFilters } from "../../../utils/dashboardFilters";
 
 export const DEMOGRAPHIC_QUERY = graphql(`
   query BeneficiaryDemographics($baseId: Int!) {
@@ -28,7 +29,13 @@ export const DEMOGRAPHIC_QUERY = graphql(`
   }
 `);
 
-export default function DemographicDataContainer() {
+interface DemographicDataContainerProps {
+  appliedFilters: DemographicsAppliedFilters;
+}
+
+export default function DemographicDataContainer({
+  appliedFilters,
+}: DemographicDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(DEMOGRAPHIC_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
@@ -51,5 +58,10 @@ export default function DemographicDataContainer() {
       />
     );
   }
-  return <DemographicFilterContainer demographics={data.beneficiaryDemographics} />;
+  return (
+    <DemographicFilterContainer
+      demographics={data.beneficiaryDemographics}
+      appliedFilters={appliedFilters}
+    />
+  );
 }
