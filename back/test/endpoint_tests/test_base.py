@@ -1,5 +1,4 @@
 from auth import mock_user_for_request
-from boxtribute_server.enums import HumanGender
 from utils import assert_successful_request
 
 
@@ -101,15 +100,6 @@ def test_base_query(
         "locations": [
             {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
         ],
-        "beneficiaryFigures": {
-            "averageFamilySize": 5 / 3,
-            "majorFamilyHeadGender": HumanGender.Male.name,
-            "majorFamilyHeadGenderPercentage": 2 / 3,
-            "averageItemsPerVisitPerBeneficiary": 16 / 4,
-            "averageTotalItemsPerBeneficiary": 16 / 2,
-            "newRegistrationsLast30Days": 1,
-            "percentageWithoutFreeshopVisitLast90Days": 1,
-        },
         "distributionSpots": [{"id": str(distribution_spot["id"])}],
         "distributionEvents": [
             {"id": str(event["id"])} for event in distro_spot5_distribution_events

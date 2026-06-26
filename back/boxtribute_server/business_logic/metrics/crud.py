@@ -464,7 +464,8 @@ def beneficiary_figures(base_id):
     )
     avg_total_items_per_beneficiary = (
         Transaction.select(
-            fn.SUM(Visits.c.number_of_items) / fn.COUNT(Visits.c.beneficiary.distinct())
+            fn.SUM(Visits.c.number_of_items)
+            / fn.IFNULL(fn.COUNT(Visits.c.beneficiary.distinct()), 0)
         )
         .from_(Visits)
         .scalar()
