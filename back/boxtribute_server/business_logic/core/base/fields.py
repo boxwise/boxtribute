@@ -234,13 +234,12 @@ def resolve_base_beneficiary_figures(base_obj, _):
     avg_items_per_visit_per_beneficiary = (
         Transaction.select(fn.AVG(Visits.c.number_of_items)).from_(Visits).scalar()
     )
-    TotalItems = (
-        Transaction.select(fn.SUM(Visits.c.number_of_items).alias("total"))
-        .from_(Visits)
-        .group_by(Visits.c.beneficiary)
-    )
     avg_total_items_per_beneficiary = (
-        Transaction.select(fn.AVG(TotalItems.c.total)).from_(TotalItems).scalar()
+        Transaction.select(
+            fn.SUM(Visits.c.number_of_items) / fn.COUNT(Visits.c.beneficiary.distinct())
+        )
+        .from_(Visits)
+        .scalar()
     )
 
     return {
