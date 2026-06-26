@@ -277,6 +277,7 @@ def test_query_moved_boxes(
     another_base,
     default_organisation,
     another_organisation,
+    mocker,
 ):
     query = """query { movedBoxes(baseId: 1) {
         facts {
@@ -342,7 +343,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": base_name,
+                "targetId": f"going-to-{base_name}",
                 "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [],
@@ -356,7 +357,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": base_name,
+                "targetId": f"going-to-{base_name}",
                 "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [3],
@@ -370,7 +371,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": base_name,
+                "targetId": f"going-to-{base_name}",
                 "organisationName": org_name,
                 "movedOn": date.today().isoformat(),
                 "tagIds": [],
@@ -393,14 +394,14 @@ def test_query_moved_boxes(
         "dimensions": {
             "target": [
                 {
+                    "id": f"going-to-{base_name}",
+                    "name": base_name,
+                    "type": TargetType.OutgoingShipment.name,
+                },
+                {
                     "id": location_name,
                     "name": location_name,
                     "type": TargetType.OutgoingLocation.name,
-                },
-                {
-                    "id": base_name,
-                    "name": base_name,
-                    "type": TargetType.Shipment.name,
                 },
                 {
                     "id": BoxState.Lost.name,
@@ -431,7 +432,42 @@ def test_query_moved_boxes(
     }
     for base_id, result in enumerate(results[1:], start=2):
         assert result["base_id"] == base_id
-        assert result["number"] == 0
+        expected_number = 1 if base_id == 3 else 0
+        assert result["number"] == expected_number
+
+    # MovedBoxes stat with an incoming shipment (ID 7 with another_box sent to base 3)
+    mock_user_for_request(mocker, organisation_id=2, base_ids=[3])
+    query = query.replace("baseId: 1", "baseId: 3")
+    data = assert_successful_request(client, query, endpoint="graphql")
+    base_name = default_base["name"]
+    org_name = default_organisation["name"]
+    assert data == {
+        "facts": [
+            {
+                "absoluteMeasureValue": None,
+                "boxesCount": 1,
+                "categoryId": 1,
+                "dimensionId": None,
+                "gender": "Women",
+                "itemsCount": 10,
+                "movedOn": date.today().isoformat(),
+                "organisationName": org_name,
+                "productName": "new product",
+                "sizeId": 1,
+                "tagIds": [],
+                "targetId": f"sent-from-{base_name}",
+            },
+        ],
+        "dimensions": {
+            "target": [
+                {
+                    "id": f"sent-from-{base_name}",
+                    "name": base_name,
+                    "type": TargetType.IncomingShipment.name,
+                },
+            ],
+        },
+    }
 
 
 def test_query_stock_overview(client, default_product, default_location):

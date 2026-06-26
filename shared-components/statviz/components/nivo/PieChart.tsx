@@ -71,7 +71,7 @@ export default function PieChart(chart: IPieChart) {
     layers.push(() => <text {...exportInfoStyles.timestamp}>{chart.timestamp}</text>);
   }
   if (chart.centerData) {
-    const y = (height - margin.top - margin.bottom) / 2;
+    const y = (height - margin.top - margin.bottom) / 1.8;
     const x = (width - margin.right - margin.left) / 2;
     const textMaxWidth = baseFontSize * 7; // same as 7em
     const fontSizeGroupingText = baseFontSize * 0.8; // 0.8em
@@ -101,13 +101,14 @@ export default function PieChart(chart: IPieChart) {
         margin={margin}
         borderWidth={0}
         arcLabel="value"
-        innerRadius={0.4}
+        innerRadius={0.6}
         layers={layers}
         padAngle={0.7}
         cornerRadius={3}
         animate={chart.animate === true || chart.animate === null}
         onClick={chart.onClick}
         theme={theme}
+        // colors={{ scheme: 'tableau10' }}
         isInteractive
         activeOuterRadiusOffset={2}
         arcLinkLabelsSkipAngle={10}
@@ -116,7 +117,7 @@ export default function PieChart(chart: IPieChart) {
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
         arcLinkLabel={arcLabel}
-        arcLinkLabelsDiagonalLength={10}
+        arcLinkLabelsDiagonalLength={20}
         arcLinkLabelsStraightLength={16}
       />
     </div>

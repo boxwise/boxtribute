@@ -1,5 +1,3 @@
-import { ITagFilterValue } from "../state/filter";
-
 /**
  * Utility function to filter data by included and excluded tags.
  *
@@ -15,8 +13,8 @@ import { ITagFilterValue } from "../state/filter";
  */
 export function filterByTags<T extends { tagIds?: number[] | null }>(
   data: T[],
-  includedTags: ITagFilterValue[],
-  excludedTags: ITagFilterValue[],
+  includedTags: { id: number }[],
+  excludedTags: { id: number }[],
 ): T[] {
   return data.filter((item) => {
     const itemTagIds = item.tagIds || [];

@@ -848,7 +848,7 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
 
     // Check that the filter drawer button indicates it has a filter applied (filled icon)
-    const filterDrawerButton = screen.getByTestId("filter-drawer-button");
+    const filterDrawerButton = screen.getByTestId("filters-drawer-button");
     expect(filterDrawerButton).toBeInTheDocument();
   });
 
@@ -921,7 +921,7 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     expect(screen.getAllByText(/Sweatpants/i).length).toBeGreaterThanOrEqual(1);
 
     // Check that the filter drawer button indicates it has a filter applied
-    const filterDrawerButton = screen.getByTestId("filter-drawer-button");
+    const filterDrawerButton = screen.getByTestId("filters-drawer-button");
     expect(filterDrawerButton).toBeInTheDocument();
   });
 

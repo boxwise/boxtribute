@@ -53,6 +53,7 @@ def non_default_box_state_location_data():
     data["id"] = 4
     data["box_state"] = BoxState.Donated
     data["is_donated"] = 1
+    data["visible"] = 0
     return data
 
 

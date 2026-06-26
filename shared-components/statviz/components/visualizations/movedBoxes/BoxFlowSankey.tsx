@@ -7,7 +7,6 @@ import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
-import Targetfilter from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../../queries/fragments";
 
@@ -89,7 +88,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
             isNegative: target.isNegative,
           };
         }
-        if (target.type === "Shipment") {
+        if (target.type === "OutgoingShipment") {
           return {
             source: outgoingNode.id,
             target: shipmentNode.id,
@@ -100,50 +99,54 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         return undefined;
       })
       .filter((e) => e !== undefined),
-    ...movedBoxes.map((movedBox) => {
-      if (movedBox.type === "OutgoingLocation") {
+    ...movedBoxes
+      .filter((e) => e.type !== "IncomingShipment")
+      .map((movedBox) => {
+        if (movedBox.type === "OutgoingLocation") {
+          return {
+            source: selfReportedNode.id,
+            target: movedBox.targetId,
+            value: movedBox.count,
+            isNegative: movedBox.isNegative,
+          };
+        }
+        if (movedBox.type === "OutgoingShipment") {
+          return {
+            source: shipmentNode.id,
+            target: movedBox.targetId,
+            value: movedBox.count,
+            isNegative: movedBox.isNegative,
+          };
+        }
         return {
-          source: selfReportedNode.id,
+          source: outgoingNode.id,
           target: movedBox.targetId,
           value: movedBox.count,
           isNegative: movedBox.isNegative,
         };
-      }
-      if (movedBox.type === "Shipment") {
-        return {
-          source: shipmentNode.id,
-          target: movedBox.targetId,
-          value: movedBox.count,
-          isNegative: movedBox.isNegative,
-        };
-      }
-      return {
-        source: outgoingNode.id,
-        target: movedBox.targetId,
-        value: movedBox.count,
-        isNegative: movedBox.isNegative,
-      };
-    }),
+      }),
   ];
 
   const nodes = [
     outgoingNode,
-    ...movedBoxes.map((movedBox) => {
-      const getName = () => {
-        if (movedBox.organisationName) {
-          return `${movedBox.name} | ${movedBox.organisationName} `;
-        }
-        return movedBox.name;
-      };
+    ...movedBoxes
+      .filter((e) => e.type !== "IncomingShipment")
+      .map((movedBox) => {
+        const getName = () => {
+          if (movedBox.organisationName) {
+            return `${movedBox.name} | ${movedBox.organisationName} `;
+          }
+          return movedBox.name;
+        };
 
-      return {
-        id: movedBox.targetId,
-        name: movedBox.isNegative ? `${getName()} removed` : getName(),
-        nodeColor: movedBox.isNegative
-          ? "red"
-          : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
-      };
-    }),
+        return {
+          id: movedBox.targetId,
+          name: movedBox.isNegative ? `${getName()} removed` : getName(),
+          nodeColor: movedBox.isNegative
+            ? "red"
+            : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+        };
+      }),
   ];
 
   const nodeIsTargetedByLink = (node) => links.findIndex((link) => link?.target === node.id) !== -1;
@@ -181,11 +184,6 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         maxWidthPx={1000}
       />
       <CardBody>
-        <Wrap>
-          <WrapItem>
-            <Targetfilter />
-          </WrapItem>
-        </Wrap>
         <SankeyChart {...chartProps} />
         <Wrap align="center">
           <WrapItem>

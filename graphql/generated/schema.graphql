@@ -115,7 +115,8 @@ enum ShipmentDirection {
 }
 
 enum TargetType {
-  Shipment
+  OutgoingShipment
+  IncomingShipment
   OutgoingLocation
   BoxState
 }
@@ -1118,6 +1119,10 @@ type Base {
 
   distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
   distributionEventsStatistics: [DistributionEventsStatistics!]!
+  " Number of all non-deleted InStock boxes in the base. "
+  instockBoxesCount: Int!
+  " Number of items of all non-deleted InStock boxes in the base. "
+  instockItemsCount: Int!
 }
 
 """

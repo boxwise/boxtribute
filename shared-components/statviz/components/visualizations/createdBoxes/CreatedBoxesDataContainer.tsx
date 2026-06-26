@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import CreatedBoxesFilterContainer from "./CreatedBoxesFilterContainer";
 import { graphql } from "../../../../../graphql/graphql";
+import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 
 export const CREATED_BOXES_QUERY = graphql(`
   query createdBoxes($baseId: Int!) {
@@ -37,7 +39,15 @@ export const CREATED_BOXES_QUERY = graphql(`
   }
 `);
 
-export default function CreatedBoxesDataContainer() {
+interface CreatedBoxesDataContainerProps {
+  appliedFilters: StockAppliedFilters;
+  boxesOrItems: BoxesOrItems;
+}
+
+export default function CreatedBoxesDataContainer({
+  appliedFilters,
+  boxesOrItems,
+}: CreatedBoxesDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(CREATED_BOXES_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
@@ -52,5 +62,11 @@ export default function CreatedBoxesDataContainer() {
   if (data === undefined) {
     return <ErrorCard error={predefinedErrors.noData} />;
   }
-  return <CreatedBoxesFilterContainer createdBoxes={data.createdBoxes!} />;
+  return (
+    <CreatedBoxesFilterContainer
+      createdBoxes={data.createdBoxes!}
+      appliedFilters={appliedFilters}
+      boxesOrItems={boxesOrItems}
+    />
+  );
 }

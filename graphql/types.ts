@@ -11,7 +11,7 @@ import {
 } from "./fragments";
 import { CREATED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/createdBoxes/CreatedBoxesDataContainer";
 import { MOVED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
-import { STOCK_QUERY } from "../shared-components/statviz/components/visualizations/stock/StockDataContainer";
+import { STOCK_QUERY } from "../shared-components/statviz/queries/queries";
 import { DEMOGRAPHIC_QUERY } from "../shared-components/statviz/components/visualizations/demographic/DemographicDataContainer";
 
 /** @todo Make a fragment to infer this type. */

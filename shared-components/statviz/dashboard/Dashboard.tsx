@@ -1,87 +1,114 @@
-import { Accordion, Center, Heading, Wrap, WrapItem } from "@chakra-ui/react";
-import TimeRangeSelect from "../components/filter/TimeRangeSelect";
+import { Accordion, Heading } from "@chakra-ui/react";
+import { useQuery } from "@apollo/client";
+import { useParams } from "react-router-dom";
+import { useMemo } from "react";
 import Demographics from "./Demographics";
 import MovedBoxes from "./MovedBoxes";
 import ItemsAndBoxes from "./ItemsAndBoxes";
-import StockOverview from "./StockOverview";
-import BoxesOrItemsSelect, {
-  boxesOrItemsFilterValues,
-} from "../components/filter/BoxesOrItemsSelect";
-import GenderProductFilter from "../components/filter/GenderProductFilter";
-import TabbedTagFilter from "../components/filter/TabbedTagFilter";
-import { useSearchParams } from "react-router-dom";
-import { useEffect } from "react";
-import { date2String } from "../../utils/helpers";
-import { subMonths } from "date-fns";
+import InfoText from "./InfoText";
+import { graphql } from "../../../graphql/graphql";
+import ErrorCard from "../components/ErrorCard";
+import type {
+  IProductOption,
+  ICategoryOption,
+  ILocationOption,
+  ITagOption,
+} from "../utils/dashboardFilters";
+
+export const DASHBOARD_FILTER_DATA_QUERY = graphql(`
+  query DashboardFilterData($baseId: ID!) {
+    base(id: $baseId) {
+      products {
+        id
+        name
+        gender
+        category {
+          id
+          name
+        }
+      }
+      locations {
+        id
+        name
+      }
+      tags {
+        id
+        name
+        color
+      }
+    }
+  }
+`);
 
 export default function Dashboard() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { baseId } = useParams();
+  const { data, error } = useQuery(DASHBOARD_FILTER_DATA_QUERY, {
+    variables: { baseId: baseId! },
+  });
 
-  // set default filter states
-  // TODO: this is a quick fix and we should revisit the state handling of filters since it seems to be all over the place.
-  useEffect(() => {
-    const currentQuery = searchParams.toString();
-    const newSearchParams = searchParams;
+  const products = useMemo<IProductOption[]>(
+    () =>
+      (data?.base?.products ?? []).map((p) => ({
+        id: Number(p.id),
+        name: p.name,
+        gender: p.gender ?? null,
+      })),
+    [data],
+  );
 
-    // TimeRangeFilter
-    if (!searchParams.get("from")) {
-      newSearchParams.append("from", date2String(subMonths(new Date(), 3)));
+  const categories = useMemo<ICategoryOption[]>(() => {
+    const seen = new Set<number>();
+    const result: ICategoryOption[] = [];
+    for (const product of data?.base?.products ?? []) {
+      const catId = Number(product.category.id);
+      if (!seen.has(catId)) {
+        seen.add(catId);
+        result.push({ id: catId, name: product.category.name });
+      }
     }
-    if (!searchParams.get("to")) {
-      newSearchParams.append("to", date2String(new Date()));
-    }
-    if (!searchParams.get("boi")) {
-      newSearchParams.append("boi", boxesOrItemsFilterValues[0].urlId);
-    }
+    return result;
+  }, [data]);
 
-    if (newSearchParams.toString() !== currentQuery) {
-      setSearchParams(newSearchParams);
-    }
-  }, [searchParams, setSearchParams]);
+  const locations = useMemo<ILocationOption[]>(
+    () =>
+      (data?.base?.locations ?? []).map((l) => ({
+        id: Number(l.id),
+        name: l.name ?? "",
+      })),
+    [data],
+  );
+
+  const tags = useMemo<ITagOption[]>(
+    () =>
+      (data?.base?.tags ?? []).map((t) => ({
+        id: Number(t.id),
+        name: t.name,
+        color: t.color ?? "#999",
+        value: String(t.id),
+        label: t.name,
+        urlId: String(t.id),
+      })),
+    [data],
+  );
+
+  if (error) {
+    return <ErrorCard error={error.message} />;
+  }
 
   return (
     <div>
       <Heading style={{ marginBottom: "15px" }}>Dashboard</Heading>
-
-      <Wrap
-        borderWidth="1"
-        spacing="10"
-        direction={["column", "row"]}
-        padding="15"
-        marginBottom="15"
-        shadow="md"
-        pos="sticky"
-        top="0"
-        background="white"
-        zIndex={2}
-      >
-        <WrapItem w="350">
-          <Center>
-            <TimeRangeSelect />
-          </Center>
-        </WrapItem>
-        <WrapItem w="150">
-          <Center>
-            <BoxesOrItemsSelect />
-          </Center>
-        </WrapItem>
-        <WrapItem w="850">
-          <Center>
-            <GenderProductFilter />
-          </Center>
-        </WrapItem>
-        <WrapItem w="350">
-          <Center>
-            <TabbedTagFilter />
-          </Center>
-        </WrapItem>
-      </Wrap>
+      <InfoText />
 
       <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
-        <ItemsAndBoxes />
-        <MovedBoxes />
-        <Demographics />
-        <StockOverview />
+        <ItemsAndBoxes
+          products={products}
+          categories={categories}
+          locations={locations}
+          tags={tags}
+        />
+        <MovedBoxes products={products} categories={categories} tags={tags} />
+        <Demographics tags={tags} />
       </Accordion>
     </div>
   );
