@@ -796,6 +796,8 @@ type Query {
   shipment(id: ID!): Shipment
   " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. Optionally filter for shipments of certain state(s)."
   shipments(states: [ShipmentState!]): [Shipment!]!
+
+  beneficiaryFigures(baseId: ID!): BeneficiaryFigures
   " Return various metrics about beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
 
@@ -1109,7 +1111,6 @@ type Base {
   products(filterInput: FilterProductInput): [Product!]!
   " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
-  beneficiaryFigures: BeneficiaryFigures
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 
@@ -1276,7 +1277,7 @@ type Beneficiary {
 
 type BeneficiaryFigures {
   majorFamilyHeadGender: HumanGender!
-  " Value between 0 and 1 "
+  " Max. value of 1 "
   majorFamilyHeadGenderPercentage: Float!
   " Number of beneficiaries divided by number of family heads "
   averageFamilySize: Float!

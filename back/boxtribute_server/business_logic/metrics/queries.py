@@ -3,6 +3,7 @@ from flask import g
 
 from ...authz import authorize
 from .crud import (
+    beneficiary_figures,
     compute_total,
     get_time_span,
     number_of_beneficiaries_reached_between,
@@ -48,3 +49,11 @@ def resolve_reached_beneficiaries_numbers(*_, start=None, end=None, duration=Non
     time_span = get_time_span(start_date=start, end_date=end, duration_days=duration)
     result = number_of_beneficiaries_reached_between(*time_span)
     return compute_total(result)
+
+
+@query.field("beneficiaryFigures")
+def resolve_beneficiary_figures(*_, base_id):
+    authorize(permission="base:read", base_id=base_id)
+    authorize(permission="beneficiary:read", base_id=base_id)
+
+    return beneficiary_figures(base_id)

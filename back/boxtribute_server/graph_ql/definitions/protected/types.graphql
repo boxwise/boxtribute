@@ -294,7 +294,6 @@ type Base {
   products(filterInput: FilterProductInput): [Product!]!
   " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
-  beneficiaryFigures: BeneficiaryFigures
   distributionSpots: [DistributionSpot!]!
   distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
 
