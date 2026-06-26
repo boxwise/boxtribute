@@ -69,6 +69,7 @@ def test_base_query(
     base1_active_tags,
     base1_undeleted_classic_locations,
     base1_undeleted_products,
+    mocker,
 ):
     # Test case 99.1.2
     test_id = str(default_base["id"])
@@ -133,4 +134,32 @@ def test_base_query(
         ],
         "distributionEventsStatistics": [],
         "distributionEventsTrackingGroups": [{"id": str(default_tracking_group["id"])}],
+    }
+
+    mock_user_for_request(mocker, base_ids=[4])
+    test_id = 4
+    query = f"""query Base {{
+                base(id: {test_id}) {{
+                    beneficiaryFigures {{
+                        averageFamilySize
+                        majorFamilyHeadGender
+                        majorFamilyHeadGenderPercentage
+                        averageItemsPerVisitPerBeneficiary
+                        averageTotalItemsPerBeneficiary
+                        newRegistrationsLast30Days
+                        percentageWithoutFreeshopVisitLast90Days
+                    }}
+                }} }}"""
+
+    base = assert_successful_request(client, query)
+    assert base == {
+        "beneficiaryFigures": {
+            "averageFamilySize": 0.0,
+            "majorFamilyHeadGender": HumanGender.Diverse.name,
+            "majorFamilyHeadGenderPercentage": 0.0,
+            "averageItemsPerVisitPerBeneficiary": 0.0,
+            "averageTotalItemsPerBeneficiary": 0.0,
+            "newRegistrationsLast30Days": 0,
+            "percentageWithoutFreeshopVisitLast90Days": 0.0,
+        },
     }

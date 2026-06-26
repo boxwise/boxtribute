@@ -189,29 +189,43 @@ def resolve_base_instock_items_count(base_obj, info):
 @base.field("beneficiaryFigures")
 def resolve_base_beneficiary_figures(base_obj, _):
     base_id = base_obj.id
+    authorize(permission="beneficiary:read", base_id=base_id)
 
     # Family head gender (select first row even though there's only one in total)
     gender_distribution = (
         Beneficiary.select(
-            fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Male, 1, 0)).alias("Male"),
-            fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Female, 1, 0)).alias(
-                "Female"
-            ),
-            fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Diverse, 1, 0)).alias(
-                "Diverse"
-            ),
+            fn.IFNULL(
+                fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Male, 1, 0)), 0
+            ).alias("Male"),
+            fn.IFNULL(
+                fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Female, 1, 0)), 0
+            ).alias("Female"),
+            fn.IFNULL(
+                fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Diverse, 1, 0)), 0
+            ).alias("Diverse"),
         )
         .where(Beneficiary.family_head.is_null(), Beneficiary.base == base_id)
         .dicts()
     )[0]
-    # Sort by value (i.e. index 1 of dict element) and select largest
-    gender_majority = sorted(gender_distribution, key=lambda e: e[1])[0]
+    # Select largest (order by value which is at index 1 of every key-value pair)
+    gender_majority = max(gender_distribution.items(), key=lambda kv: kv[1])[0]
 
     # Average family size
     number_of_family_heads = sum(gender_distribution.values())
     number_of_beneficiaries = (
         Beneficiary.select().where(Beneficiary.base == base_id).count()
     )
+
+    if number_of_family_heads == 0:
+        return {
+            "major_family_head_gender": HumanGender.Diverse,
+            "major_family_head_gender_percentage": 0.0,
+            "average_family_size": 0.0,
+            "average_items_per_visit_per_beneficiary": 0.0,
+            "average_total_items_per_beneficiary": 0.0,
+            "new_registrations_last_30_days": 0,
+            "percentage_without_freeshop_visit_last_90_days": 0.0,
+        }
 
     # Freeshop figures
     Visits = (
@@ -230,7 +244,7 @@ def resolve_base_beneficiary_figures(base_obj, _):
         .group_by(Transaction.beneficiary, Transaction.created_on)
     )
     avg_items_per_visit_per_beneficiary = (
-        Transaction.select(fn.AVG(Visits.c.number_of_items)).from_(Visits).scalar()
+        Transaction.select(fn.AVG(Visits.c.number_of_items)).from_(Visits).scalar() or 0
     )
     avg_total_items_per_beneficiary = (
         Transaction.select(
@@ -238,6 +252,7 @@ def resolve_base_beneficiary_figures(base_obj, _):
         )
         .from_(Visits)
         .scalar()
+        or 0
     )
 
     # No visit in last 90 days or more
@@ -252,7 +267,7 @@ def resolve_base_beneficiary_figures(base_obj, _):
                 & (Beneficiary.base == base_id)
             ),
         )
-        .where(Transaction.created_on > ninety_days_ago)
+        .where(Transaction.created_on > ninety_days_ago, Transaction.count > 0)
         .group_by(Beneficiary.id)
     )
     Inhabitants = Beneficiary.alias()
