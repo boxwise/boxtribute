@@ -64,8 +64,7 @@ export default function StockOverviewBars({
     };
   }, [data, boxesOrItems]);
 
-  const heading =
-    boxesOrItems === "boxesCount" ? "Product Categories by Gender" : "Product Categories by Gender";
+  const heading = "Product Categories by Gender";
 
   if (chartData.length === 0) {
     return <NoDataCard header={heading} />;

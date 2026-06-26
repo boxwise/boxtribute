@@ -50,7 +50,7 @@ export default function StockOverviewBarsFilterContainer({
 
   return (
     <StockOverviewBars
-      width="500px"
+      width="400px"
       height="500px"
       data={filteredStockOverview}
       boxesOrItems={boxesOrItems}

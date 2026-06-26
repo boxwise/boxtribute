@@ -67,7 +67,7 @@ export default function BoxCreationCalendarFilterContainer({
 
   return (
     <BoxCreationCalendar
-      width="100%"
+      width="700px"
       height="200px"
       boxesOrItems={boxesOrItems}
       data={filteredData}
