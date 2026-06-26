@@ -1,12 +1,7 @@
 from ariadne import ObjectType
 
 from ....authz import authorize
-from ....enums import (
-    DistributionEventState,
-    LocationType,
-    TaggableObjectType,
-    TagType,
-)
+from ....enums import DistributionEventState, LocationType, TaggableObjectType, TagType
 from ....graph_ql.filtering import derive_beneficiary_filter, derive_product_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.beneficiary import Beneficiary
