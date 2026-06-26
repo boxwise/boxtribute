@@ -94,19 +94,19 @@ export default function BoxCreationCalendar({
       />
       <CardBody>
         <HStack mb={4} spacing={2} align="center">
-          <Text>From</Text>
+          <Text><strong>From</strong></Text>
           <Input
             type="date"
-            size="sm"
+            size="md"
             value={from}
             max={to}
             onChange={handleFromChange}
             width="auto"
           />
-          <Text>to</Text>
+          <Text><strong>to</strong></Text>
           <Input
             type="date"
-            size="sm"
+            size="md"
             value={to}
             min={from}
             max={date2String(new Date())}
