@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from ariadne import ObjectType
 from peewee import fn
 
@@ -19,6 +21,7 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.transaction import Transaction
+from ....models.utils import utcnow
 from .crud import get_base_distribution_events
 
 base = ObjectType("Base")
@@ -242,6 +245,17 @@ def resolve_base_beneficiary_figures(base_obj, _):
         .scalar()
     )
 
+    # Registrations
+    thirty_days_ago = utcnow() - timedelta(days=30)
+    nr_registrations = (
+        Beneficiary.select()
+        .where(
+            Beneficiary.base == base_id,
+            Beneficiary.created_on >= thirty_days_ago,
+        )
+        .count()
+    )
+
     return {
         "average_family_head_gender": HumanGender[gender_majority],
         "average_family_head_percentage": gender_distribution[gender_majority]
@@ -249,6 +263,6 @@ def resolve_base_beneficiary_figures(base_obj, _):
         "average_family_size": number_of_beneficiaries / number_of_family_heads,
         "average_items_per_visit_per_beneficiary": avg_items_per_visit_per_beneficiary,
         "average_total_items_per_beneficiary": avg_total_items_per_beneficiary,
-        "new_registrations_last_month": 0,
+        "new_registrations_last_month": nr_registrations,
         "percentage_without_freeshop_visit_in90_days": 0,
     }

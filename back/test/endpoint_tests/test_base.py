@@ -87,6 +87,7 @@ def test_base_query(
                         averageFamilyHeadPercentage
                         averageItemsPerVisitPerBeneficiary
                         averageTotalItemsPerBeneficiary
+                        newRegistrationsLastMonth
                     }}
                     distributionSpots {{ id }}
                     distributionEvents {{ id }}
@@ -114,6 +115,7 @@ def test_base_query(
             "averageFamilyHeadPercentage": 2 / 3,
             "averageItemsPerVisitPerBeneficiary": 16 / 4,
             "averageTotalItemsPerBeneficiary": 16 / 2,
+            "newRegistrationsLastMonth": 1,
         },
         "distributionSpots": [{"id": str(distribution_spot["id"])}],
         "distributionEvents": [
