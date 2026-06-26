@@ -61,7 +61,7 @@ export const useLoadAndSetGlobalPreferences = () => {
     }
   }, [runOrganisationAndBasesQuery, user, selectedBase?.name, localError]);
 
-  // setting auth atoms initially from auth0
+  // setting auth atoms
   useEffect(() => {
     if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
       if (!localError && user && (user[JWT_AVAILABLE_BASES] || isGod)) {
@@ -74,23 +74,21 @@ export const useLoadAndSetGlobalPreferences = () => {
           if (JSON.stringify(availableBases) !== JSON.stringify(bases)) {
             setAvailableBases(bases);
           }
-          // set available bases from auth0 id token only if they are not set yet.
-          // Otherwise, it would overwrite the names queried from the BE.
-          // if (!availableBases.length && !isGod) {
-          //   setAvailableBases(user[JWT_AVAILABLE_BASES].map((id: string) => ({ id })));
-          // }
 
           // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
           const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
-          const urlBaseId = urlBaseIdInput?.length && urlBaseIdInput[1];
+          const urlBaseId = urlBaseIdInput?.length ? urlBaseIdInput[1] : basesWithOrgData[0].id;
 
           // validate that
           // - the selected base ID is part of the available base IDs from Auth0 or
           // - that the user is a Boxtribute God
           if (urlBaseId) {
-            if (isGod) {
-              // setSelectedBase({ id: urlBaseId });
+            if (!isGod && !user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+              return;
+            } else {
               const matchingBase = basesWithOrgData.find((base) => base.id === urlBaseId);
+
+              console.log("match", matchingBase);
 
               if (matchingBase) {
                 // set selected base
@@ -98,20 +96,6 @@ export const useLoadAndSetGlobalPreferences = () => {
                 // set organisation for selected base
                 setOrganisation(matchingBase.organisation);
               }
-            } else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
-              // if (selectedBaseId !== urlBaseId) {
-              // only overwrite the selected base ID if the id is different from the existing one.
-              // setSelectedBase({ id: urlBaseId });
-
-              const matchingBase = basesWithOrgData.find((base) => base.id === urlBaseId);
-
-              if (matchingBase) {
-                // set selected base
-                setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
-                // set organisation for selected base
-                setOrganisation(matchingBase.organisation);
-              }
-              // }
             }
           }
         }
