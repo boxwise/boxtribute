@@ -208,11 +208,7 @@ def resolve_base_beneficiary_figures(base_obj, _):
     gender_majority = sorted(gender_distribution, key=lambda e: e[1])[0]
 
     # Average family size
-    number_of_family_heads = (
-        Beneficiary.select()
-        .where(Beneficiary.family_head.is_null(), Beneficiary.base == base_id)
-        .count()
-    )
+    number_of_family_heads = sum(gender_distribution.values())
     number_of_beneficiaries = (
         Beneficiary.select().where(Beneficiary.base == base_id).count()
     )
@@ -221,7 +217,6 @@ def resolve_base_beneficiary_figures(base_obj, _):
     Visits = (
         Transaction.select(
             fn.SUM(Transaction.count).alias("number_of_items"),
-            Transaction.created_on,
             Transaction.beneficiary.alias("beneficiary"),
         )
         .join(
@@ -291,7 +286,7 @@ def resolve_base_beneficiary_figures(base_obj, _):
         "average_family_size": number_of_beneficiaries / number_of_family_heads,
         "average_items_per_visit_per_beneficiary": avg_items_per_visit_per_beneficiary,
         "average_total_items_per_beneficiary": avg_total_items_per_beneficiary,
-        "new_registrations_last_month": nr_registrations,
+        "new_registrations_last_30_days": nr_registrations,
         "percentage_without_freeshop_visit_in_90_days":
             number_of_beneficiaries_without_recent_visit / number_of_family_heads,
     }

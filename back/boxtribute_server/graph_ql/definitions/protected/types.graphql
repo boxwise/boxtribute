@@ -461,11 +461,14 @@ type Beneficiary {
 
 type BeneficiaryFigures {
   averageFamilyHeadGender: HumanGender!
+  " Value between 0 and 1
   averageFamilyHeadPercentage: Float!
+  " Number of beneficiaries divided by number of family heads
   averageFamilySize: Float!
   averageItemsPerVisitPerBeneficiary: Float!
   averageTotalItemsPerBeneficiary: Float!
-  newRegistrationsLastMonth: Int!
+  newRegistrationsLast30Days: Int!
+  " Value between 0 and 1. Relative to number of family heads
   percentageWithoutFreeshopVisitIn90Days: Float!
 }
 """
