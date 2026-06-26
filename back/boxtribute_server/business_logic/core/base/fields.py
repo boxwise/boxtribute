@@ -18,6 +18,7 @@ from ....models.definitions.distribution_events_tracking_group import (
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
+from ....models.definitions.transaction import Transaction
 from .crud import get_base_distribution_events
 
 base = ObjectType("Base")
@@ -212,13 +213,43 @@ def resolve_base_beneficiary_figures(base_obj, _):
     number_of_beneficiaries = (
         Beneficiary.select().where(Beneficiary.base == base_id).count()
     )
+
+    # Freeshop figures
+    Visits = (
+        Transaction.select(
+            fn.SUM(Transaction.count).alias("number_of_items"),
+            Transaction.created_on,
+            Transaction.beneficiary.alias("beneficiary"),
+        )
+        .join(
+            Beneficiary,
+            on=(
+                (Beneficiary.id == Transaction.beneficiary)
+                & (Beneficiary.base == base_id)
+            ),
+        )
+        .where(Transaction.count > 0)
+        .group_by(Transaction.beneficiary, Transaction.created_on)
+    )
+    avg_items_per_visit_per_beneficiary = (
+        Transaction.select(fn.AVG(Visits.c.number_of_items)).from_(Visits).scalar()
+    )
+    TotalItems = (
+        Transaction.select(fn.SUM(Visits.c.number_of_items).alias("total"))
+        .from_(Visits)
+        .group_by(Visits.c.beneficiary)
+    )
+    avg_total_items_per_beneficiary = (
+        Transaction.select(fn.AVG(TotalItems.c.total)).from_(TotalItems).scalar()
+    )
+
     return {
         "average_family_head_gender": HumanGender[gender_majority],
         "average_family_head_percentage": gender_distribution[gender_majority]
         / number_of_family_heads,
         "average_family_size": number_of_beneficiaries / number_of_family_heads,
-        "average_items_per_visit_per_beneficiary": 0,
-        "average_total_items_per_beneficiary": 0,
+        "average_items_per_visit_per_beneficiary": avg_items_per_visit_per_beneficiary,
+        "average_total_items_per_beneficiary": avg_total_items_per_beneficiary,
         "new_registrations_last_month": 0,
         "percentage_without_freeshop_visit_in90_days": 0,
     }

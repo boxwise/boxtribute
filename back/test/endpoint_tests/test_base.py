@@ -85,6 +85,8 @@ def test_base_query(
                         averageFamilySize
                         averageFamilyHeadGender
                         averageFamilyHeadPercentage
+                        averageItemsPerVisitPerBeneficiary
+                        averageTotalItemsPerBeneficiary
                     }}
                     distributionSpots {{ id }}
                     distributionEvents {{ id }}
@@ -110,6 +112,8 @@ def test_base_query(
             "averageFamilySize": 5 / 3,
             "averageFamilyHeadGender": HumanGender.Male.name,
             "averageFamilyHeadPercentage": 2 / 3,
+            "averageItemsPerVisitPerBeneficiary": 16 / 4,
+            "averageTotalItemsPerBeneficiary": 16 / 2,
         },
         "distributionSpots": [{"id": str(distribution_spot["id"])}],
         "distributionEvents": [
