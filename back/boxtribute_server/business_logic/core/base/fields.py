@@ -245,8 +245,35 @@ def resolve_base_beneficiary_figures(base_obj, _):
         .scalar()
     )
 
+    # No visit in last 90 days or more
+    now = utcnow()
+    ninety_days_ago = now - timedelta(days=90)
+    RecentVisitors = (
+        Transaction.select(Beneficiary.id)
+        .join(
+            Beneficiary,
+            on=(
+                (Beneficiary.id == Transaction.beneficiary)
+                & (Beneficiary.base == base_id)
+            ),
+        )
+        .where(Transaction.created_on > ninety_days_ago)
+        .group_by(Beneficiary.id)
+    )
+    Inhabitants = Beneficiary.alias()
+    number_of_beneficiaries_without_recent_visit = (
+        Inhabitants.select()
+        .left_outer_join(RecentVisitors, on=(Inhabitants.id == RecentVisitors.c.id))
+        .where(
+            Inhabitants.base == base_id,
+            Inhabitants.family_head.is_null(),
+            RecentVisitors.c.id.is_null(),
+        )
+        .count()
+    )
+
     # Registrations
-    thirty_days_ago = utcnow() - timedelta(days=30)
+    thirty_days_ago = now - timedelta(days=30)
     nr_registrations = (
         Beneficiary.select()
         .where(
@@ -256,13 +283,16 @@ def resolve_base_beneficiary_figures(base_obj, _):
         .count()
     )
 
+    # fmt: off
     return {
         "average_family_head_gender": HumanGender[gender_majority],
-        "average_family_head_percentage": gender_distribution[gender_majority]
-        / number_of_family_heads,
+        "average_family_head_percentage":
+            gender_distribution[gender_majority] / number_of_family_heads,
         "average_family_size": number_of_beneficiaries / number_of_family_heads,
         "average_items_per_visit_per_beneficiary": avg_items_per_visit_per_beneficiary,
         "average_total_items_per_beneficiary": avg_total_items_per_beneficiary,
         "new_registrations_last_month": nr_registrations,
-        "percentage_without_freeshop_visit_in90_days": 0,
+        "percentage_without_freeshop_visit_in_90_days":
+            number_of_beneficiaries_without_recent_visit / number_of_family_heads,
     }
+    # fmt: on

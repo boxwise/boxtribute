@@ -88,6 +88,7 @@ def test_base_query(
                         averageItemsPerVisitPerBeneficiary
                         averageTotalItemsPerBeneficiary
                         newRegistrationsLastMonth
+                        percentageWithoutFreeshopVisitIn90Days
                     }}
                     distributionSpots {{ id }}
                     distributionEvents {{ id }}
@@ -116,6 +117,7 @@ def test_base_query(
             "averageItemsPerVisitPerBeneficiary": 16 / 4,
             "averageTotalItemsPerBeneficiary": 16 / 2,
             "newRegistrationsLastMonth": 1,
+            "percentageWithoutFreeshopVisitIn90Days": 1,
         },
         "distributionSpots": [{"id": str(distribution_spot["id"])}],
         "distributionEvents": [
