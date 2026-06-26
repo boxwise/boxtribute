@@ -94,7 +94,9 @@ export default function BoxCreationCalendar({
       />
       <CardBody>
         <HStack mb={4} spacing={2} align="center">
-          <Text><strong>From</strong></Text>
+          <Text>
+            <strong>From</strong>
+          </Text>
           <Input
             type="date"
             size="md"
@@ -103,7 +105,9 @@ export default function BoxCreationCalendar({
             onChange={handleFromChange}
             width="auto"
           />
-          <Text><strong>to</strong></Text>
+          <Text>
+            <strong>to</strong>
+          </Text>
           <Input
             type="date"
             size="md"
