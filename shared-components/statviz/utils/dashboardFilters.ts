@@ -1,5 +1,5 @@
 import { date2String } from "../../utils/helpers";
-import { subMonths } from "date-fns";
+import { subMonths, subYears } from "date-fns";
 import { ProductGender } from "../../../graphql/types";
 import type { IFilterValue } from "../components/filter/ValueFilter";
 
@@ -73,6 +73,11 @@ export interface DemographicsAppliedFilters {
   excludedTags: ITagOption[];
 }
 
+export interface CalendarAppliedFilters {
+  dateFrom: string;
+  dateTo: string;
+}
+
 // ---------------------------------------------------------------------------
 // Age range definitions for demographics filter
 // ---------------------------------------------------------------------------
@@ -124,6 +129,11 @@ export const DEMOGRAPHICS_URL_PARAMS = {
   excludedTags: "bnt",
 } as const;
 
+export const CALENDAR_URL_PARAMS = {
+  dateFrom: "cd1",
+  dateTo: "cd2",
+} as const;
+
 // ---------------------------------------------------------------------------
 // Default filters
 // ---------------------------------------------------------------------------
@@ -153,6 +163,13 @@ export function defaultMovementFilters(): MovementAppliedFilters {
     categories: [],
     includedTags: [],
     excludedTags: [],
+  };
+}
+
+export function defaultCalendarFilters(): CalendarAppliedFilters {
+  return {
+    dateFrom: date2String(subYears(new Date(), 1)),
+    dateTo: date2String(new Date()),
   };
 }
 
@@ -373,6 +390,22 @@ export function writeDemographicsFiltersToUrl(
     DEMOGRAPHICS_URL_PARAMS.excludedTags,
     serializeIds(filters.excludedTags.map((t) => t.id)),
   );
+}
+
+export function readCalendarFiltersFromUrl(searchParams: URLSearchParams): CalendarAppliedFilters {
+  const defaults = defaultCalendarFilters();
+  return {
+    dateFrom: searchParams.get(CALENDAR_URL_PARAMS.dateFrom) ?? defaults.dateFrom,
+    dateTo: searchParams.get(CALENDAR_URL_PARAMS.dateTo) ?? defaults.dateTo,
+  };
+}
+
+export function writeCalendarFiltersToUrl(
+  filters: CalendarAppliedFilters,
+  params: URLSearchParams,
+): void {
+  setOrDelete(params, CALENDAR_URL_PARAMS.dateFrom, filters.dateFrom || undefined);
+  setOrDelete(params, CALENDAR_URL_PARAMS.dateTo, filters.dateTo || undefined);
 }
 
 export function toFilterValues(items: { id: number; name: string }[]): IFilterValue[] {

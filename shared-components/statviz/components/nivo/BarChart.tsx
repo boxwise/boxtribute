@@ -23,6 +23,7 @@ export interface IBarChart {
   labelAxisBottom?: string;
   labelAxisLeft?: string;
   rendered?: (ref: HTMLDivElement) => void;
+  colors?: string | string[] | ((bar: { id: string | number }) => string);
 }
 
 export default function BarChart(barChart: IBarChart) {
@@ -113,7 +114,7 @@ export default function BarChart(barChart: IBarChart) {
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
         theme={theme}
-        colors="#ec5063"
+        colors={barChart.colors ?? "#ec5063"}
         defs={[
           {
             id: "dots",
