@@ -47,6 +47,7 @@ movedBoxesDataTests.forEach(({ name, mocks, alert }) => {
       <MovedBoxesDataContainer
         appliedFilters={defaultMovementFilters()}
         boxesOrItems="boxesCount"
+        direction="out"
       />,
       {
         routePath: "/bases/:baseId/",

@@ -18,6 +18,7 @@ import { FilterPanel } from "../../filter/FilterPanel";
 import { MovementFilters } from "./../components/filter/MovementFilters";
 import {
   MOVEMENT_URL_PARAMS,
+  type MovementDirection,
   readMovementFiltersFromUrl,
   writeMovementFiltersToUrl,
   type MovementAppliedFilters,
@@ -43,6 +44,8 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
 
   const boxesOrItems: BoxesOrItems =
     searchParams.get(MOVEMENT_URL_PARAMS.boxesOrItems) === "ic" ? "itemsCount" : "boxesCount";
+  const direction: MovementDirection =
+    searchParams.get(MOVEMENT_URL_PARAMS.direction) === "in" ? "in" : "out";
 
   const handleApplyFilters = useCallback(
     (filters: MovementAppliedFilters) => {
@@ -65,6 +68,15 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
     [searchParams, setSearchParams],
   );
 
+  const handleDirectionChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set(MOVEMENT_URL_PARAMS.direction, e.target.value === "in" ? "in" : "out");
+      setSearchParams(newParams);
+    },
+    [searchParams, setSearchParams],
+  );
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -78,6 +90,10 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
       <AccordionPanel>
         <VStack align="stretch" spacing={4}>
           <HStack justify="flex-end" spacing={2}>
+            <Select size="md" value={direction} onChange={handleDirectionChange} width="140px">
+              <option value="out">Outgoing</option>
+              <option value="in">Incoming</option>
+            </Select>
             <Select
               size="md"
               value={boxesOrItems}
@@ -99,7 +115,11 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
               />
             </FilterPanel>
           </HStack>
-          <MovedBoxesDataContainer appliedFilters={appliedFilters} boxesOrItems={boxesOrItems} />
+          <MovedBoxesDataContainer
+            appliedFilters={appliedFilters}
+            boxesOrItems={boxesOrItems}
+            direction={direction}
+          />
         </VStack>
       </AccordionPanel>
     </AccordionItem>

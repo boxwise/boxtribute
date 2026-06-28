@@ -64,6 +64,8 @@ export interface MovementAppliedFilters {
   excludedTags: ITagOption[];
 }
 
+export type MovementDirection = "out" | "in";
+
 export interface DemographicsAppliedFilters {
   /** e.g. ["0-7", "8-15"] */
   ageRanges: string[];
@@ -120,6 +122,7 @@ export const MOVEMENT_URL_PARAMS = {
   includedTags: "mt",
   excludedTags: "mnt",
   boxesOrItems: "mboi",
+  direction: "mdir",
 } as const;
 
 export const DEMOGRAPHICS_URL_PARAMS = {
