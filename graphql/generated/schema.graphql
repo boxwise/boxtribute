@@ -827,6 +827,9 @@ type Query {
   shipment(id: ID!): Shipment
   " Return all [`Shipments`]({{Types.Shipment}}) that the client is authorized to view. Optionally filter for shipments of certain state(s)."
   shipments(states: [ShipmentState!]): [Shipment!]!
+
+  " Return beneficiary figures for specified base. "
+  beneficiaryFigures(baseId: ID!): BeneficiaryFigures
   " Return various metrics about beneficiaries for client's organisation. "
   metrics(organisationId: ID): Metrics
 
@@ -1305,6 +1308,18 @@ type Beneficiary {
   tags: [Tag!]
 }
 
+type BeneficiaryFigures {
+  majorFamilyHeadGender: HumanGender!
+  " Max. value of 1 "
+  majorFamilyHeadGenderPercentage: Float!
+  " Number of beneficiaries divided by number of family heads "
+  averageFamilySize: Float!
+  averageItemsPerVisitPerBeneficiary: Float!
+  averageTotalItemsPerBeneficiary: Float!
+  newRegistrationsLast30Days: Int!
+  " Value between 0 and 1. Relative to number of family heads "
+  percentageWithoutFreeshopVisitLast90Days: Float!
+}
 """
 Representation of a transaction executed by a beneficiary (spending or receiving tokens).
 """

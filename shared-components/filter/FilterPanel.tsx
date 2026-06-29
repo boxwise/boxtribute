@@ -12,13 +12,20 @@ import {
 import { MdFilterList } from "react-icons/md";
 
 interface FilterPanelProps {
+  label?: string;
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
   children: ReactNode;
 }
 
-export function FilterPanel({ isOpen, onOpen, onClose, children }: FilterPanelProps) {
+export function FilterPanel({
+  label = "Filters",
+  isOpen,
+  onOpen,
+  onClose,
+  children,
+}: FilterPanelProps) {
   const placement = useBreakpointValue({ base: "left" as const, md: "right" as const }) ?? "right";
   const size = useBreakpointValue({ base: undefined, md: "md" });
   const maxW = useBreakpointValue({ base: "90vw", md: undefined });
@@ -26,16 +33,16 @@ export function FilterPanel({ isOpen, onOpen, onClose, children }: FilterPanelPr
   return (
     <>
       <IconButton
-        icon={<MdFilterList color={"black"} size={25} />}
-        aria-label="Open filters"
+        icon={<MdFilterList color="black" size={25} />}
+        aria-label={`Open ${label}`}
         size="md"
-        data-testid="filter-drawer-button"
+        data-testid={`${label.replaceAll(" ", "").toLowerCase()}-drawer-button`}
         onClick={onOpen}
       />
       <Drawer isOpen={isOpen} onClose={onClose} placement={placement} size={size}>
         <DrawerOverlay />
         <DrawerContent maxW={maxW}>
-          <DrawerHeader>Filters</DrawerHeader>
+          <DrawerHeader>{label}</DrawerHeader>
           <DrawerCloseButton />
           <DrawerBody>{children}</DrawerBody>
         </DrawerContent>

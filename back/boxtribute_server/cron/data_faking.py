@@ -160,7 +160,7 @@ class Generator:
 
         # Start date for data generation, relative to recent time. The number of weeks
         # is chosen such that eventually the newest changes don't happen in the future
-        start = datetime(2025, 8, 31) - timedelta(weeks=75)
+        start = datetime(2026, 6, 30) - timedelta(weeks=50)
 
         with freeze_time(start, auto_tick_seconds=about_two_hours + 2):
             self._generate_qr_codes()

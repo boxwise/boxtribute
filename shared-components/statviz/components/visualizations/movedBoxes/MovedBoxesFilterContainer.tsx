@@ -1,78 +1,35 @@
-import { useEffect, useMemo } from "react";
-import { useReactiveVar } from "@apollo/client";
+import { useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
-import useTimerange from "../../../hooks/useTimerange";
 import { filterListByInterval } from "../../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
-import useValueFilter from "../../../hooks/useValueFilter";
-import {
-  boxesOrItemsFilterValues,
-  boxesOrItemsUrlId,
-  defaultBoxesOrItems,
-} from "../../filter/BoxesOrItemsSelect";
-import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
-import {
-  genderFilterId,
-  genders,
-  productFilterId,
-  categoryFilterId,
-} from "../../filter/GenderProductFilter";
-import {
-  targetFilterValuesVar,
-  productFilterValuesVar,
-  tagFilterIncludedValuesVar,
-  tagFilterExcludedValuesVar,
-  categoryFilterValuesVar,
-} from "../../../state/filter";
-import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
+import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import type { MovementAppliedFilters, MovementDirection } from "../../../utils/dashboardFilters";
 import { filterByTags } from "../../../utils/filterByTags";
-import { targetFilterId, targetToFilterValue } from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 
 interface IMovedBoxesFilterContainerProps {
   movedBoxes: MovedBoxes;
+  appliedFilters: MovementAppliedFilters;
+  boxesOrItems: BoxesOrItems;
+  direction: MovementDirection;
 }
 
-export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFilterContainerProps) {
-  const { interval } = useTimerange();
+export default function MovedBoxesFilterContainer({
+  movedBoxes,
+  appliedFilters,
+  boxesOrItems,
+  direction,
+}: IMovedBoxesFilterContainerProps) {
+  const { products, genders, categories, includedTags, excludedTags, dateFrom, dateTo } =
+    appliedFilters;
 
-  const { filterValue } = useValueFilter(
-    boxesOrItemsFilterValues,
-    defaultBoxesOrItems,
-    boxesOrItemsUrlId,
+  const interval = useMemo(
+    () => ({
+      start: new Date(dateFrom),
+      end: new Date(dateTo),
+    }),
+    [dateFrom, dateTo],
   );
-
-  const productsFilterValues = useReactiveVar(productFilterValuesVar);
-  const targetFilterValues = useReactiveVar(targetFilterValuesVar);
-  const categoryFilterValues = useReactiveVar(categoryFilterValuesVar);
-
-  const { filterValue: productsFilter } = useMultiSelectFilter(
-    productsFilterValues,
-    productFilterId,
-  );
-
-  const { filterValue: genderFilter } = useMultiSelectFilter(genders, genderFilterId);
-  const { filterValue: excludedTargets } = useMultiSelectFilter(targetFilterValues, targetFilterId);
-  const { filterValue: filterCategories } = useMultiSelectFilter(
-    categoryFilterValues,
-    categoryFilterId,
-  );
-
-  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
-      includedTagFilterValues,
-      tagFilterIncludedId,
-      excludedTagFilterValues,
-      tagFilterExcludedId,
-    );
-
-  // fill target filter with data
-  useEffect(() => {
-    const targets = movedBoxes?.dimensions?.target?.map((t) => targetToFilterValue(t!)) ?? [];
-    targetFilterValuesVar(targets);
-  }, [movedBoxes?.dimensions]);
 
   const movedBoxesFacts = useMemo(() => {
     try {
@@ -85,40 +42,23 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];
-    if (genderFilter.length > 0) {
+    if (genders.length > 0) {
       filters.push(
-        filter(
-          (fact: MovedBoxesResult) =>
-            genderFilter.find((fPG) => fPG.value === fact.gender?.valueOf()) !== undefined,
+        filter((fact: MovedBoxesResult) => genders.includes(fact.gender?.valueOf() ?? "")),
+      );
+    }
+    if (products.length > 0) {
+      filters.push(
+        filter((fact: MovedBoxesResult) =>
+          products.some(
+            (p) => p.name.toLowerCase() === fact.productName! && p.gender === fact.gender,
+          ),
         ),
       );
     }
-    if (productsFilter.length > 0) {
-      filters.push(
-        filter(
-          (fact: MovedBoxesResult) =>
-            productsFilter.find(
-              (fBP) => fBP?.name.toLowerCase() === fact.productName! && fBP.gender === fact.gender,
-            ) !== undefined,
-        ),
-      );
-    }
-    if (filterCategories.length > 0) {
-      filters.push(
-        filter(
-          (fact: MovedBoxesResult) =>
-            filterCategories.find((fC) => fC?.id === fact.categoryId!) !== undefined,
-        ),
-      );
-    }
-    if (excludedTargets.length > 0) {
-      filters.push(
-        filter(
-          (fact: MovedBoxesResult) =>
-            excludedTargets.find((filteredTarget) => filteredTarget.id! === fact.targetId!) ===
-            undefined,
-        ),
-      );
+    if (categories.length > 0) {
+      const categoryIds = new Set(categories.map((c) => c.id));
+      filters.push(filter((fact: MovedBoxesResult) => categoryIds.has(fact.categoryId!)));
     }
 
     let filtered = movedBoxesFacts;
@@ -131,19 +71,17 @@ export default function MovedBoxesFilterContainer({ movedBoxes }: IMovedBoxesFil
     filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
-  }, [
-    excludedTargets,
-    genderFilter,
-    movedBoxesFacts,
-    productsFilter,
-    filterCategories,
-    includedTags,
-    excludedTags,
-  ]);
+  }, [movedBoxesFacts, genders, products, categories, includedTags, excludedTags]);
 
   const filteredMovedBoxesCube = {
     facts: filteredFacts,
     dimensions: movedBoxes?.dimensions,
   };
-  return <MovedBoxesCharts movedBoxes={filteredMovedBoxesCube} boxesOrItems={filterValue.value} />;
+  return (
+    <MovedBoxesCharts
+      movedBoxes={filteredMovedBoxesCube}
+      boxesOrItems={boxesOrItems}
+      direction={direction}
+    />
+  );
 }

@@ -7,9 +7,9 @@ import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
 import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
-import Targetfilter from "../../filter/LocationFilter";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../../queries/fragments";
+import type { MovementDirection } from "../../../utils/dashboardFilters";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
@@ -27,20 +27,47 @@ const outgoingNode = {
   name: "outgoing boxes",
   nodeColor: "#1fcc30",
 };
+const incomingNode = {
+  id: "incomingYp9WMJiNbEvi",
+  name: "incoming boxes",
+  nodeColor: "#1fcc30",
+};
 
 interface IBoxFlowSankeyProps {
   width: string;
   height: string;
   data: Partial<MovedBoxes>;
   boxesOrItems: BoxesOrItemsCount;
+  direction: MovementDirection;
 }
 
-export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBoxFlowSankeyProps) {
+export default function BoxFlowSankey({
+  width,
+  height,
+  data,
+  boxesOrItems,
+  direction,
+}: IBoxFlowSankeyProps) {
   const onExport = getOnExport(SankeyChart);
+  const isOutgoing = direction === "out";
 
-  outgoingNode.name = boxesOrItems === "boxesCount" ? outgoingNode.name : "outgoing items";
-  const heading = boxesOrItems === "boxesCount" ? "outgoing boxes" : "outgoing items";
-  const movedBoxesFacts = data?.facts as MovedBoxesResult[];
+  const rootNode = {
+    ...(isOutgoing ? outgoingNode : incomingNode),
+    name:
+      boxesOrItems === "boxesCount"
+        ? isOutgoing
+          ? "outgoing boxes"
+          : "incoming boxes"
+        : isOutgoing
+          ? "outgoing items"
+          : "incoming items",
+  };
+  const shipmentFlowNode = {
+    ...shipmentNode,
+    name: isOutgoing ? "shipments" : "received shipments",
+  };
+  const heading = isOutgoing ? "Outgoing Shipments Overview" : "Incoming Shipments Overview";
+  const movedBoxesFacts = (data?.facts ?? []) as MovedBoxesResult[];
 
   const movedBoxes = tidy(
     movedBoxesFacts satisfies MovedBoxesResult[],
@@ -62,9 +89,74 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
       by: { id: "targetId" },
     }),
   );
+  const relevantMovedBoxes = movedBoxes.filter((movedBox) =>
+    isOutgoing ? movedBox.type !== "IncomingShipment" : movedBox.type === "IncomingShipment",
+  );
+
+  if (!isOutgoing) {
+    const sourceOrgNodes = tidy(
+      relevantMovedBoxes,
+      groupBy("organisationName", [summarize({ count: sum("count") })]),
+      map((movedBox) => ({
+        id: `incoming-org-${(movedBox.organisationName ?? "Unknown").replace(/\W+/g, "-")}`,
+        name: movedBox.organisationName ?? "Unknown",
+        nodeColor: sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+        value: movedBox.count,
+      })),
+    ) as Array<{ id: string; name: string; nodeColor?: string; value: number }>;
+
+    const shipmentTotal = sourceOrgNodes.reduce((count, node) => count + node.value, 0);
+    const links = [
+      ...sourceOrgNodes.map((node) => ({
+        source: node.id,
+        target: shipmentFlowNode.id,
+        value: node.value,
+      })),
+      ...(shipmentTotal > 0
+        ? [
+            {
+              source: shipmentFlowNode.id,
+              target: rootNode.id,
+              value: shipmentTotal,
+            },
+          ]
+        : []),
+    ];
+    const nodes = [rootNode, shipmentFlowNode, ...sourceOrgNodes];
+    const chartData = {
+      nodes,
+      links,
+    } as ISankeyData;
+
+    const chartProps = {
+      width,
+      height,
+      data: chartData,
+    };
+
+    if (chartData.nodes.length < 3 || shipmentTotal === 0) {
+      return <NoDataCard header={heading} />;
+    }
+
+    return (
+      <Card>
+        <VisHeader
+          onExport={onExport}
+          defaultHeight={500}
+          defaultWidth={1000}
+          heading={heading}
+          chartProps={chartProps}
+          maxWidthPx={1000}
+        />
+        <CardBody>
+          <SankeyChart {...chartProps} />
+        </CardBody>
+      </Card>
+    );
+  }
 
   const movedBoxesByTargetType = tidy(
-    movedBoxes,
+    relevantMovedBoxes,
     groupBy("type", [summarize({ count: sum("count") })]),
     map((movedBox) => {
       if (movedBox.count < 0) {
@@ -83,7 +175,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
       .map((target) => {
         if (target.type === "OutgoingLocation") {
           return {
-            source: outgoingNode.id,
+            source: rootNode.id,
             target: selfReportedNode.id,
             value: target.count,
             isNegative: target.isNegative,
@@ -91,8 +183,8 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         }
         if (target.type === "OutgoingShipment") {
           return {
-            source: outgoingNode.id,
-            target: shipmentNode.id,
+            source: rootNode.id,
+            target: shipmentFlowNode.id,
             value: target.count,
             isNegative: target.isNegative,
           };
@@ -113,14 +205,14 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         }
         if (movedBox.type === "OutgoingShipment") {
           return {
-            source: shipmentNode.id,
+            source: shipmentFlowNode.id,
             target: movedBox.targetId,
             value: movedBox.count,
             isNegative: movedBox.isNegative,
           };
         }
         return {
-          source: outgoingNode.id,
+          source: rootNode.id,
           target: movedBox.targetId,
           value: movedBox.count,
           isNegative: movedBox.isNegative,
@@ -129,7 +221,7 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   ];
 
   const nodes = [
-    outgoingNode,
+    rootNode,
     ...movedBoxes
       .filter((e) => e.type !== "IncomingShipment")
       .map((movedBox) => {
@@ -155,8 +247,8 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
   if (nodeIsTargetedByLink(selfReportedNode)) {
     nodes.push(selfReportedNode);
   }
-  if (nodeIsTargetedByLink(shipmentNode)) {
-    nodes.push(shipmentNode);
+  if (nodeIsTargetedByLink(shipmentFlowNode)) {
+    nodes.push(shipmentFlowNode);
   }
 
   const chartData = {
@@ -185,11 +277,6 @@ export default function BoxFlowSankey({ width, height, data, boxesOrItems }: IBo
         maxWidthPx={1000}
       />
       <CardBody>
-        <Wrap>
-          <WrapItem>
-            <Targetfilter />
-          </WrapItem>
-        </Wrap>
         <SankeyChart {...chartProps} />
         <Wrap align="center">
           <WrapItem>

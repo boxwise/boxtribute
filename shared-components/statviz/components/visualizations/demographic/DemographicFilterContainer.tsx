@@ -1,14 +1,8 @@
-import { useReactiveVar } from "@apollo/client";
-import { useEffect, useMemo } from "react";
-import { distinct, tidy } from "@tidyjs/tidy";
+import { useMemo } from "react";
 import DemographicCharts from "./DemographicCharts";
-import { tagToFilterValue } from "../../filter/TagFilter";
-import { tagFilterIncludedId, tagFilterExcludedId } from "../../filter/TabbedTagFilter";
-import useTimerange from "../../../hooks/useTimerange";
-import { filterListByInterval } from "../../../../utils/helpers";
-import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../../../state/filter";
-import useMultiSelectFilter from "../../../hooks/useMultiSelectFilter";
 import { filterByTags } from "../../../utils/filterByTags";
+import type { DemographicsAppliedFilters } from "../../../utils/dashboardFilters";
+import { AGE_RANGES } from "../../../utils/dashboardFilters";
 import {
   BeneficiaryDemographics,
   BeneficiaryDemographicsResult,
@@ -16,63 +10,45 @@ import {
 
 interface IDemographicFilterContainerProps {
   demographics: BeneficiaryDemographics;
+  appliedFilters: DemographicsAppliedFilters;
 }
 
 export default function DemographicFilterContainer({
   demographics,
+  appliedFilters,
 }: IDemographicFilterContainerProps) {
-  const { interval } = useTimerange();
+  const { ageRanges, genders, includedTags, excludedTags } = appliedFilters;
 
-  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useMultiSelectFilter(
-      includedTagFilterValues,
-      tagFilterIncludedId,
-      excludedTagFilterValues,
-      tagFilterExcludedId,
-    );
-
-  // merge Beneficiary tags to Box and All tags
-  useEffect(() => {
-    const beneficiaryTagFilterValues = demographics?.dimensions?.tag?.map((e) =>
-      tagToFilterValue(e!),
-    );
-
-    if ((beneficiaryTagFilterValues?.length ?? 0) > 0) {
-      const distinctTagFilterValues = tidy(
-        [...includedTagFilterValues, ...beneficiaryTagFilterValues!],
-        distinct(["id"]),
-      );
-
-      // Populate the tag filter values for both included and excluded
-      tagFilterIncludedValuesVar(distinctTagFilterValues);
-      tagFilterExcludedValuesVar(distinctTagFilterValues);
-    }
-    // including tagFilterOptions in the dependencies can lead to infinite update loops
-    // between CreatedBoxes updating the TagFilter and DemographicFilter updating the TagFilter
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demographics?.dimensions]);
-
-  const demographicFacts = useMemo(() => {
-    try {
-      return filterListByInterval(
-        (demographics?.facts as BeneficiaryDemographicsResult[]) ?? [],
-        "createdOn",
-        interval,
-      ) as BeneficiaryDemographicsResult[];
-    } catch {
-      // TODO useError
-    }
-    return [];
-  }, [demographics?.facts, interval]);
+  const demographicFacts = useMemo(
+    () => (demographics?.facts as BeneficiaryDemographicsResult[]) ?? [],
+    [demographics?.facts],
+  );
 
   const filteredFacts = useMemo(() => {
+    let filtered = demographicFacts;
+
+    // Filter by age ranges
+    if (ageRanges.length > 0) {
+      filtered = filtered.filter((fact) => {
+        if (fact.age === null || fact.age === undefined) return false;
+        return ageRanges.some((rangeLabel) => {
+          const range = AGE_RANGES.find((r) => r.label === rangeLabel);
+          if (!range) return false;
+          return fact.age! >= range.min && fact.age! <= range.max;
+        });
+      });
+    }
+
+    // Filter by human gender
+    if (genders.length > 0) {
+      filtered = filtered.filter((fact) => genders.includes(fact.gender ?? ""));
+    }
+
     // Apply tag filter (included/excluded)
-    const filtered = filterByTags(demographicFacts, includedTags, excludedTags);
+    filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
-  }, [demographicFacts, includedTags, excludedTags]);
+  }, [demographicFacts, ageRanges, genders, includedTags, excludedTags]);
 
   const demographicCube = {
     ...demographics,

@@ -8,7 +8,7 @@ from peewee import SQL, NodeList, fn
 from sentry_sdk import capture_message as emit_sentry_message
 
 from ...cli.service import ServiceBase
-from ...enums import TaggableObjectType
+from ...enums import HumanGender, TaggableObjectType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.box import Box
@@ -404,3 +404,122 @@ def number_of_active_users_between(start, end, users, org_base_info):
         org_id = row["organisation_id"]
         result.append(row | {"number": user_counts[org_id]})
     return result
+
+
+def beneficiary_figures(base_id):
+    # Family head gender (select first row even though there's only one in total)
+    gender_distribution = (
+        Beneficiary.select(
+            fn.IFNULL(
+                fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Male, 1, 0)), 0
+            ).alias("Male"),
+            fn.IFNULL(
+                fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Female, 1, 0)), 0
+            ).alias("Female"),
+            fn.IFNULL(
+                fn.SUM(fn.IF(Beneficiary.gender == HumanGender.Diverse, 1, 0)), 0
+            ).alias("Diverse"),
+        )
+        .where(Beneficiary.family_head.is_null(), Beneficiary.base == base_id)
+        .dicts()
+    )[0]
+    # Select largest (order by value which is at index 1 of every key-value pair)
+    gender_majority = max(gender_distribution.items(), key=lambda kv: kv[1])[0]
+
+    # Average family size
+    number_of_family_heads = sum(gender_distribution.values())
+    number_of_beneficiaries = (
+        Beneficiary.select().where(Beneficiary.base == base_id).count()
+    )
+
+    if number_of_family_heads == 0:
+        return {
+            "major_family_head_gender": HumanGender.Diverse,
+            "major_family_head_gender_percentage": 0.0,
+            "average_family_size": 0.0,
+            "average_items_per_visit_per_beneficiary": 0.0,
+            "average_total_items_per_beneficiary": 0.0,
+            "new_registrations_last_30_days": 0,
+            "percentage_without_freeshop_visit_last_90_days": 0.0,
+        }
+
+    # Freeshop figures
+    Visits = (
+        Transaction.select(
+            fn.SUM(Transaction.count).alias("number_of_items"),
+            Transaction.beneficiary.alias("beneficiary"),
+        )
+        .join(
+            Beneficiary,
+            on=(
+                (Beneficiary.id == Transaction.beneficiary)
+                & (Beneficiary.base == base_id)
+            ),
+        )
+        .where(Transaction.count > 0)
+        .group_by(Transaction.beneficiary, Transaction.created_on)
+    )
+    avg_items_per_visit_per_beneficiary = (
+        Transaction.select(fn.AVG(Visits.c.number_of_items)).from_(Visits).scalar() or 0
+    )
+    avg_total_items_per_beneficiary = (
+        Transaction.select(
+            fn.SUM(Visits.c.number_of_items)
+            / fn.IFNULL(fn.COUNT(Visits.c.beneficiary.distinct()), 0)
+        )
+        .from_(Visits)
+        .scalar()
+        or 0
+    )
+
+    # No visit in last 90 days or more
+    now = utcnow()
+    ninety_days_ago = now - timedelta(days=90)
+    RecentVisitors = (
+        Transaction.select(Beneficiary.id)
+        .join(
+            Beneficiary,
+            on=(
+                (Beneficiary.id == Transaction.beneficiary)
+                & (Beneficiary.base == base_id)
+            ),
+        )
+        .where(Transaction.created_on > ninety_days_ago, Transaction.count > 0)
+        .group_by(Beneficiary.id)
+    )
+    Inhabitants = Beneficiary.alias()
+    number_of_beneficiaries_without_recent_visit = (
+        Inhabitants.select()
+        .left_outer_join(RecentVisitors, on=(Inhabitants.id == RecentVisitors.c.id))
+        .where(
+            Inhabitants.base == base_id,
+            Inhabitants.family_head.is_null(),
+            RecentVisitors.c.id.is_null(),
+        )
+        .count()
+    )
+
+    # Registrations
+    thirty_days_ago = now - timedelta(days=30)
+    nr_registrations = (
+        Beneficiary.select()
+        .where(
+            Beneficiary.base == base_id,
+            Beneficiary.created_on >= thirty_days_ago,
+        )
+        .count()
+    )
+
+    # fmt: off
+    return {
+        "major_family_head_gender": HumanGender[gender_majority],
+        "major_family_head_gender_percentage":
+            gender_distribution[gender_majority] / number_of_family_heads,
+        "average_family_size": number_of_beneficiaries / number_of_family_heads,
+        "average_items_per_visit_per_beneficiary": avg_items_per_visit_per_beneficiary,
+        "average_total_items_per_beneficiary": avg_total_items_per_beneficiary,
+        "new_registrations_last_30_days": nr_registrations,
+        "percentage_without_freeshop_visit_last_90_days":
+            number_of_beneficiaries_without_recent_visit / number_of_family_heads,
+    }
+    # fmt: on

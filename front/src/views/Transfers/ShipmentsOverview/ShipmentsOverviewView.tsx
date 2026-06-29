@@ -31,7 +31,7 @@ import {
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
-import { FilterPanel } from "components/Table/FilterPanel";
+import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
