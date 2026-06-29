@@ -87,6 +87,7 @@ export default function LineChart(chart: ILineChart) {
           tickRotation: 0,
           legendOffset: -40,
         }}
+        enableGridY={false}
         pointSize={8}
         pointBorderWidth={2}
         pointColor={{ theme: "background" }}
