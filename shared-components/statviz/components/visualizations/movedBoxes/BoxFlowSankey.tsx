@@ -66,7 +66,7 @@ export default function BoxFlowSankey({
     ...shipmentNode,
     name: isOutgoing ? "shipments" : "received shipments",
   };
-  const heading = rootNode.name;
+  const heading = isOutgoing ? "Outgoing Shipments Overview" : "Incoming Shipments Overview";
   const movedBoxesFacts = (data?.facts ?? []) as MovedBoxesResult[];
 
   const movedBoxes = tidy(
