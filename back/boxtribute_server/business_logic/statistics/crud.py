@@ -328,9 +328,11 @@ def compute_beneficiary_reach(base_id):
     for fact in facts:
         fact["reach_type"] = BeneficiaryReachType(fact["reach_type"])
     dimensions = _generate_dimensions("beneficiary", facts=facts)
-    for b in dimensions["beneficiary"]:
+    beneficiary_dimensions = list(dimensions["beneficiary"])
+    for b in beneficiary_dimensions:
         b["tag_ids"] = sorted(convert_ids(b["tag_ids"]))
-    dimensions.update(_generate_dimensions("tag", facts=dimensions["beneficiary"]))
+    dimensions["beneficiary"] = beneficiary_dimensions
+    dimensions.update(_generate_dimensions("tag", facts=beneficiary_dimensions))
     return DataCube(facts=facts, dimensions=dimensions, type="BeneficiaryReachData")
 
 
