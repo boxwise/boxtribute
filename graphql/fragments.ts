@@ -162,6 +162,7 @@ export const MOVED_BOXES_FRAGMENT = graphql(`
     movedOn
     targetId
     categoryId
+    sizeId
     boxesCount
     itemsCount
     gender

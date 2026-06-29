@@ -5,7 +5,7 @@ import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import { graphql } from "../../../../../graphql/graphql";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
-import type { MovementAppliedFilters } from "../../../utils/dashboardFilters";
+import type { MovementAppliedFilters, MovementDirection } from "../../../utils/dashboardFilters";
 
 export const MOVED_BOXES_QUERY = graphql(`
   query movedBoxes($baseId: Int!) {
@@ -14,6 +14,7 @@ export const MOVED_BOXES_QUERY = graphql(`
         movedOn
         targetId
         categoryId
+        sizeId
         boxesCount
         itemsCount
         gender
@@ -23,6 +24,10 @@ export const MOVED_BOXES_QUERY = graphql(`
       }
       dimensions {
         category {
+          id
+          name
+        }
+        size {
           id
           name
         }
@@ -39,6 +44,7 @@ export const MOVED_BOXES_QUERY = graphql(`
 interface MovedBoxesDataContainerProps {
   appliedFilters: MovementAppliedFilters;
   boxesOrItems: BoxesOrItems;
+  direction: MovementDirection;
 }
 
 // The data wrapper collects data and passes it to the filter-wrapper
@@ -47,6 +53,7 @@ interface MovedBoxesDataContainerProps {
 export default function MovedBoxesDataContainer({
   appliedFilters,
   boxesOrItems,
+  direction,
 }: MovedBoxesDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(MOVED_BOXES_QUERY, {
@@ -67,6 +74,7 @@ export default function MovedBoxesDataContainer({
       movedBoxes={data.movedBoxes}
       appliedFilters={appliedFilters}
       boxesOrItems={boxesOrItems}
+      direction={direction}
     />
   );
 }
