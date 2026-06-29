@@ -5,7 +5,7 @@ import { User } from "../../../../graphql/types";
 export interface ITimelineEntry {
   action: string;
   createdOn: Date;
-  createdBy: User;
+  createdBy: Partial<User> | null | undefined;
 }
 
 export interface IGroupedRecordEntry {
