@@ -565,9 +565,10 @@ FROM (
     INNER JOIN people p
         ON h.tablename = "people"
         AND p.id = h.record_id
-        AND p.camp_id = 27
+        AND p.camp_id = %s
     WHERE
         NOT h.changes LIKE "Record deleted%%"
+        AND h.changedate >= %s
     -- de-duplicate bulk-changes of multiple attributes at once
     GROUP BY h.changedate, p.id
 
@@ -580,8 +581,9 @@ FROM (
     FROM transactions t
     INNER JOIN people p
         ON p.id = t.people_id
-        AND p.camp_id = 27
+        AND p.camp_id = %s
         AND t.product_id IS NOT NULL
+        AND t.transaction_date >= %s
     -- de-duplicate multiple transactions of the same checkout
     GROUP BY t.transaction_date, t.people_id
 
@@ -594,8 +596,9 @@ FROM (
     FROM transactions t
     INNER JOIN people p
         ON p.id = t.people_id
-        AND p.camp_id = 27
+        AND p.camp_id = %s
         AND t.product_id IS NOT NULL
+        AND t.transaction_date >= %s
     INNER JOIN people fm
         ON fm.parent_id = t.people_id
     GROUP BY t.transaction_date, fm.id
@@ -609,7 +612,8 @@ FROM (
     FROM services_relations sr
     JOIN people p
         ON p.id = sr.people_id
-        AND p.camp_id = 27
+        AND p.camp_id = %s
+        AND sr.created >= %s
 
     UNION ALL
 
@@ -621,9 +625,10 @@ FROM (
     JOIN people p
         ON tr.object_type = "People"
         AND p.id = tr.object_id
-        AND p.camp_id = 27
+        AND p.camp_id = %s
     WHERE
         tr.created_on IS NOT NULL
+        AND tr.created_on >= %s
     -- de-duplicate multiple tags being assigned at once
     GROUP BY tr.created_on, tr.object_id
 ) i

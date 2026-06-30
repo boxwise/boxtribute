@@ -211,7 +211,9 @@ def compute_beneficiary_reach(base_id):
     this data.
     """
     _validate_existing_base(base_id)
-    facts = execute_sql(query=BENEFICIARIES_REACHED_QUERY)
+    min_date = "2024-07-01"
+    params = [base_id, min_date] * 5
+    facts = execute_sql(*params, query=BENEFICIARIES_REACHED_QUERY)
     for fact in facts:
         fact["reach_type"] = BeneficiaryReachType[fact["reach_type"]]
 
