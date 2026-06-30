@@ -2,7 +2,7 @@ import hashlib
 import random
 import string
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from peewee import JOIN, SQL, fn
@@ -211,7 +211,10 @@ def compute_beneficiary_reach(base_id):
     this data.
     """
     _validate_existing_base(base_id)
-    min_date = "2024-07-01"
+    min_date = datetime(2020, 1, 1)
+    if in_production_environment():  # pragma: no cover
+        # Data from max. 2y ago
+        min_date = utcnow() - timedelta(weeks=104)
     params = [base_id, min_date] * 5
     facts = execute_sql(*params, query=BENEFICIARIES_REACHED_QUERY)
     for fact in facts:
