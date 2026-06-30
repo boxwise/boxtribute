@@ -126,6 +126,13 @@ enum ShareableView {
   StockOverview
 }
 
+enum BeneficiaryReachType {
+  CreatedOrEdited
+  TagApplied
+  ServiceUsed
+  Checkout
+}
+
 """
 TODO: Add description here once specs are final/confirmed
 """
@@ -162,8 +169,8 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult | BeneficiaryReachResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions | BeneficiaryReachDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -181,6 +188,30 @@ type BeneficiaryDemographicsResult {
   deletedOn: Date
   tagIds: [Int!]
   count: Int
+}
+
+type BeneficiaryReachData implements DataCube {
+  facts: [BeneficiaryReachResult!]!
+  dimensions: BeneficiaryReachDimensions!
+}
+
+type BeneficiaryReachResult {
+  reachedOn: Date!
+  beneficiaryId: Int!
+  reachType: BeneficiaryReachType
+  count: Int!
+}
+
+type BeneficiaryReachDimensions {
+  beneficiary: [BeneficiaryDimensionInfo!]
+  tag: [TagDimensionInfo!]
+}
+
+type BeneficiaryDimensionInfo {
+  id: Int!
+  age: Int
+  tagIds: [Int!]
+  gender: HumanGender!
 }
 
 type CreatedBoxesData implements DataCube {
@@ -803,6 +834,7 @@ type Query {
   metrics(organisationId: ID): Metrics
 
   beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
+  beneficiaryReach(baseId: Int!): BeneficiaryReachData
   createdBoxes(baseId: Int!): CreatedBoxesData
   topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
   topProductsDonated(baseId: Int!): TopProductsDonatedData

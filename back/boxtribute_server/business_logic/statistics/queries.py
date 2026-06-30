@@ -10,6 +10,7 @@ from ...models.utils import utcnow
 from . import query
 from .crud import (
     compute_beneficiary_demographics,
+    compute_beneficiary_reach,
     compute_created_boxes,
     compute_moved_boxes,
     compute_stock_overview,
@@ -27,6 +28,15 @@ def resolve_beneficiary_demographics(*_, base_id):
     authorize(permission="beneficiary:read", base_id=base_id)
     authorize(permission="tag_relation:read")
     return compute_beneficiary_demographics(base_id)
+
+
+@query.field("beneficiaryReach")
+@use_db_replica
+def resolve_beneficiary_reach(*_, base_id):
+    # No cross-organisational access for beneficiary-related data
+    authorize(permission="beneficiary:read", base_id=base_id)
+    authorize(permission="tag_relation:read")
+    return compute_beneficiary_reach(base_id)
 
 
 @query.field("createdBoxes")

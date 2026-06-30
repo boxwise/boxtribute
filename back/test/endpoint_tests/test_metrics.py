@@ -276,8 +276,9 @@ def test_beneficiary_figures(client, mocker):
         "majorFamilyHeadGenderPercentage": 2 / 3,
         "averageItemsPerVisitPerBeneficiary": 16 / 4,
         "averageTotalItemsPerBeneficiary": 16 / 2,
-        "newRegistrationsLast30Days": 1,
-        "percentageWithoutFreeshopVisitLast90Days": 1,
+        # another_male_beneficiary is created on the last day of the previous month
+        "newRegistrationsLast30Days": date.today().day < 30,
+        "percentageWithoutFreeshopVisitLast90Days": 1.0,
     }
 
     mock_user_for_request(mocker, base_ids=[4])

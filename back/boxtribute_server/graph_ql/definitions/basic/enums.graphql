@@ -126,6 +126,13 @@ enum ShareableView {
   StockOverview
 }
 
+enum BeneficiaryReachType {
+  CreatedOrEdited
+  TagApplied
+  ServiceUsed
+  Checkout
+}
+
 """
 TODO: Add description here once specs are final/confirmed
 """
