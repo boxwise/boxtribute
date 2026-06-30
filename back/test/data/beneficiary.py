@@ -100,7 +100,9 @@ def another_male_beneficiary_data():
         "last_name": "Body",
         "base": base_data()[0]["id"],
         "date_of_birth": date(1995, 5, 5),
-        "created_on": (datetime.today().replace(day=1) - timedelta(days=1)),
+        "created_on": (datetime.today().replace(day=1) - timedelta(days=1)).replace(
+            microsecond=0
+        ),
         "created_by": None,
         "family_id": 10,
         "family_head": None,

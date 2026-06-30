@@ -633,4 +633,5 @@ FROM (
     GROUP BY tr.created_on, tr.object_id
 ) i
 GROUP BY reached_on, beneficiary_id, reach_type
+ORDER BY reach_type, reached_on, beneficiary_id
 """

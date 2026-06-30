@@ -77,7 +77,9 @@ def test_query_beneficiary_demographics(
     }
 
 
-def test_query_beneficiary_reach(client, default_beneficiaries):
+def test_query_beneficiary_reach(
+    client, default_beneficiaries, another_male_beneficiary
+):
     query = """query { beneficiaryReach(baseId: 1) {
         facts { reachedOn beneficiaryId reachType count }
         dimensions {
@@ -103,100 +105,100 @@ def test_query_beneficiary_reach(client, default_beneficiaries):
         },
         "facts": [
             {
+                "beneficiaryId": 3,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2019-01-15T00:00:00",
+            },
+            {
+                "beneficiaryId": 1,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2020-01-15T00:00:00",
+            },
+            {
+                "beneficiaryId": 2,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2020-01-15T00:00:00",
+            },
+            {
+                "beneficiaryId": 3,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2020-01-15T00:00:00",
+            },
+            {
+                "beneficiaryId": 5,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2020-01-15T00:00:00",
+            },
+            {
+                "beneficiaryId": 1,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2021-01-15T00:00:00",
+            },
+            {
+                "beneficiaryId": 2,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2021-01-15T00:00:00",
+            },
+            {
+                "beneficiaryId": 5,
+                "count": 1,
+                "reachType": BeneficiaryReachType.Checkout.name,
+                "reachedOn": "2021-01-15T00:00:00",
+            },
+            {
                 "beneficiaryId": 1,
                 "count": 1,
                 "reachType": BeneficiaryReachType.CreatedOrEdited.name,
-                "reachedOn": "2020-06-30",
+                "reachedOn": "2020-06-30T00:00:00",
             },
             {
                 "beneficiaryId": 2,
                 "count": 1,
                 "reachType": BeneficiaryReachType.CreatedOrEdited.name,
-                "reachedOn": "2021-06-30",
-            },
-            {
-                "beneficiaryId": 3,
-                "count": 1,
-                "reachType": BeneficiaryReachType.CreatedOrEdited.name,
-                "reachedOn": "2022-01-30",
+                "reachedOn": "2021-06-30T00:00:00",
             },
             {
                 "beneficiaryId": 5,
                 "count": 1,
                 "reachType": BeneficiaryReachType.CreatedOrEdited.name,
-                "reachedOn": "2021-06-30",
+                "reachedOn": "2021-06-30T00:00:00",
+            },
+            {
+                "beneficiaryId": 3,
+                "count": 1,
+                "reachType": BeneficiaryReachType.CreatedOrEdited.name,
+                "reachedOn": "2022-01-30T00:00:00",
             },
             {
                 "beneficiaryId": 6,
                 "count": 1,
                 "reachType": BeneficiaryReachType.CreatedOrEdited.name,
-                "reachedOn": "2026-05-31",
-            },
-            {
-                "beneficiaryId": 1,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2021-01-15",
-            },
-            {
-                "beneficiaryId": 1,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2020-01-15",
-            },
-            {
-                "beneficiaryId": 3,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2020-01-15",
-            },
-            {
-                "beneficiaryId": 3,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2019-01-15",
-            },
-            {
-                "beneficiaryId": 2,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2021-01-15",
-            },
-            {
-                "beneficiaryId": 5,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2021-01-15",
-            },
-            {
-                "beneficiaryId": 2,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2020-01-15",
-            },
-            {
-                "beneficiaryId": 5,
-                "count": 1,
-                "reachType": BeneficiaryReachType.Checkout.name,
-                "reachedOn": "2020-01-15",
+                "reachedOn": another_male_beneficiary["created_on"].isoformat(),
             },
             {
                 "beneficiaryId": 1,
                 "count": 1,
                 "reachType": BeneficiaryReachType.ServiceUsed.name,
-                "reachedOn": "2025-11-24",
+                "reachedOn": "2025-11-24T00:00:00",
             },
             {
                 "beneficiaryId": 1,
                 "count": 1,
                 "reachType": BeneficiaryReachType.TagApplied.name,
-                "reachedOn": "2022-01-01",
+                "reachedOn": "2022-01-01T00:00:00",
             },
             {
                 "beneficiaryId": 6,
                 "count": 1,
                 "reachType": BeneficiaryReachType.TagApplied.name,
-                "reachedOn": "2023-01-01",
+                "reachedOn": "2023-01-01T00:00:00",
             },
         ],
     }

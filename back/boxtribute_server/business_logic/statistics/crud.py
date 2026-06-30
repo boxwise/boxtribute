@@ -211,7 +211,7 @@ def compute_beneficiary_reach(base_id):
     this data.
     """
     _validate_existing_base(base_id)
-    min_date = datetime(2020, 1, 1)
+    min_date = datetime(2019, 1, 1)
     if in_production_environment():  # pragma: no cover
         # Data from max. 2y ago
         min_date = utcnow() - timedelta(weeks=104)
