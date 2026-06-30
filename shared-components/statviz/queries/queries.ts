@@ -1,6 +1,41 @@
 import { graphql } from "../../../graphql/graphql";
 import { TAG_FRAGMENT } from "./fragments";
 
+export const BENEFICIARY_FIGURES_QUERY = graphql(`
+  query BeneficiaryFigures($baseId: ID!) {
+    beneficiaryFigures(baseId: $baseId) {
+      majorFamilyHeadGender
+      majorFamilyHeadGenderPercentage
+      averageFamilySize
+      averageItemsPerVisitPerBeneficiary
+      averageTotalItemsPerBeneficiary
+      newRegistrationsLast30Days
+      percentageWithoutFreeshopVisitLast90Days
+    }
+  }
+`);
+
+export const BENEFICIARY_REACH_QUERY = graphql(`
+  query BeneficiaryReach($baseId: Int!) {
+    beneficiaryReach(baseId: $baseId) {
+      facts {
+        reachedOn
+        beneficiaryId
+        reachType
+        count
+      }
+      dimensions {
+        beneficiary {
+          id
+          age
+          gender
+          tagIds
+        }
+      }
+    }
+  }
+`);
+
 export const CREATED_BOXES_QUERY = graphql(`
   query createdBoxes($baseId: Int!) {
     createdBoxes(baseId: $baseId) {

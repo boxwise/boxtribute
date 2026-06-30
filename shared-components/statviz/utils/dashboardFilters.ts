@@ -137,6 +137,11 @@ export const CALENDAR_URL_PARAMS = {
   dateTo: "cd2",
 } as const;
 
+export const BENE_REACH_URL_PARAMS = {
+  dateFrom: "br1",
+  dateTo: "br2",
+} as const;
+
 // ---------------------------------------------------------------------------
 // Default filters
 // ---------------------------------------------------------------------------
@@ -403,12 +408,28 @@ export function readCalendarFiltersFromUrl(searchParams: URLSearchParams): Calen
   };
 }
 
+export function readBeneReachFiltersFromUrl(searchParams: URLSearchParams): CalendarAppliedFilters {
+  const defaults = defaultCalendarFilters();
+  return {
+    dateFrom: searchParams.get(BENE_REACH_URL_PARAMS.dateFrom) ?? defaults.dateFrom,
+    dateTo: searchParams.get(BENE_REACH_URL_PARAMS.dateTo) ?? defaults.dateTo,
+  };
+}
+
 export function writeCalendarFiltersToUrl(
   filters: CalendarAppliedFilters,
   params: URLSearchParams,
 ): void {
   setOrDelete(params, CALENDAR_URL_PARAMS.dateFrom, filters.dateFrom || undefined);
   setOrDelete(params, CALENDAR_URL_PARAMS.dateTo, filters.dateTo || undefined);
+}
+
+export function writeBeneReachFiltersToUrl(
+  filters: CalendarAppliedFilters,
+  params: URLSearchParams,
+): void {
+  setOrDelete(params, BENE_REACH_URL_PARAMS.dateFrom, filters.dateFrom || undefined);
+  setOrDelete(params, BENE_REACH_URL_PARAMS.dateTo, filters.dateTo || undefined);
 }
 
 export function toFilterValues(items: { id: number; name: string }[]): IFilterValue[] {

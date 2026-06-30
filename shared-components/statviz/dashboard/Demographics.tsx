@@ -14,6 +14,8 @@ import {
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import DemographicDataContainer from "../components/visualizations/demographic/DemographicDataContainer";
+import BeneficiaryFiguresDataContainer from "../components/visualizations/demographic/BeneficiaryFiguresDataContainer";
+import BeneficiaryReachDataContainer from "../components/visualizations/demographic/BeneficiaryReachDataContainer";
 import {
   readDemographicsFiltersFromUrl,
   writeDemographicsFiltersToUrl,
@@ -72,9 +74,19 @@ export default function Demographics({ tags }: DemographicsProps) {
               />
             </FilterPanel>
           </HStack>
-          <Wrap gap={6}>
+          <Wrap gap={6} align="flex-start">
+            <WrapItem flex="1" minWidth="300px" overflow="auto" padding="5px">
+              <VStack align="stretch" spacing={4} width="100%">
+                <BeneficiaryFiguresDataContainer />
+              </VStack>
+            </WrapItem>
             <WrapItem overflow="auto" padding="5px">
               <DemographicDataContainer appliedFilters={appliedFilters} />
+            </WrapItem>
+          </Wrap>
+          <Wrap gap={6}>
+            <WrapItem overflow="auto" padding="5px">
+              <BeneficiaryReachDataContainer appliedFilters={appliedFilters} />
             </WrapItem>
           </Wrap>
         </VStack>
