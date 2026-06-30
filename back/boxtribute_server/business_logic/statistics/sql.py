@@ -549,3 +549,83 @@ GROUP BY
     tag_ids
 ;
 """
+
+BENEFICIARIES_REACHED_QUERY = """\
+SELECT
+    reached_on,
+    beneficiary_id,
+    reach_type,
+    COUNT(beneficiary_id) AS count
+FROM (
+    SELECT
+        h.changedate AS reached_on,
+        h.record_id AS beneficiary_id,
+        "CreatedOrEdited" AS reach_type
+    FROM history h
+    INNER JOIN people p
+        ON h.tablename = "people"
+        AND p.id = h.record_id
+        AND p.camp_id = 27
+    WHERE
+        NOT h.changes LIKE "Record deleted%%"
+    -- de-duplicate bulk-changes of multiple attributes at once
+    GROUP BY h.changedate, p.id
+
+    UNION ALL
+
+    SELECT
+        t.transaction_date AS reached_on,
+        t.people_id AS beneficiary_id,
+        "Checkout" AS reach_type
+    FROM transactions t
+    INNER JOIN people p
+        ON p.id = t.people_id
+        AND p.camp_id = 27
+        AND t.product_id IS NOT NULL
+    -- de-duplicate multiple transactions of the same checkout
+    GROUP BY t.transaction_date, t.people_id
+
+    UNION ALL
+
+    SELECT
+        t.transaction_date AS reached_on,
+        fm.id AS beneficiary_id,
+        "Checkout" AS reach_type
+    FROM transactions t
+    INNER JOIN people p
+        ON p.id = t.people_id
+        AND p.camp_id = 27
+        AND t.product_id IS NOT NULL
+    INNER JOIN people fm
+        ON fm.parent_id = t.people_id
+    GROUP BY t.transaction_date, fm.id
+
+    UNION ALL
+
+    SELECT
+        sr.created AS reached_on,
+        sr.people_id AS beneficiary_id,
+        "ServiceUsed" AS reach_type
+    FROM services_relations sr
+    JOIN people p
+        ON p.id = sr.people_id
+        AND p.camp_id = 27
+
+    UNION ALL
+
+    SELECT
+        tr.created_on AS reached_on,
+        tr.object_id AS beneficiary_id,
+        "TagApplied" AS reach_type
+    FROM tags_relations tr
+    JOIN people p
+        ON tr.object_type = "People"
+        AND p.id = tr.object_id
+        AND p.camp_id = 27
+    WHERE
+        tr.created_on IS NOT NULL
+    -- de-duplicate multiple tags being assigned at once
+    GROUP BY tr.created_on, tr.object_id
+) i
+GROUP BY reached_on, beneficiary_id, reach_type
+"""

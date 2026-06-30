@@ -18,17 +18,16 @@ from ...models.definitions.location import Location
 from ...models.definitions.organisation import Organisation
 from ...models.definitions.product import Product
 from ...models.definitions.product_category import ProductCategory
-from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.shareable_link import ShareableLink
 from ...models.definitions.size import Size
 from ...models.definitions.size_range import SizeRange
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
-from ...models.utils import HISTORY_DELETION_MESSAGE, compute_age, convert_ids, utcnow
+from ...models.utils import compute_age, convert_ids, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from ..metrics.crud import exclude_test_organisation
-from .sql import MOVED_BOXES_QUERY, STOCK_OVERVIEW_QUERY
+from .sql import BENEFICIARIES_REACHED_QUERY, MOVED_BOXES_QUERY, STOCK_OVERVIEW_QUERY
 
 
 @dataclass(kw_only=True)
@@ -212,127 +211,17 @@ def compute_beneficiary_reach(base_id):
     this data.
     """
     _validate_existing_base(base_id)
-    FamilyMember = Beneficiary.alias()
-    Interactions = (
-        # created/edited (persistently logged in history table)
-        DbChangeHistory.select(
-            fn.DATE(DbChangeHistory.change_date).alias("reached_on"),
-            DbChangeHistory.record_id.alias("beneficiary_id"),
-            SQL(f"{BeneficiaryReachType.CreatedOrEdited.value}").alias("reach_type"),
-        )
-        .join(
-            Beneficiary,
-            on=(
-                (Beneficiary.id == DbChangeHistory.record_id)
-                & (Beneficiary.base == base_id)
-            ),
-        )
-        .where(
-            DbChangeHistory.table_name == Beneficiary._meta.table_name,
-            # Exclude "Record deleted [by dailyroutine|without undelete]"
-            ~DbChangeHistory.changes.startswith(HISTORY_DELETION_MESSAGE),
-        )
-        | (
-            # created acc. to people table (contains info for some beneficiaries
-            # directly imported to the DB but misses permanently deleted beneficiaries)
-            Beneficiary.select(
-                fn.DATE(Beneficiary.created_on).alias("reached_on"),
-                Beneficiary.id.alias("beneficiary_id"),
-                SQL(f"{BeneficiaryReachType.CreatedOrEdited.value}").alias(
-                    "reach_type"
-                ),
-            ).where(Beneficiary.base == base_id)
-        )
-        | (
-            # involved in transactions (family heads)
-            Transaction.select(
-                fn.DATE(Transaction.created_on).alias("reached_on"),
-                Transaction.beneficiary.alias("beneficiary_id"),
-                SQL(f"{BeneficiaryReachType.Checkout.value}").alias("reach_type"),
-            ).join(
-                Beneficiary,
-                on=(
-                    (Beneficiary.id == Transaction.beneficiary)
-                    & (Beneficiary.base == base_id)
-                    & (Transaction.count > 0)
-                ),
-            ),
-        )
-        | (
-            # Family members of a beneficiary who had a transaction are also
-            # counted as reached via "Checkout" on the same date
-            Transaction.select(
-                fn.DATE(Transaction.created_on).alias("reached_on"),
-                FamilyMember.id.alias("beneficiary_id"),
-                SQL(f"{BeneficiaryReachType.Checkout.value}").alias("reach_type"),
-            )
-            .join(
-                Beneficiary,
-                on=(
-                    (Beneficiary.id == Transaction.beneficiary)
-                    & (Beneficiary.base == base_id)
-                    & (Transaction.count > 0)
-                ),
-            )
-            .join(
-                FamilyMember,
-                on=(FamilyMember.family_head == Transaction.beneficiary),
-            ),
-        )
-        | (
-            ServicesRelation.select(
-                fn.DATE(ServicesRelation.created_on).alias("reached_on"),
-                ServicesRelation.beneficiary.alias("beneficiary_id"),
-                SQL(f"{BeneficiaryReachType.ServiceUsed.value}").alias("reach_type"),
-            ).join(
-                Beneficiary,
-                on=(
-                    (Beneficiary.id == ServicesRelation.beneficiary)
-                    & (Beneficiary.base == base_id)
-                ),
-            ),
-        )
-        | (
-            TagsRelation.select(
-                fn.DATE(TagsRelation.created_on).alias("reached_on"),
-                TagsRelation.object_id.alias("beneficiary_id"),
-                SQL(f"{BeneficiaryReachType.TagApplied.value}").alias("reach_type"),
-            )
-            .join(
-                Beneficiary,
-                on=(
-                    (TagsRelation.object_type == TaggableObjectType.Beneficiary)
-                    & (Beneficiary.id == TagsRelation.object_id)
-                    & (Beneficiary.base == base_id)
-                ),
-            )
-            .where(TagsRelation.created_on.is_null(False))
-        )
-    )
-    facts = (
-        Beneficiary.select(
-            Interactions.c.reached_on,
-            Interactions.c.beneficiary_id,
-            Interactions.c.reach_type,
-            fn.COUNT(Interactions.c.beneficiary_id).alias("count"),
-        )
-        .from_(Interactions)
-        .group_by(
-            SQL("reached_on"),
-            SQL("beneficiary_id"),
-            SQL("reach_type"),
-        )
-        .dicts()
-        .execute()
-    )
+    facts = execute_sql(query=BENEFICIARIES_REACHED_QUERY)
     for fact in facts:
-        fact["reach_type"] = BeneficiaryReachType(fact["reach_type"])
+        fact["reach_type"] = BeneficiaryReachType[fact["reach_type"]]
+
     dimensions = _generate_dimensions("beneficiary", facts=facts)
     beneficiary_dimensions = list(dimensions["beneficiary"])
     for b in beneficiary_dimensions:
         b["tag_ids"] = sorted(convert_ids(b["tag_ids"]))
     dimensions["beneficiary"] = beneficiary_dimensions
     dimensions.update(_generate_dimensions("tag", facts=beneficiary_dimensions))
+
     return DataCube(facts=facts, dimensions=dimensions, type="BeneficiaryReachData")
 
 
