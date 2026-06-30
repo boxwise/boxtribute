@@ -552,7 +552,7 @@ GROUP BY
 
 BENEFICIARIES_REACHED_QUERY = """\
 SELECT
-    reached_on,
+    DATE(reached_on) AS reached_on,
     beneficiary_id,
     reach_type,
     COUNT(beneficiary_id) AS count
@@ -632,6 +632,6 @@ FROM (
     -- de-duplicate multiple tags being assigned at once
     GROUP BY tr.created_on, tr.object_id
 ) i
-GROUP BY reached_on, beneficiary_id, reach_type
-ORDER BY reach_type, reached_on, beneficiary_id
+GROUP BY DATE(reached_on), beneficiary_id, reach_type
+ORDER BY reach_type, DATE(reached_on), beneficiary_id
 """

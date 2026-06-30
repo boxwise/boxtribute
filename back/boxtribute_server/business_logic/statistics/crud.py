@@ -114,6 +114,7 @@ def _generate_dimensions(*names, facts):
             )
             .where(Beneficiary.id << beneficiary_ids)
             .group_by(Beneficiary.id)
+            .order_by(Beneficiary.id)
             .dicts()
         )
 
