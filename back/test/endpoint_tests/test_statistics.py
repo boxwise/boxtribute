@@ -816,6 +816,7 @@ def test_authorization(client, mocker):
     # ...but not beneficiary-related data
     for query in [
         "query { beneficiaryDemographics(baseId: 3) { facts { age } } }",
+        "query { beneficiaryReach(baseId: 3) { facts { reachedOn } } }",
         "query { topProductsCheckedOut(baseId: 3) { facts { productId } } }",
     ]:
         assert_forbidden_request(client, query)
@@ -825,6 +826,7 @@ def test_authorization(client, mocker):
     # Hence the user is not allowed to access data from base 4
     for query in [
         "query { beneficiaryDemographics(baseId: 4) { facts { age } } }",
+        "query { beneficiaryReach(baseId: 4) { facts { reachedOn } } }",
         "query { createdBoxes(baseId: 4) { facts { productId } } }",
         "query { topProductsCheckedOut(baseId: 4) { facts { productId } } }",
         "query { topProductsDonated(baseId: 4) { facts { productId } } }",
@@ -855,6 +857,9 @@ def test_authorization(client, mocker):
     # User lacks 'beneficiary:read' permission
     mock_user_for_request(mocker, permissions=["tag_relation:read"])
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
+    assert_forbidden_request(client, query)
+
+    query = "query { beneficiaryReach(baseId: 1) { facts { reachedOn } } }"
     assert_forbidden_request(client, query)
 
 
