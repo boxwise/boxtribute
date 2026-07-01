@@ -51,6 +51,10 @@ def data():
     ]
 
 
+def kilogram_unit_data():
+    return data()[0]
+
+
 def gram_unit_data():
     return data()[3]
 

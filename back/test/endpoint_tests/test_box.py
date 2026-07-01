@@ -38,6 +38,9 @@ def test_box_query_by_label_identifier(
                     numberOfItems
                     product {{ id }}
                     size {{ id }}
+                    weight
+                    weightDisplayUnit {{ id }}
+                    monetaryValue
                     displayUnit {{ id }}
                     measureValue
                     state
@@ -63,6 +66,9 @@ def test_box_query_by_label_identifier(
         "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
+        "weight": default_box["weight"],
+        "weightDisplayUnit": {"id": str(default_box["weight_display_unit"])},
+        "monetaryValue": default_box["monetary_value"],
         "displayUnit": None,
         "measureValue": None,
         "state": BoxState.InStock.name,
