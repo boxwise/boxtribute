@@ -319,21 +319,6 @@ export default function BeneficiaryReachChart({
           </ButtonGroup>
         </HStack>
         <BarChart {...chartProps} />
-        <Wrap mt={4} spacing={4}>
-          {keys.map((key) => (
-            <WrapItem key={key}>
-              <HStack spacing={2}>
-                <Box
-                  w="12px"
-                  h="12px"
-                  backgroundColor={colorMap[key] ?? "#cccccc"}
-                  borderRadius="sm"
-                />
-                <Text>{key}</Text>
-              </HStack>
-            </WrapItem>
-          ))}
-        </Wrap>
       </CardBody>
     </Card>
   );
