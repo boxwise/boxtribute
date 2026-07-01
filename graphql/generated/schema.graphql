@@ -1137,7 +1137,10 @@ type Base {
   deletedOn: Datetime
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
-  currencyName: String
+  " ISO 4217 currency code for monetary value of e.g. boxes "
+  currency: String!
+  " Currency for FreeShop distributions "
+  freeshopCurrencyName: String
   " List of all non-deleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
   " List of all non-deleted [`Products`]({{Types.Product}}) registered in this base "
