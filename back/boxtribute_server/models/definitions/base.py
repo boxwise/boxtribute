@@ -9,9 +9,12 @@ from .user import User
 
 class Base(Model):
     name = CharField(null=True)
+    # The FreeShop currency
     currency_name = CharField(
         column_name="currencyname", constraints=[SQL("DEFAULT 'Tokens'")]
     )
+    # Currency code for monetary value of e.g. boxes
+    currency = CharField(column_name="currency", constraints=[SQL("DEFAULT 'EUR'")])
 
     adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
     created = DateTimeField(null=True)
