@@ -39,28 +39,24 @@ interface BeneficiaryFiguresCardsProps {
 export default function BeneficiaryFiguresCards({ figures }: BeneficiaryFiguresCardsProps) {
   const cards: StatCardProps[] = [
     {
-      label: "New Registrations (last 30 days)",
-      value: String(figures.newRegistrationsLast30Days),
+      label: "Avg. major head of household",
+      value: `${(figures.majorFamilyHeadGenderPercentage * 100).toFixed(1)}% ${figures.majorFamilyHeadGender}`,
     },
     {
-      label: "Average Family Size",
+      label: "Average household size",
       value: figures.averageFamilySize.toFixed(1),
     },
     {
-      label: "Major Family Head Gender",
-      value: figures.majorFamilyHeadGender,
-    },
-    {
-      label: "Major Family Head Gender %",
-      value: `${(figures.majorFamilyHeadGenderPercentage * 100).toFixed(1)}%`,
-    },
-    {
-      label: "Avg. Items per Visit per Beneficiary",
+      label: "Avg. items per visit per beneficiary",
       value: figures.averageItemsPerVisitPerBeneficiary.toFixed(1),
     },
     {
-      label: "Avg. Total Items per Beneficiary",
+      label: "Avg. total items per beneficiary",
       value: figures.averageTotalItemsPerBeneficiary.toFixed(1),
+    },
+    {
+      label: "New registrations (last 30 days)",
+      value: String(figures.newRegistrationsLast30Days),
     },
     {
       label: "Without Freeshop Visit (last 90 days)",
