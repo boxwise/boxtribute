@@ -96,7 +96,7 @@ export default function BarChart(barChart: IBarChart) {
         ]
       : [];
 
-  const isPercentWidth = barChart.width.endsWith("%");
+  const isPercentWidth = String(barChart.width).endsWith("%");
   const rightMargin = barChart.legend === true ? 150 : isPercentWidth ? 40 : percent(width, 10);
   const leftMargin = isPercentWidth ? 40 : percent(width, 10);
   return (

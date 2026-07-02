@@ -36,7 +36,7 @@ export default function PieChart(chart: IPieChart) {
   }, [ref]);
 
   const height = parseInt(chart.height, 10);
-  const isPercentWidth = chart.width.endsWith("%");
+  const isPercentWidth = String(chart.width).endsWith("%");
   const width = isPercentWidth ? 400 : parseInt(chart.width, 10);
   const baseFontSize = getBaseFontSize(width, height);
 

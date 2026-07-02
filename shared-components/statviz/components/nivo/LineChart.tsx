@@ -32,7 +32,7 @@ export default function LineChart(chart: ILineChart) {
   }, [ref]);
 
   const height = parseInt(chart.height, 10);
-  const isPercentWidth = chart.width.endsWith("%");
+  const isPercentWidth = String(chart.width).endsWith("%");
   const width = isPercentWidth ? 800 : parseInt(chart.width, 10);
   const baseFontSize = getBaseFontSize(width, height);
   const theme = scaledNivoTheme(width, height, Math.max(chart.data.length, 5));
