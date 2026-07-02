@@ -74,21 +74,11 @@ export default function Demographics({ tags }: DemographicsProps) {
               />
             </FilterPanel>
           </HStack>
-          <Wrap gap={6} align="flex-start">
-            <WrapItem flex="1" minWidth="300px" overflow="auto" padding="5px">
-              <VStack align="stretch" spacing={4} width="100%">
+    <SimpleGrid minChildWidth="500px" columns={{ base: 1, md: 3 }} spacing={4}>
                 <BeneficiaryFiguresDataContainer />
-              </VStack>
-            </WrapItem>
-            <WrapItem overflow="auto" padding="5px">
               <DemographicDataContainer appliedFilters={appliedFilters} />
-            </WrapItem>
-          </Wrap>
-          <Wrap gap={6}>
-            <WrapItem overflow="auto" padding="5px">
+    </SimpleGrid>
               <BeneficiaryReachDataContainer appliedFilters={appliedFilters} />
-            </WrapItem>
-          </Wrap>
         </VStack>
       </AccordionPanel>
     </AccordionItem>
