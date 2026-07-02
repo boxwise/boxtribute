@@ -18,11 +18,13 @@ import BeneficiaryReachDataContainer from "../components/visualizations/demograp
 import {
   readDemographicsFiltersFromUrl,
   writeDemographicsFiltersToUrl,
+  DEFAULT_DEMOGRAPHICS_FILTERS,
   type DemographicsAppliedFilters,
   type ITagOption,
 } from "../utils/dashboardFilters";
 import { FilterPanel } from "../../filter/FilterPanel";
 import { BeneficiaryFilters } from "./../components/filter/BeneficiaryFilters";
+import DashboardFilterChips from "./DashboardFilterChips";
 
 interface DemographicsProps {
   tags: ITagOption[];
@@ -45,6 +47,49 @@ export default function BeneficiaryOverview({ tags }: DemographicsProps) {
     [searchParams, setSearchParams],
   );
 
+  const filterChips = useMemo(
+    () => [
+      ...appliedFilters.ageRanges.map((ageRange) => ({
+        key: `age-range-${ageRange}`,
+        label: ageRange,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            ageRanges: appliedFilters.ageRanges.filter((range) => range !== ageRange),
+          }),
+      })),
+      ...appliedFilters.genders.map((gender) => ({
+        key: `gender-${gender}`,
+        label: gender,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            genders: appliedFilters.genders.filter((g) => g !== gender),
+          }),
+      })),
+      ...appliedFilters.includedTags.map((tag) => ({
+        key: `included-tag-${tag.id}`,
+        label: tag.label,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            includedTags: appliedFilters.includedTags.filter((t) => t.id !== tag.id),
+          }),
+      })),
+      ...appliedFilters.excludedTags.map((tag) => ({
+        key: `excluded-tag-${tag.id}`,
+        label: tag.label,
+        isExcluded: true,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            excludedTags: appliedFilters.excludedTags.filter((t) => t.id !== tag.id),
+          }),
+      })),
+    ],
+    [appliedFilters, handleApplyFilters],
+  );
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -57,21 +102,28 @@ export default function BeneficiaryOverview({ tags }: DemographicsProps) {
       </AccordionButton>
       <AccordionPanel>
         <VStack align="stretch" spacing={4}>
-          <HStack justify="flex-end">
-            <FilterPanel
-              label="Beneficiary Filters"
-              isOpen={isOpen}
-              onOpen={onOpen}
-              onClose={onClose}
-            >
-              <BeneficiaryFilters
+          <HStack justify="space-between" align="flex-start">
+            <DashboardFilterChips
+              chips={filterChips}
+              onClearAllFilters={() => handleApplyFilters(DEFAULT_DEMOGRAPHICS_FILTERS)}
+              testIdPrefix="beneficiary"
+            />
+            <Box marginLeft="auto">
+              <FilterPanel
+                label="Beneficiary Filters"
                 isOpen={isOpen}
+                onOpen={onOpen}
                 onClose={onClose}
-                appliedFilters={appliedFilters}
-                tags={tags}
-                onApply={handleApplyFilters}
-              />
-            </FilterPanel>
+              >
+                <BeneficiaryFilters
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  appliedFilters={appliedFilters}
+                  tags={tags}
+                  onApply={handleApplyFilters}
+                />
+              </FilterPanel>
+            </Box>
           </HStack>
           <SimpleGrid minChildWidth="300px" columns={{ base: 1, md: 3 }} spacing={4}>
             <BeneficiaryFiguresDataContainer />

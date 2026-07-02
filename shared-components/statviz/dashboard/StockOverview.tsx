@@ -19,6 +19,7 @@ import StockOverviewRingDataContainer from "../components/visualizations/stock/S
 import StockOverviewBarsDataContainer from "../components/visualizations/stock/StockOverviewBarsDataContainer";
 import {
   STOCK_URL_PARAMS,
+  DEFAULT_STOCK_FILTERS,
   readStockFiltersFromUrl,
   writeStockFiltersToUrl,
   type StockAppliedFilters,
@@ -30,6 +31,7 @@ import {
 import type { BoxesOrItems } from "../components/filter/BoxesOrItemsSelect";
 import { FilterPanel } from "../../filter/FilterPanel";
 import { StockFilters } from "./../components/filter/StockFilters";
+import DashboardFilterChips from "./DashboardFilterChips";
 
 interface ItemsAndBoxesProps {
   products: IProductOption[];
@@ -72,6 +74,67 @@ export default function StockOverview({
     [searchParams, setSearchParams],
   );
 
+  const filterChips = useMemo(
+    () => [
+      ...appliedFilters.genders.map((gender) => ({
+        key: `gender-${gender}`,
+        label: gender,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            genders: appliedFilters.genders.filter((g) => g !== gender),
+          }),
+      })),
+      ...appliedFilters.products.map((product) => ({
+        key: `product-${product.id}`,
+        label: product.gender ? `${product.name} (${product.gender})` : product.name,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            products: appliedFilters.products.filter((p) => p.id !== product.id),
+          }),
+      })),
+      ...appliedFilters.categories.map((category) => ({
+        key: `category-${category.id}`,
+        label: category.name,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            categories: appliedFilters.categories.filter((c) => c.id !== category.id),
+          }),
+      })),
+      ...appliedFilters.locations.map((location) => ({
+        key: `location-${location.id}`,
+        label: location.name,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            locations: appliedFilters.locations.filter((l) => l.id !== location.id),
+          }),
+      })),
+      ...appliedFilters.includedTags.map((tag) => ({
+        key: `included-tag-${tag.id}`,
+        label: tag.label,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            includedTags: appliedFilters.includedTags.filter((t) => t.id !== tag.id),
+          }),
+      })),
+      ...appliedFilters.excludedTags.map((tag) => ({
+        key: `excluded-tag-${tag.id}`,
+        label: tag.label,
+        isExcluded: true,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            excludedTags: appliedFilters.excludedTags.filter((t) => t.id !== tag.id),
+          }),
+      })),
+    ],
+    [appliedFilters, handleApplyFilters],
+  );
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <AccordionItem>
@@ -83,28 +146,35 @@ export default function StockOverview({
       </AccordionButton>
       <AccordionPanel>
         <VStack align="stretch" spacing={4}>
-          <HStack justify="flex-end" spacing={2}>
-            <Select
-              size="md"
-              value={boxesOrItems}
-              onChange={handleBoxesOrItemsChange}
-              width="120px"
-            >
-              <option value="boxesCount">Boxes</option>
-              <option value="itemsCount">Items</option>
-            </Select>
-            <FilterPanel label="Stock Filters" isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
-              <StockFilters
-                isOpen={isOpen}
-                onClose={onClose}
-                appliedFilters={appliedFilters}
-                products={products}
-                categories={categories}
-                locations={locations}
-                tags={tags}
-                onApply={handleApplyFilters}
-              />
-            </FilterPanel>
+          <HStack justify="space-between" spacing={2} align="flex-start">
+            <DashboardFilterChips
+              chips={filterChips}
+              onClearAllFilters={() => handleApplyFilters(DEFAULT_STOCK_FILTERS)}
+              testIdPrefix="stock"
+            />
+            <HStack spacing={2} marginLeft="auto">
+              <Select
+                size="md"
+                value={boxesOrItems}
+                onChange={handleBoxesOrItemsChange}
+                width="120px"
+              >
+                <option value="boxesCount">Boxes</option>
+                <option value="itemsCount">Items</option>
+              </Select>
+              <FilterPanel label="Stock Filters" isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+                <StockFilters
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  appliedFilters={appliedFilters}
+                  products={products}
+                  categories={categories}
+                  locations={locations}
+                  tags={tags}
+                  onApply={handleApplyFilters}
+                />
+              </FilterPanel>
+            </HStack>
           </HStack>
           <SimpleGrid minChildWidth="500px" spacing={4}>
             <StockOverviewRingDataContainer
