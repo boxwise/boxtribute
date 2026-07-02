@@ -191,7 +191,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                     const localY = localPoint(event)?.y ?? 0;
                     showTooltip({
                       tooltipData: tooltip,
-                      tooltipTop: localY - fields.height,
+                      tooltipTop: localY - height,
                       tooltipLeft: localPoint(event)?.x,
                     });
                   }}
@@ -223,7 +223,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
 
                     showTooltip({
                       tooltipData: tooltip,
-                      tooltipTop: localY - fields.height,
+                      tooltipTop: localY - height,
                       tooltipLeft: localPoint(event)?.x ?? 0,
                     });
                   }}

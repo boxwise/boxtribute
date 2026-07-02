@@ -108,7 +108,7 @@ export default function ItemsAndBoxes({
               />
             </FilterPanel>
           </HStack>
-          <SimpleGrid minChildWidth="400px" spacing={4}>
+          <SimpleGrid minChildWidth="500px" spacing={4}>
             <StockOverviewRingDataContainer
               appliedFilters={appliedFilters}
               boxesOrItems={boxesOrItems}

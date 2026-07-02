@@ -38,7 +38,8 @@ export default function BarChart(barChart: IBarChart) {
   }, [ref]);
 
   const height = parseInt(barChart.height, 10);
-  const width = parseInt(barChart.width, 10);
+  const isPercentWidth = String(barChart.width).endsWith("%");
+  const width = isPercentWidth ? 600 : parseInt(barChart.width, 10);
 
   const theme = scaledNivoTheme(width, height, barChart.data.length);
   const marginBottom = percent(height, 25);
@@ -96,7 +97,6 @@ export default function BarChart(barChart: IBarChart) {
         ]
       : [];
 
-  const isPercentWidth = String(barChart.width).endsWith("%");
   const rightMargin = barChart.legend === true ? 150 : isPercentWidth ? 40 : percent(width, 10);
   const leftMargin = isPercentWidth ? 40 : percent(width, 10);
   return (
