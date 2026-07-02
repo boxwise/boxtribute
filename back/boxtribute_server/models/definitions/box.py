@@ -120,6 +120,28 @@ class Box(Model):
         on_update="CASCADE",
         on_delete="SET NULL",
     )
+    # The unit that the weight is displayed in the front-end in
+    weight_display_unit = UIntForeignKeyField(
+        column_name="weight_display_unit_id",
+        field="id",
+        model=Unit,
+        null=True,
+        default=1,  # kilogram
+        on_update="CASCADE",
+        on_delete="RESTRICT",
+    )
+    # Stored in kg
+    weight = DecimalField(
+        max_digits=36,
+        decimal_places=18,
+        null=True,
+    )
+    # Determined by Base.currency
+    monetary_value = DecimalField(
+        max_digits=36,
+        decimal_places=18,
+        null=True,
+    )
 
     class Meta:
         table_name = "stock"

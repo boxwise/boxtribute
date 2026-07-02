@@ -8,7 +8,7 @@
         "name": {
           "documentation": { "example": "Lesvos" }
         },
-        "currencyName": {
+        "freeshopCurrencyName": {
           "documentation": { "example": "drops" }
         }
       }

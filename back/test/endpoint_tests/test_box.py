@@ -38,6 +38,9 @@ def test_box_query_by_label_identifier(
                     numberOfItems
                     product {{ id }}
                     size {{ id }}
+                    weight
+                    weightDisplayUnit {{ id }}
+                    monetaryValue
                     displayUnit {{ id }}
                     measureValue
                     state
@@ -63,6 +66,9 @@ def test_box_query_by_label_identifier(
         "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
+        "weight": default_box["weight"],
+        "weightDisplayUnit": {"id": str(default_box["weight_display_unit"])},
+        "monetaryValue": default_box["monetary_value"],
         "displayUnit": None,
         "measureValue": None,
         "state": BoxState.InStock.name,
@@ -228,12 +234,16 @@ def test_box_mutations(
     number_of_items = 3
     comment = "good box"
     tag_id = str(tags[1]["id"])
+    weight = 7.8
+    monetary_value = 10.11
     new_tag_name = "new"
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
                     sizeId: {size_id},
                     numberOfItems: {number_of_items}
+                    weight: {weight}
+                    monetaryValue: {monetary_value}
                     comment: "{comment}"
                     qrCode: "{qr_code_without_box["code"]}"
                     tagIds: [{tag_id}]
@@ -247,6 +257,8 @@ def test_box_mutations(
                 product {{ id }}
                 size {{ id }}
                 qrCode {{ id }}
+                weight
+                monetaryValue
                 state
                 tags {{ id name }}
                 history {{ changes }}
@@ -262,6 +274,8 @@ def test_box_mutations(
         "product": {"id": product_id},
         "size": {"id": size_id},
         "qrCode": {"id": str(qr_code_without_box["id"])},
+        "weight": weight,
+        "monetaryValue": monetary_value,
         "state": BoxState.InStock.name,
         "tags": [{"name": tags[1]["name"]}, {"name": new_tag_name}],
         "history": [{"changes": "created box"}],
@@ -1818,6 +1832,22 @@ def test_mutate_box_with_invalid_input(
     creation_input = f"""{{ {mandatory_input}
                     displayUnitId: {unit_id}
                     measureValue: -200
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id},
+                    weight: -30
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id},
+                    monetaryValue: -1
                 }}"""
     mutation = f"""mutation {{
             createBox( creationInput : {creation_input} ) {{ id }} }}"""

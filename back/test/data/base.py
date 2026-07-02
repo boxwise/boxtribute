@@ -11,7 +11,7 @@ def data():
         {
             "id": 1,
             "name": "the best name",
-            "currency_name": "dingo dollars",
+            "freeshop_currency_name": "dingo dollars",
             "seq": 1,
             "organisation": organisation_data()[0]["id"],
             "deleted_on": None,
@@ -19,7 +19,7 @@ def data():
         {
             "id": 2,
             "name": "Aßlar",
-            "currency_name": "monster munch",
+            "freeshop_currency_name": "monster munch",
             "seq": 1,
             "organisation": organisation_data()[0]["id"],
             "deleted_on": None,
@@ -27,7 +27,7 @@ def data():
         {
             "id": 3,
             "name": "Würzburg",
-            "currency_name": "mustard",
+            "freeshop_currency_name": "mustard",
             "seq": 1,
             "organisation": organisation_data()[1]["id"],
             "deleted_on": None,
@@ -35,7 +35,7 @@ def data():
         {
             "id": 4,
             "name": "second base",
-            "currency_name": "pounds",
+            "freeshop_currency_name": "pounds",
             "seq": 1,
             "organisation": organisation_data()[1]["id"],
             "deleted_on": None,
@@ -43,7 +43,7 @@ def data():
         {
             "id": 5,
             "name": "third base",
-            "currency_name": "euro",
+            "freeshop_currency_name": "euro",
             "seq": 1,
             "organisation": organisation_data()[2]["id"],
             "deleted_on": datetime(2023, 1, 1),

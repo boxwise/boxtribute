@@ -14,7 +14,7 @@ from .qr_code import (
     qr_code_for_not_delivered_box_data,
 )
 from .size import another_size_data, default_size_data
-from .unit import gram_unit_data
+from .unit import gram_unit_data, kilogram_unit_data
 from .user import default_user_data
 
 
@@ -34,6 +34,9 @@ def default_box_data():
         "qr_code": default_qr_code_data()["id"],
         "display_unit": None,
         "measure_value": None,
+        "weight": 15.6,
+        "weight_display_unit": kilogram_unit_data()["id"],
+        "monetary_value": 99.9,
         "deleted_on": None,
     }
 
