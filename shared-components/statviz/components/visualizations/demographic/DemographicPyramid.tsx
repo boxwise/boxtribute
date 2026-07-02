@@ -36,7 +36,7 @@ interface IDemographicChartProps {
   height: number;
 }
 
-const heading = "Beneficiary Registrations";
+const heading = "Beneficiaries by Age and Gender";
 
 export default function DemographicPyramid({
   demographics,
@@ -109,8 +109,8 @@ export default function DemographicPyramid({
 
   const beneficiariesRegistrationsText = (
     <Text as="div">
-      There were <chakra.span as="b">{totalCount}</chakra.span> beneficiaries registered in the
-      selected time period, <chakra.span as="b">{maleCount}</chakra.span> were male and{" "}
+      There were <chakra.span as="b">{totalCount}</chakra.span> beneficiaries registered in total,{" "}
+      <chakra.span as="b">{maleCount}</chakra.span> were male and{" "}
       <chakra.span as="b">{femaleCount}</chakra.span> were female.
       {ageNullOrDiverseCount ? (
         <chakra.span>
