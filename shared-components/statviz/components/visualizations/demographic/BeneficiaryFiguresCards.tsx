@@ -1,4 +1,4 @@
-import { Box, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, SimpleGrid, Text, Card, CardBody } from "@chakra-ui/react";
 import { ResultOf } from "gql.tada";
 import { BENEFICIARY_FIGURES_QUERY } from "../../../queries/queries";
 
@@ -65,10 +65,17 @@ export default function BeneficiaryFiguresCards({ figures }: BeneficiaryFiguresC
   ];
 
   return (
-    <SimpleGrid columns={3} spacing={3} minChildWidth="160px">
-      {cards.map((card) => (
-        <StatCard key={card.label} {...card} />
-      ))}
-    </SimpleGrid>
+    <Card>
+      <CardBody>
+        <Text mb={5} fontWeight="bold" fontSize="xl">
+          Beneficiary Insights
+        </Text>
+        <SimpleGrid columns={3} spacing={3} minChildWidth="160px">
+          {cards.map((card) => (
+            <StatCard key={card.label} {...card} />
+          ))}
+        </SimpleGrid>
+      </CardBody>
+    </Card>
   );
 }

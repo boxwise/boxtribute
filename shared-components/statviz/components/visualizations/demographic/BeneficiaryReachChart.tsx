@@ -1,15 +1,4 @@
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Card,
-  CardBody,
-  HStack,
-  Input,
-  Text,
-  Wrap,
-  WrapItem,
-} from "@chakra-ui/react";
+import { Button, ButtonGroup, Card, CardBody, HStack, Input, Text } from "@chakra-ui/react";
 import { BarDatum } from "@nivo/bar";
 import { eachMonthOfInterval, format, parseISO } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
@@ -285,7 +274,7 @@ export default function BeneficiaryReachChart({
               width="auto"
             />
           </HStack>
-          <ButtonGroup size="sm" isAttached variant="outline">
+          <ButtonGroup size="md" isAttached variant="outline">
             <Button
               colorScheme={metricMode === "unique" ? "blue" : "gray"}
               variant={metricMode === "unique" ? "solid" : "outline"}
@@ -301,20 +290,20 @@ export default function BeneficiaryReachChart({
               Total Interactions
             </Button>
           </ButtonGroup>
-          <ButtonGroup size="sm" isAttached variant="outline">
+          <ButtonGroup size="md" isAttached variant="outline">
             <Button
               colorScheme={breakdownMode === "age" ? "blue" : "gray"}
               variant={breakdownMode === "age" ? "solid" : "outline"}
               onClick={() => setBreakdownMode("age")}
             >
-              By Age
+              Age
             </Button>
             <Button
               colorScheme={breakdownMode === "gender" ? "blue" : "gray"}
               variant={breakdownMode === "gender" ? "solid" : "outline"}
               onClick={() => setBreakdownMode("gender")}
             >
-              By Gender
+              Gender
             </Button>
           </ButtonGroup>
         </HStack>
