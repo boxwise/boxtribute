@@ -38,7 +38,7 @@ interface ItemsAndBoxesProps {
   tags: ITagOption[];
 }
 
-export default function ItemsAndBoxes({
+export default function StockOverview({
   products,
   categories,
   locations,

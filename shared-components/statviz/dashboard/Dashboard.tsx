@@ -2,9 +2,9 @@ import { Accordion, Heading } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useMemo } from "react";
-import Demographics from "./Demographics";
+import BeneficiaryOverview from "./BeneficiaryOverview";
 import MovedBoxes from "./MovedBoxes";
-import ItemsAndBoxes from "./ItemsAndBoxes";
+import StockOverview from "./StockOverview";
 import InfoText from "./InfoText";
 import { graphql } from "../../../graphql/graphql";
 import ErrorCard from "../components/ErrorCard";
@@ -101,14 +101,14 @@ export default function Dashboard() {
       <InfoText />
 
       <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
-        <ItemsAndBoxes
+        <StockOverview
           products={products}
           categories={categories}
           locations={locations}
           tags={tags}
         />
         <MovedBoxes products={products} categories={categories} tags={tags} />
-        <Demographics tags={tags} />
+        <BeneficiaryOverview tags={tags} />
       </Accordion>
     </div>
   );

@@ -23,7 +23,7 @@ interface DemographicsFiltersProps {
   onApply: (filters: DemographicsAppliedFilters) => void;
 }
 
-export function DemographicsFilters({
+export function BeneficiaryFilters({
   isOpen,
   onClose,
   appliedFilters,

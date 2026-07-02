@@ -22,13 +22,13 @@ import {
   type ITagOption,
 } from "../utils/dashboardFilters";
 import { FilterPanel } from "../../filter/FilterPanel";
-import { DemographicsFilters } from "./../components/filter/DemographicsFilters";
+import { BeneficiaryFilters } from "./../components/filter/BeneficiaryFilters";
 
 interface DemographicsProps {
   tags: ITagOption[];
 }
 
-export default function Demographics({ tags }: DemographicsProps) {
+export default function BeneficiaryOverview({ tags }: DemographicsProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const appliedFilters = useMemo(
@@ -59,12 +59,12 @@ export default function Demographics({ tags }: DemographicsProps) {
         <VStack align="stretch" spacing={4}>
           <HStack justify="flex-end">
             <FilterPanel
-              label="Demographics Filters"
+              label="Beneficiary Filters"
               isOpen={isOpen}
               onOpen={onOpen}
               onClose={onClose}
             >
-              <DemographicsFilters
+              <BeneficiaryFilters
                 isOpen={isOpen}
                 onClose={onClose}
                 appliedFilters={appliedFilters}
