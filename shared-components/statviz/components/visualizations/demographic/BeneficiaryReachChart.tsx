@@ -245,7 +245,6 @@ export default function BeneficiaryReachChart({
         defaultWidth={800}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={900}
       />
       <CardBody>
         <HStack mb={4} spacing={4} flexWrap="wrap">

@@ -179,7 +179,6 @@ export default function DemographicPyramid({
   return (
     <Card>
       <VisHeader
-        maxWidthPx={width}
         heading={heading}
         onExport={onExport}
         chartProps={chartProps}

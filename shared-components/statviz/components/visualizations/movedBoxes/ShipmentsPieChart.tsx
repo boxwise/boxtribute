@@ -135,7 +135,6 @@ export default function ShipmentsPieChart({
         defaultWidth={500}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={600}
       />
       <CardBody>
         <Wrap mb={4}>

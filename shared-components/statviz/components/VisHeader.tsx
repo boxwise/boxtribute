@@ -38,7 +38,6 @@ const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
 interface IVisHeaderProps {
   heading: string;
-  maxWidthPx: number | string;
   onExport: (
     width: number,
     height: number,
@@ -60,7 +59,6 @@ interface IVisHeaderProps {
 
 export default function VisHeader({
   heading,
-  maxWidthPx,
   onExport,
   defaultWidth,
   defaultHeight,
@@ -110,16 +108,8 @@ export default function VisHeader({
     );
   };
 
-  const getMaxWidth = () => {
-    const marginInPx = 50;
-    if (typeof maxWidthPx === "string") {
-      return parseInt(maxWidthPx, 10) + marginInPx;
-    }
-    return maxWidthPx + marginInPx;
-  };
-
   return (
-    <CardHeader maxWidth={getMaxWidth()}>
+    <CardHeader>
       <Accordion allowMultiple>
         {!isPublicView && (
           <AccordionItem border="none">

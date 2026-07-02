@@ -146,7 +146,6 @@ export default function BoxFlowSankey({
           defaultWidth={1000}
           heading={heading}
           chartProps={chartProps}
-          maxWidthPx={1000}
         />
         <CardBody>
           <SankeyChart {...chartProps} />
@@ -274,7 +273,6 @@ export default function BoxFlowSankey({
         defaultWidth={1000}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={1000}
       />
       <CardBody>
         <SankeyChart {...chartProps} />

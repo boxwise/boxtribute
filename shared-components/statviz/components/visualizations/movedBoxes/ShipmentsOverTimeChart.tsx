@@ -113,7 +113,6 @@ export default function ShipmentsOverTimeChart({
         defaultWidth={800}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={900}
       />
       <CardBody>
         <LineChart {...chartProps} animate />
