@@ -4,12 +4,12 @@ import { useSearchParams } from "react-router-dom";
 import { groupBy, sum, summarize, tidy, map } from "@tidyjs/tidy";
 import { format, parseISO } from "date-fns";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
-import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import CalendarChart from "../../nivo/CalendarChart";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
 import {
+  BoxesOrItemsCount,
   readCalendarFiltersFromUrl,
   writeCalendarFiltersToUrl,
 } from "../../../utils/dashboardFilters";

@@ -447,3 +447,5 @@ export function toProductFilterValues(products: IProductOption[]): IFilterValue[
     urlId: String(p.id),
   }));
 }
+
+export type BoxesOrItemsCount = "boxesCount" | "itemsCount";

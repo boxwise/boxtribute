@@ -31,8 +31,6 @@ import type { BoxesOrItems } from "../components/filter/BoxesOrItemsSelect";
 import { FilterPanel } from "../../filter/FilterPanel";
 import { StockFilters } from "./../components/filter/StockFilters";
 
-export type BoxesOrItemsCount = "boxesCount" | "itemsCount";
-
 interface ItemsAndBoxesProps {
   products: IProductOption[];
   categories: ICategoryOption[];
