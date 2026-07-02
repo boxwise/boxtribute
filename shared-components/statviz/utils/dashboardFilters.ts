@@ -1,5 +1,5 @@
 import { date2String } from "../../utils/helpers";
-import { subMonths, subYears } from "date-fns";
+import { subYears } from "date-fns";
 import { ProductGender } from "../../../graphql/types";
 import type { IFilterValue } from "../components/filter/ValueFilter";
 

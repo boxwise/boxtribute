@@ -51,19 +51,6 @@ const marginRight = 40;
 const marginBottom = 70;
 
 export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
-  const { width } = chart;
-
-  if (typeof width === "string") {
-    // Fluid mode: let ParentSize measure the container and re-render with a real pixel width
-    return (
-      <div style={{ width }}>
-        <ParentSize>
-          {({ width: measuredWidth }) => <BarChartCenterAxis {...chart} width={measuredWidth} />}
-        </ParentSize>
-      </div>
-    );
-  }
-
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,8 +60,6 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
       chart.rendered(firstRender);
     }
   });
-
-  const fields = { ...chart };
 
   const {
     showTooltip,
@@ -88,6 +73,19 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     tooltipOpen: false,
   });
 
+  if (typeof chart.width === "string") {
+    // Fluid mode: let ParentSize measure the container and re-render with a real pixel width
+    return (
+      <div style={{ chart.width }}>
+        <ParentSize>
+          {({ width: measuredWidth }) => <BarChartCenterAxis {...chart} width={measuredWidth} />}
+        </ParentSize>
+      </div>
+    );
+  }
+
+  const fields = { ...chart };
+
   let tooltipTimeout: number;
 
   if (!fields.settings) {
@@ -99,6 +97,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   };
 
   const height = parseInt(chart.height, 10);
+  const width = parseInt(chart.width, 10);
   const includeHeading = typeof chart.heading === "string";
   const includeTimerange = typeof chart.timerange === "string";
   const marginTop = getMarginTop(height, width, includeHeading, includeTimerange);
