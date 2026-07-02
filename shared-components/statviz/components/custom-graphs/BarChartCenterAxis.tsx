@@ -76,7 +76,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   if (typeof chart.width === "string") {
     // Fluid mode: let ParentSize measure the container and re-render with a real pixel width
     return (
-      <div style={{ chart.width }}>
+      <div style={{ width: chart.width }}>
         <ParentSize>
           {({ width: measuredWidth }) => <BarChartCenterAxis {...chart} width={measuredWidth} />}
         </ParentSize>
