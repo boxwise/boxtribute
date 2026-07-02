@@ -164,7 +164,7 @@ export const DEFAULT_DEMOGRAPHICS_FILTERS: DemographicsAppliedFilters = {
 
 export function defaultMovementFilters(): MovementAppliedFilters {
   return {
-    dateFrom: date2String(subMonths(new Date(), 3)),
+    dateFrom: date2String(subYears(new Date(), 1)),
     dateTo: date2String(new Date()),
     products: [],
     genders: [],

@@ -6,5 +6,5 @@ interface IDemographicChartProps {
 }
 
 export default function DemographicCharts({ demographics }: IDemographicChartProps) {
-  return <DemographicPyramid width="100%" height={800} demographics={demographics} />;
+  return <DemographicPyramid width="100%" height="500" demographics={demographics} />;
 }

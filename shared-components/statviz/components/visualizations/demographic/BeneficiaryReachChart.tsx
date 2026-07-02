@@ -231,7 +231,7 @@ export default function BeneficiaryReachChart({
     data: chartData,
     keys,
     indexBy: "month",
-    width: "800px",
+    width: "100%",
     height: "400px",
     colors,
     legend: true,

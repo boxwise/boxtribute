@@ -32,8 +32,8 @@ export interface IDemographicCube {
 
 interface IDemographicChartProps {
   demographics: Partial<BeneficiaryDemographics>;
-  width: number;
-  height: number;
+  width: string;
+  height: string;
 }
 
 const heading = "Beneficiaries by Age and Gender";
@@ -185,7 +185,7 @@ export default function DemographicPyramid({
         defaultHeight={800}
         defaultWidth={600}
       />
-      <CardBody id="chart-container" style={{ width: "100%", height: "100%" }}>
+      <CardBody>
         {beneficiariesRegistrationsText}
         <BarChartCenterAxis {...chartProps} />
       </CardBody>

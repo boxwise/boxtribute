@@ -6,10 +6,9 @@ import {
   HStack,
   AccordionIcon,
   AccordionPanel,
-  Wrap,
-  WrapItem,
   Box,
   VStack,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -74,11 +73,13 @@ export default function Demographics({ tags }: DemographicsProps) {
               />
             </FilterPanel>
           </HStack>
-    <SimpleGrid minChildWidth="500px" columns={{ base: 1, md: 3 }} spacing={4}>
-                <BeneficiaryFiguresDataContainer />
+          <SimpleGrid minChildWidth="300px" columns={{ base: 1, md: 3 }} spacing={4}>
+            <BeneficiaryFiguresDataContainer />
+            <Box gridColumn={{ md: "span 2" }}>
               <DemographicDataContainer appliedFilters={appliedFilters} />
-    </SimpleGrid>
-              <BeneficiaryReachDataContainer appliedFilters={appliedFilters} />
+            </Box>
+          </SimpleGrid>
+          <BeneficiaryReachDataContainer appliedFilters={appliedFilters} />
         </VStack>
       </AccordionPanel>
     </AccordionItem>

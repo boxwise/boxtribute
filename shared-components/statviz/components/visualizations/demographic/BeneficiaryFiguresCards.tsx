@@ -70,7 +70,7 @@ export default function BeneficiaryFiguresCards({ figures }: BeneficiaryFiguresC
         <Text mb={5} fontWeight="bold" fontSize="xl">
           Beneficiary Insights
         </Text>
-        <SimpleGrid columns={3} spacing={3} minChildWidth="160px">
+        <SimpleGrid columns={2} spacing={3} minChildWidth="160px">
           {cards.map((card) => (
             <StatCard key={card.label} {...card} />
           ))}
