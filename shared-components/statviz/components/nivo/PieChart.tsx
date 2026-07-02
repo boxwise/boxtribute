@@ -36,7 +36,8 @@ export default function PieChart(chart: IPieChart) {
   }, [ref]);
 
   const height = parseInt(chart.height, 10);
-  const width = parseInt(chart.width, 10);
+  const isPercentWidth = chart.width.endsWith("%");
+  const width = isPercentWidth ? 400 : parseInt(chart.width, 10);
   const baseFontSize = getBaseFontSize(width, height);
 
   const theme = scaledNivoTheme(width, height, 10);
@@ -54,9 +55,9 @@ export default function PieChart(chart: IPieChart) {
 
   const margin = {
     top: getMarginTop(height, width, includeHeading, includeTimerange),
-    right: percent(width, 20),
+    right: isPercentWidth ? 20 : percent(width, 20),
     bottom: percent(height, 20),
-    left: percent(width, 20),
+    left: isPercentWidth ? 20 : percent(width, 20),
   };
 
   const exportInfoStyles = getScaledExportFields(width, height, margin.top, includeHeading);
@@ -72,14 +73,14 @@ export default function PieChart(chart: IPieChart) {
   }
   if (chart.centerData) {
     const y = (height - margin.top - margin.bottom) / 1.8;
-    const x = (width - margin.right - margin.left) / 2;
+    const x = width - margin.right - margin.left;
     const textMaxWidth = baseFontSize * 7; // same as 7em
     const fontSizeGroupingText = baseFontSize * 0.8; // 0.8em
     const textInLines = breakText(chart.centerData!.grouping, textMaxWidth, fontSizeGroupingText);
     layers.push(() => (
       <g transform={`translate(${x}, ${y})`} style={{ whiteSpace: "pre" }}>
         <text
-          style={{ textAnchor: "middle", fontSize: "1.7em" }}
+          style={{ textAnchor: "middle", fontSize: "2.7em" }}
           transform={`translate(0, -${baseFontSize * 1.5})`}
         >
           {chart.centerData?.level}

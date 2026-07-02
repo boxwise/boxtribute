@@ -96,8 +96,8 @@ export default function ShipmentsOverTimeChart({
 
   const chartProps = {
     data: chartData,
-    width: "800px",
-    height: "400px",
+    width: "100%",
+    height: "300px",
     colors,
   };
 

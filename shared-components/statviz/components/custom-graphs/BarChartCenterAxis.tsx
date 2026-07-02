@@ -84,18 +84,15 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     ...fields.settings,
   };
 
+  const isPercentWidth = chart.width.endsWith("%");
+  const width = isPercentWidth ? 500 : chart.width;
   const includeHeading = typeof chart.heading === "string";
   const includeTimerange = typeof chart.timerange === "string";
-  const marginTop = getMarginTop(fields.height, fields.width, includeHeading, includeTimerange);
+  const marginTop = getMarginTop(fields.height, width, includeHeading, includeTimerange);
 
-  const exportInfoStyles = getScaledExportFields(
-    fields.width,
-    fields.height,
-    marginTop,
-    includeHeading,
-  );
+  const exportInfoStyles = getScaledExportFields(width, fields.height, marginTop, includeHeading);
 
-  const chartWidth = fields.width - (marginLeft + marginRight);
+  const chartWidth = width - (marginLeft + marginRight);
   const chartHeight = fields.height - (marginTop + marginBottom);
 
   const halfWidth = chartWidth / 2;
