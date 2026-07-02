@@ -247,7 +247,7 @@ export default function BeneficiaryReachChart({
         chartProps={chartProps}
       />
       <CardBody>
-        <HStack mb={4} spacing={4} flexWrap="wrap">
+        <HStack mb={4} spacing={4} justify="flex-end" flexWrap="wrap">
           <HStack spacing={2} align="center">
             <Text>
               <strong>From</strong>
