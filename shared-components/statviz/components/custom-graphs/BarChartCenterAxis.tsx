@@ -97,7 +97,7 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   };
 
   const height = parseInt(chart.height, 10);
-  const width = parseInt(chart.width, 10);
+  const width = chart.width as number;
   const includeHeading = typeof chart.heading === "string";
   const includeTimerange = typeof chart.timerange === "string";
   const marginTop = getMarginTop(height, width, includeHeading, includeTimerange);
