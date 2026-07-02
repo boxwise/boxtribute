@@ -85,7 +85,6 @@ export default function BoxCreationCalendar({
   return (
     <Card>
       <VisHeader
-        maxWidthPx={width}
         heading={heading}
         onExport={onExport}
         defaultHeight={200}

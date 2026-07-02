@@ -85,7 +85,6 @@ export default function StockOverviewBars({
   return (
     <Card>
       <VisHeader
-        maxWidthPx={width}
         heading={heading}
         onExport={onExport}
         defaultHeight={500}

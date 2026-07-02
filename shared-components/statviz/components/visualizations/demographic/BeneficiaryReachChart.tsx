@@ -231,7 +231,7 @@ export default function BeneficiaryReachChart({
     data: chartData,
     keys,
     indexBy: "month",
-    width: "800px",
+    width: "100%",
     height: "400px",
     colors,
     legend: true,
@@ -245,10 +245,9 @@ export default function BeneficiaryReachChart({
         defaultWidth={800}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={900}
       />
       <CardBody>
-        <HStack mb={4} spacing={4} flexWrap="wrap">
+        <HStack mb={4} spacing={4} justify="flex-end" flexWrap="wrap">
           <HStack spacing={2} align="center">
             <Text>
               <strong>From</strong>

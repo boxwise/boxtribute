@@ -1,4 +1,4 @@
-import { VStack, Wrap, WrapItem, Text } from "@chakra-ui/react";
+import { VStack, Text, SimpleGrid } from "@chakra-ui/react";
 import { useMemo } from "react";
 import BoxFlowSankey from "./BoxFlowSankey";
 import ShipmentsPieChart from "./ShipmentsPieChart";
@@ -42,24 +42,20 @@ export default function MovedBoxesCharts({
         </Text>{" "}
         incoming {incomingCount === 1 ? "shipment" : "shipments"}.
       </Text>
-      <Wrap gap={6}>
-        <WrapItem overflow="auto" padding="5px">
-          <BoxFlowSankey
-            boxesOrItems={boxesOrItems}
-            data={movedBoxes}
-            width="1000px"
-            height="600px"
-            direction={direction}
-          />
-        </WrapItem>
-        <WrapItem overflow="auto" padding="5px">
-          <ShipmentsPieChart
-            movedBoxes={movedBoxes}
-            boxesOrItems={boxesOrItems}
-            direction={direction}
-          />
-        </WrapItem>
-      </Wrap>
+      <SimpleGrid minChildWidth="400px" spacing={4}>
+        <BoxFlowSankey
+          boxesOrItems={boxesOrItems}
+          data={movedBoxes}
+          width="100%"
+          height="533px"
+          direction={direction}
+        />
+        <ShipmentsPieChart
+          movedBoxes={movedBoxes}
+          boxesOrItems={boxesOrItems}
+          direction={direction}
+        />
+      </SimpleGrid>
       <ShipmentsOverTimeChart
         movedBoxes={movedBoxes}
         boxesOrItems={boxesOrItems}
