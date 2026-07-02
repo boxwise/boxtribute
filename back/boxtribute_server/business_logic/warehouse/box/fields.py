@@ -54,6 +54,11 @@ async def resolve_box_location(box_obj, info):
         return
 
 
+@box.field("weightDisplayUnit")
+def resolve_box_weight_display_unit(box_obj, info):
+    return info.context["unit_loader"].load(box_obj.weight_display_unit_id)
+
+
 @box.field("displayUnit")
 def resolve_box_unit(box_obj, info):
     return info.context["unit_loader"].load(box_obj.display_unit_id)

@@ -211,6 +211,16 @@ class NegativeMeasureValue(NegativeValue):
         super().__init__(*args, field="measureValue", **kwargs)
 
 
+class NegativeWeight(NegativeValue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, field="weight", **kwargs)
+
+
+class NegativeMonetaryValue(NegativeValue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, field="monetaryValue", **kwargs)
+
+
 class IncompatibleSizeAndMeasureInput(Exception):
     extensions = {
         "code": "BAD_USER_INPUT",

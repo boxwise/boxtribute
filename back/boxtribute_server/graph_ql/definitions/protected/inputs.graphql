@@ -2,6 +2,9 @@
 input BoxCreationInput {
   productId: Int!
   sizeId: Int
+  weightDisplayUnitId: Int
+  weight: Float
+  monetaryValue: Float
   displayUnitId: Int
   measureValue: Float
   numberOfItems: Int
@@ -17,6 +20,9 @@ input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
+  weightDisplayUnitId: Int
+  weight: Float
+  monetaryValue: Float
   displayUnitId: Int
   measureValue: Float
   numberOfItems: Int

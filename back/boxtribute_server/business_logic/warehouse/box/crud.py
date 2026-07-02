@@ -31,7 +31,9 @@ from ....exceptions import (
     LocationTagBaseMismatch,
     MissingInputField,
     NegativeMeasureValue,
+    NegativeMonetaryValue,
     NegativeNumberOfItems,
+    NegativeWeight,
 )
 from ....exceptions import ProductLocationBaseMismatch as ProductLocationBaseMismatchExc
 from ....exceptions import (
@@ -107,6 +109,8 @@ def create_box(
     measure_value=None,
     comment="",
     number_of_items=None,
+    weight=None,
+    monetary_value=None,
     qr_code=None,
     tags=None,
     new_tag_names=None,
@@ -121,6 +125,12 @@ def create_box(
     """
     if number_of_items is not None and number_of_items < 0:
         raise NegativeNumberOfItems()
+
+    if weight is not None and weight < 0:
+        raise NegativeWeight()
+
+    if monetary_value is not None and monetary_value < 0:
+        raise NegativeMonetaryValue()
 
     if product.base_id != location.base_id:
         raise ProductLocationBaseMismatchExc()
@@ -176,6 +186,8 @@ def create_box(
             new_box.state = box_state
             new_box.qr_code = qr_id
             new_box.display_unit = display_unit_id
+            new_box.weight = weight
+            new_box.monetary_value = monetary_value
             new_box.source_box = source_box_id
 
             if measure_value is not None:
