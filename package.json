@@ -31,7 +31,6 @@
     "@nivo/line": "0.99.0",
     "@nivo/pie": "0.99.0",
     "@nivo/sankey": "0.99.0",
-    "@nivo/sunburst": "0.99.0",
     "@nivo/theming": "0.99.0",
     "@sentry/react": "^10.56.0",
     "@tidyjs/tidy": "^2.6.1",
