@@ -4,12 +4,11 @@ import {
   Flex,
   Spacer,
   AccordionButton,
-  Box,
-  AccordionIcon,
   AccordionPanel,
   Button,
 } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
+import { RiShareFill } from "react-icons/ri";
 import useShareableLink from "../hooks/useShareableLink";
 import { ShareableLinkAlert } from "./ShareableLinkAlert";
 
@@ -33,11 +32,8 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
           <AccordionItem border="none">
             <Flex>
               <Spacer display={["none", "block"]} />
-              <AccordionButton w="150px">
-                <Box as="span" flex="1" textAlign="left">
-                  Share Link
-                </Box>
-                <AccordionIcon />
+              <AccordionButton w="auto" aria-label="Link sharing options">
+                <RiShareFill boxSize={6} />
               </AccordionButton>
             </Flex>
             {/* TODO: Improve responsiveness for the info box and shareable link button. */}

@@ -8,7 +8,6 @@ import {
   Accordion,
   AccordionItem,
   AccordionButton,
-  AccordionIcon,
   AccordionPanel,
   Box,
   FormLabel,
@@ -116,11 +115,8 @@ export default function VisHeader({
             <Flex>
               <Heading size="md">{heading}</Heading>
               <Spacer />
-              <AccordionButton w="150px">
-                <Box as="span" flex="1" textAlign="left">
-                  Download
-                </Box>
-                <AccordionIcon />
+              <AccordionButton w="auto" aria-label="Download options">
+                <DownloadIcon boxSize={5} />
               </AccordionButton>
             </Flex>
             <AccordionPanel>
