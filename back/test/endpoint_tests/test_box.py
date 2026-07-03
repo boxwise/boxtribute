@@ -334,6 +334,8 @@ def test_box_mutations(
                     locationId: {new_location_id},
                     sizeId: {new_size_id},
                     productId: {new_product_id},
+                    weight: {weight}
+                    monetaryValue: {monetary_value}
                     state: {state}
                     newTagNames: ["{cool_tag_name}", "{cool_tag_name}"]
                     tagIds: []
@@ -347,6 +349,8 @@ def test_box_mutations(
                 location {{ id }}
                 size {{ id }}
                 product {{ id }}
+                weight
+                monetaryValue
                 state
                 tags {{ id name }}
             }}
@@ -358,6 +362,8 @@ def test_box_mutations(
     assert updated_box["location"]["id"] == new_location_id
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
+    assert updated_box["weight"] == weight
+    assert updated_box["monetaryValue"] == monetary_value
     assert updated_box["state"] == state
     another_new_tag_id = updated_box["tags"][0].pop("id")
     assert updated_box["tags"][0]["name"] == cool_tag_name
@@ -407,6 +413,14 @@ def test_box_mutations(
         {
             "changes": f"changed product type from {products[2]['name']} to "
             + f"{products[7]['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f'changed monetary value from "" to {monetary_value}€',
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f'changed weight from "" to {weight}0kg',
             "user": {"name": "coord"},
         },
         {
@@ -1190,6 +1204,28 @@ def test_box_mutations(
             "to_float": None,
         },
         {
+            "changes": 'changed weight from "" to 7.80kg',
+            "from_float": None,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_float": weight,
+            "to_int": None,
+            "user": 8,
+        },
+        {
+            "changes": 'changed monetary value from "" to 10.11€',
+            "from_float": None,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_float": monetary_value,
+            "to_int": None,
+            "user": 8,
+        },
+        {
             "changes": "product_id",
             "from_int": int(new_product_id),
             "ip": None,
@@ -1858,6 +1894,20 @@ def test_mutate_box_with_invalid_input(
     mandatory_input = f'labelIdentifier: "{label_identifier}"'
     update_input = f"""{{ {mandatory_input}
                 numberOfItems: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                weight: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    update_input = f"""{{ {mandatory_input}
+                monetaryValue: -10
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""

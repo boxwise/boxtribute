@@ -231,7 +231,16 @@ def create_history_entries(*, old_resource, new_resource, fields, change_date):
             entry.to_int = new_value
             entry.changes = field.column_name
 
-        elif field_name == "measure_value":
+        elif field_name == "monetary_value":
+            entry.from_float = old_value
+            entry.to_float = new_value
+            # Hard-code € for now; must pull Base.currency somehow
+            old_expression = '""' if old_value is None else f"{round(old_value, 2)}€"
+            new_expression = '""' if new_value is None else f"{round(new_value, 2)}€"
+            entry.changes = f"""changed monetary value from {old_expression} \
+to {new_expression}"""
+
+        elif field_name == "measure_value" or field_name == "weight":
             # Using the measure value data alone does not create any meaningful change
             # message because unit information is missing.
             # Because it's A) tedious to bring the unit into message construction in the
@@ -240,12 +249,17 @@ def create_history_entries(*, old_resource, new_resource, fields, change_date):
             # of the measure value change), a full (measure value + unit info) message
             # is created here and stored
             units = {u.id: u for u in Unit.select().namedtuples()}
+            unit_field = (
+                "weight_display_unit_id"
+                if field_name == "weight"
+                else "display_unit_id"
+            )
             if old_value is None:
                 entry.from_float = None
                 old_expression = '""'
             else:
                 entry.from_float = float(old_value)
-                old_unit = units[old_resource.display_unit_id]
+                old_unit = units[getattr(old_resource, unit_field)]
                 old_value = round(old_value * old_unit.conversion_factor, 2)
                 old_expression = f"{old_value}{old_unit.symbol}"
 
@@ -254,11 +268,14 @@ def create_history_entries(*, old_resource, new_resource, fields, change_date):
                 new_expression = '""'
             else:
                 entry.to_float = float(new_value)
-                new_unit = units[new_resource.display_unit_id]
+                new_unit = units[getattr(new_resource, unit_field)]
                 new_value = round(new_value * new_unit.conversion_factor, 2)
                 new_expression = f"{new_value}{new_unit.symbol}"
 
-            entry.changes = f"""changed units of measure from \
+            field_description = (
+                "weight" if field_name == "weight" else "units of measure"
+            )
+            entry.changes = f"""changed {field_description} from \
 {old_expression} to {new_expression}"""
 
         else:

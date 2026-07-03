@@ -295,6 +295,8 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
         Box.state,
         Box.display_unit,
         Box.measure_value,
+        Box.weight,
+        Box.monetary_value,
     ],
 )
 def update_box(
@@ -306,6 +308,8 @@ def update_box(
     location_id=None,
     product_id=None,
     size_id=None,
+    weight=None,
+    monetary_value=None,
     display_unit_id=None,
     measure_value=None,
     state=None,
@@ -375,6 +379,14 @@ def update_box(
         if number_of_items < 0:
             raise NegativeNumberOfItems()
         box.number_of_items = number_of_items
+    if weight is not None:
+        if weight < 0:
+            raise NegativeWeight()
+        box.weight = Decimal(weight)
+    if monetary_value is not None:
+        if monetary_value < 0:
+            raise NegativeMonetaryValue()
+        box.monetary_value = Decimal(monetary_value)
     if location_id is not None:
         box.location = location_id
         box.state = (
