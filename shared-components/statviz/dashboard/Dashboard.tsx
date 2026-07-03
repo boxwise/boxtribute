@@ -6,7 +6,7 @@ import BeneficiaryOverview from "./BeneficiaryOverview";
 import MovedBoxes from "./MovedBoxes";
 import StockOverview from "./StockOverview";
 import InfoText from "./InfoText";
-import { graphql } from "../../../graphql/graphql";
+import { DASHBOARD_FILTER_DATA_QUERY } from "../queries/queries";
 import ErrorCard from "../components/ErrorCard";
 import type {
   IProductOption,
@@ -14,31 +14,6 @@ import type {
   ILocationOption,
   ITagOption,
 } from "../utils/dashboardFilters";
-
-export const DASHBOARD_FILTER_DATA_QUERY = graphql(`
-  query DashboardFilterData($baseId: ID!) {
-    base(id: $baseId) {
-      products {
-        id
-        name
-        gender
-        category {
-          id
-          name
-        }
-      }
-      locations {
-        id
-        name
-      }
-      tags {
-        id
-        name
-        color
-      }
-    }
-  }
-`);
 
 export default function Dashboard() {
   const { baseId } = useParams();

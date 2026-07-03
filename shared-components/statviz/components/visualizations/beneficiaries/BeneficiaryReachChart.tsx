@@ -3,7 +3,6 @@ import { BarDatum } from "@nivo/bar";
 import { eachMonthOfInterval, format, parseISO } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { ResultOf } from "gql.tada";
 import {
   AGE_RANGES,
   BeneficiaryAppliedFilters,
@@ -16,11 +15,7 @@ import BarChart from "../../nivo/BarChart";
 import NoDataCard from "../../NoDataCard";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
-import { BENEFICIARY_REACH_QUERY } from "../../../queries/queries";
-
-type BeneficiaryReachData = NonNullable<
-  ResultOf<typeof BENEFICIARY_REACH_QUERY>["beneficiaryReach"]
->;
+import { BeneficiaryReachData } from "../../../../../graphql/types";
 
 const AGE_GROUP_COLORS: Record<string, string> = {
   "0-7": "#4e79a7",
