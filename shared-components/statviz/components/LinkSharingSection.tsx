@@ -33,7 +33,7 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
             <Flex>
               <Spacer display={["none", "block"]} />
               <AccordionButton w="auto" aria-label="Link sharing options">
-                <RiShareFill boxSize={6} />
+                <RiShareFill size={20} />
               </AccordionButton>
             </Flex>
             {/* TODO: Improve responsiveness for the info box and shareable link button. */}
