@@ -5,10 +5,10 @@ import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import NoDataCard from "../../NoDataCard";
 import BeneficiaryReachChart from "./BeneficiaryReachChart";
 import { BENEFICIARY_REACH_QUERY } from "../../../queries/queries";
-import type { DemographicsAppliedFilters } from "../../../utils/dashboardFilters";
+import type { BeneficiaryAppliedFilters } from "../../../utils/dashboardFilters";
 
 interface BeneficiaryReachDataContainerProps {
-  appliedFilters: DemographicsAppliedFilters;
+  appliedFilters: BeneficiaryAppliedFilters;
 }
 
 export default function BeneficiaryReachDataContainer({

@@ -33,7 +33,7 @@ import { FilterPanel } from "../../filter/FilterPanel";
 import { StockFilters } from "./../components/filter/StockFilters";
 import DashboardFilterChips from "./DashboardFilterChips";
 
-interface ItemsAndBoxesProps {
+interface StockOverviewProps {
   products: IProductOption[];
   categories: ICategoryOption[];
   locations: ILocationOption[];
@@ -45,7 +45,7 @@ export default function StockOverview({
   categories,
   locations,
   tags,
-}: ItemsAndBoxesProps) {
+}: StockOverviewProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const appliedFilters = useMemo(

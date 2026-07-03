@@ -6,7 +6,7 @@ import { useSearchParams } from "react-router-dom";
 import type { ResultOf } from "gql.tada";
 import {
   AGE_RANGES,
-  DemographicsAppliedFilters,
+  BeneficiaryAppliedFilters,
   readBeneReachFiltersFromUrl,
   writeBeneReachFiltersToUrl,
 } from "../../../utils/dashboardFilters";
@@ -44,7 +44,7 @@ type MetricMode = "unique" | "interactions";
 
 interface BeneficiaryReachChartProps {
   reachData: BeneficiaryReachData;
-  appliedFilters: DemographicsAppliedFilters;
+  appliedFilters: BeneficiaryAppliedFilters;
 }
 
 function getAgeGroupLabel(age: number | null | undefined): string {

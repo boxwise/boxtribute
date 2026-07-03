@@ -6,7 +6,7 @@ import { graphql } from "../../../../../graphql/graphql";
 import DemographicFilterContainer from "./DemographicFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import NoDataCard from "../../NoDataCard";
-import type { DemographicsAppliedFilters } from "../../../utils/dashboardFilters";
+import type { BeneficiaryAppliedFilters } from "../../../utils/dashboardFilters";
 
 export const DEMOGRAPHIC_QUERY = graphql(`
   query BeneficiaryDemographics($baseId: Int!) {
@@ -30,7 +30,7 @@ export const DEMOGRAPHIC_QUERY = graphql(`
 `);
 
 interface DemographicDataContainerProps {
-  appliedFilters: DemographicsAppliedFilters;
+  appliedFilters: BeneficiaryAppliedFilters;
 }
 
 export default function DemographicDataContainer({

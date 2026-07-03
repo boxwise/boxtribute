@@ -12,36 +12,36 @@ import {
 } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import DemographicDataContainer from "../components/visualizations/demographic/DemographicDataContainer";
-import BeneficiaryFiguresDataContainer from "../components/visualizations/demographic/BeneficiaryFiguresDataContainer";
-import BeneficiaryReachDataContainer from "../components/visualizations/demographic/BeneficiaryReachDataContainer";
+import DemographicDataContainer from "../components/visualizations/beneficiaries/DemographicDataContainer";
+import BeneficiaryFiguresDataContainer from "../components/visualizations/beneficiaries/BeneficiaryFiguresDataContainer";
+import BeneficiaryReachDataContainer from "../components/visualizations/beneficiaries/BeneficiaryReachDataContainer";
 import {
-  readDemographicsFiltersFromUrl,
-  writeDemographicsFiltersToUrl,
-  DEFAULT_DEMOGRAPHICS_FILTERS,
-  type DemographicsAppliedFilters,
+  readBeneficiaryFiltersFromUrl,
+  writeBeneficiaryFiltersToUrl,
+  DEFAULT_BENEFICIARY_FILTERS,
+  type BeneficiaryAppliedFilters,
   type ITagOption,
 } from "../utils/dashboardFilters";
 import { FilterPanel } from "../../filter/FilterPanel";
 import { BeneficiaryFilters } from "./../components/filter/BeneficiaryFilters";
 import DashboardFilterChips from "./DashboardFilterChips";
 
-interface DemographicsProps {
+interface BeneficiaryOverviewProps {
   tags: ITagOption[];
 }
 
-export default function BeneficiaryOverview({ tags }: DemographicsProps) {
+export default function BeneficiaryOverview({ tags }: BeneficiaryOverviewProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const appliedFilters = useMemo(
-    () => readDemographicsFiltersFromUrl(searchParams, tags),
+    () => readBeneficiaryFiltersFromUrl(searchParams, tags),
     [searchParams, tags],
   );
 
   const handleApplyFilters = useCallback(
-    (filters: DemographicsAppliedFilters) => {
+    (filters: BeneficiaryAppliedFilters) => {
       const newParams = new URLSearchParams(searchParams);
-      writeDemographicsFiltersToUrl(filters, newParams);
+      writeBeneficiaryFiltersToUrl(filters, newParams);
       setSearchParams(newParams);
     },
     [searchParams, setSearchParams],
@@ -105,7 +105,7 @@ export default function BeneficiaryOverview({ tags }: DemographicsProps) {
           <HStack justify="space-between" align="flex-start">
             <DashboardFilterChips
               chips={filterChips}
-              onClearAllFilters={() => handleApplyFilters(DEFAULT_DEMOGRAPHICS_FILTERS)}
+              onClearAllFilters={() => handleApplyFilters(DEFAULT_BENEFICIARY_FILTERS)}
               testIdPrefix="beneficiary"
             />
             <Box marginLeft="auto">

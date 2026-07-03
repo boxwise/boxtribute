@@ -11,7 +11,7 @@ import {
 } from "./fragments";
 import { CREATED_BOXES_QUERY, STOCK_QUERY } from "../shared-components/statviz/queries/queries";
 import { MOVED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
-import { DEMOGRAPHIC_QUERY } from "../shared-components/statviz/components/visualizations/demographic/DemographicDataContainer";
+import { DEMOGRAPHIC_QUERY } from "../shared-components/statviz/components/visualizations/beneficiaries/DemographicDataContainer";
 
 /** @todo Make a fragment to infer this type. */
 export type TargetType = introspection_types["TargetType"]["enumValues"];
