@@ -5,11 +5,11 @@ import { sample } from "lodash";
 import VisHeader from "../../VisHeader";
 import SankeyChart, { ISankeyData } from "../../nivo/SankeyChart";
 import getOnExport from "../../../utils/chartExport";
-import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import NoDataCard from "../../NoDataCard";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../../queries/fragments";
 import type { MovementDirection } from "../../../utils/dashboardFilters";
+import { BoxesOrItemsCount } from "../../../utils/dashboardFilters";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
@@ -146,7 +146,6 @@ export default function BoxFlowSankey({
           defaultWidth={1000}
           heading={heading}
           chartProps={chartProps}
-          maxWidthPx={1000}
         />
         <CardBody>
           <SankeyChart {...chartProps} />
@@ -274,7 +273,6 @@ export default function BoxFlowSankey({
         defaultWidth={1000}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={1000}
       />
       <CardBody>
         <SankeyChart {...chartProps} />

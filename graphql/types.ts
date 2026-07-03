@@ -9,9 +9,7 @@ import {
   STOCK_OVERVIEW_FRAGMENT,
   USER_FRAGMENT,
 } from "./fragments";
-import { CREATED_BOXES_QUERY, STOCK_QUERY } from "../shared-components/statviz/queries/queries";
-import { MOVED_BOXES_QUERY } from "../shared-components/statviz/components/visualizations/movedBoxes/MovedBoxesDataContainer";
-import { DEMOGRAPHIC_QUERY } from "../shared-components/statviz/components/visualizations/demographic/DemographicDataContainer";
+import { CREATED_BOXES_QUERY, STOCK_QUERY, MOVED_BOXES_QUERY, DEMOGRAPHIC_QUERY, BENEFICIARY_FIGURES_QUERY, BENEFICIARY_REACH_QUERY } from "../shared-components/statviz/queries/queries";
 
 /** @todo Make a fragment to infer this type. */
 export type TargetType = introspection_types["TargetType"]["enumValues"];
@@ -28,3 +26,9 @@ export type MovedBoxes = ResultOf<typeof MOVED_BOXES_QUERY>["movedBoxes"];
 export type MovedBoxesResult = FragmentOf<typeof MOVED_BOXES_FRAGMENT>;
 export type BeneficiaryDemographics = ResultOf<typeof DEMOGRAPHIC_QUERY>["beneficiaryDemographics"];
 export type BeneficiaryDemographicsResult = FragmentOf<typeof BENEFICIARY_DEMOGRAPHICS_FRAGMENT>;
+export type BeneficiaryFigures = NonNullable<
+  ResultOf<typeof BENEFICIARY_FIGURES_QUERY>["beneficiaryFigures"]
+>;
+export type BeneficiaryReachData = NonNullable<
+  ResultOf<typeof BENEFICIARY_REACH_QUERY>["beneficiaryReach"]
+>;

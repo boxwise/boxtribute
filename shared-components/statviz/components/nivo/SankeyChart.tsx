@@ -45,7 +45,8 @@ export default function SankeyChart(chart: ISankeyChart) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  const width = parseInt(chart.width, 10);
+  const isPercentWidth = String(chart.width).endsWith("%");
+  const width = isPercentWidth ? 500 : parseInt(chart.width, 10);
   const height = parseInt(chart.height, 10);
 
   const includeHeading = typeof chart.heading === "string";

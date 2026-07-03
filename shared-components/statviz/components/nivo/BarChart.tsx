@@ -38,7 +38,8 @@ export default function BarChart(barChart: IBarChart) {
   }, [ref]);
 
   const height = parseInt(barChart.height, 10);
-  const width = parseInt(barChart.width, 10);
+  const isPercentWidth = String(barChart.width).endsWith("%");
+  const width = isPercentWidth ? 600 : parseInt(barChart.width, 10);
 
   const theme = scaledNivoTheme(width, height, barChart.data.length);
   const marginBottom = percent(height, 25);
@@ -76,7 +77,7 @@ export default function BarChart(barChart: IBarChart) {
             anchor: "bottom-right",
             direction: "column",
             justify: false,
-            translateX: 120,
+            translateX: 130,
             translateY: 0,
             itemsSpacing: 2,
             itemWidth: 100,
@@ -96,6 +97,8 @@ export default function BarChart(barChart: IBarChart) {
         ]
       : [];
 
+  const rightMargin = barChart.legend === true ? 150 : isPercentWidth ? 40 : percent(width, 10);
+  const leftMargin = isPercentWidth ? 40 : percent(width, 10);
   return (
     <div ref={ref} style={{ width: barChart.width, height: barChart.height }}>
       <ResponsiveBar
@@ -105,9 +108,9 @@ export default function BarChart(barChart: IBarChart) {
         indexBy={barChart.indexBy}
         margin={{
           top: marginTop,
-          right: percent(width, 10),
+          right: rightMargin,
           bottom: marginBottom,
-          left: percent(width, 10),
+          left: leftMargin,
         }}
         layers={layers}
         padding={0.3}

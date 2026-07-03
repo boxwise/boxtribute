@@ -1,21 +1,7 @@
 import { useQuery } from "@apollo/client";
 import { Box, Flex, Spinner, Text } from "@chakra-ui/react";
 import ErrorCard, { predefinedErrors } from "../components/ErrorCard";
-import { graphql } from "../../../graphql/graphql";
-
-const DASHBOARD_INFO_QUERY = graphql(`
-  query dashboardInfo {
-    bases {
-      id
-      name
-      locations {
-        id
-      }
-      instockBoxesCount
-      instockItemsCount
-    }
-  }
-`);
+import { DASHBOARD_INFO_QUERY } from "../queries/queries";
 
 function HighlightedNumber({ value }: { value: number }) {
   return (
