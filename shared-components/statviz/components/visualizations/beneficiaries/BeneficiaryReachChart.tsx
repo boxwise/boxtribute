@@ -3,10 +3,9 @@ import { BarDatum } from "@nivo/bar";
 import { eachMonthOfInterval, format, parseISO } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { ResultOf } from "gql.tada";
 import {
   AGE_RANGES,
-  DemographicsAppliedFilters,
+  BeneficiaryAppliedFilters,
   readBeneReachFiltersFromUrl,
   writeBeneReachFiltersToUrl,
 } from "../../../utils/dashboardFilters";
@@ -16,11 +15,7 @@ import BarChart from "../../nivo/BarChart";
 import NoDataCard from "../../NoDataCard";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
-import { BENEFICIARY_REACH_QUERY } from "../../../queries/queries";
-
-type BeneficiaryReachData = NonNullable<
-  ResultOf<typeof BENEFICIARY_REACH_QUERY>["beneficiaryReach"]
->;
+import { BeneficiaryReachData } from "../../../../../graphql/types";
 
 const AGE_GROUP_COLORS: Record<string, string> = {
   "0-7": "#4e79a7",
@@ -44,7 +39,7 @@ type MetricMode = "unique" | "interactions";
 
 interface BeneficiaryReachChartProps {
   reachData: BeneficiaryReachData;
-  appliedFilters: DemographicsAppliedFilters;
+  appliedFilters: BeneficiaryAppliedFilters;
 }
 
 function getAgeGroupLabel(age: number | null | undefined): string {
@@ -231,7 +226,7 @@ export default function BeneficiaryReachChart({
     data: chartData,
     keys,
     indexBy: "month",
-    width: "800px",
+    width: "100%",
     height: "400px",
     colors,
     legend: true,
@@ -245,10 +240,9 @@ export default function BeneficiaryReachChart({
         defaultWidth={800}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={900}
       />
       <CardBody>
-        <HStack mb={4} spacing={4} flexWrap="wrap">
+        <HStack mb={4} spacing={4} justify="flex-end" flexWrap="wrap">
           <HStack spacing={2} align="center">
             <Text>
               <strong>From</strong>

@@ -3,43 +3,9 @@ import { useParams } from "react-router-dom";
 import { Box, Spinner } from "@chakra-ui/react";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
-import { graphql } from "../../../../../graphql/graphql";
+import { MOVED_BOXES_QUERY } from "../../../queries/queries";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import type { MovementAppliedFilters, MovementDirection } from "../../../utils/dashboardFilters";
-
-export const MOVED_BOXES_QUERY = graphql(`
-  query movedBoxes($baseId: Int!) {
-    movedBoxes(baseId: $baseId) {
-      facts {
-        movedOn
-        targetId
-        categoryId
-        sizeId
-        boxesCount
-        itemsCount
-        gender
-        productName
-        tagIds
-        organisationName
-      }
-      dimensions {
-        category {
-          id
-          name
-        }
-        size {
-          id
-          name
-        }
-        target {
-          id
-          name
-          type
-        }
-      }
-    }
-  }
-`);
 
 interface MovedBoxesDataContainerProps {
   appliedFilters: MovementAppliedFilters;

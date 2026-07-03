@@ -1,4 +1,3 @@
-import { Box } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 import { filterByTags } from "../../../utils/filterByTags";
@@ -50,13 +49,11 @@ export default function StockOverviewRingFilterContainer({
   }, [stockOverview, genders, categories, locations, products, includedTags, excludedTags]);
 
   return (
-    <Box display="flex" justifyContent="center">
-      <StockOverviewRing
-        width="500px"
-        height="500px"
-        data={filteredStockOverview}
-        boxesOrItems={boxesOrItems}
-      />
-    </Box>
+    <StockOverviewRing
+      width="100%"
+      height="500px"
+      data={filteredStockOverview}
+      boxesOrItems={boxesOrItems}
+    />
   );
 }

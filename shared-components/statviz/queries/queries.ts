@@ -105,3 +105,97 @@ export const STOCK_QUERY = graphql(
   `,
   [TAG_FRAGMENT],
 );
+
+export const MOVED_BOXES_QUERY = graphql(`
+  query movedBoxes($baseId: Int!) {
+    movedBoxes(baseId: $baseId) {
+      facts {
+        movedOn
+        targetId
+        categoryId
+        sizeId
+        boxesCount
+        itemsCount
+        gender
+        productName
+        tagIds
+        organisationName
+      }
+      dimensions {
+        category {
+          id
+          name
+        }
+        size {
+          id
+          name
+        }
+        target {
+          id
+          name
+          type
+        }
+      }
+    }
+  }
+`);
+
+export const DEMOGRAPHIC_QUERY = graphql(`
+  query BeneficiaryDemographics($baseId: Int!) {
+    beneficiaryDemographics(baseId: $baseId) {
+      facts {
+        count
+        createdOn
+        age
+        gender
+        tagIds
+      }
+      dimensions {
+        tag {
+          id
+          name
+          color
+        }
+      }
+    }
+  }
+`);
+
+export const DASHBOARD_INFO_QUERY = graphql(`
+  query dashboardInfo {
+    bases {
+      id
+      name
+      locations {
+        id
+      }
+      instockBoxesCount
+      instockItemsCount
+    }
+  }
+`);
+
+export const DASHBOARD_FILTER_DATA_QUERY = graphql(`
+  query DashboardFilterData($baseId: ID!) {
+    base(id: $baseId) {
+      products {
+        id
+        name
+        gender
+        category {
+          id
+          name
+        }
+      }
+      locations {
+        id
+        name
+      }
+      tags {
+        id
+        name
+        color
+      }
+    }
+  }
+`);

@@ -2,11 +2,11 @@ import { Accordion, Heading } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useMemo } from "react";
-import Demographics from "./Demographics";
+import BeneficiaryOverview from "./BeneficiaryOverview";
 import MovedBoxes from "./MovedBoxes";
-import ItemsAndBoxes from "./ItemsAndBoxes";
+import StockOverview from "./StockOverview";
 import InfoText from "./InfoText";
-import { graphql } from "../../../graphql/graphql";
+import { DASHBOARD_FILTER_DATA_QUERY } from "../queries/queries";
 import ErrorCard from "../components/ErrorCard";
 import type {
   IProductOption,
@@ -14,31 +14,6 @@ import type {
   ILocationOption,
   ITagOption,
 } from "../utils/dashboardFilters";
-
-export const DASHBOARD_FILTER_DATA_QUERY = graphql(`
-  query DashboardFilterData($baseId: ID!) {
-    base(id: $baseId) {
-      products {
-        id
-        name
-        gender
-        category {
-          id
-          name
-        }
-      }
-      locations {
-        id
-        name
-      }
-      tags {
-        id
-        name
-        color
-      }
-    }
-  }
-`);
 
 export default function Dashboard() {
   const { baseId } = useParams();
@@ -101,14 +76,14 @@ export default function Dashboard() {
       <InfoText />
 
       <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
-        <ItemsAndBoxes
+        <StockOverview
           products={products}
           categories={categories}
           locations={locations}
           tags={tags}
         />
         <MovedBoxes products={products} categories={categories} tags={tags} />
-        <Demographics tags={tags} />
+        <BeneficiaryOverview tags={tags} />
       </Accordion>
     </div>
   );

@@ -2,35 +2,14 @@ import { useQuery } from "@apollo/client";
 import { Spinner } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
 
-import { graphql } from "../../../../../graphql/graphql";
+import { DEMOGRAPHIC_QUERY } from "../../../queries/queries";
 import DemographicFilterContainer from "./DemographicFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import NoDataCard from "../../NoDataCard";
-import type { DemographicsAppliedFilters } from "../../../utils/dashboardFilters";
-
-export const DEMOGRAPHIC_QUERY = graphql(`
-  query BeneficiaryDemographics($baseId: Int!) {
-    beneficiaryDemographics(baseId: $baseId) {
-      facts {
-        count
-        createdOn
-        age
-        gender
-        tagIds
-      }
-      dimensions {
-        tag {
-          id
-          name
-          color
-        }
-      }
-    }
-  }
-`);
+import type { BeneficiaryAppliedFilters } from "../../../utils/dashboardFilters";
 
 interface DemographicDataContainerProps {
-  appliedFilters: DemographicsAppliedFilters;
+  appliedFilters: BeneficiaryAppliedFilters;
 }
 
 export default function DemographicDataContainer({

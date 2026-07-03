@@ -2,7 +2,7 @@ import { Card, CardBody } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
-import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
+import { BoxesOrItemsCount } from "../../../utils/dashboardFilters";
 import BarChart from "../../nivo/BarChart";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
@@ -85,7 +85,6 @@ export default function StockOverviewBars({
   return (
     <Card>
       <VisHeader
-        maxWidthPx={width}
         heading={heading}
         onExport={onExport}
         defaultHeight={500}

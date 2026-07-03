@@ -1,10 +1,5 @@
 import { Box, SimpleGrid, Text, Card, CardBody } from "@chakra-ui/react";
-import { ResultOf } from "gql.tada";
-import { BENEFICIARY_FIGURES_QUERY } from "../../../queries/queries";
-
-type BeneficiaryFigures = NonNullable<
-  ResultOf<typeof BENEFICIARY_FIGURES_QUERY>["beneficiaryFigures"]
->;
+import { BeneficiaryFigures } from "../../../../../graphql/types";
 
 interface StatCardProps {
   label: string;
@@ -70,7 +65,7 @@ export default function BeneficiaryFiguresCards({ figures }: BeneficiaryFiguresC
         <Text mb={5} fontWeight="bold" fontSize="xl">
           Beneficiary Insights
         </Text>
-        <SimpleGrid columns={3} spacing={3} minChildWidth="160px">
+        <SimpleGrid columns={2} spacing={3} minChildWidth="160px">
           {cards.map((card) => (
             <StatCard key={card.label} {...card} />
           ))}

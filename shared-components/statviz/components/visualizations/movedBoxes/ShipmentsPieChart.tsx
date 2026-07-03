@@ -119,7 +119,7 @@ export default function ShipmentsPieChart({
   }`;
   const chartProps = {
     data: chartData,
-    width: "500px",
+    width: "100%",
     height: "500px",
   };
 
@@ -135,7 +135,6 @@ export default function ShipmentsPieChart({
         defaultWidth={500}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={600}
       />
       <CardBody>
         <Wrap mb={4}>
