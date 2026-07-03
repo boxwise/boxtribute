@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import DemographicCharts from "./DemographicCharts";
+import DemographicPyramid from "./DemographicPyramid";
 import { filterByTags } from "../../../utils/filterByTags";
 import type { DemographicsAppliedFilters } from "../../../utils/dashboardFilters";
 import { AGE_RANGES } from "../../../utils/dashboardFilters";
@@ -55,5 +55,5 @@ export default function DemographicFilterContainer({
     facts: filteredFacts as BeneficiaryDemographicsResult[],
   };
 
-  return <DemographicCharts demographics={demographicCube} />;
+  return <DemographicPyramid width="100%" height="500" demographics={demographicCube} />;
 }
