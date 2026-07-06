@@ -34,6 +34,7 @@ import { StockFilters } from "./../components/filter/StockFilters";
 import DashboardFilterChips from "./DashboardFilterChips";
 
 interface StockOverviewProps {
+  isActive: boolean;
   products: IProductOption[];
   categories: ICategoryOption[];
   locations: ILocationOption[];
@@ -41,6 +42,7 @@ interface StockOverviewProps {
 }
 
 export default function StockOverview({
+  isActive,
   products,
   categories,
   locations,
@@ -178,15 +180,18 @@ export default function StockOverview({
           </HStack>
           <SimpleGrid minChildWidth="500px" spacing={4}>
             <StockOverviewRingDataContainer
+              isActive={isActive}
               appliedFilters={appliedFilters}
               boxesOrItems={boxesOrItems}
             />
             <StockOverviewBarsDataContainer
+              isActive={isActive}
               appliedFilters={appliedFilters}
               boxesOrItems={boxesOrItems}
             />
           </SimpleGrid>
           <BoxCreationCalendarDataContainer
+            isActive={isActive}
             appliedFilters={appliedFilters}
             boxesOrItems={boxesOrItems}
           />

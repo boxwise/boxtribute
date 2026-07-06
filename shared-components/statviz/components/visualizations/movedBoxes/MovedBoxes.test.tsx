@@ -46,6 +46,7 @@ movedBoxesDataTests.forEach(({ name, mocks, alert }) => {
   it(name, async () => {
     render(
       <MovedBoxesDataContainer
+        isActive={true}
         appliedFilters={defaultMovementFilters()}
         boxesOrItems="boxesCount"
         direction="out"

@@ -31,12 +31,13 @@ import type { BoxesOrItems } from "../components/filter/BoxesOrItemsSelect";
 import DashboardFilterChips from "./DashboardFilterChips";
 
 interface MovedBoxesProps {
+  isActive: boolean;
   products: IProductOption[];
   categories: ICategoryOption[];
   tags: ITagOption[];
 }
 
-export default function MovedBoxes({ products, categories, tags }: MovedBoxesProps) {
+export default function MovedBoxes({ isActive, products, categories, tags }: MovedBoxesProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const appliedFilters = useMemo(
@@ -204,6 +205,7 @@ export default function MovedBoxes({ products, categories, tags }: MovedBoxesPro
             </HStack>
           </HStack>
           <MovedBoxesDataContainer
+            isActive={isActive}
             appliedFilters={appliedFilters}
             boxesOrItems={boxesOrItems}
             direction={direction}
