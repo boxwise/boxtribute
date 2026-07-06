@@ -15,8 +15,8 @@ vi.mock("react-joyride", () => ({
 
 const mockedUseAuth0 = vi.mocked(useAuth0);
 
-function renderWalkthrough(roles = "administrator") {
-  mockAuthenticatedUser(mockedUseAuth0, "test@example.com", ["be_user"], "0", roles);
+function renderWalkthrough(role = "administrator") {
+  mockAuthenticatedUser(mockedUseAuth0, "test@example.com", ["be_user"], "0", [role]);
   return render(
     <WalkthroughProvider>
       <Walkthrough />
