@@ -24,6 +24,9 @@ export default function StockOverviewBarsDataContainer({
     skip: !isActive,
   });
 
+  if (!isActive) {
+    return null;
+  }
   if (error) {
     return <ErrorCard error={error.message} />;
   }

@@ -23,6 +23,9 @@ export default function DemographicDataContainer({
     skip: !isActive,
   });
 
+  if (!isActive) {
+    return null;
+  }
   if (error) {
     return <ErrorCard error={error.message} />;
   }

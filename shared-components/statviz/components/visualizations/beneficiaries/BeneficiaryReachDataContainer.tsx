@@ -22,6 +22,9 @@ export default function BeneficiaryReachDataContainer({
     skip: !isActive,
   });
 
+  if (!isActive) {
+    return null;
+  }
   if (error) {
     return <ErrorCard error={error.message} />;
   }

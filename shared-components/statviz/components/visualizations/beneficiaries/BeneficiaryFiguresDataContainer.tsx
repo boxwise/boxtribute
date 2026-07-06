@@ -18,6 +18,9 @@ export default function BeneficiaryFiguresDataContainer({
     skip: !isActive,
   });
 
+  if (!isActive) {
+    return null;
+  }
   if (error) {
     return <ErrorCard error={error.message} />;
   }

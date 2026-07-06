@@ -29,6 +29,9 @@ export default function MovedBoxesDataContainer({
     skip: !isActive,
   });
 
+  if (!isActive) {
+    return null;
+  }
   if (error) {
     return <Box>An unexpected error happened {error.message}</Box>;
   }
