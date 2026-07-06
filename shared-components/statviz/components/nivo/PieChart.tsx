@@ -26,7 +26,7 @@ export interface IPieChart {
   onClick?: (node) => void;
 }
 
-function PieChartInner(chart: IPieChart & { width: number }) {
+function PieChartInner(chart: Omit<IPieChart, "width"> & { width: number }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (ref.current === null) return;
