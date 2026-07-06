@@ -966,6 +966,11 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"weight": weight, "monetaryValue": monetary_value}
 
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+            labelIdentifier: "{created_box['label_identifier']}"
+            monetaryValue: {monetary_value} }} ) {{ id }} }}"""
+    response = assert_bad_user_input(client, mutation)
+
     # Test case 8.2.23k
     base_1_tag_id = str(tags[5]["id"])
     base_3_tag_id = str(tags[6]["id"])

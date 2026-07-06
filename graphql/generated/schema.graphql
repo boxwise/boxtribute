@@ -374,7 +374,6 @@ type TargetDimensionInfo {
 input BoxCreationInput {
   productId: Int!
   sizeId: Int
-  weightDisplayUnitId: Int
   weight: Float
   monetaryValue: Float
   displayUnitId: Int
@@ -392,7 +391,6 @@ input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
-  weightDisplayUnitId: Int
   weight: Float
   monetaryValue: Float
   displayUnitId: Int

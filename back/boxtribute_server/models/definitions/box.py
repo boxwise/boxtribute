@@ -125,7 +125,7 @@ class Box(Model):
         column_name="weight_display_unit_id",
         field="id",
         model=Unit,
-        null=True,
+        null=False,
         default=1,  # kilogram
         on_update="CASCADE",
         on_delete="RESTRICT",

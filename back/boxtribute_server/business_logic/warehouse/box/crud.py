@@ -186,6 +186,7 @@ def create_box(
             new_box.state = box_state
             new_box.qr_code = qr_id
             new_box.display_unit = display_unit_id
+            # omit conversion to base unit (kg); assume display_weight_unit_id as kg
             new_box.weight = weight
             new_box.monetary_value = monetary_value
             new_box.source_box = source_box_id
@@ -497,6 +498,9 @@ def update_marked_for_shipment_box(
     and/or monetary value.
     """
     box = Box.get(Box.label_identifier == label_identifier)
+
+    if box.deleted_on is not None:
+        raise BoxDeleted(label_identifier=label_identifier)
 
     if box.state_id != BoxState.MarkedForShipment:
         raise InvalidBoxStateExc(
