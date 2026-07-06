@@ -956,6 +956,16 @@ def test_box_mutations(
         ),
     }
 
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+            labelIdentifier: "{box_without_qr_code['label_identifier']}"
+            weight: {weight}
+            monetaryValue: {monetary_value} }} ) {{
+                weight
+                monetaryValue
+            }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"weight": weight, "monetaryValue": monetary_value}
+
     # Test case 8.2.23k
     base_1_tag_id = str(tags[5]["id"])
     base_3_tag_id = str(tags[6]["id"])
@@ -1440,6 +1450,28 @@ def test_box_mutations(
             "to_float": None,
         },
         {
+            "changes": "changed weight from 15.60kg to 7.80kg",
+            "from_float": 15.6,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_without_qr_code["id"],
+            "table_name": "stock",
+            "to_float": weight,
+            "to_int": None,
+            "user": 8,
+        },
+        {
+            "changes": "changed monetary value from 99.90€ to 10.11€",
+            "from_float": 99.9,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_without_qr_code["id"],
+            "table_name": "stock",
+            "to_float": monetary_value,
+            "to_int": None,
+            "user": 8,
+        },
+        {
             "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,
             "to_int": None,
@@ -1906,11 +1938,19 @@ def test_mutate_box_with_invalid_input(
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
+    mutation = f"""mutation {{
+            updateMarkedForShipmentBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
     update_input = f"""{{ {mandatory_input}
                 monetaryValue: -10
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    mutation = f"""mutation {{
+            updateMarkedForShipmentBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19a
