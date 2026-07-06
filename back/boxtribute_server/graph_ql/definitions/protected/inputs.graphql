@@ -35,6 +35,12 @@ input BoxUpdateInput {
   newTagNames: [String!]
 }
 
+input MarkedForShipmentBoxUpdateInput {
+  labelIdentifier: String!
+  weight: Float
+  monetaryValue: Float
+}
+
 input BoxFromBoxCreationInput {
   sourceBoxLabelIdentifier: String!
   numberOfItems: Int!

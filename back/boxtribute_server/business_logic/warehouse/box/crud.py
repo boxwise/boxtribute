@@ -478,6 +478,43 @@ def update_box(
     return box
 
 
+@save_update_to_history(
+    id_field_name="label_identifier",
+    fields=[
+        Box.label_identifier,
+        Box.weight,
+        Box.monetary_value,
+    ],
+)
+def update_marked_for_shipment_box(
+    label_identifier,
+    user_id,
+    now,
+    weight=None,
+    monetary_value=None,
+):
+    """Dedicated update for MarkedForShipment box. It's only permitted to change weight
+    and/or monetary value.
+    """
+    box = Box.get(Box.label_identifier == label_identifier)
+
+    if box.state_id != BoxState.MarkedForShipment:
+        raise InvalidBoxStateExc(
+            state=BoxState(box.state_id).name, label_identifier=label_identifier
+        )
+
+    if weight is not None:
+        if weight < 0:
+            raise NegativeWeight()
+        box.weight = Decimal(weight)
+    if monetary_value is not None:
+        if monetary_value < 0:
+            raise NegativeMonetaryValue()
+        box.monetary_value = Decimal(monetary_value)
+
+    return box
+
+
 def delete_boxes(*, user_id, boxes):
     """Soft-delete given boxes by setting the `deleted_on` field. Log every box deletion
     in the history table.
