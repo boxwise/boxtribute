@@ -33,6 +33,8 @@ import EditStandardProductView from "views/EditStandardProduct/EditStandardProdu
 import { TagsView } from "views/Tags/TagsOverview/TagsView";
 import { CreateTagView } from "views/Tags/CreateTag/CreateTagView";
 import { UpdateTagView } from "views/Tags/UpdateTag/UpdateTagView";
+import { useAuth0 } from "@auth0/auth0-react";
+import { JWT_ROLE } from "utils/constants";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -99,6 +101,8 @@ function DropappRedirect({ path }: DropappRedirectProps) {
 
 function App() {
   const { error, isInitialized } = useLoadAndSetGlobalPreferences();
+  const { user } = useAuth0();
+  const roles: string[] = user?.[JWT_ROLE] ?? [];
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState<string | undefined>(undefined);
   // For BoxesView to reduce number of expensive Boxes queries
@@ -136,7 +140,7 @@ function App() {
               index
               element={
                 <Protected
-                  component={<Dashboard />}
+                  component={<Dashboard roles={roles} />}
                   redirectPath={prevLocation}
                   minBeta={3}
                   requiredAbps={[["view_inventory", "view_shipments", "view_beneficiary_graph"]]}

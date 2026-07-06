@@ -8,6 +8,7 @@ import StockOverview from "./StockOverview";
 import InfoText from "./InfoText";
 import { DASHBOARD_FILTER_DATA_QUERY } from "../queries/queries";
 import ErrorCard from "../components/ErrorCard";
+import { isFreeShopVolunteer, isWarehouseVolunteer } from "../../utils/roles";
 import type {
   IProductOption,
   ICategoryOption,
@@ -15,8 +16,26 @@ import type {
   ITagOption,
 } from "../utils/dashboardFilters";
 
-export default function Dashboard() {
+interface DashboardProps {
+  roles?: string[];
+}
+
+export default function Dashboard({ roles = [] }: DashboardProps) {
   const { baseId } = useParams();
+
+  // Determine section visibility based on roles
+  const freeShopOnly = isFreeShopVolunteer(roles) && !isWarehouseVolunteer(roles);
+  const warehouseOnly = isWarehouseVolunteer(roles) && !isFreeShopVolunteer(roles);
+  const showStock = !freeShopOnly;
+  const showMovedBoxes = !freeShopOnly;
+  const showBeneficiary = !warehouseOnly;
+
+  // Compute accordion index for each visible section
+  let idx = 0;
+  const stockIdx = showStock ? idx++ : -1;
+  const movedBoxesIdx = showMovedBoxes ? idx++ : -1;
+  const beneficiaryIdx = showBeneficiary ? idx++ : -1;
+
   const [everOpened, setEverOpened] = useState<Set<number>>(new Set([0]));
 
   const handleAccordionChange = (indices: number[]) => {
@@ -86,20 +105,26 @@ export default function Dashboard() {
         marginBottom="100px"
         onChange={handleAccordionChange}
       >
-        <StockOverview
-          isActive={everOpened.has(0)}
-          products={products}
-          categories={categories}
-          locations={locations}
-          tags={tags}
-        />
-        <MovedBoxes
-          isActive={everOpened.has(1)}
-          products={products}
-          categories={categories}
-          tags={tags}
-        />
-        <BeneficiaryOverview isActive={everOpened.has(2)} tags={tags} />
+        {showStock && (
+          <StockOverview
+            isActive={everOpened.has(stockIdx)}
+            products={products}
+            categories={categories}
+            locations={locations}
+            tags={tags}
+          />
+        )}
+        {showMovedBoxes && (
+          <MovedBoxes
+            isActive={everOpened.has(movedBoxesIdx)}
+            products={products}
+            categories={categories}
+            tags={tags}
+          />
+        )}
+        {showBeneficiary && (
+          <BeneficiaryOverview isActive={everOpened.has(beneficiaryIdx)} tags={tags} />
+        )}
       </Accordion>
     </div>
   );
