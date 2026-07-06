@@ -160,7 +160,7 @@ function ShipmentContent({
                   data-testid={`shipment-accordion-button-${item?.product?.id}`}
                   _expanded={{ bg: "#F4E6A0" }}
                   maxWidth={5}
-                  _hover={{ bgColor: "white" }}
+                  _hover={{ bgColor: "transparent" }}
                 >
                   <AccordionIcon
                     mr={1}
