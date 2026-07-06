@@ -38,8 +38,9 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
 
   const [everOpened, setEverOpened] = useState<Set<number>>(new Set([0]));
 
-  const handleAccordionChange = (indices: number[]) => {
-    setEverOpened((prev) => new Set([...prev, ...indices]));
+  const handleAccordionChange = (indices: number | number[]) => {
+    const next = Array.isArray(indices) ? indices : [indices];
+    setEverOpened((prev) => new Set([...prev, ...next]));
   };
   const { data, error } = useQuery(DASHBOARD_FILTER_DATA_QUERY, {
     variables: { baseId: baseId! },
