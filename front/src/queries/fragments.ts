@@ -110,6 +110,11 @@ export const BOX_FIELDS_FRAGMENT = graphql(
       size {
         ...SizeBasicFields
       }
+      weight
+      monetaryValue
+      weightDisplayUnit {
+        symbol
+      }
       shipmentDetail {
         id
         sourceQuantity
@@ -147,6 +152,7 @@ export const BOX_FIELDS_FRAGMENT = graphql(
         }
         base {
           ...BaseBasicFields
+          currency
         }
       }
       numberOfItems
@@ -178,6 +184,11 @@ export const SHIPMENT_DETAIL_FIELDS_FRAGMENT = graphql(
       id
       box {
         ...BoxBasicFields
+        weight
+        monetaryValue
+        weightDisplayUnit {
+          symbol
+        }
       }
       sourceProduct {
         ...ProductFields
@@ -251,9 +262,11 @@ export const SHIPMENT_FIELDS_FRAGMENT = graphql(
       }
       sourceBase {
         ...BaseOrgFields
+        currency
       }
       targetBase {
         ...BaseOrgFields
+        currency
       }
       transferAgreement {
         id

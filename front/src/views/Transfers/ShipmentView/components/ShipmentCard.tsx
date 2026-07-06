@@ -15,6 +15,7 @@ import {
   Stack,
   Tooltip,
 } from "@chakra-ui/react";
+import { WarningTwoIcon } from "@chakra-ui/icons";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { qrReaderOverlayVar } from "queries/cache";
@@ -23,6 +24,8 @@ import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
 import { Shipment } from "queries/types";
+import { useAuthorization } from "hooks/useAuthorization";
+import { currencySymbol } from "utils/currencySymbol";
 
 export interface IShipmentProps {
   canCancelShipment: boolean;
@@ -30,10 +33,19 @@ export interface IShipmentProps {
   canLooseShipment: boolean;
   isLoadingMutation: boolean | undefined;
   shipment: Shipment;
+  estimatedWeight: number | null;
+  estimatedMonetaryValue: number | null;
+  weightUnit: string | null;
+  currency: string | null;
+  hasMissingWeightOrMonetaryValue: boolean;
   onRemove: () => void;
   onCancel: () => void;
   onLost: () => void;
 }
+
+const numberFormatter = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 2,
+});
 
 function ShipmentCard({
   canCancelShipment,
@@ -41,10 +53,17 @@ function ShipmentCard({
   canLooseShipment,
   isLoadingMutation,
   shipment,
+  estimatedWeight,
+  estimatedMonetaryValue,
+  weightUnit,
+  currency,
+  hasMissingWeightOrMonetaryValue,
   onRemove,
   onCancel,
   onLost,
 }: IShipmentProps) {
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const totalLostBoxes = (
     shipment.details?.filter((item) => item.lostOn !== null && item.removedOn === null) ?? []
   ).length;
@@ -74,7 +93,20 @@ function ShipmentCard({
                 <WrapItem>{shipment?.labelIdentifier}</WrapItem>
               </Wrap>
             </Heading>
-            <ShipmentColoredStatus state={shipment?.state} />
+            <Wrap align="center" spacing={2}>
+              <WrapItem>
+                <ShipmentColoredStatus state={shipment?.state} />
+              </WrapItem>
+              {showWeightAndValue &&
+                shipment.state === "Preparing" &&
+                hasMissingWeightOrMonetaryValue && (
+                  <WrapItem>
+                    <Tooltip label="Some boxes are missing weight or value.">
+                      <WarningTwoIcon color="orange.400" aria-label="missing weight or value" />
+                    </Tooltip>
+                  </WrapItem>
+                )}
+            </Wrap>
           </VStack>
           <Spacer />
           {canCancelShipment && (
@@ -194,6 +226,24 @@ function ShipmentCard({
             </Box>
 
             <Spacer />
+            {showWeightAndValue && (estimatedWeight != null || estimatedMonetaryValue != null) && (
+              <Box mr={4}>
+                <VStack spacing={0} align="stretch">
+                  {estimatedWeight != null && (
+                    <Text fontSize="sm" textAlign="right">
+                      Est. weight:{" "}
+                      {`${numberFormatter.format(estimatedWeight)} ${weightUnit ?? ""}`.trim()}
+                    </Text>
+                  )}
+                  {estimatedMonetaryValue != null && (
+                    <Text fontSize="sm" textAlign="right">
+                      Est. value:{" "}
+                      {`${currencySymbol(currency)}${numberFormatter.format(estimatedMonetaryValue)}`}
+                    </Text>
+                  )}
+                </VStack>
+              </Box>
+            )}
             <Box>
               {canUpdateShipment && (
                 <VStack spacing={0} align="stretch">

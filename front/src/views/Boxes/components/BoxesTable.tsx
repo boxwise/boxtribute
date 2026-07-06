@@ -54,6 +54,8 @@ import { FilterChips } from "./FilterChips";
 import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import { createOptions } from "utils/filterOptions";
 import { removeFilter } from "utils/helpers";
+import { useAuthorization } from "hooks/useAuthorization";
+import { currencySymbol } from "utils/currencySymbol";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -69,6 +71,10 @@ interface IBoxesTableProps {
 
 export const PAGE_SIZE = 50;
 
+const numberFormatter = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 2,
+});
+
 function BoxesTable({
   isBackgroundFetchOfBoxesLoading,
   hasExecutedInitialFetchOfBoxes,
@@ -81,6 +87,8 @@ function BoxesTable({
   shipmentOptions,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
@@ -187,6 +195,15 @@ function BoxesTable({
   );
   const boxCount = rows.length;
   const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
+  const hasWeight = rows.some((row) => row.original.weight != null);
+  const totalWeight = rows.reduce((total, row) => total + (row.original.weight ?? 0), 0);
+  const weightUnit = rows.find((row) => row.original.weightUnit)?.original.weightUnit ?? null;
+  const hasMonetaryValue = rows.some((row) => row.original.monetaryValue != null);
+  const totalMonetaryValue = rows.reduce(
+    (total, row) => total + (row.original.monetaryValue ?? 0),
+    0,
+  );
+  const currency = rows.find((row) => row.original.currency)?.original.currency ?? null;
   const selectedCount = selectedFlatRows.length;
 
   const {
@@ -360,6 +377,22 @@ function BoxesTable({
               </Text>{" "}
               items
             </Text>
+            {showWeightAndValue && hasWeight && (
+              <Text>
+                <Text as="span" fontWeight="bold">
+                  {numberFormatter.format(totalWeight)}
+                </Text>{" "}
+                est. weight{weightUnit ? ` (${weightUnit})` : ""}
+              </Text>
+            )}
+            {showWeightAndValue && hasMonetaryValue && (
+              <Text>
+                <Text as="span" fontWeight="bold">
+                  {`${currencySymbol(currency)}${numberFormatter.format(totalMonetaryValue)}`}
+                </Text>{" "}
+                est. value
+              </Text>
+            )}
           </HStack>
         ) : (
           <Text>Data unavailable</Text>

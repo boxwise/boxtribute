@@ -12,6 +12,14 @@ export const shipmentDetail1 = () => ({
   box: {
     __typename: "Box",
     labelIdentifier: "123",
+    weight: 4.5,
+    monetaryValue: 12.5,
+    weightDisplayUnit: {
+      __typename: "Unit",
+      id: "1",
+      name: "kilogram",
+      symbol: "kg",
+    },
     location: {
       ...location1,
       base: base1,

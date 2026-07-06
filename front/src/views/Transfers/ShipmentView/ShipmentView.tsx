@@ -352,6 +352,24 @@ function ShipmentView() {
 
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetailWithAutomatchProduct[];
+  const shipmentDetailsForTotals = shipmentContents.filter((item) => item.lostOn === null);
+  const hasShipmentWeight = shipmentDetailsForTotals.some((item) => item.box.weight != null);
+  const estimatedShipmentWeight = hasShipmentWeight
+    ? shipmentDetailsForTotals.reduce((total, item) => total + (item.box.weight ?? 0), 0)
+    : null;
+  const shipmentWeightUnit =
+    shipmentDetailsForTotals.find((item) => item.box.weightDisplayUnit?.symbol)?.box
+      .weightDisplayUnit?.symbol ?? null;
+  const hasShipmentMonetaryValue = shipmentDetailsForTotals.some(
+    (item) => item.box.monetaryValue != null,
+  );
+  const estimatedShipmentMonetaryValue = hasShipmentMonetaryValue
+    ? shipmentDetailsForTotals.reduce((total, item) => total + (item.box.monetaryValue ?? 0), 0)
+    : null;
+  const shipmentCurrency = data?.shipment?.sourceBase.currency ?? null;
+  const hasMissingWeightOrMonetaryValue = shipmentContents.some(
+    (item) => item.box.weight == null || item.box.monetaryValue == null,
+  );
 
   const changesLabel = (history: any): string => {
     let changes = "";
@@ -546,6 +564,11 @@ function ShipmentView() {
         onCancel={openShipmentOverlay}
         onLost={openShipmentOverlay}
         shipment={data?.shipment}
+        estimatedWeight={estimatedShipmentWeight}
+        estimatedMonetaryValue={estimatedShipmentMonetaryValue}
+        weightUnit={shipmentWeightUnit}
+        currency={shipmentCurrency}
+        hasMissingWeightOrMonetaryValue={hasMissingWeightOrMonetaryValue}
       />
     ) : undefined;
   }

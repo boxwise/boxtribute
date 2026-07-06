@@ -15,6 +15,7 @@ export const basicShipment = {
     __typename: "Base",
     id: "1",
     name: "Lesvos",
+    currency: "EUR",
     organisation: {
       __typename: "Organisation",
       id: "1",
@@ -25,6 +26,7 @@ export const basicShipment = {
     __typename: "Base",
     id: "2",
     name: "Thessaloniki",
+    currency: "EUR",
     organisation: {
       __typename: "Organisation",
       id: "2",
@@ -91,6 +93,14 @@ export const generateMockShipment = ({
             __typename: "Box",
             labelIdentifier: "123",
             state: "MarkedForShipment",
+            weight: 4.5,
+            monetaryValue: 12.5,
+            weightDisplayUnit: {
+              __typename: "Unit",
+              id: "1",
+              name: "kilogram",
+              symbol: "kg",
+            },
             comment: null,
             location: {
               ...location1,
@@ -132,6 +142,14 @@ export const generateMockShipment = ({
             __typename: "Box",
             labelIdentifier: "123",
             state: "MarkedForShipment",
+            weight: 4.5,
+            monetaryValue: 12.5,
+            weightDisplayUnit: {
+              __typename: "Unit",
+              id: "1",
+              name: "kilogram",
+              symbol: "kg",
+            },
             comment: null,
             location: {
               ...location1,

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useAuthorization } from "hooks/useAuthorization";
 import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
@@ -44,6 +45,7 @@ import { BoxState } from "queries/types";
 import BoxesTable, { PAGE_SIZE } from "./components/BoxesTable";
 import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
 import { useSearchParams } from "react-router-dom";
+import { currencySymbol } from "utils/currencySymbol";
 
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
   `
@@ -58,10 +60,18 @@ export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
       size {
         ...SizeBasicFields
       }
+      weight
+      monetaryValue
+      weightDisplayUnit {
+        symbol
+      }
       state
       location {
         id
         name
+        base {
+          currency
+        }
       }
       tags {
         ...TagBasicFields
@@ -147,12 +157,29 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
   [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
+const numberFormatter = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 2,
+});
+
+const formatWeight = (weight: number | null | undefined, unit: string | null | undefined) =>
+  weight == null ? "" : `${numberFormatter.format(weight)} ${unit ?? ""}`.trim();
+
+const formatMonetaryValue = (
+  monetaryValue: number | null | undefined,
+  currency: string | null | undefined,
+) =>
+  monetaryValue == null
+    ? ""
+    : `${currencySymbol(currency)}${numberFormatter.format(monetaryValue)}`;
+
 function Boxes({
   hasExecutedInitialFetchOfBoxes,
 }: {
   hasExecutedInitialFetchOfBoxes: { current: boolean };
 }) {
   const [searchParams] = useSearchParams();
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const baseId = useAtomValue(selectedBaseIdAtom);
   const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
@@ -171,6 +198,7 @@ function Boxes({
       "createdBy",
       "productCategory",
       "no_tags", // Hidden column for excluded tags filter
+      ...(showWeightAndValue ? ["weight", "monetaryValue"] : []),
     ];
 
     const filterIds: string[] = [];
@@ -183,7 +211,7 @@ function Boxes({
     });
 
     return start.filter((colId) => !filterIds.includes(colId));
-  }, [searchParams]);
+  }, [searchParams, showWeightAndValue]);
 
   const tableConfig = useTableConfig({
     tableConfigKey,
@@ -346,6 +374,27 @@ function Boxes({
         id: "numberOfItems",
         disableFilters: true,
       },
+      ...((showWeightAndValue
+        ? [
+            {
+              Header: "Weight",
+              accessor: "weight",
+              id: "weight",
+              disableFilters: true,
+              Cell: ({ value, row }) => formatWeight(value, row.original.weightUnit),
+              sortType: (rowA, rowB) => (rowA.values.weight ?? -1) - (rowB.values.weight ?? -1),
+            },
+            {
+              Header: "Value",
+              accessor: "monetaryValue",
+              id: "monetaryValue",
+              disableFilters: true,
+              Cell: ({ value, row }) => formatMonetaryValue(value, row.original.currency),
+              sortType: (rowA, rowB) =>
+                (rowA.values.monetaryValue ?? -1) - (rowB.values.monetaryValue ?? -1),
+            },
+          ]
+        : []) as Column<BoxRow>[]),
       {
         Header: "Status",
         accessor: "state",
@@ -467,7 +516,7 @@ function Boxes({
         filter: "includesOneOfMultipleStrings",
       },
     ],
-    [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on],
+    [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on, showWeightAndValue],
   );
 
   return (

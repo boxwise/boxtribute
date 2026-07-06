@@ -58,6 +58,7 @@ const initialQuery = {
     data: {
       base: {
         id: "1",
+        currency: "EUR",
         tags: [tag1, tag2],
         locations: [location1],
         products: [product1, testProduct],
@@ -88,6 +89,9 @@ const successfulCreateBoxMutation = {
         product: testProduct,
         size: { id: "1", label: "S" },
         numberOfItems: 5,
+        weight: null,
+        monetaryValue: null,
+        weightDisplayUnit: null,
         location: location1,
         comment: "",
         tags: [
@@ -143,6 +147,9 @@ const successfulCreateBoxWithQrMutation = {
         product: testProduct,
         size: { id: "1", label: "S" },
         numberOfItems: 5,
+        weight: null,
+        monetaryValue: null,
+        weightDisplayUnit: null,
         location: location1,
         comment: "",
         tags: [],

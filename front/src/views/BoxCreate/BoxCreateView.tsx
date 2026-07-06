@@ -20,6 +20,7 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
     query AllProductsAndLocationsForBase($baseId: ID!) {
       base(id: $baseId) {
         id
+        currency
         tags(resourceType: Box) {
           ...TagOptions
         }
@@ -50,6 +51,8 @@ export const CREATE_BOX_MUTATION = graphql(
       $productId: Int!
       $sizeId: Int!
       $numberOfItems: Int!
+      $weight: Float
+      $monetaryValue: Float
       $comment: String
       $tagIds: [Int!]
       $newTagNames: [String!]
@@ -62,6 +65,8 @@ export const CREATE_BOX_MUTATION = graphql(
           numberOfItems: $numberOfItems
           sizeId: $sizeId
           qrCode: $qrCode
+          weight: $weight
+          monetaryValue: $monetaryValue
           comment: $comment
           tagIds: $tagIds
           newTagNames: $newTagNames
@@ -210,6 +215,8 @@ function BoxCreateView() {
         sizeId: parseInt(createBoxData.sizeId.value, 10),
         numberOfItems: createBoxData.numberOfItems,
         comment: createBoxData?.comment,
+        weight: createBoxData.weight,
+        monetaryValue: createBoxData.monetaryValue,
         tagIds,
         newTagNames,
         qrCode,
@@ -303,6 +310,7 @@ function BoxCreateView() {
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
         onSubmitBoxCreateFormAndCreateAnother={onSubmitBoxCreateFormAndCreateAnother}
         allTags={allTags}
+        currency={allFormOptions.data?.base?.currency}
         disableSubmission={noLocation || noProducts}
       />
     </Center>

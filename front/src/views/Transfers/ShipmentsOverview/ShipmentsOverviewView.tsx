@@ -45,6 +45,8 @@ import { ShipmentFilterChips } from "./components/ShipmentFilterChips";
 import type { ShipmentColumnFilter, ShipmentFilterId } from "./components/types";
 import { createOptions } from "utils/filterOptions";
 import { removeFilter } from "utils/helpers";
+import { useAuthorization } from "hooks/useAuthorization";
+import { currencySymbol } from "utils/currencySymbol";
 
 // TODO: Revisit this after gql.tada merge
 type ShipmentRow = {
@@ -55,6 +57,10 @@ type ShipmentRow = {
   targetBaseOrg: { id: string; base: string; organisation: string };
   state: ShipmentState | null | undefined;
   boxes: number;
+  estimatedWeight: number | null;
+  estimatedMonetaryValue: number | null;
+  weightUnit: string | null;
+  currency: string | null;
   lastUpdated: Date | undefined;
   href: string;
 };
@@ -97,8 +103,22 @@ const shipmentGlobalFilterFn = (
 };
 shipmentGlobalFilterFn.autoRemove = (val: unknown) => !val;
 
+const numberFormatter = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 2,
+});
+
+const formatWeight = (weight: number | null, unit: string | null) =>
+  weight == null ? "" : `${numberFormatter.format(weight)} ${unit ?? ""}`.trim();
+
+const formatMonetaryValue = (monetaryValue: number | null, currency: string | null) =>
+  monetaryValue == null
+    ? ""
+    : `${currencySymbol(currency)}${numberFormatter.format(monetaryValue)}`;
+
 function ShipmentsOverviewView() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const baseId = useAtomValue(selectedBaseIdAtom);
   const navigate = useNavigate();
   const [direction, setDirection] = useState<"Receiving" | "Sending">("Receiving");
@@ -141,19 +161,43 @@ function ShipmentsOverviewView() {
             },
             state: element.state,
             boxes: 0,
+            estimatedWeight: null,
+            estimatedMonetaryValue: null,
+            weightUnit: null,
+            currency: element.sourceBase.currency,
             lastUpdated: undefined,
             href: element.id,
           };
 
           // counting of boxes from details
-          const uniqueBoxIds = element.details.reduce((accumulator, detail) => {
-            if (detail.removedOn == null) {
-              const boxId = detail.box.labelIdentifier;
-              accumulator[boxId] = (accumulator[boxId] || 0) + 1;
-            }
+          const activeDetails = element.details.filter(
+            (detail) => detail.removedOn == null && detail.lostOn == null,
+          );
+          const uniqueBoxIds = activeDetails.reduce((accumulator, detail) => {
+            const boxId = detail.box.labelIdentifier;
+            accumulator[boxId] = (accumulator[boxId] || 0) + 1;
             return accumulator;
           }, {});
           shipmentRow.boxes = Object.keys(uniqueBoxIds).length;
+
+          const hasWeight = activeDetails.some((detail) => detail.box.weight != null);
+          if (hasWeight) {
+            shipmentRow.estimatedWeight = activeDetails.reduce(
+              (total, detail) => total + (detail.box.weight ?? 0),
+              0,
+            );
+            shipmentRow.weightUnit =
+              activeDetails.find((detail) => detail.box.weightDisplayUnit?.symbol)?.box
+                .weightDisplayUnit?.symbol ?? null;
+          }
+
+          const hasMonetaryValue = activeDetails.some((detail) => detail.box.monetaryValue != null);
+          if (hasMonetaryValue) {
+            shipmentRow.estimatedMonetaryValue = activeDetails.reduce(
+              (total, detail) => total + (detail.box.monetaryValue ?? 0),
+              0,
+            );
+          }
 
           // calculate last updated
           const shipmentUpdateDateTimes = [
@@ -167,7 +211,10 @@ function ShipmentsOverviewView() {
             element.details
               .reduce(
                 (accumulator, detail) =>
-                  accumulator.concat(detail.createdOn).concat(detail.removedOn || ""),
+                  accumulator
+                    .concat(detail.createdOn)
+                    .concat(detail.removedOn || "")
+                    .concat(detail.lostOn || ""),
                 [] as string[],
               )
               .filter((date) => Boolean(date)),
@@ -256,8 +303,31 @@ function ShipmentsOverviewView() {
         Cell: BoxesCell,
         disableFilters: true,
       },
+      ...((showWeightAndValue
+        ? [
+            {
+              Header: "Est. weight",
+              accessor: "estimatedWeight",
+              id: "estimatedWeight",
+              disableFilters: true,
+              Cell: ({ value, row }) => formatWeight(value, row.original.weightUnit),
+              sortType: (rowA, rowB) =>
+                (rowA.values.estimatedWeight ?? -1) - (rowB.values.estimatedWeight ?? -1),
+            },
+            {
+              Header: "Est. value",
+              accessor: "estimatedMonetaryValue",
+              id: "estimatedMonetaryValue",
+              disableFilters: true,
+              Cell: ({ value, row }) => formatMonetaryValue(value, row.original.currency),
+              sortType: (rowA, rowB) =>
+                (rowA.values.estimatedMonetaryValue ?? -1) -
+                (rowB.values.estimatedMonetaryValue ?? -1),
+            },
+          ]
+        : []) as Column<ShipmentRow>[]),
     ],
-    [direction],
+    [direction, showWeightAndValue],
   );
 
   const {
