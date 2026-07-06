@@ -5,10 +5,17 @@ import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import BeneficiaryFiguresCards from "./BeneficiaryFiguresCards";
 import { BENEFICIARY_FIGURES_QUERY } from "../../../queries/queries";
 
-export default function BeneficiaryFiguresDataContainer() {
+interface BeneficiaryFiguresDataContainerProps {
+  isActive: boolean;
+}
+
+export default function BeneficiaryFiguresDataContainer({
+  isActive,
+}: BeneficiaryFiguresDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(BENEFICIARY_FIGURES_QUERY, {
     variables: { baseId: baseId! },
+    skip: !isActive,
   });
 
   if (error) {

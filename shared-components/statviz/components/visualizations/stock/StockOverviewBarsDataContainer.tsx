@@ -8,17 +8,20 @@ import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 
 interface StockOverviewBarsDataContainerProps {
+  isActive: boolean;
   appliedFilters: StockAppliedFilters;
   boxesOrItems: BoxesOrItems;
 }
 
 export default function StockOverviewBarsDataContainer({
+  isActive,
   appliedFilters,
   boxesOrItems,
 }: StockOverviewBarsDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(STOCK_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
+    skip: !isActive,
   });
 
   if (error) {

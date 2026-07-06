@@ -9,15 +9,18 @@ import NoDataCard from "../../NoDataCard";
 import type { BeneficiaryAppliedFilters } from "../../../utils/dashboardFilters";
 
 interface DemographicDataContainerProps {
+  isActive: boolean;
   appliedFilters: BeneficiaryAppliedFilters;
 }
 
 export default function DemographicDataContainer({
+  isActive,
   appliedFilters,
 }: DemographicDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(DEMOGRAPHIC_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
+    skip: !isActive,
   });
 
   if (error) {

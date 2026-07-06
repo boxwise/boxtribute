@@ -8,17 +8,20 @@ import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 
 interface BoxCreationCalendarDataContainerProps {
+  isActive: boolean;
   appliedFilters: StockAppliedFilters;
   boxesOrItems: BoxesOrItems;
 }
 
 export default function BoxCreationCalendarDataContainer({
+  isActive,
   appliedFilters,
   boxesOrItems,
 }: BoxCreationCalendarDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(CREATED_BOXES_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
+    skip: !isActive,
   });
 
   if (error) {

@@ -1,7 +1,7 @@
 import { Accordion, Heading } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import BeneficiaryOverview from "./BeneficiaryOverview";
 import MovedBoxes from "./MovedBoxes";
 import StockOverview from "./StockOverview";
@@ -17,6 +17,11 @@ import type {
 
 export default function Dashboard() {
   const { baseId } = useParams();
+  const [everOpened, setEverOpened] = useState<Set<number>>(new Set([0]));
+
+  const handleAccordionChange = (indices: number[]) => {
+    setEverOpened((prev) => new Set([...prev, ...indices]));
+  };
   const { data, error } = useQuery(DASHBOARD_FILTER_DATA_QUERY, {
     variables: { baseId: baseId! },
   });
@@ -75,15 +80,26 @@ export default function Dashboard() {
       <Heading style={{ marginBottom: "15px" }}>Dashboard</Heading>
       <InfoText />
 
-      <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
+      <Accordion
+        defaultIndex={[0]}
+        allowMultiple
+        marginBottom="100px"
+        onChange={handleAccordionChange}
+      >
         <StockOverview
+          isActive={everOpened.has(0)}
           products={products}
           categories={categories}
           locations={locations}
           tags={tags}
         />
-        <MovedBoxes products={products} categories={categories} tags={tags} />
-        <BeneficiaryOverview tags={tags} />
+        <MovedBoxes
+          isActive={everOpened.has(1)}
+          products={products}
+          categories={categories}
+          tags={tags}
+        />
+        <BeneficiaryOverview isActive={everOpened.has(2)} tags={tags} />
       </Accordion>
     </div>
   );

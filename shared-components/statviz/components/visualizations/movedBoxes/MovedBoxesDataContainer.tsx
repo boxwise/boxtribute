@@ -8,6 +8,7 @@ import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import type { MovementAppliedFilters, MovementDirection } from "../../../utils/dashboardFilters";
 
 interface MovedBoxesDataContainerProps {
+  isActive: boolean;
   appliedFilters: MovementAppliedFilters;
   boxesOrItems: BoxesOrItems;
   direction: MovementDirection;
@@ -17,6 +18,7 @@ interface MovedBoxesDataContainerProps {
 // which applys filters to the data
 // the filter wrapper passes it to the Chart which maps the Datacube to a VisX or Nivo Chart
 export default function MovedBoxesDataContainer({
+  isActive,
   appliedFilters,
   boxesOrItems,
   direction,
@@ -24,6 +26,7 @@ export default function MovedBoxesDataContainer({
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(MOVED_BOXES_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
+    skip: !isActive,
   });
 
   if (error) {
