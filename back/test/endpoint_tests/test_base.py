@@ -16,6 +16,7 @@ def test_bases_query(
                     id
                     name
                     freeshopCurrencyName
+                    monetaryCurrencyCode
                     deletedOn
                     instockBoxesCount
                     instockItemsCount
@@ -30,6 +31,7 @@ def test_bases_query(
             "id": str(default_base["id"]),
             "name": default_base["name"],
             "freeshopCurrencyName": default_base["freeshop_currency_name"],
+            "monetaryCurrencyCode": default_base["monetary_currency_code"],
             "deletedOn": None,
             "instockBoxesCount": len(base1_instock_boxes),
             "instockItemsCount": sum(b["number_of_items"] for b in base1_instock_boxes),

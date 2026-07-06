@@ -136,7 +136,7 @@ class Box(Model):
         decimal_places=18,
         null=True,
     )
-    # Determined by Base.currency
+    # Determined by Base.monetary_currency_code
     monetary_value = DecimalField(
         max_digits=36,
         decimal_places=18,

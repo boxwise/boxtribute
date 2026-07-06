@@ -36,7 +36,7 @@ type Box implements ItemsCollection {
   size: Size
   weight: Float
   weightDisplayUnit: Unit
-  " Determined by Base.currency "
+  " Determined by Base.monetaryCurrencyCode "
   monetaryValue: Float
   " Information about the unit that the measure shall be displayed in. If the box holds a product with size (e.g. clothing), its unit is null "
   displayUnit: Unit
@@ -292,7 +292,7 @@ type Base {
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
   " ISO 4217 currency code for monetary value of e.g. boxes "
-  currency: String!
+  monetaryCurrencyCode: String!
   " Currency for FreeShop distributions "
   freeshopCurrencyName: String
   " List of all non-deleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "

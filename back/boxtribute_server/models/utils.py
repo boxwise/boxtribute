@@ -234,7 +234,7 @@ def create_history_entries(*, old_resource, new_resource, fields, change_date):
         elif field_name == "monetary_value":
             entry.from_float = old_value
             entry.to_float = new_value
-            # Hard-code € for now; must pull Base.currency somehow
+            # Hard-code € for now; must pull Base.monetary_currency_code somehow
             old_expression = '""' if old_value is None else f"{round(old_value, 2)}€"
             new_expression = '""' if new_value is None else f"{round(new_value, 2)}€"
             entry.changes = f"""changed monetary value from {old_expression} \
