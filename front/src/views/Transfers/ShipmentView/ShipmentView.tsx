@@ -125,6 +125,29 @@ export const START_RECEIVING_SHIPMENT = graphql(
   [SHIPMENT_FIELDS_FRAGMENT],
 );
 
+export const UPDATE_MARKED_FOR_SHIPMENT_BOX = graphql(`
+  mutation UpdateMarkedForShipmentBox(
+    $labelIdentifier: String!
+    $weight: Float
+    $monetaryValue: Float
+  ) {
+    updateMarkedForShipmentBox(
+      updateInput: {
+        labelIdentifier: $labelIdentifier
+        weight: $weight
+        monetaryValue: $monetaryValue
+      }
+    ) {
+      labelIdentifier
+      weight
+      monetaryValue
+      weightDisplayUnit {
+        symbol
+      }
+    }
+  }
+`);
+
 function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
@@ -173,6 +196,8 @@ function ShipmentView() {
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation(
     UPDATE_SHIPMENT_WHEN_RECEIVING,
   );
+
+  const [updateMarkedForShipmentBox] = useMutation(UPDATE_MARKED_FOR_SHIPMENT_BOX);
 
   // shipment actions in the modal
   const handleShipment = useCallback(
@@ -340,6 +365,37 @@ function ShipmentView() {
         });
     },
     [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
+  );
+
+  const onUpdateBox = useCallback(
+    (labelIdentifier: string, weight: number | null, monetaryValue: number | null) => {
+      updateMarkedForShipmentBox({
+        variables: {
+          labelIdentifier,
+          weight: weight ?? undefined,
+          monetaryValue: monetaryValue ?? undefined,
+        },
+      })
+        .then((mutationResult) => {
+          if (mutationResult?.errors) {
+            triggerError({
+              message: "Error: Could not update box.",
+            });
+          } else {
+            createToast({
+              title: `Box ${labelIdentifier}`,
+              type: "success",
+              message: "Successfully updated the box.",
+            });
+          }
+        })
+        .catch(() => {
+          triggerError({
+            message: "Could not update the box.",
+          });
+        });
+    },
+    [triggerError, createToast, updateMarkedForShipmentBox],
   );
 
   const isLoadingFromMutation =
@@ -550,6 +606,7 @@ function ShipmentView() {
         isLoadingMutation={isLoadingFromMutation}
         onRemoveBox={onRemoveBox}
         onBulkRemoveBox={onBulkRemoveBox}
+        onUpdateBox={onUpdateBox}
         showRemoveIcon={showRemoveIcon}
       />
     );
