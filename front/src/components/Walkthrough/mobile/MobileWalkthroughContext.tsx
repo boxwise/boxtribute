@@ -60,7 +60,7 @@ function saveState(userId: string, state: MobileWalkthroughState) {
 export function MobileWalkthroughProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth0();
   const userId = user?.sub ?? "anonymous";
-  const roles: string | string[] = user?.[JWT_ROLE] ?? [];
+  const roles: string[] = user?.[JWT_ROLE] ?? [];
   const isCoordinator = isCoordinatorOrAbove(roles);
 
   const [step, setStep] = useState<MobileWalkthroughStep>("idle");

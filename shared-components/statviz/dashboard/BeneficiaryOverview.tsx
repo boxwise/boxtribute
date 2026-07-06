@@ -27,10 +27,11 @@ import { BeneficiaryFilters } from "./../components/filter/BeneficiaryFilters";
 import DashboardFilterChips from "./DashboardFilterChips";
 
 interface BeneficiaryOverviewProps {
+  isActive: boolean;
   tags: ITagOption[];
 }
 
-export default function BeneficiaryOverview({ tags }: BeneficiaryOverviewProps) {
+export default function BeneficiaryOverview({ isActive, tags }: BeneficiaryOverviewProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const appliedFilters = useMemo(
@@ -126,12 +127,12 @@ export default function BeneficiaryOverview({ tags }: BeneficiaryOverviewProps) 
             </Box>
           </HStack>
           <SimpleGrid minChildWidth="300px" columns={{ base: 1, md: 3 }} spacing={4}>
-            <BeneficiaryFiguresDataContainer />
+            <BeneficiaryFiguresDataContainer isActive={isActive} />
             <Box gridColumn={{ md: "span 2" }}>
-              <DemographicDataContainer appliedFilters={appliedFilters} />
+              <DemographicDataContainer isActive={isActive} appliedFilters={appliedFilters} />
             </Box>
           </SimpleGrid>
-          <BeneficiaryReachDataContainer appliedFilters={appliedFilters} />
+          <BeneficiaryReachDataContainer isActive={isActive} appliedFilters={appliedFilters} />
         </VStack>
       </AccordionPanel>
     </AccordionItem>

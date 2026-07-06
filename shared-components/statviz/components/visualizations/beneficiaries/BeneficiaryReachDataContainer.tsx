@@ -8,17 +8,23 @@ import { BENEFICIARY_REACH_QUERY } from "../../../queries/queries";
 import type { BeneficiaryAppliedFilters } from "../../../utils/dashboardFilters";
 
 interface BeneficiaryReachDataContainerProps {
+  isActive: boolean;
   appliedFilters: BeneficiaryAppliedFilters;
 }
 
 export default function BeneficiaryReachDataContainer({
+  isActive,
   appliedFilters,
 }: BeneficiaryReachDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(BENEFICIARY_REACH_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
+    skip: !isActive,
   });
 
+  if (!isActive) {
+    return null;
+  }
   if (error) {
     return <ErrorCard error={error.message} />;
   }

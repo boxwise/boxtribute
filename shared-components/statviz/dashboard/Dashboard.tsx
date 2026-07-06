@@ -1,13 +1,14 @@
 import { Accordion, Heading } from "@chakra-ui/react";
 import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import BeneficiaryOverview from "./BeneficiaryOverview";
 import MovedBoxes from "./MovedBoxes";
 import StockOverview from "./StockOverview";
 import InfoText from "./InfoText";
 import { DASHBOARD_FILTER_DATA_QUERY } from "../queries/queries";
 import ErrorCard from "../components/ErrorCard";
+import { isFreeShopVolunteer, isWarehouseVolunteer } from "../../utils/roles";
 import type {
   IProductOption,
   ICategoryOption,
@@ -15,8 +16,32 @@ import type {
   ITagOption,
 } from "../utils/dashboardFilters";
 
-export default function Dashboard() {
+interface DashboardProps {
+  roles?: string[];
+}
+
+export default function Dashboard({ roles = [] }: DashboardProps) {
   const { baseId } = useParams();
+
+  // Determine section visibility based on roles
+  const freeShopOnly = isFreeShopVolunteer(roles) && !isWarehouseVolunteer(roles);
+  const warehouseOnly = isWarehouseVolunteer(roles) && !isFreeShopVolunteer(roles);
+  const showStock = !freeShopOnly;
+  const showMovedBoxes = !freeShopOnly;
+  const showBeneficiary = !warehouseOnly;
+
+  // Compute accordion index for each visible section
+  let idx = 0;
+  const stockIdx = showStock ? idx++ : -1;
+  const movedBoxesIdx = showMovedBoxes ? idx++ : -1;
+  const beneficiaryIdx = showBeneficiary ? idx++ : -1;
+
+  const [everOpened, setEverOpened] = useState<Set<number>>(new Set([0]));
+
+  const handleAccordionChange = (indices: number | number[]) => {
+    const next = Array.isArray(indices) ? indices : [indices];
+    setEverOpened((prev) => new Set([...prev, ...next]));
+  };
   const { data, error } = useQuery(DASHBOARD_FILTER_DATA_QUERY, {
     variables: { baseId: baseId! },
   });
@@ -75,15 +100,32 @@ export default function Dashboard() {
       <Heading style={{ marginBottom: "15px" }}>Dashboard</Heading>
       <InfoText />
 
-      <Accordion defaultIndex={[0]} allowMultiple marginBottom="100px">
-        <StockOverview
-          products={products}
-          categories={categories}
-          locations={locations}
-          tags={tags}
-        />
-        <MovedBoxes products={products} categories={categories} tags={tags} />
-        <BeneficiaryOverview tags={tags} />
+      <Accordion
+        defaultIndex={[0]}
+        allowMultiple
+        marginBottom="100px"
+        onChange={handleAccordionChange}
+      >
+        {showStock && (
+          <StockOverview
+            isActive={everOpened.has(stockIdx)}
+            products={products}
+            categories={categories}
+            locations={locations}
+            tags={tags}
+          />
+        )}
+        {showMovedBoxes && (
+          <MovedBoxes
+            isActive={everOpened.has(movedBoxesIdx)}
+            products={products}
+            categories={categories}
+            tags={tags}
+          />
+        )}
+        {showBeneficiary && (
+          <BeneficiaryOverview isActive={everOpened.has(beneficiaryIdx)} tags={tags} />
+        )}
       </Accordion>
     </div>
   );
