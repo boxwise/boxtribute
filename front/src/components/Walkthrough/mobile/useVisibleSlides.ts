@@ -15,7 +15,7 @@ import { isFreeShopVolunteer, isCoordinatorOrAbove, isWarehouseVolunteer } from 
  */
 export function useVisibleSlides(): MobileSlide[] {
   const { user } = useAuth0();
-  const roles: string | string[] = user?.[JWT_ROLE] ?? [];
+  const roles: string[] = user?.[JWT_ROLE] ?? [];
 
   const isCoordinator = isCoordinatorOrAbove(roles);
   const isWarehouse = isWarehouseVolunteer(roles);

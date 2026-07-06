@@ -8,19 +8,25 @@ import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 
 interface StockOverviewRingDataContainerProps {
+  isActive: boolean;
   appliedFilters: StockAppliedFilters;
   boxesOrItems: BoxesOrItems;
 }
 
 export default function StockOverviewRingDataContainer({
+  isActive,
   appliedFilters,
   boxesOrItems,
 }: StockOverviewRingDataContainerProps) {
   const { baseId } = useParams();
   const { data, loading, error } = useQuery(STOCK_QUERY, {
     variables: { baseId: parseInt(baseId!, 10) },
+    skip: !isActive,
   });
 
+  if (!isActive) {
+    return null;
+  }
   if (error) {
     return <ErrorCard error={error.message} />;
   }

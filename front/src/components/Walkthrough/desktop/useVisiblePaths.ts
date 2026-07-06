@@ -9,7 +9,7 @@ import { isCoordinatorOrAbove, isFreeShopVolunteer } from "../roles";
 /** Returns the walkthrough paths visible to the current user based on their roles. */
 export function useVisiblePaths(): WalkthroughPath[] {
   const { user } = useAuth0();
-  const roles: string | string[] = user?.[JWT_ROLE] ?? [];
+  const roles: string[] = user?.[JWT_ROLE] ?? [];
 
   // Don't show path 2 if user has only the WarehouseVolunteer role
   const showPath2 = isCoordinatorOrAbove(roles) || isFreeShopVolunteer(roles);
