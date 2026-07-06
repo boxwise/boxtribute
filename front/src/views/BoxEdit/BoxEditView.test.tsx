@@ -27,7 +27,7 @@ const initialQuery = {
       box: box123,
       base: {
         id: "1",
-        currency: "EUR",
+        monetaryCurrencyCode: "EUR",
         products,
         locations,
         tags,

@@ -25,7 +25,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           weight: element.weight,
           monetaryValue: element.monetaryValue,
           weightUnit: element.weightDisplayUnit?.symbol ?? null,
-          currency: element.location?.base?.currency ?? null,
+          currency: element.location?.base?.monetaryCurrencyCode ?? null,
           size: { name: element.size?.label, id: element.size?.id },
           state: { name: element.state, id: boxStateIds[element.state] },
           location: { name: element.location?.name, id: element.location?.id },

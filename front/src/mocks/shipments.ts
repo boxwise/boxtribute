@@ -15,7 +15,7 @@ export const basicShipment = {
     __typename: "Base",
     id: "1",
     name: "Lesvos",
-    currency: "EUR",
+    monetaryCurrencyCode: "EUR",
     organisation: {
       __typename: "Organisation",
       id: "1",
@@ -26,7 +26,7 @@ export const basicShipment = {
     __typename: "Base",
     id: "2",
     name: "Thessaloniki",
-    currency: "EUR",
+    monetaryCurrencyCode: "EUR",
     organisation: {
       __typename: "Organisation",
       id: "2",

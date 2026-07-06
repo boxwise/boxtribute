@@ -110,7 +110,7 @@ export const ALL_SHIPMENTS_QUERY = graphql(
         }
         sourceBase {
           ...BaseOrgFields
-          currency
+          monetaryCurrencyCode
         }
         targetBase {
           ...BaseOrgFields

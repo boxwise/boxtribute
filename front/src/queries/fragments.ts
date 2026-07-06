@@ -152,7 +152,7 @@ export const BOX_FIELDS_FRAGMENT = graphql(
         }
         base {
           ...BaseBasicFields
-          currency
+          monetaryCurrencyCode
         }
       }
       numberOfItems
@@ -262,11 +262,11 @@ export const SHIPMENT_FIELDS_FRAGMENT = graphql(
       }
       sourceBase {
         ...BaseOrgFields
-        currency
+        monetaryCurrencyCode
       }
       targetBase {
         ...BaseOrgFields
-        currency
+        monetaryCurrencyCode
       }
       transferAgreement {
         id

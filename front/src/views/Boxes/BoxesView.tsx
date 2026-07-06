@@ -70,7 +70,7 @@ export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
         id
         name
         base {
-          currency
+          monetaryCurrencyCode
         }
       }
       tags {

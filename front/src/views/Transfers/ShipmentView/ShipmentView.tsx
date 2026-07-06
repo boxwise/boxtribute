@@ -366,7 +366,7 @@ function ShipmentView() {
   const estimatedShipmentMonetaryValue = hasShipmentMonetaryValue
     ? shipmentDetailsForTotals.reduce((total, item) => total + (item.box.monetaryValue ?? 0), 0)
     : null;
-  const shipmentCurrency = data?.shipment?.sourceBase.currency ?? null;
+  const shipmentCurrency = data?.shipment?.sourceBase.monetaryCurrencyCode ?? null;
   const hasMissingWeightOrMonetaryValue = shipmentContents.some(
     (item) => item.box.weight == null || item.box.monetaryValue == null,
   );

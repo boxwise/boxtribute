@@ -20,7 +20,7 @@ export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
     query AllProductsAndLocationsForBase($baseId: ID!) {
       base(id: $baseId) {
         id
-        currency
+        monetaryCurrencyCode
         tags(resourceType: Box) {
           ...TagOptions
         }
@@ -310,7 +310,7 @@ function BoxCreateView() {
         onSubmitBoxCreateForm={onSubmitBoxCreateForm}
         onSubmitBoxCreateFormAndCreateAnother={onSubmitBoxCreateFormAndCreateAnother}
         allTags={allTags}
-        currency={allFormOptions.data?.base?.currency}
+        currency={allFormOptions.data?.base?.monetaryCurrencyCode}
         disableSubmission={noLocation || noProducts}
       />
     </Center>

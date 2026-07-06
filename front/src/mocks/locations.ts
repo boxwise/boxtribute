@@ -10,7 +10,7 @@ export const location1 = {
     __typename: "Base",
     id: "1",
     name: "Lesvos",
-    currency: "EUR",
+    monetaryCurrencyCode: "EUR",
   },
 };
 
@@ -33,7 +33,7 @@ export const generateMockLocationWithBase = ({
     __typename: "Base",
     id: "1",
     name: "Lesvos",
-    currency: "EUR",
+    monetaryCurrencyCode: "EUR",
     organisation: organisation1,
     distributionEventsBeforeReturnedFromDistributionState: [],
     locations: [

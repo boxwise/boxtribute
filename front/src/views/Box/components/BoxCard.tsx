@@ -243,7 +243,7 @@ function BoxCard({
               <Flex direction="row">
                 <Text fontWeight="bold">
                   Value:{" "}
-                  <b>{`${currencySymbol(boxData.location?.base?.currency)}${numberFormatter.format(boxData.monetaryValue)}`}</b>
+                  <b>{`${currencySymbol(boxData.location?.base?.monetaryCurrencyCode)}${numberFormatter.format(boxData.monetaryValue)}`}</b>
                 </Text>
               </Flex>
             </ListItem>

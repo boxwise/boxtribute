@@ -58,7 +58,7 @@ const initialQuery = {
     data: {
       base: {
         id: "1",
-        currency: "EUR",
+        monetaryCurrencyCode: "EUR",
         tags: [tag1, tag2],
         locations: [location1],
         products: [product1, testProduct],

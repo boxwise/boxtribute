@@ -164,7 +164,7 @@ function ShipmentsOverviewView() {
             estimatedWeight: null,
             estimatedMonetaryValue: null,
             weightUnit: null,
-            currency: element.sourceBase.currency,
+            currency: element.sourceBase.monetaryCurrencyCode,
             lastUpdated: undefined,
             href: element.id,
           };

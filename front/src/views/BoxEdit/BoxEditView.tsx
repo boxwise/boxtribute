@@ -38,7 +38,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
           id
           name
           base {
-            currency
+            monetaryCurrencyCode
           }
         }
         tags {
@@ -48,7 +48,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
 
       base(id: $baseId) {
         id
-        currency
+        monetaryCurrencyCode
         tags(resourceType: Box) {
           ...TagOptions
         }
@@ -245,7 +245,7 @@ function BoxEditView() {
       productAndSizesData={productAndSizesData}
       allLocations={allLocations}
       allTags={allTags}
-      currency={allBoxAndFormData.data?.base?.currency}
+      currency={allBoxAndFormData.data?.base?.monetaryCurrencyCode}
     />
   );
 }
