@@ -132,9 +132,7 @@ export default function PieChart(chart: IPieChart) {
     return (
       <div style={{ width: chart.width, height: chart.height }}>
         <ParentSize>
-          {({ width: measuredWidth }) => (
-            <PieChartInner {...chart} width={measuredWidth} />
-          )}
+          {({ width: measuredWidth }) => <PieChartInner {...chart} width={measuredWidth} />}
         </ParentSize>
       </div>
     );
