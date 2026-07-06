@@ -1,3 +1,4 @@
+import { ParentSize } from "@visx/responsive";
 import { ResponsivePie, PieLayer } from "@nivo/pie";
 import { useEffect, useRef } from "react";
 import {
@@ -25,7 +26,7 @@ export interface IPieChart {
   onClick?: (node) => void;
 }
 
-export default function PieChart(chart: IPieChart) {
+function PieChartInner(chart: IPieChart & { width: number }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (ref.current === null) return;
@@ -36,8 +37,7 @@ export default function PieChart(chart: IPieChart) {
   }, [ref]);
 
   const height = parseInt(chart.height, 10);
-  const isPercentWidth = String(chart.width).endsWith("%");
-  const width = isPercentWidth ? 400 : parseInt(chart.width, 10);
+  const width = chart.width;
   const baseFontSize = getBaseFontSize(width, height);
 
   const theme = scaledNivoTheme(width, height, 10);
@@ -55,9 +55,9 @@ export default function PieChart(chart: IPieChart) {
 
   const margin = {
     top: getMarginTop(height, width, includeHeading, includeTimerange),
-    right: isPercentWidth ? 20 : percent(width, 20),
+    right: percent(width, 20),
     bottom: percent(height, 20),
-    left: isPercentWidth ? 20 : percent(width, 20),
+    left: percent(width, 20),
   };
 
   const exportInfoStyles = getScaledExportFields(width, height, margin.top, includeHeading);
@@ -73,7 +73,7 @@ export default function PieChart(chart: IPieChart) {
   }
   if (chart.centerData) {
     const y = (height - margin.top - margin.bottom) / 1.8;
-    const x = width - margin.right - margin.left;
+    const x = (width - margin.right - margin.left) / 2;
     const textMaxWidth = baseFontSize * 7; // same as 7em
     const fontSizeGroupingText = baseFontSize * 0.8; // 0.8em
     const textInLines = breakText(chart.centerData!.grouping, textMaxWidth, fontSizeGroupingText);
@@ -123,4 +123,22 @@ export default function PieChart(chart: IPieChart) {
       />
     </div>
   );
+}
+
+export default function PieChart(chart: IPieChart) {
+  const isPercentWidth = String(chart.width).endsWith("%");
+
+  if (isPercentWidth) {
+    return (
+      <div style={{ width: chart.width, height: chart.height }}>
+        <ParentSize>
+          {({ width: measuredWidth }) => (
+            <PieChartInner {...chart} width={measuredWidth} />
+          )}
+        </ParentSize>
+      </div>
+    );
+  }
+
+  return <PieChartInner {...chart} width={parseInt(chart.width, 10)} />;
 }
