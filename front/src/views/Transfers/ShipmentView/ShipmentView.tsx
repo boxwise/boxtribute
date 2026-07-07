@@ -148,6 +148,16 @@ export const UPDATE_MARKED_FOR_SHIPMENT_BOX = graphql(`
   }
 `);
 
+function MissingWeightOrMonetaryValueAlert({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <Alert status="warning">
+      <AlertIcon />
+      Add missing box weight/value (optional)
+    </Alert>
+  );
+}
+
 function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
@@ -654,14 +664,7 @@ function ShipmentView() {
           <VStack>
             {shipmentTitle}
             {shipmentCard}
-            hasMissingWeightOrMonetaryValue && (
-            {
-              <Alert status="warning">
-                <AlertIcon />
-                Add missing box weight/value (optional)
-              </Alert>
-            }
-            )
+            <MissingWeightOrMonetaryValueAlert show={hasMissingWeightOrMonetaryValue} />
           </VStack>
         </Center>
         <Spacer />
