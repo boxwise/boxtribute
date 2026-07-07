@@ -186,27 +186,27 @@ function ShipmentCard({
           )}
         </>
         {showWeightAndValue && (estimatedWeight != null || estimatedMonetaryValue != null) && (
-          <Flex p={2} mr={4} justify="center">
+          <Flex p={2} mr={4} justify="center" align="center">
             <VStack spacing={0} align="stretch">
               {estimatedWeight != null && (
-                <>
-                  <Text fontSize="md" fontWeight="bold" textAlign="left">
+                <Flex justifyContent="space-between" gap={2}>
+                  <Text fontSize="md" fontWeight="bold">
                     Est. shipment weight:
                   </Text>
-                  <Text fontSize="md" textAlign="right">
+                  <Text fontSize="md">
                     {`${numberFormatter.format(estimatedWeight)} ${weightUnit ?? ""}`.trim()}
                   </Text>
-                </>
+                </Flex>
               )}
               {estimatedMonetaryValue != null && (
-                <>
-                  <Text fontSize="md" fontWeight="bold" textAlign="left">
+                <Flex justifyContent="space-between" gap={2}>
+                  <Text fontSize="md" fontWeight="bold">
                     Est. shipment value:{" "}
                   </Text>
-                  <Text fontSize="md" textAlign="right">
+                  <Text fontSize="md">
                     {`${currencySymbol(currency)}${numberFormatter.format(estimatedMonetaryValue)}`}
                   </Text>
-                </>
+                </Flex>
               )}
             </VStack>
             {showWeightAndValue &&
