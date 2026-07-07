@@ -654,6 +654,14 @@ function ShipmentView() {
           <VStack>
             {shipmentTitle}
             {shipmentCard}
+            hasMissingWeightOrMonetaryValue && (
+            {
+              <Alert status="warning">
+                <AlertIcon />
+                Add missing box weight/value (optional)
+              </Alert>
+            }
+            )
           </VStack>
         </Center>
         <Spacer />
