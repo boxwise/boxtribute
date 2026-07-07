@@ -956,6 +956,7 @@ def test_box_mutations(
         ),
     }
 
+    # Test case 8.2.11i
     mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
             labelIdentifier: "{box_without_qr_code['label_identifier']}"
             weight: {weight}
@@ -966,6 +967,17 @@ def test_box_mutations(
     response = assert_successful_request(client, mutation)
     assert response == {"weight": weight, "monetaryValue": monetary_value}
 
+    # Without actual changes
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+            labelIdentifier: "{box_without_qr_code['label_identifier']}"
+            }} ) {{
+                weight
+                monetaryValue
+            }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"weight": weight, "monetaryValue": monetary_value}
+
+    # Test case 8.2.11g
     mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
             labelIdentifier: "{created_box['label_identifier']}"
             monetaryValue: {monetary_value} }} ) {{ id }} }}"""
@@ -1819,6 +1831,7 @@ def test_mutate_box_with_invalid_input(
     client,
     default_box,
     measure_product_box,
+    box_without_qr_code,
     default_product,
     default_location,
     default_size,
@@ -1910,6 +1923,7 @@ def test_mutate_box_with_invalid_input(
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
+    # Test case 8.2.10h
     creation_input = f"""{{ {mandatory_input}
                     sizeId: {size_id},
                     weight: -30
@@ -1918,6 +1932,7 @@ def test_mutate_box_with_invalid_input(
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
+    # Test case 8.2.10i
     creation_input = f"""{{ {mandatory_input}
                     sizeId: {size_id},
                     monetaryValue: -1
@@ -1936,6 +1951,7 @@ def test_mutate_box_with_invalid_input(
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
+    # Test case 8.2.19q
     update_input = f"""{{ {mandatory_input}
                 weight: -5
             }}"""
@@ -1943,10 +1959,13 @@ def test_mutate_box_with_invalid_input(
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
-    mutation = f"""mutation {{
-            updateMarkedForShipmentBox( updateInput : {update_input} ) {{ id }} }}"""
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+                labelIdentifier: "{box_without_qr_code['label_identifier']}"
+                weight: -5 }} ) {{ id }}
+            }}"""
     assert_bad_user_input(client, mutation)
 
+    # Test case 8.2.19r
     update_input = f"""{{ {mandatory_input}
                 monetaryValue: -10
             }}"""
@@ -1954,8 +1973,17 @@ def test_mutate_box_with_invalid_input(
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
-    mutation = f"""mutation {{
-            updateMarkedForShipmentBox( updateInput : {update_input} ) {{ id }} }}"""
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+                labelIdentifier: "{box_without_qr_code['label_identifier']}"
+                monetaryValue: -10 }} ) {{ id }}
+            }}"""
+    assert_bad_user_input(client, mutation)
+
+    # Test case 8.2.11j
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+                labelIdentifier: "{default_box['label_identifier']}"
+                monetaryValue: 10 }} ) {{ id }}
+            }}"""
     assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19a
