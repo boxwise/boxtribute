@@ -125,6 +125,39 @@ export const START_RECEIVING_SHIPMENT = graphql(
   [SHIPMENT_FIELDS_FRAGMENT],
 );
 
+export const UPDATE_MARKED_FOR_SHIPMENT_BOX = graphql(`
+  mutation UpdateMarkedForShipmentBox(
+    $labelIdentifier: String!
+    $weight: Float
+    $monetaryValue: Float
+  ) {
+    updateMarkedForShipmentBox(
+      updateInput: {
+        labelIdentifier: $labelIdentifier
+        weight: $weight
+        monetaryValue: $monetaryValue
+      }
+    ) {
+      labelIdentifier
+      weight
+      monetaryValue
+      weightDisplayUnit {
+        symbol
+      }
+    }
+  }
+`);
+
+function MissingWeightOrMonetaryValueAlert({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <Alert status="warning">
+      <AlertIcon />
+      Add missing box weight/value (optional)
+    </Alert>
+  );
+}
+
 function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
@@ -173,6 +206,8 @@ function ShipmentView() {
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation(
     UPDATE_SHIPMENT_WHEN_RECEIVING,
   );
+
+  const [updateMarkedForShipmentBox] = useMutation(UPDATE_MARKED_FOR_SHIPMENT_BOX);
 
   // shipment actions in the modal
   const handleShipment = useCallback(
@@ -342,6 +377,37 @@ function ShipmentView() {
     [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
   );
 
+  const onUpdateBox = useCallback(
+    (labelIdentifier: string, weight: number | null, monetaryValue: number | null) => {
+      updateMarkedForShipmentBox({
+        variables: {
+          labelIdentifier,
+          weight: weight ?? undefined,
+          monetaryValue: monetaryValue ?? undefined,
+        },
+      })
+        .then((mutationResult) => {
+          if (mutationResult?.errors) {
+            triggerError({
+              message: "Error: Could not update box.",
+            });
+          } else {
+            createToast({
+              title: `Box ${labelIdentifier}`,
+              type: "success",
+              message: "Successfully updated the box.",
+            });
+          }
+        })
+        .catch(() => {
+          triggerError({
+            message: "Could not update the box.",
+          });
+        });
+    },
+    [triggerError, createToast, updateMarkedForShipmentBox],
+  );
+
   const isLoadingFromMutation =
     updateShipmentWhenPreparingStatus.loading ||
     cancelShipmentStatus.loading ||
@@ -352,6 +418,24 @@ function ShipmentView() {
 
   const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
     []) as ShipmentDetailWithAutomatchProduct[];
+  const shipmentDetailsForTotals = shipmentContents.filter((item) => item.lostOn === null);
+  const hasShipmentWeight = shipmentDetailsForTotals.some((item) => item.box.weight != null);
+  const estimatedShipmentWeight = hasShipmentWeight
+    ? shipmentDetailsForTotals.reduce((total, item) => total + (item.box.weight ?? 0), 0)
+    : null;
+  const shipmentWeightUnit =
+    shipmentDetailsForTotals.find((item) => item.box.weightDisplayUnit?.symbol)?.box
+      .weightDisplayUnit?.symbol ?? null;
+  const hasShipmentMonetaryValue = shipmentDetailsForTotals.some(
+    (item) => item.box.monetaryValue != null,
+  );
+  const estimatedShipmentMonetaryValue = hasShipmentMonetaryValue
+    ? shipmentDetailsForTotals.reduce((total, item) => total + (item.box.monetaryValue ?? 0), 0)
+    : null;
+  const shipmentCurrency = data?.shipment?.sourceBase.monetaryCurrencyCode ?? null;
+  const hasMissingWeightOrMonetaryValue = shipmentContents.some(
+    (item) => item.box.weight == null || item.box.monetaryValue == null,
+  );
 
   const changesLabel = (history: any): string => {
     let changes = "";
@@ -532,6 +616,7 @@ function ShipmentView() {
         isLoadingMutation={isLoadingFromMutation}
         onRemoveBox={onRemoveBox}
         onBulkRemoveBox={onBulkRemoveBox}
+        onUpdateBox={onUpdateBox}
         showRemoveIcon={showRemoveIcon}
       />
     );
@@ -546,6 +631,11 @@ function ShipmentView() {
         onCancel={openShipmentOverlay}
         onLost={openShipmentOverlay}
         shipment={data?.shipment}
+        estimatedWeight={estimatedShipmentWeight}
+        estimatedMonetaryValue={estimatedShipmentMonetaryValue}
+        weightUnit={shipmentWeightUnit}
+        currency={shipmentCurrency}
+        hasMissingWeightOrMonetaryValue={hasMissingWeightOrMonetaryValue}
       />
     ) : undefined;
   }
@@ -574,6 +664,7 @@ function ShipmentView() {
           <VStack>
             {shipmentTitle}
             {shipmentCard}
+            <MissingWeightOrMonetaryValueAlert show={hasMissingWeightOrMonetaryValue} />
           </VStack>
         </Center>
         <Spacer />

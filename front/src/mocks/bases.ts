@@ -2,6 +2,7 @@ export const base1 = {
   __typename: "Base",
   id: "1",
   name: "Lesvos",
+  monetaryCurrencyCode: "EUR",
   organisation: {
     id: "1",
     name: "BoxAid",
@@ -12,12 +13,14 @@ export const base1 = {
 export const basicBase1 = {
   id: "1",
   name: "Lesvos",
+  monetaryCurrencyCode: "EUR",
 };
 
 export const base2 = {
   __typename: "Base",
   id: "2",
   name: "Thessaloniki",
+  monetaryCurrencyCode: "EUR",
   organisation: {
     id: "2",
     name: "BoxCare",

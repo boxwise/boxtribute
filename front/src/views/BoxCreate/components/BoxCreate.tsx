@@ -1,4 +1,15 @@
-import { Box, Button, FormLabel, Heading, Input, List, ListItem, Stack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  FormLabel,
+  Heading,
+  HStack,
+  Input,
+  List,
+  ListItem,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -12,6 +23,8 @@ import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { ProductGender } from "../../../../../graphql/types";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { NumberField } from "@boxtribute/shared-components";
+import { useAuthorization } from "hooks/useAuthorization";
+import { currencySymbol } from "utils/currencySymbol";
 
 export interface ICategoryData {
   name: string;
@@ -47,6 +60,11 @@ const singleSelectOptionShape = {
   __isNew__: z.boolean().optional(),
 };
 
+const optionalNonNegativeNumber = z.preprocess(
+  (value) => (value === "" || value == null ? undefined : value),
+  z.number().nonnegative().optional(),
+);
+
 export const CreateBoxFormDataSchema = z.object({
   productId: z.object(singleSelectOptionShape, {
     error: (iss) => (iss.input === undefined ? "Please select a product" : "Invalid input."),
@@ -60,6 +78,8 @@ export const CreateBoxFormDataSchema = z.object({
   }),
   tags: z.object(singleSelectOptionShape).array().optional(),
   comment: z.string().optional(),
+  weight: optionalNonNegativeNumber,
+  monetaryValue: optionalNonNegativeNumber,
 });
 
 export type ICreateBoxFormData = z.infer<typeof CreateBoxFormDataSchema>;
@@ -68,6 +88,7 @@ export interface IBoxCreateProps {
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
+  currency?: string | null;
   disableSubmission?: boolean;
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
   onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
@@ -77,10 +98,13 @@ export function BoxCreate({
   productAndSizesData,
   allLocations,
   allTags,
+  currency,
   onSubmitBoxCreateForm,
   onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
 }: IBoxCreateProps) {
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(
     productAndSizesData,
     (product) => product.category.name,
@@ -212,6 +236,36 @@ export function BoxCreate({
               control={control}
             />
           </ListItem>
+          {showWeightAndValue && (
+            <>
+              <ListItem>
+                <HStack align="end">
+                  <Box flex="1">
+                    <NumberField
+                      fieldId="weight"
+                      fieldLabel="Weight"
+                      errors={errors}
+                      control={control}
+                    />
+                  </Box>
+                  <Text mb={2}>kg</Text>
+                </HStack>
+              </ListItem>
+              <ListItem>
+                <HStack align="end">
+                  <Box flex="1">
+                    <NumberField
+                      fieldId="monetaryValue"
+                      fieldLabel="Value"
+                      errors={errors}
+                      control={control}
+                    />
+                  </Box>
+                  <Text mb={2}>{currencySymbol(currency)}</Text>
+                </HStack>
+              </ListItem>
+            </>
+          )}
           <ListItem>
             <SelectField
               fieldId="tags"

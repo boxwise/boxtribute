@@ -98,12 +98,19 @@ export const ALL_SHIPMENTS_QUERY = graphql(
           id
           box {
             labelIdentifier
+            weight
+            monetaryValue
+            weightDisplayUnit {
+              symbol
+            }
           }
           createdOn
           removedOn
+          lostOn
         }
         sourceBase {
           ...BaseOrgFields
+          monetaryCurrencyCode
         }
         targetBase {
           ...BaseOrgFields

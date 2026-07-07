@@ -37,6 +37,11 @@ export interface IShipmentTabsProps {
   showRemoveIcon: boolean;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
+  onUpdateBox: (
+    labelIdentifier: string,
+    weight: number | null,
+    monetaryValue: number | null,
+  ) => void;
 }
 function ShipmentTabs({
   showRemoveIcon,
@@ -45,6 +50,7 @@ function ShipmentTabs({
   isLoadingMutation,
   onRemoveBox,
   onBulkRemoveBox,
+  onUpdateBox,
   shipmentState,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
@@ -90,6 +96,7 @@ function ShipmentTabs({
             items={boxGroupedByProductGender}
             onRemoveBox={onRemoveBox}
             onBulkRemoveBox={onBulkRemoveBox}
+            onUpdateBox={onUpdateBox}
             showRemoveIcon={showRemoveIcon}
           />
         </TabPanel>

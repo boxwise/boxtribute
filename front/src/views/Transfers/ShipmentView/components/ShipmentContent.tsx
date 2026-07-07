@@ -15,7 +15,7 @@ import { useCallback, useMemo } from "react";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
-import { RemoveBoxCell } from "./ShipmentTableCells";
+import { RemoveBoxCell, WeightCell, MonetaryValueCell } from "./ShipmentTableCells";
 import { Product } from "../../../../../../graphql/types";
 import { Box as BoxType, ShipmentState } from "queries/types";
 
@@ -34,6 +34,11 @@ interface IShipmentContentProps {
   isLoadingMutation: boolean | undefined;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
+  onUpdateBox: (
+    labelIdentifier: string,
+    weight: number | null,
+    monetaryValue: number | null,
+  ) => void;
 }
 
 function ShipmentContent({
@@ -41,6 +46,7 @@ function ShipmentContent({
   items,
   onRemoveBox,
   onBulkRemoveBox,
+  onUpdateBox,
   isLoadingMutation,
   showRemoveIcon,
 }: IShipmentContentProps) {
@@ -55,6 +61,9 @@ function ShipmentContent({
           (box?.product?.gender && box?.product?.gender) !== "none" ? box?.product?.gender : ""
         } ${box?.product?.name || "Unassigned"}`,
         items: box?.numberOfItems || 0,
+        weight: box?.weight ?? null,
+        monetaryValue: box?.monetaryValue ?? null,
+        weightUnit: box?.weightDisplayUnit?.symbol ?? null,
       })),
     [shipmentState],
   );
@@ -86,6 +95,32 @@ function ShipmentContent({
         Cell: renderCell,
       },
       {
+        id: "weight",
+        Header: "WEIGHT",
+        accessor: "weight",
+        Cell: ({ row }: CellProps<any>) => (
+          <WeightCell
+            row={row}
+            onSave={(labelIdentifier, weight) =>
+              onUpdateBox(labelIdentifier, weight, row.original.monetaryValue)
+            }
+          />
+        ),
+      },
+      {
+        id: "monetaryValue",
+        Header: "MONETARY VALUE",
+        accessor: "monetaryValue",
+        Cell: ({ row }: CellProps<any>) => (
+          <MonetaryValueCell
+            row={row}
+            onSave={(labelIdentifier, monetaryValue) =>
+              onUpdateBox(labelIdentifier, row.original.weight, monetaryValue)
+            }
+          />
+        ),
+      },
+      {
         id: "items",
         Header: "ITEMS",
         accessor: "items",
@@ -104,7 +139,7 @@ function ShipmentContent({
         ),
       },
     ],
-    [showRemoveIcon, onRemoveBox, isLoadingMutation],
+    [showRemoveIcon, onRemoveBox, isLoadingMutation, onUpdateBox],
   );
 
   return (
@@ -160,7 +195,7 @@ function ShipmentContent({
                   data-testid={`shipment-accordion-button-${item?.product?.id}`}
                   _expanded={{ bg: "#F4E6A0" }}
                   maxWidth={5}
-                  _hover={{ bgColor: "white" }}
+                  _hover={{ bgColor: "transparent" }}
                 >
                   <AccordionIcon
                     mr={1}

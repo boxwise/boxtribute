@@ -30,6 +30,8 @@ import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
 import { BoxByLabelIdentifier } from "queries/types";
 import { RiQrCodeLine } from "react-icons/ri";
+import { useAuthorization } from "hooks/useAuthorization";
+import { currencySymbol } from "utils/currencySymbol";
 
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifier;
@@ -40,6 +42,10 @@ export interface IBoxCardProps {
   onStateChange: (boxState: string) => void;
   isLoading: boolean;
 }
+
+const numberFormatter = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 2,
+});
 
 function BoxCard({
   boxData,
@@ -60,6 +66,8 @@ function BoxCard({
     return color;
   };
 
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const hasTag = !!boxData?.tags?.length;
 
   const product =
@@ -214,6 +222,28 @@ function BoxCard({
               <Flex direction="row">
                 <Text fontWeight="bold">
                   Gender: <b>{product?.gender}</b>
+                </Text>
+              </Flex>
+            </ListItem>
+          )}
+          {showWeightAndValue && boxData?.weight != null && (
+            <ListItem>
+              <Flex direction="row">
+                <Text fontWeight="bold">
+                  Weight:{" "}
+                  <b>
+                    {`${numberFormatter.format(boxData.weight)} ${boxData.weightDisplayUnit?.symbol ?? ""}`.trim()}
+                  </b>
+                </Text>
+              </Flex>
+            </ListItem>
+          )}
+          {showWeightAndValue && boxData?.monetaryValue != null && (
+            <ListItem>
+              <Flex direction="row">
+                <Text fontWeight="bold">
+                  Value:{" "}
+                  <b>{`${currencySymbol(boxData.location?.base?.monetaryCurrencyCode)}${numberFormatter.format(boxData.monetaryValue)}`}</b>
                 </Text>
               </Flex>
             </ListItem>
