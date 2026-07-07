@@ -49,10 +49,23 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
     }
   }, [isEditing]);
 
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setInputValue("");
+  };
+
   if (isEditing) {
     const isValid = isValidNonNegativeFloat(inputValue);
     return (
-      <HStack spacing={1}>
+      <HStack
+        spacing={1}
+        onBlur={(e) => {
+          // Only cancel if focus leaves the entire HStack (i.e. not moving to Save button)
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            cancelEditing();
+          }
+        }}
+      >
         <Input
           ref={inputRef}
           size="xs"
@@ -133,10 +146,23 @@ export function MonetaryValueCell({ row, onSave }: IMonetaryValueCellProps) {
     }
   }, [isEditing]);
 
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setInputValue("");
+  };
+
   if (isEditing) {
     const isValid = isValidNonNegativeFloat(inputValue);
     return (
-      <HStack spacing={1}>
+      <HStack
+        spacing={1}
+        onBlur={(e) => {
+          // Only cancel if focus leaves the entire HStack (i.e. not moving to Save button)
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            cancelEditing();
+          }
+        }}
+      >
         <Input
           ref={inputRef}
           size="xs"
