@@ -93,20 +93,7 @@ function ShipmentCard({
                 <WrapItem>{shipment?.labelIdentifier}</WrapItem>
               </Wrap>
             </Heading>
-            <Wrap align="center" spacing={2}>
-              <WrapItem>
-                <ShipmentColoredStatus state={shipment?.state} />
-              </WrapItem>
-              {showWeightAndValue &&
-                shipment.state === "Preparing" &&
-                hasMissingWeightOrMonetaryValue && (
-                  <WrapItem>
-                    <Tooltip label="Some boxes are missing weight or value.">
-                      <WarningTwoIcon color="orange.400" aria-label="missing weight or value" />
-                    </Tooltip>
-                  </WrapItem>
-                )}
-            </Wrap>
+            <ShipmentColoredStatus state={shipment?.state} />
           </VStack>
           <Spacer />
           {canCancelShipment && (
@@ -198,6 +185,44 @@ function ShipmentCard({
             </Flex>
           )}
         </>
+        {showWeightAndValue && (estimatedWeight != null || estimatedMonetaryValue != null) && (
+          <Flex p={2} mr={4} justify="center">
+            <VStack spacing={0} align="stretch">
+              {estimatedWeight != null && (
+                <>
+                  <Text fontSize="md" fontWeight="bold" textAlign="left">
+                    Est. shipment weight:
+                  </Text>
+                  <Text fontSize="md" textAlign="right">
+                    {`${numberFormatter.format(estimatedWeight)} ${weightUnit ?? ""}`.trim()}
+                  </Text>
+                </>
+              )}
+              {estimatedMonetaryValue != null && (
+                <>
+                  <Text fontSize="md" fontWeight="bold" textAlign="left">
+                    Est. shipment value:{" "}
+                  </Text>
+                  <Text fontSize="md" textAlign="right">
+                    {`${currencySymbol(currency)}${numberFormatter.format(estimatedMonetaryValue)}`}
+                  </Text>
+                </>
+              )}
+            </VStack>
+            {showWeightAndValue &&
+              shipment.state === "Preparing" &&
+              hasMissingWeightOrMonetaryValue && (
+                <Tooltip label="Some boxes are missing weight or value.">
+                  <WarningTwoIcon
+                    ml={4}
+                    boxSize={6}
+                    color="orange.400"
+                    aria-label="missing weight or value"
+                  />
+                </Tooltip>
+              )}
+          </Flex>
+        )}
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
           <Flex minWidth="max-content" alignItems="center" p={0}>
@@ -226,24 +251,6 @@ function ShipmentCard({
             </Box>
 
             <Spacer />
-            {showWeightAndValue && (estimatedWeight != null || estimatedMonetaryValue != null) && (
-              <Box mr={4}>
-                <VStack spacing={0} align="stretch">
-                  {estimatedWeight != null && (
-                    <Text fontSize="sm" textAlign="right">
-                      Est. weight:{" "}
-                      {`${numberFormatter.format(estimatedWeight)} ${weightUnit ?? ""}`.trim()}
-                    </Text>
-                  )}
-                  {estimatedMonetaryValue != null && (
-                    <Text fontSize="sm" textAlign="right">
-                      Est. value:{" "}
-                      {`${currencySymbol(currency)}${numberFormatter.format(estimatedMonetaryValue)}`}
-                    </Text>
-                  )}
-                </VStack>
-              </Box>
-            )}
             <Box>
               {canUpdateShipment && (
                 <VStack spacing={0} align="stretch">

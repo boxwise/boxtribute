@@ -107,7 +107,7 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
         setIsEditing(true);
       }}
     >
-      <Text fontSize="xs">
+      <Text fontSize="sm">
         {weight}
         {weightUnit ? ` ${weightUnit}` : ""}
       </Text>
@@ -191,7 +191,7 @@ export function MonetaryValueCell({ row, onSave }: IMonetaryValueCellProps) {
         setIsEditing(true);
       }}
     >
-      <Text fontSize="xs">{monetaryValue} €</Text>
+      <Text fontSize="sm">{monetaryValue} €</Text>
     </Box>
   );
 }
