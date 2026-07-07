@@ -389,7 +389,9 @@ MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[5] + (
 
 # ### BETA-LEVEL 7 ###
 # Keep for compatibility with users who have beta-level 7 assigned
-MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6]
+MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6] + (
+    "updateMarkedForShipmentBox",
+)
 
 # ### BETA-LEVEL 98 ###
 # In addition to level 7,

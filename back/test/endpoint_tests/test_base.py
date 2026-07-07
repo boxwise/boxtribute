@@ -15,7 +15,8 @@ def test_bases_query(
                 bases {
                     id
                     name
-                    currencyName
+                    freeshopCurrencyName
+                    monetaryCurrencyCode
                     deletedOn
                     instockBoxesCount
                     instockItemsCount
@@ -29,7 +30,8 @@ def test_bases_query(
         {
             "id": str(default_base["id"]),
             "name": default_base["name"],
-            "currencyName": default_base["currency_name"],
+            "freeshopCurrencyName": default_base["freeshop_currency_name"],
+            "monetaryCurrencyCode": default_base["monetary_currency_code"],
             "deletedOn": None,
             "instockBoxesCount": len(base1_instock_boxes),
             "instockItemsCount": sum(b["number_of_items"] for b in base1_instock_boxes),
@@ -76,7 +78,6 @@ def test_base_query(
                     id
                     name
                     organisation {{ id }}
-                    currencyName
                     locations {{ id }}
                     products(filterInput: {{ type: All }}) {{ id }}
                     tags {{ id }}
@@ -93,7 +94,6 @@ def test_base_query(
     assert base == {
         "id": test_id,
         "name": default_base["name"],
-        "currencyName": default_base["currency_name"],
         "organisation": {"id": str(default_base["organisation"])},
         "products": [{"id": str(p["id"])} for p in base1_undeleted_products],
         "tags": [{"id": str(t["id"])} for t in base1_active_tags],

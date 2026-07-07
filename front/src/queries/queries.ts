@@ -405,7 +405,6 @@ export const BOX_QUERY = graphql(`
           targetBase {
             id
             name
-            currencyName
             organisation {
               id
               name
