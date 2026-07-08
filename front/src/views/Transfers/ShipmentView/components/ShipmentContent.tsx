@@ -18,6 +18,7 @@ import ShipmentTable from "./ShipmentTable";
 import { RemoveBoxCell, WeightCell, MonetaryValueCell } from "./ShipmentTableCells";
 import { Product } from "../../../../../../graphql/types";
 import { Box as BoxType, ShipmentState } from "queries/types";
+import { useAuthorization } from "hooks/useAuthorization";
 
 export interface IShipmentContent {
   product: Product;
@@ -158,7 +159,14 @@ function ShipmentContent({
         ),
       },
     ],
-    [showRemoveIcon, onRemoveBox, isLoadingMutation, onUpdateBox, canUpdateShipment],
+    [
+      showRemoveIcon,
+      onRemoveBox,
+      isLoadingMutation,
+      onUpdateBox,
+      canUpdateShipment,
+      currency,
+    ],
   );
 
   return (

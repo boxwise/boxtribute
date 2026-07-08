@@ -14,7 +14,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -428,8 +428,12 @@ function ShipmentView() {
     updateShipmentWhenReceivingStatus.loading ||
     lostShipmentStatus.loading;
 
-  const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
-    []) as ShipmentDetailWithAutomatchProduct[];
+  const shipmentContents = useMemo(
+    () =>
+      (data?.shipment?.details.filter((item) => item.removedOn === null) ??
+        []) as ShipmentDetailWithAutomatchProduct[],
+    [data?.shipment?.details],
+  );
   const shipmentDetailsForTotals = shipmentContents.filter((item) => item.lostOn === null);
   const hasShipmentWeight = shipmentDetailsForTotals.some((item) => item.box.weight != null);
   const estimatedShipmentWeight = hasShipmentWeight
@@ -457,9 +461,7 @@ function ShipmentView() {
   const onMissingValueAlertClick = useCallback(() => {
     const groups = _.values(
       _(shipmentContents)
-        .groupBy(
-          (detail) => `${detail?.sourceProduct?.name}_${detail?.sourceProduct?.gender}`,
-        )
+        .groupBy((detail) => `${detail?.sourceProduct?.name}_${detail?.sourceProduct?.gender}`)
         .mapValues((group) => ({
           totalLosts: group.filter((detail) => detail?.lostOn !== null).length,
           hasMissing: group.some(
