@@ -44,6 +44,8 @@ export interface IShipmentTabsProps {
     weight: number | null,
     monetaryValue: number | null,
   ) => void;
+  /** Accordion item indices to expand, forwarded from the parent. */
+  expandedIndices?: number[];
 }
 
 function ShipmentTabs({
@@ -57,6 +59,7 @@ function ShipmentTabs({
   onBulkRemoveBox,
   onUpdateBox,
   shipmentState,
+  expandedIndices,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(details)
@@ -105,6 +108,7 @@ function ShipmentTabs({
             onBulkRemoveBox={onBulkRemoveBox}
             onUpdateBox={onUpdateBox}
             showRemoveIcon={showRemoveIcon}
+            expandedIndices={expandedIndices}
           />
         </TabPanel>
         <TabPanel>

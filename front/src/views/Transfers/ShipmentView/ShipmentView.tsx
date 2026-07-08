@@ -148,10 +148,18 @@ export const UPDATE_MARKED_FOR_SHIPMENT_BOX = graphql(`
   }
 `);
 
-function MissingWeightOrMonetaryValueAlert({ show }: { show: boolean }) {
+interface IMissingWeightOrMonetaryValueAlertProps {
+  show: boolean;
+  onClick: () => void;
+}
+
+function MissingWeightOrMonetaryValueAlert({
+  show,
+  onClick,
+}: IMissingWeightOrMonetaryValueAlertProps) {
   if (!show) return null;
   return (
-    <Alert status="warning">
+    <Alert status="warning" onClick={onClick} cursor="pointer">
       <AlertIcon />
       Add missing box weight/value (optional)
     </Alert>
@@ -173,6 +181,10 @@ function ShipmentView() {
   const [shipmentState, setShipmentState] = useState<ShipmentState>();
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
+  // Accordion indices to expand when the missing weight/value alert is clicked
+  const [missingValueExpandedIndices, setMissingValueExpandedIndices] = useState<
+    number[] | undefined
+  >(undefined);
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
@@ -437,6 +449,34 @@ function ShipmentView() {
     (item) => item.box.weight == null || item.box.monetaryValue == null,
   );
 
+  /**
+   * Computes which accordion group indices (using the same product-gender grouping
+   * as ShipmentTabs / ShipmentContent) have at least one box with a missing weight
+   * or monetary value, then expands those groups.
+   */
+  const onMissingValueAlertClick = useCallback(() => {
+    const groups = _.values(
+      _(shipmentContents)
+        .groupBy(
+          (detail) => `${detail?.sourceProduct?.name}_${detail?.sourceProduct?.gender}`,
+        )
+        .mapValues((group) => ({
+          totalLosts: group.filter((detail) => detail?.lostOn !== null).length,
+          hasMissing: group.some(
+            (detail) => detail.box.weight == null || detail.box.monetaryValue == null,
+          ),
+        }))
+        .orderBy((value) => value.totalLosts, "asc")
+        .value(),
+    );
+
+    const indices = groups
+      .map((group, index) => (group.hasMissing ? index : -1))
+      .filter((i) => i !== -1);
+
+    setMissingValueExpandedIndices(indices);
+  }, [shipmentContents]);
+
   const changesLabel = (history: any): string => {
     let changes = "";
     if (
@@ -620,6 +660,7 @@ function ShipmentView() {
         onBulkRemoveBox={onBulkRemoveBox}
         onUpdateBox={onUpdateBox}
         showRemoveIcon={showRemoveIcon}
+        expandedIndices={missingValueExpandedIndices}
       />
     );
 
@@ -668,6 +709,7 @@ function ShipmentView() {
             {shipmentCard}
             <MissingWeightOrMonetaryValueAlert
               show={canUpdateShipment && hasMissingWeightOrMonetaryValue}
+              onClick={onMissingValueAlertClick}
             />
           </VStack>
         </Center>

@@ -11,7 +11,7 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
@@ -41,6 +41,8 @@ interface IShipmentContentProps {
     weight: number | null,
     monetaryValue: number | null,
   ) => void;
+  /** When provided, these accordion item indices are expanded (controlled mode). */
+  expandedIndices?: number[];
 }
 
 function ShipmentContent({
@@ -53,7 +55,17 @@ function ShipmentContent({
   currency,
   showRemoveIcon,
   canUpdateShipment,
+  expandedIndices,
 }: IShipmentContentProps) {
+  // Track which items are expanded internally so the user can still toggle freely.
+  const [manualExpanded, setManualExpanded] = useState<number[]>([]);
+
+  // Merge externally-requested expansions with items the user has manually opened.
+  const resolvedExpanded = useMemo(() => {
+    if (expandedIndices === undefined) return manualExpanded;
+    return _.uniq([...manualExpanded, ...expandedIndices]);
+  }, [expandedIndices, manualExpanded]);
+
   const boxesToTableTransformer = useCallback(
     (boxes: BoxType[]) =>
       _.map(boxes, (box) => ({
@@ -150,7 +162,12 @@ function ShipmentContent({
   );
 
   return (
-    <Accordion allowToggle w="full">
+    <Accordion
+      allowMultiple
+      index={resolvedExpanded}
+      onChange={(expanded) => setManualExpanded(expanded as number[])}
+      w="full"
+    >
       {items.map((item, index) => (
         <AccordionItem key={item?.product?.id || index} alignItems="center">
           {({ isExpanded }) => (
