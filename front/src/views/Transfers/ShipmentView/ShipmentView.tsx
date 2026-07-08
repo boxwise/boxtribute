@@ -613,6 +613,7 @@ function ShipmentView() {
         shipmentState={shipmentState}
         details={shipmentContents}
         histories={sortedGroupedHistoryEntries}
+        currency={shipmentCurrency}
         isLoadingMutation={isLoadingFromMutation}
         canUpdateShipment={canUpdateShipment}
         onRemoveBox={onRemoveBox}

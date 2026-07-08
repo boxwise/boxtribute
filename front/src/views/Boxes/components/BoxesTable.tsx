@@ -53,9 +53,8 @@ import type { IFilterValue } from "@boxtribute/shared-components/statviz/compone
 import { FilterChips } from "./FilterChips";
 import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import { createOptions } from "utils/filterOptions";
-import { removeFilter } from "utils/helpers";
+import { removeFilter, formatWeight, formatMonetaryValue } from "utils/helpers";
 import { useAuthorization } from "hooks/useAuthorization";
-import { currencySymbol } from "utils/currencySymbol";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -70,10 +69,6 @@ interface IBoxesTableProps {
 }
 
 export const PAGE_SIZE = 50;
-
-const numberFormatter = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 2,
-});
 
 function BoxesTable({
   isBackgroundFetchOfBoxesLoading,
@@ -380,7 +375,7 @@ function BoxesTable({
             {showWeightAndValue && hasWeight && (
               <Text>
                 <Text as="span" fontWeight="bold">
-                  {numberFormatter.format(totalWeight)}
+                  {formatWeight(totalWeight)}
                 </Text>{" "}
                 est. weight{weightUnit ? ` (${weightUnit})` : ""}
               </Text>
@@ -388,7 +383,7 @@ function BoxesTable({
             {showWeightAndValue && hasMonetaryValue && (
               <Text>
                 <Text as="span" fontWeight="bold">
-                  {`${currencySymbol(currency)}${numberFormatter.format(totalMonetaryValue)}`}
+                  {formatMonetaryValue(totalMonetaryValue, currency)}
                 </Text>{" "}
                 est. value
               </Text>

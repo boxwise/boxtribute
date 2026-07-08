@@ -44,9 +44,8 @@ import { ShipmentFilter } from "./components/ShipmentFilter";
 import { ShipmentFilterChips } from "./components/ShipmentFilterChips";
 import type { ShipmentColumnFilter, ShipmentFilterId } from "./components/types";
 import { createOptions } from "utils/filterOptions";
-import { removeFilter } from "utils/helpers";
+import { formatWeight, formatMonetaryValue, removeFilter } from "utils/helpers";
 import { useAuthorization } from "hooks/useAuthorization";
-import { currencySymbol } from "utils/currencySymbol";
 
 // TODO: Revisit this after gql.tada merge
 type ShipmentRow = {
@@ -102,18 +101,6 @@ const shipmentGlobalFilterFn = (
   });
 };
 shipmentGlobalFilterFn.autoRemove = (val: unknown) => !val;
-
-const numberFormatter = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 2,
-});
-
-const formatWeight = (weight: number | null, unit: string | null) =>
-  weight == null ? "" : `${numberFormatter.format(weight)} ${unit ?? ""}`.trim();
-
-const formatMonetaryValue = (monetaryValue: number | null, currency: string | null) =>
-  monetaryValue == null
-    ? ""
-    : `${currencySymbol(currency)}${numberFormatter.format(monetaryValue)}`;
 
 function ShipmentsOverviewView() {
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();

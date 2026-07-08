@@ -25,13 +25,12 @@ import {
 } from "@chakra-ui/react";
 import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
-import { colorIsBright } from "utils/helpers";
+import { colorIsBright, formatWeight, formatMonetaryValue } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
 import { BoxByLabelIdentifier } from "queries/types";
 import { RiQrCodeLine } from "react-icons/ri";
 import { useAuthorization } from "hooks/useAuthorization";
-import { currencySymbol } from "utils/currencySymbol";
 
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifier;
@@ -42,10 +41,6 @@ export interface IBoxCardProps {
   onStateChange: (boxState: string) => void;
   isLoading: boolean;
 }
-
-const numberFormatter = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 2,
-});
 
 function BoxCard({
   boxData,
@@ -230,10 +225,7 @@ function BoxCard({
             <ListItem>
               <Flex direction="row">
                 <Text fontWeight="bold">
-                  Weight:{" "}
-                  <b>
-                    {`${numberFormatter.format(boxData.weight)} ${boxData.weightDisplayUnit?.symbol ?? ""}`.trim()}
-                  </b>
+                  Weight: <b>{formatWeight(boxData.weight, boxData.weightDisplayUnit?.symbol)}</b>
                 </Text>
               </Flex>
             </ListItem>
@@ -243,7 +235,12 @@ function BoxCard({
               <Flex direction="row">
                 <Text fontWeight="bold">
                   Value:{" "}
-                  <b>{`${currencySymbol(boxData.location?.base?.monetaryCurrencyCode)}${numberFormatter.format(boxData.monetaryValue)}`}</b>
+                  <b>
+                    {formatMonetaryValue(
+                      boxData.monetaryValue,
+                      boxData.location?.base?.monetaryCurrencyCode,
+                    )}
+                  </b>
                 </Text>
               </Flex>
             </ListItem>

@@ -25,7 +25,7 @@ import { TbMapOff } from "react-icons/tb";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
 import { Shipment } from "queries/types";
 import { useAuthorization } from "hooks/useAuthorization";
-import { currencySymbol } from "utils/currencySymbol";
+import { formatWeight, formatMonetaryValue } from "utils/helpers";
 
 export interface IShipmentProps {
   canCancelShipment: boolean;
@@ -42,10 +42,6 @@ export interface IShipmentProps {
   onCancel: () => void;
   onLost: () => void;
 }
-
-const numberFormatter = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 2,
-});
 
 function ShipmentCard({
   canCancelShipment,
@@ -193,9 +189,7 @@ function ShipmentCard({
                   <Text fontSize="md" fontWeight="bold">
                     Est. shipment weight:
                   </Text>
-                  <Text fontSize="md">
-                    {`${numberFormatter.format(estimatedWeight)} ${weightUnit ?? ""}`.trim()}
-                  </Text>
+                  <Text fontSize="md">{formatWeight(estimatedWeight, weightUnit)}</Text>
                 </Flex>
               )}
               {estimatedMonetaryValue != null && (
@@ -203,9 +197,7 @@ function ShipmentCard({
                   <Text fontSize="md" fontWeight="bold">
                     Est. shipment value:{" "}
                   </Text>
-                  <Text fontSize="md">
-                    {`${currencySymbol(currency)}${numberFormatter.format(estimatedMonetaryValue)}`}
-                  </Text>
+                  <Text fontSize="md">{formatMonetaryValue(estimatedMonetaryValue, currency)}</Text>
                 </Flex>
               )}
             </VStack>

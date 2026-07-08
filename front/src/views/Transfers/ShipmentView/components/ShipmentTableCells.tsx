@@ -2,6 +2,8 @@ import { Box, Button, HStack, Input, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { AiFillMinusCircle } from "react-icons/ai";
 import { Row } from "react-table";
+import { formatWeight, formatMonetaryValue } from "utils/helpers";
+import { currencySymbol } from "utils/currencySymbol";
 
 interface IRemoveBoxCellProps {
   row: Row<any>;
@@ -56,11 +58,7 @@ export function WeightCell({ row, onSave, canEdit }: IWeightCellProps) {
   };
 
   if (!canEdit) {
-    return (
-      <Text fontSize="sm">
-        {weight != null ? `${weight}${weightUnit ? ` ${weightUnit}` : ""}` : "–"}
-      </Text>
-    );
+    return <Text fontSize="sm">{formatWeight(weight, weightUnit)}</Text>;
   }
 
   if (isEditing) {
@@ -122,16 +120,15 @@ export function WeightCell({ row, onSave, canEdit }: IWeightCellProps) {
 
   return (
     <Box
+      as="button"
+      type="button"
       cursor="pointer"
       onClick={() => {
         setInputValue(String(weight));
         setIsEditing(true);
       }}
     >
-      <Text fontSize="sm">
-        {weight}
-        {weightUnit ? ` ${weightUnit}` : ""}
-      </Text>
+      <Text fontSize="sm">{formatWeight(weight, weightUnit)}</Text>
     </Box>
   );
 }
@@ -140,9 +137,10 @@ interface IMonetaryValueCellProps {
   row: Row<any>;
   onSave: (labelIdentifier: string, monetaryValue: number) => void;
   canEdit: boolean;
+  currency: string | null;
 }
 
-export function MonetaryValueCell({ row, onSave, canEdit }: IMonetaryValueCellProps) {
+export function MonetaryValueCell({ row, onSave, canEdit, currency }: IMonetaryValueCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -161,7 +159,7 @@ export function MonetaryValueCell({ row, onSave, canEdit }: IMonetaryValueCellPr
   };
 
   if (!canEdit) {
-    return <Text fontSize="sm">{monetaryValue != null ? `${monetaryValue} €` : "–"}</Text>;
+    return <Text fontSize="sm">{formatMonetaryValue(monetaryValue, currency)}</Text>;
   }
 
   if (isEditing) {
@@ -175,6 +173,7 @@ export function MonetaryValueCell({ row, onSave, canEdit }: IMonetaryValueCellPr
           }
         }}
       >
+        <Text fontSize="xs">{currencySymbol(currency)}</Text>
         <Input
           ref={inputRef}
           size="xs"
@@ -184,7 +183,6 @@ export function MonetaryValueCell({ row, onSave, canEdit }: IMonetaryValueCellPr
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="0.0"
         />
-        <Text fontSize="xs">€</Text>
         <Button
           size="xs"
           colorScheme="blue"
@@ -223,13 +221,15 @@ export function MonetaryValueCell({ row, onSave, canEdit }: IMonetaryValueCellPr
 
   return (
     <Box
+      as="button"
+      type="button"
       cursor="pointer"
       onClick={() => {
         setInputValue(String(monetaryValue));
         setIsEditing(true);
       }}
     >
-      <Text fontSize="sm">{monetaryValue} €</Text>
+      <Text fontSize="sm">{formatMonetaryValue(monetaryValue, currency)}</Text>
     </Box>
   );
 }

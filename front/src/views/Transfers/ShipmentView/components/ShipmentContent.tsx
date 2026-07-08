@@ -33,6 +33,7 @@ interface IShipmentContentProps {
   showRemoveIcon: boolean;
   isLoadingMutation: boolean | undefined;
   canUpdateShipment: boolean;
+  currency: string | null;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
   onUpdateBox: (
@@ -49,6 +50,7 @@ function ShipmentContent({
   onBulkRemoveBox,
   onUpdateBox,
   isLoadingMutation,
+  currency,
   showRemoveIcon,
   canUpdateShipment,
 }: IShipmentContentProps) {
@@ -118,6 +120,7 @@ function ShipmentContent({
           <MonetaryValueCell
             row={row}
             canEdit={canUpdateShipment}
+            currency={currency}
             onSave={(labelIdentifier, monetaryValue) =>
               onUpdateBox(labelIdentifier, row.original.weight, monetaryValue)
             }
