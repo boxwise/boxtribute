@@ -225,7 +225,8 @@ function BoxCard({
             <ListItem>
               <Flex direction="row">
                 <Text fontWeight="bold">
-                  Weight: <b>{formatWeight(boxData.weight, boxData.weightDisplayUnit?.symbol)}</b>
+                  Weight:{" "}
+                  <b>{formatWeight(boxData.weight, boxData.weightDisplayUnit?.symbol ?? null)}</b>
                 </Text>
               </Flex>
             </ListItem>
@@ -238,7 +239,7 @@ function BoxCard({
                   <b>
                     {formatMonetaryValue(
                       boxData.monetaryValue,
-                      boxData.location?.base?.monetaryCurrencyCode,
+                      boxData.location?.base?.monetaryCurrencyCode ?? null,
                     )}
                   </b>
                 </Text>

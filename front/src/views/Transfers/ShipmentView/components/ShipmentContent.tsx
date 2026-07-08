@@ -64,9 +64,12 @@ function ShipmentContent({
   const [manualExpanded, setManualExpanded] = useState<number[]>([]);
 
   // Merge externally-requested expansions with items the user has manually opened.
+  // Once the user toggles anything, respect their selection so items opened via `expandedIndices`
+  // can also be collapsed again.
   const resolvedExpanded = useMemo(() => {
     if (expandedIndices === undefined) return manualExpanded;
-    return _.uniq([...manualExpanded, ...expandedIndices]);
+    if (manualExpanded.length > 0) return manualExpanded;
+    return expandedIndices;
   }, [expandedIndices, manualExpanded]);
 
   const boxesToTableTransformer = useCallback(

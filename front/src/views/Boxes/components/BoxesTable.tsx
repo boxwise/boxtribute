@@ -375,7 +375,7 @@ function BoxesTable({
             {showWeightAndValue && hasWeight && (
               <Text>
                 <Text as="span" fontWeight="bold">
-                  {formatWeight(totalWeight)}
+                  {formatWeight(totalWeight, null)}
                 </Text>{" "}
                 est. weight{weightUnit ? ` (${weightUnit})` : ""}
               </Text>

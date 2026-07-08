@@ -292,7 +292,7 @@ function BoxEdit({
                       control={control}
                     />
                   </Box>
-                  <Text mb={2}>{boxData.weightDisplayUnit?.symbol ?? ""}</Text>
+                  <Text mb={2}>{boxData?.weightDisplayUnit?.symbol ?? ""}</Text>
                 </HStack>
               </ListItem>
               <ListItem>
@@ -305,7 +305,9 @@ function BoxEdit({
                       control={control}
                     />
                   </Box>
-                  <Text mb={2}>{currencySymbol(boxData.location.base.monetaryCurrencyCode)}</Text>
+                  <Text mb={2}>
+                    {currencySymbol(boxData?.location?.base?.monetaryCurrencyCode ?? null)}
+                  </Text>
                 </HStack>
               </ListItem>
             </>
