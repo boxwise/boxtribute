@@ -614,6 +614,7 @@ function ShipmentView() {
         details={shipmentContents}
         histories={sortedGroupedHistoryEntries}
         isLoadingMutation={isLoadingFromMutation}
+        canUpdateShipment={canUpdateShipment}
         onRemoveBox={onRemoveBox}
         onBulkRemoveBox={onBulkRemoveBox}
         onUpdateBox={onUpdateBox}
@@ -664,7 +665,9 @@ function ShipmentView() {
           <VStack>
             {shipmentTitle}
             {shipmentCard}
-            <MissingWeightOrMonetaryValueAlert show={hasMissingWeightOrMonetaryValue} />
+            <MissingWeightOrMonetaryValueAlert
+              show={canUpdateShipment && hasMissingWeightOrMonetaryValue}
+            />
           </VStack>
         </Center>
         <Spacer />

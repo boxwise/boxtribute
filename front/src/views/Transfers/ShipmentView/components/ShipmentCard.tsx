@@ -209,18 +209,16 @@ function ShipmentCard({
                 </Flex>
               )}
             </VStack>
-            {showWeightAndValue &&
-              shipment.state === "Preparing" &&
-              hasMissingWeightOrMonetaryValue && (
-                <Tooltip label="Some boxes are missing weight or value.">
-                  <WarningTwoIcon
-                    ml={4}
-                    boxSize={6}
-                    color="orange.400"
-                    aria-label="missing weight or value"
-                  />
-                </Tooltip>
-              )}
+            {showWeightAndValue && canUpdateShipment && hasMissingWeightOrMonetaryValue && (
+              <Tooltip label="Some boxes are missing weight or value.">
+                <WarningTwoIcon
+                  ml={4}
+                  boxSize={6}
+                  color="orange.400"
+                  aria-label="missing weight or value"
+                />
+              </Tooltip>
+            )}
           </Flex>
         )}
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />

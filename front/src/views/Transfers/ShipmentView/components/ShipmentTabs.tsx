@@ -34,6 +34,7 @@ export interface IShipmentTabsProps {
   details: ShipmentDetail[];
   histories: IGroupedRecordEntry[];
   isLoadingMutation: boolean | undefined;
+  canUpdateShipment: boolean;
   showRemoveIcon: boolean;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
@@ -43,11 +44,13 @@ export interface IShipmentTabsProps {
     monetaryValue: number | null,
   ) => void;
 }
+
 function ShipmentTabs({
   showRemoveIcon,
   details,
   histories,
   isLoadingMutation,
+  canUpdateShipment,
   onRemoveBox,
   onBulkRemoveBox,
   onUpdateBox,
@@ -93,6 +96,7 @@ function ShipmentTabs({
           <ShipmentContent
             shipmentState={shipmentState}
             isLoadingMutation={isLoadingMutation}
+            canUpdateShipment={canUpdateShipment}
             items={boxGroupedByProductGender}
             onRemoveBox={onRemoveBox}
             onBulkRemoveBox={onBulkRemoveBox}

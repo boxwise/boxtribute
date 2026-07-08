@@ -33,9 +33,10 @@ function isValidNonNegativeFloat(value: string): boolean {
 interface IWeightCellProps {
   row: Row<any>;
   onSave: (labelIdentifier: string, weight: number) => void;
+  canEdit: boolean;
 }
 
-export function WeightCell({ row, onSave }: IWeightCellProps) {
+export function WeightCell({ row, onSave, canEdit }: IWeightCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,13 +55,20 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
     setInputValue("");
   };
 
+  if (!canEdit) {
+    return (
+      <Text fontSize="sm">
+        {weight != null ? `${weight}${weightUnit ? ` ${weightUnit}` : ""}` : "–"}
+      </Text>
+    );
+  }
+
   if (isEditing) {
     const isValid = isValidNonNegativeFloat(inputValue);
     return (
       <HStack
         spacing={1}
         onBlur={(e) => {
-          // Only cancel if focus leaves the entire HStack (i.e. not moving to Save button)
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
             cancelEditing();
           }
@@ -131,9 +139,10 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
 interface IMonetaryValueCellProps {
   row: Row<any>;
   onSave: (labelIdentifier: string, monetaryValue: number) => void;
+  canEdit: boolean;
 }
 
-export function MonetaryValueCell({ row, onSave }: IMonetaryValueCellProps) {
+export function MonetaryValueCell({ row, onSave, canEdit }: IMonetaryValueCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -151,13 +160,16 @@ export function MonetaryValueCell({ row, onSave }: IMonetaryValueCellProps) {
     setInputValue("");
   };
 
+  if (!canEdit) {
+    return <Text fontSize="sm">{monetaryValue != null ? `${monetaryValue} €` : "–"}</Text>;
+  }
+
   if (isEditing) {
     const isValid = isValidNonNegativeFloat(inputValue);
     return (
       <HStack
         spacing={1}
         onBlur={(e) => {
-          // Only cancel if focus leaves the entire HStack (i.e. not moving to Save button)
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
             cancelEditing();
           }

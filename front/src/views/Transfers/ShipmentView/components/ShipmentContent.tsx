@@ -32,6 +32,7 @@ interface IShipmentContentProps {
   items: IShipmentContent[];
   showRemoveIcon: boolean;
   isLoadingMutation: boolean | undefined;
+  canUpdateShipment: boolean;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
   onUpdateBox: (
@@ -49,6 +50,7 @@ function ShipmentContent({
   onUpdateBox,
   isLoadingMutation,
   showRemoveIcon,
+  canUpdateShipment,
 }: IShipmentContentProps) {
   const boxesToTableTransformer = useCallback(
     (boxes: BoxType[]) =>
@@ -101,6 +103,7 @@ function ShipmentContent({
         Cell: ({ row }: CellProps<any>) => (
           <WeightCell
             row={row}
+            canEdit={canUpdateShipment}
             onSave={(labelIdentifier, weight) =>
               onUpdateBox(labelIdentifier, weight, row.original.monetaryValue)
             }
@@ -114,6 +117,7 @@ function ShipmentContent({
         Cell: ({ row }: CellProps<any>) => (
           <MonetaryValueCell
             row={row}
+            canEdit={canUpdateShipment}
             onSave={(labelIdentifier, monetaryValue) =>
               onUpdateBox(labelIdentifier, row.original.weight, monetaryValue)
             }
@@ -139,7 +143,7 @@ function ShipmentContent({
         ),
       },
     ],
-    [showRemoveIcon, onRemoveBox, isLoadingMutation, onUpdateBox],
+    [showRemoveIcon, onRemoveBox, isLoadingMutation, onUpdateBox, canUpdateShipment],
   );
 
   return (
