@@ -1,6 +1,6 @@
 import { date2String } from "../../utils/helpers";
 import { subYears } from "date-fns";
-import { ProductGender, TagType } from "../../../graphql/types";
+import type { ProductGender, TagType } from "../../../graphql/types";
 import type { IFilterValue } from "../components/filter/ValueFilter";
 
 // ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ export interface ITagOption {
   /** Same as label; populated when created from backend data. */
   name?: string;
   color: string;
-  type: TagType;
+  type?: TagType;
   /** = String(id) — required by chakra-react-select */
   value: string;
   /** = name — required by react-select for display */

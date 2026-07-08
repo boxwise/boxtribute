@@ -15,7 +15,7 @@ import type {
   ILocationOption,
   ITagOption,
 } from "../utils/dashboardFilters";
-import { TagType } from "../../../graphql/types";
+import type { TagType } from "../../../graphql/types";
 
 interface DashboardProps {
   roles?: string[];
