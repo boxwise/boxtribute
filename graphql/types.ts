@@ -15,6 +15,7 @@ import { CREATED_BOXES_QUERY, STOCK_QUERY, MOVED_BOXES_QUERY, DEMOGRAPHIC_QUERY,
 export type TargetType = introspection_types["TargetType"]["enumValues"];
 export type ProductGender = Product["gender"];
 export type NonNullProductGender = Exclude<ProductGender, null>;
+export type TagType = introspection_types["TagType"]["enumValues"];
 
 export type User = FragmentOf<typeof USER_FRAGMENT>;
 export type Product = FragmentOf<typeof PRODUCT_FRAGMENT>;
