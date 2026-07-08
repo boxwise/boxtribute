@@ -74,16 +74,16 @@ export function WeightCell({ row, onSave, canEdit }: IWeightCellProps) {
       >
         <Input
           ref={inputRef}
-          size="xs"
+          size="sm"
           width="70px"
           bg="white"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="0.0"
         />
-        {weightUnit && <Text fontSize="xs">{weightUnit}</Text>}
+        {weightUnit && <Text fontSize="sm">{weightUnit}</Text>}
         <Button
-          size="xs"
+          size="sm"
           colorScheme="blue"
           isDisabled={!isValid}
           onClick={() => {
@@ -173,10 +173,10 @@ export function MonetaryValueCell({ row, onSave, canEdit, currency }: IMonetaryV
           }
         }}
       >
-        <Text fontSize="xs">{currencySymbol(currency)}</Text>
+        <Text fontSize="sm">{currencySymbol(currency)}</Text>
         <Input
           ref={inputRef}
-          size="xs"
+          size="sm"
           width="70px"
           bg="white"
           value={inputValue}
@@ -184,7 +184,7 @@ export function MonetaryValueCell({ row, onSave, canEdit, currency }: IMonetaryV
           placeholder="0.0"
         />
         <Button
-          size="xs"
+          size="sm"
           colorScheme="blue"
           isDisabled={!isValid}
           onClick={() => {
