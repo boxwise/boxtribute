@@ -1,4 +1,4 @@
-import { Box, Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
+import { Text, Box, Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
 import { ResultOf } from "gql.tada";
 import { groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { sample } from "lodash";
@@ -10,27 +10,28 @@ import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import { TARGET_DIMENSION_INFO_FRAGMENT } from "../../../queries/fragments";
 import type { MovementDirection } from "../../../utils/dashboardFilters";
 import { BoxesOrItemsCount } from "../../../utils/dashboardFilters";
+import { SHIPMENT_NODE_COLORS } from "../../../data/colors";
 
 // random ids, should not collide with the name of existing shipments and locations
 const shipmentNode = {
   id: "shipmentsYp9WMJiNbEvi",
   name: "shipments",
-  nodeColor: "#6cdb2c",
+  nodeColor: SHIPMENT_NODE_COLORS[0],
 };
 const selfReportedNode = {
   id: "selfreportedYp9WMJiNbEvi",
   name: "self reported",
-  nodeColor: "#2c32db",
+  nodeColor: SHIPMENT_NODE_COLORS[1],
 };
 const outgoingNode = {
   id: "outgoingYp9WMJiNbEvi",
   name: "outgoing boxes",
-  nodeColor: "#1fcc30",
+  nodeColor: SHIPMENT_NODE_COLORS[2],
 };
 const incomingNode = {
   id: "incomingYp9WMJiNbEvi",
   name: "incoming boxes",
-  nodeColor: "#1fcc30",
+  nodeColor: SHIPMENT_NODE_COLORS[2],
 };
 
 interface IBoxFlowSankeyProps {
@@ -100,7 +101,7 @@ export default function BoxFlowSankey({
       map((movedBox) => ({
         id: `incoming-org-${(movedBox.organisationName ?? "Unknown").replace(/\W+/g, "-")}`,
         name: movedBox.organisationName ?? "Unknown",
-        nodeColor: sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+        nodeColor: sample(SHIPMENT_NODE_COLORS.slice(3)),
         value: movedBox.count,
       })),
     ) as Array<{ id: string; name: string; nodeColor?: string; value: number }>;
@@ -234,9 +235,7 @@ export default function BoxFlowSankey({
         return {
           id: movedBox.targetId,
           name: movedBox.isNegative ? `${getName()} removed` : getName(),
-          nodeColor: movedBox.isNegative
-            ? "red"
-            : sample(["#9467bd", "#e377c2", "#7f7f7f", "#bcbd22", "#51bd22", "#2287bd"]),
+          nodeColor: movedBox.isNegative ? "red" : sample(SHIPMENT_NODE_COLORS.slice(3)),
         };
       }),
   ];
@@ -281,8 +280,10 @@ export default function BoxFlowSankey({
             <Box w="15px" h="15px" backgroundColor="red" />
           </WrapItem>
           <WrapItem color="red">
-            Red targets indicate an incoming/reverse flow, i.e. a removal of items/boxes from that
-            location to instock storage.
+            <Text>
+              Red targets indicate an incoming/reverse flow, i.e. a removal of items/boxes from that
+              location to instock storage.
+            </Text>
           </WrapItem>
         </Wrap>
       </CardBody>

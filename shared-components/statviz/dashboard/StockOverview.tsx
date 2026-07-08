@@ -178,7 +178,7 @@ export default function StockOverview({
               </FilterPanel>
             </HStack>
           </HStack>
-          <SimpleGrid minChildWidth="500px" spacing={4}>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <StockOverviewRingDataContainer
               isActive={isActive}
               appliedFilters={appliedFilters}

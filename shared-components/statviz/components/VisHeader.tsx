@@ -108,7 +108,7 @@ export default function VisHeader({
   };
 
   return (
-    <CardHeader>
+    <CardHeader mb={-5}>
       <Accordion allowMultiple>
         {!isPublicView && (
           <AccordionItem border="none">

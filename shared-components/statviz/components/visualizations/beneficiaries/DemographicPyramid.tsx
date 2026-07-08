@@ -10,6 +10,7 @@ import {
   BeneficiaryDemographics,
   BeneficiaryDemographicsResult,
 } from "../../../../../graphql/types";
+import { HUMAN_GENDER_COLORS } from "../../../data/colors";
 
 export interface IDemographicFact {
   createdOn: Date;
@@ -168,8 +169,8 @@ export default function DemographicPyramid({
     width,
     height,
     background: "#ffffff",
-    colorBarLeft: "#ec5063",
-    colorBarRight: "#31cab5",
+    colorBarLeft: HUMAN_GENDER_COLORS["Female"],
+    colorBarRight: HUMAN_GENDER_COLORS["Male"],
     visId: "preview-demographic",
     settings: {
       hideZeroY: false,

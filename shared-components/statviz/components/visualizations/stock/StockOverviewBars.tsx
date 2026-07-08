@@ -7,7 +7,7 @@ import BarChart from "../../nivo/BarChart";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
-import { genderColors } from "../../../data/colors";
+import { PRODUCT_GENDER_COLORS } from "../../../data/colors";
 
 const FALLBACK_COLOR = "#aaaaaa";
 
@@ -70,7 +70,8 @@ export default function StockOverviewBars({
     return <NoDataCard header={heading} />;
   }
 
-  const getColor = (bar: { id: string | number }) => genderColors[String(bar.id)] ?? FALLBACK_COLOR;
+  const getColor = (bar: { id: string | number }) =>
+    PRODUCT_GENDER_COLORS[String(bar.id)] ?? FALLBACK_COLOR;
 
   const chartProps = {
     data: chartData,
