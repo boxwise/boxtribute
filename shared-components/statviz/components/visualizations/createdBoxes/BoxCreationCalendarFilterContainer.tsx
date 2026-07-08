@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useBreakpointValue } from "@chakra-ui/react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import { useSearchParams } from "react-router-dom";
 import BoxCreationCalendar from "./BoxCreationCalendar";
@@ -68,10 +69,12 @@ export default function BoxCreationCalendarFilterContainer({
     dimensions: createdBoxes?.dimensions,
   };
 
+  const chartHeight = useBreakpointValue({ base: "200px", md: "300px", lg: "400px" }) ?? "400px";
+
   return (
     <BoxCreationCalendar
       width="100%"
-      height="400px"
+      height={chartHeight}
       boxesOrItems={boxesOrItems}
       data={filteredData}
     />

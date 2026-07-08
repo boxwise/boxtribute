@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useBreakpointValue } from "@chakra-ui/react";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 import { filterByTags } from "../../../utils/filterByTags";
 import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
@@ -48,10 +49,12 @@ export default function StockOverviewRingFilterContainer({
     return { ...stockOverview, facts } as StockOverview;
   }, [stockOverview, genders, categories, locations, products, includedTags, excludedTags]);
 
+  const chartHeight = useBreakpointValue({ base: "300px", md: "400px", lg: "500px" }) ?? "400px";
+
   return (
     <StockOverviewRing
       width="100%"
-      height="500px"
+      height={chartHeight}
       data={filteredStockOverview}
       boxesOrItems={boxesOrItems}
     />

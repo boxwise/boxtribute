@@ -9,6 +9,7 @@ import {
   scaledNivoTheme,
 } from "../../../utils/theme";
 import { percent } from "../../utils/chart";
+import { colorIsBright } from "../../../utils/helpers";
 
 export interface IPieChart {
   width: string;
@@ -109,8 +110,9 @@ function PieChartInner(chart: Omit<IPieChart, "width"> & { width: number }) {
         animate={chart.animate === true || chart.animate === null}
         onClick={chart.onClick}
         theme={theme}
-        // colors={{ scheme: 'tableau10' }}
+        colors={{ scheme: "red_blue" }}
         isInteractive
+        arcLabelsTextColor={({ color }) => (colorIsBright(color) ? "#000000" : "#ffffff")}
         activeOuterRadiusOffset={2}
         arcLinkLabelsSkipAngle={10}
         arcLinkLabelsTextColor="#333333"

@@ -15,6 +15,7 @@ import type {
   ILocationOption,
   ITagOption,
 } from "../utils/dashboardFilters";
+import type { TagType } from "../../../graphql/types";
 
 interface DashboardProps {
   roles?: string[];
@@ -42,6 +43,7 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
     const next = Array.isArray(indices) ? indices : [indices];
     setEverOpened((prev) => new Set([...prev, ...next]));
   };
+
   const { data, error } = useQuery(DASHBOARD_FILTER_DATA_QUERY, {
     variables: { baseId: baseId! },
   });
@@ -78,17 +80,28 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
     [data],
   );
 
-  const tags = useMemo<ITagOption[]>(
+  const allTags = useMemo<ITagOption[]>(
     () =>
       (data?.base?.tags ?? []).map((t) => ({
         id: Number(t.id),
         name: t.name,
         color: t.color ?? "#999",
+        type: t.type as TagType,
         value: String(t.id),
         label: t.name,
         urlId: String(t.id),
       })),
     [data],
+  );
+
+  const boxTags = useMemo<ITagOption[]>(
+    () => allTags.filter((t) => t.type === "Box" || t.type === "All"),
+    [allTags],
+  );
+
+  const beneficiaryTags = useMemo<ITagOption[]>(
+    () => allTags.filter((t) => t.type === "Beneficiary" || t.type === "All"),
+    [allTags],
   );
 
   if (error) {
@@ -112,7 +125,7 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
             products={products}
             categories={categories}
             locations={locations}
-            tags={tags}
+            tags={boxTags}
           />
         )}
         {showMovedBoxes && (
@@ -120,11 +133,11 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
             isActive={everOpened.has(movedBoxesIdx)}
             products={products}
             categories={categories}
-            tags={tags}
+            tags={boxTags}
           />
         )}
         {showBeneficiary && (
-          <BeneficiaryOverview isActive={everOpened.has(beneficiaryIdx)} tags={tags} />
+          <BeneficiaryOverview isActive={everOpened.has(beneficiaryIdx)} tags={beneficiaryTags} />
         )}
       </Accordion>
     </div>

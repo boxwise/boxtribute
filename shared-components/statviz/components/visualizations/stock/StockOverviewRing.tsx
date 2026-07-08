@@ -101,11 +101,7 @@ export default function StockOverviewRing({
 
   const total = useMemo(() => chartData.reduce((acc, d) => acc + d.value, 0), [chartData]);
 
-  const groupLabel = groupingOption.label;
-  const heading =
-    boxesOrItems === "boxesCount"
-      ? `Instock Boxes by ${groupLabel}`
-      : `Instock Items by ${groupLabel}`;
+  const heading = boxesOrItems === "boxesCount" ? "Instock Boxes" : "Instock Items";
 
   const centerData = {
     level: total,

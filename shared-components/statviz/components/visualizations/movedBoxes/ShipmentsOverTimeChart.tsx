@@ -10,19 +10,7 @@ import NoDataCard from "../../NoDataCard";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import type { MovementDirection } from "../../../utils/dashboardFilters";
-
-const seriesColors = [
-  "#29335f",
-  "#ef404a",
-  "#60a561",
-  "#d89016",
-  "#6cdb2c",
-  "#9467bd",
-  "#2287bd",
-  "#e377c2",
-  "#7f7f7f",
-  "#bcbd22",
-];
+import { SHIPMENT_PARTNER_COLORS } from "../../../data/colors";
 
 interface ShipmentsOverTimeChartProps {
   movedBoxes: Partial<MovedBoxes>;
@@ -90,7 +78,9 @@ export default function ShipmentsOverTimeChart({
 
     return {
       chartData: data,
-      colors: organisationNames.map((_, index) => seriesColors[index % seriesColors.length]),
+      colors: organisationNames.map(
+        (_, index) => SHIPMENT_PARTNER_COLORS[index % SHIPMENT_PARTNER_COLORS.length],
+      ),
     };
   }, [movedBoxes, boxesOrItems, direction]);
 

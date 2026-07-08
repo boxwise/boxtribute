@@ -195,6 +195,7 @@ export const DASHBOARD_FILTER_DATA_QUERY = graphql(`
         id
         name
         color
+        type
       }
     }
   }

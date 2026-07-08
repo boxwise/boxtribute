@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Card, CardBody, HStack, Input, Text } from "@chakra-ui/react";
+import { Card, CardBody, Wrap, HStack, Input, Select, Text } from "@chakra-ui/react";
 import { BarDatum } from "@nivo/bar";
 import { eachMonthOfInterval, format, parseISO } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
@@ -16,23 +16,7 @@ import NoDataCard from "../../NoDataCard";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
 import { BeneficiaryReachData } from "../../../../../graphql/types";
-
-const AGE_GROUP_COLORS: Record<string, string> = {
-  "0-7": "#4e79a7",
-  "8-15": "#f28e2b",
-  "16-25": "#e15759",
-  "26-40": "#76b7b2",
-  "41-65": "#59a14f",
-  "66+": "#edc948",
-  Unknown: "#b07aa1",
-};
-
-const GENDER_COLORS: Record<string, string> = {
-  Male: "#31cab5",
-  Female: "#ec5063",
-  Diverse: "#f3de02",
-  Unknown: "#b0b0b0",
-};
+import { AGE_GROUP_COLORS, HUMAN_GENDER_COLORS } from "../../../data/colors";
 
 type BreakdownMode = "age" | "gender";
 type MetricMode = "unique" | "interactions";
@@ -211,7 +195,7 @@ export default function BeneficiaryReachChart({
       monthData = months.map((m) => ({ month: m, ...acc[m] }));
     }
 
-    const colorMapResult = breakdownMode === "age" ? AGE_GROUP_COLORS : GENDER_COLORS;
+    const colorMapResult = breakdownMode === "age" ? AGE_GROUP_COLORS : HUMAN_GENDER_COLORS;
 
     return { chartData: monthData, keys: keyList, colorMap: colorMapResult };
   }, [reachData, appliedFilters, breakdownMode, metricMode, from, to]);
@@ -243,7 +227,7 @@ export default function BeneficiaryReachChart({
       />
       <CardBody>
         <HStack mb={4} spacing={4} justify="flex-end" flexWrap="wrap">
-          <HStack spacing={2} align="center">
+          <Wrap spacing={2} align="center">
             <Text>
               <strong>From</strong>
             </Text>
@@ -267,39 +251,25 @@ export default function BeneficiaryReachChart({
               onChange={handleToChange}
               width="auto"
             />
-          </HStack>
-          <ButtonGroup size="md" isAttached variant="outline">
-            <Button
-              colorScheme={metricMode === "unique" ? "blue" : "gray"}
-              variant={metricMode === "unique" ? "solid" : "outline"}
-              onClick={() => setMetricMode("unique")}
-            >
-              Unique Beneficiaries
-            </Button>
-            <Button
-              colorScheme={metricMode === "interactions" ? "blue" : "gray"}
-              variant={metricMode === "interactions" ? "solid" : "outline"}
-              onClick={() => setMetricMode("interactions")}
-            >
-              Total Interactions
-            </Button>
-          </ButtonGroup>
-          <ButtonGroup size="md" isAttached variant="outline">
-            <Button
-              colorScheme={breakdownMode === "age" ? "blue" : "gray"}
-              variant={breakdownMode === "age" ? "solid" : "outline"}
-              onClick={() => setBreakdownMode("age")}
-            >
-              Age
-            </Button>
-            <Button
-              colorScheme={breakdownMode === "gender" ? "blue" : "gray"}
-              variant={breakdownMode === "gender" ? "solid" : "outline"}
-              onClick={() => setBreakdownMode("gender")}
-            >
-              Gender
-            </Button>
-          </ButtonGroup>
+          </Wrap>
+          <Select
+            size="md"
+            value={metricMode}
+            onChange={(e) => setMetricMode(e.target.value as MetricMode)}
+            width="210px"
+          >
+            <option value="unique">Unique Beneficiaries</option>
+            <option value="interactions">Total Interactions</option>
+          </Select>
+          <Select
+            size="md"
+            value={breakdownMode}
+            onChange={(e) => setBreakdownMode(e.target.value as BreakdownMode)}
+            width="110px"
+          >
+            <option value="age">Age</option>
+            <option value="gender">Gender</option>
+          </Select>
         </HStack>
         <BarChart {...chartProps} />
       </CardBody>

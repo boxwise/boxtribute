@@ -8,6 +8,8 @@ import {
 } from "../../../utils/theme";
 import { percent } from "../../utils/chart";
 
+const MIN_WIDTH = 500;
+
 export interface ILineChart {
   width: string;
   height: string;
@@ -33,7 +35,7 @@ export default function LineChart(chart: ILineChart) {
 
   const height = parseInt(chart.height, 10);
   const isPercentWidth = String(chart.width).endsWith("%");
-  const width = isPercentWidth ? 800 : parseInt(chart.width, 10);
+  const width = isPercentWidth ? MIN_WIDTH : parseInt(chart.width, 10);
   const baseFontSize = getBaseFontSize(width, height);
   const theme = scaledNivoTheme(width, height, Math.max(chart.data.length, 5));
 
@@ -66,41 +68,43 @@ export default function LineChart(chart: ILineChart) {
   }
 
   return (
-    <div ref={ref} style={{ width: chart.width, height: chart.height, fontSize: baseFontSize }}>
-      <ResponsiveLine
-        data={chart.data}
-        margin={{
-          top: marginTop,
-          right: percent(width, 5),
-          bottom: percent(height, 28),
-          left: percent(width, 10),
-        }}
-        xScale={{ type: "point" }}
-        yScale={{ type: "linear", min: 0, max: "auto" }}
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
-          tickRotation: -45,
-          legendOffset: 36,
-          truncateTickAt: 0,
-        }}
-        axisLeft={{
-          tickRotation: 0,
-          legendOffset: -40,
-        }}
-        enableGridY={false}
-        pointSize={8}
-        pointBorderWidth={2}
-        pointColor={{ theme: "background" }}
-        pointBorderColor={{ from: "serieColor" }}
-        useMesh
-        enableSlices="x"
-        legends={[]}
-        layers={layers}
-        theme={theme}
-        colors={chart.colors ?? { scheme: "nivo" }}
-        animate={chart.animate === true || chart.animate === null}
-      />
+    <div style={{ width: chart.width, overflowX: "auto" }}>
+      <div ref={ref} style={{ minWidth: MIN_WIDTH, height: chart.height, fontSize: baseFontSize }}>
+        <ResponsiveLine
+          data={chart.data}
+          margin={{
+            top: marginTop,
+            right: percent(width, 5),
+            bottom: percent(height, 15),
+            left: percent(width, 8),
+          }}
+          xScale={{ type: "point" }}
+          yScale={{ type: "linear", min: 0, max: "auto" }}
+          axisTop={null}
+          axisRight={null}
+          axisBottom={{
+            tickRotation: -45,
+            legendOffset: 36,
+            truncateTickAt: 0,
+          }}
+          axisLeft={{
+            tickRotation: 0,
+            legendOffset: -40,
+          }}
+          enableGridY={false}
+          pointSize={8}
+          pointBorderWidth={2}
+          pointColor={{ theme: "background" }}
+          pointBorderColor={{ from: "serieColor" }}
+          useMesh
+          enableSlices="x"
+          legends={[]}
+          layers={layers}
+          theme={theme}
+          colors={chart.colors ?? { scheme: "nivo" }}
+          animate={chart.animate === true || chart.animate === null}
+        />
+      </div>
     </div>
   );
 }

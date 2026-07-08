@@ -42,7 +42,7 @@ export default function MovedBoxesCharts({
         </Text>{" "}
         incoming {incomingCount === 1 ? "shipment" : "shipments"}.
       </Text>
-      <SimpleGrid minChildWidth="400px" spacing={4}>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
         <BoxFlowSankey
           boxesOrItems={boxesOrItems}
           data={movedBoxes}
