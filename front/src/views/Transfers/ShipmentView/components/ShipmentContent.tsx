@@ -58,6 +58,8 @@ function ShipmentContent({
   canUpdateShipment,
   expandedIndices,
 }: IShipmentContentProps) {
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   // Track which items are expanded internally so the user can still toggle freely.
   const [manualExpanded, setManualExpanded] = useState<number[]>([]);
 
@@ -111,35 +113,39 @@ function ShipmentContent({
         style: { overflowWrap: "break-word" },
         Cell: renderCell,
       },
-      {
-        id: "weight",
-        Header: "WEIGHT",
-        accessor: "weight",
-        Cell: ({ row }: CellProps<any>) => (
-          <WeightCell
-            row={row}
-            canEdit={canUpdateShipment}
-            onSave={(labelIdentifier, weight) =>
-              onUpdateBox(labelIdentifier, weight, row.original.monetaryValue)
-            }
-          />
-        ),
-      },
-      {
-        id: "monetaryValue",
-        Header: "MONETARY VALUE",
-        accessor: "monetaryValue",
-        Cell: ({ row }: CellProps<any>) => (
-          <MonetaryValueCell
-            row={row}
-            canEdit={canUpdateShipment}
-            currency={currency}
-            onSave={(labelIdentifier, monetaryValue) =>
-              onUpdateBox(labelIdentifier, row.original.weight, monetaryValue)
-            }
-          />
-        ),
-      },
+      ...(showWeightAndValue
+        ? [
+            {
+              id: "weight",
+              Header: "WEIGHT",
+              accessor: "weight",
+              Cell: ({ row }: CellProps<any>) => (
+                <WeightCell
+                  row={row}
+                  canEdit={canUpdateShipment}
+                  onSave={(labelIdentifier, weight) =>
+                    onUpdateBox(labelIdentifier, weight, row.original.monetaryValue)
+                  }
+                />
+              ),
+            },
+            {
+              id: "monetaryValue",
+              Header: "MONETARY VALUE",
+              accessor: "monetaryValue",
+              Cell: ({ row }: CellProps<any>) => (
+                <MonetaryValueCell
+                  row={row}
+                  canEdit={canUpdateShipment}
+                  currency={currency}
+                  onSave={(labelIdentifier, monetaryValue) =>
+                    onUpdateBox(labelIdentifier, row.original.weight, monetaryValue)
+                  }
+                />
+              ),
+            },
+          ]
+        : []),
       {
         id: "items",
         Header: "ITEMS",
@@ -165,6 +171,7 @@ function ShipmentContent({
       isLoadingMutation,
       onUpdateBox,
       canUpdateShipment,
+      showWeightAndValue,
       currency,
     ],
   );
