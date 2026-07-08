@@ -1,5 +1,5 @@
 import { ResponsiveCalendar } from "@nivo/calendar";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { CALENDAR_COLORS } from "../../data/colors";
 
 export interface ICalendarChart {
@@ -11,6 +11,32 @@ export interface ICalendarChart {
   emptyColor?: string;
   colors?: string[];
   rendered?: (ref: HTMLDivElement) => void;
+}
+
+interface LegendItem {
+  color: string;
+  label: string;
+}
+
+function buildLegendItems(data: { day: string; value: number }[], colors: string[]): LegendItem[] {
+  if (data.length === 0 || colors.length === 0) return [];
+
+  const values = data.map((d) => d.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+
+  if (min === max) {
+    return [{ color: colors[colors.length - 1], label: String(min) }];
+  }
+
+  const step = (max - min) / colors.length;
+
+  return colors.map((color, i) => {
+    const lo = Math.round(min + i * step);
+    const hi = Math.round(min + (i + 1) * step);
+    const label = i === colors.length - 1 ? `${lo}–${max}` : `${lo}–${hi - 1}`;
+    return { color, label };
+  });
 }
 
 export default function CalendarChart(chart: ICalendarChart) {
@@ -25,6 +51,11 @@ export default function CalendarChart(chart: ICalendarChart) {
 
   const calendarColors = chart.colors ?? CALENDAR_COLORS;
   const emptyColor = chart.emptyColor ?? "#eeeeee";
+
+  const legendItems = useMemo(
+    () => buildLegendItems(chart.data, calendarColors),
+    [chart.data, calendarColors],
+  );
 
   return (
     <div style={{ width: chart.width, overflowX: "auto" }}>
@@ -54,6 +85,34 @@ export default function CalendarChart(chart: ICalendarChart) {
           ]}
         />
       </div>
+
+      {legendItems.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "12px",
+            justifyContent: "center",
+            padding: "8px 20px 4px",
+            minWidth: 600,
+          }}
+        >
+          {legendItems.map((item) => (
+            <div key={item.color} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 14,
+                  height: 14,
+                  flexShrink: 0,
+                  backgroundColor: item.color,
+                  borderRadius: 2,
+                }}
+              />
+              <span style={{ fontSize: 12, color: "#4a5568" }}>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
