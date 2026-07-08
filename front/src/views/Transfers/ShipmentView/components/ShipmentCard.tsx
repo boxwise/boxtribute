@@ -15,7 +15,7 @@ import {
   Stack,
   Tooltip,
 } from "@chakra-ui/react";
-import { WarningTwoIcon } from "@chakra-ui/icons";
+import { WarningIcon } from "@chakra-ui/icons";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { qrReaderOverlayVar } from "queries/cache";
@@ -203,7 +203,7 @@ function ShipmentCard({
             </VStack>
             {showWeightAndValue && canUpdateShipment && hasMissingWeightOrMonetaryValue && (
               <Tooltip label="Some boxes are missing weight or value.">
-                <WarningTwoIcon
+                <WarningIcon
                   ml={4}
                   boxSize={6}
                   color="orange.400"
