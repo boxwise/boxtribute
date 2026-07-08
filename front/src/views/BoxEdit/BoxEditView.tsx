@@ -21,8 +21,11 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
       box(labelIdentifier: $labelIdentifier) {
         labelIdentifier
         numberOfItems
-        weight
         monetaryValue
+        weight
+        weightDisplayUnit {
+          symbol
+        }
         comment
         product {
           id
@@ -245,7 +248,6 @@ function BoxEditView() {
       productAndSizesData={productAndSizesData}
       allLocations={allLocations}
       allTags={allTags}
-      currency={allBoxAndFormData.data?.base?.monetaryCurrencyCode}
     />
   );
 }

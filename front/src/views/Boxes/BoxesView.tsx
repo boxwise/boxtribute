@@ -45,7 +45,7 @@ import { BoxState } from "queries/types";
 import BoxesTable, { PAGE_SIZE } from "./components/BoxesTable";
 import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
 import { useSearchParams } from "react-router-dom";
-import { currencySymbol } from "utils/currencySymbol";
+import { formatWeight, formatMonetaryValue } from "utils/helpers";
 
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
   `
@@ -156,21 +156,6 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
   `,
   [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
-
-const numberFormatter = new Intl.NumberFormat("en-GB", {
-  maximumFractionDigits: 2,
-});
-
-const formatWeight = (weight: number | null | undefined, unit: string | null | undefined) =>
-  weight == null ? "" : `${numberFormatter.format(weight)} ${unit ?? ""}`.trim();
-
-const formatMonetaryValue = (
-  monetaryValue: number | null | undefined,
-  currency: string | null | undefined,
-) =>
-  monetaryValue == null
-    ? ""
-    : `${currencySymbol(currency)}${numberFormatter.format(monetaryValue)}`;
 
 function Boxes({
   hasExecutedInitialFetchOfBoxes,

@@ -33,7 +33,9 @@ export interface IShipmentTabsProps {
   shipmentState: ShipmentState | undefined;
   details: ShipmentDetail[];
   histories: IGroupedRecordEntry[];
+  currency: string | null;
   isLoadingMutation: boolean | undefined;
+  canUpdateShipment: boolean;
   showRemoveIcon: boolean;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
@@ -42,16 +44,22 @@ export interface IShipmentTabsProps {
     weight: number | null,
     monetaryValue: number | null,
   ) => void;
+  /** Accordion item indices to expand, forwarded from the parent. */
+  expandedIndices?: number[];
 }
+
 function ShipmentTabs({
   showRemoveIcon,
   details,
   histories,
+  currency,
   isLoadingMutation,
+  canUpdateShipment,
   onRemoveBox,
   onBulkRemoveBox,
   onUpdateBox,
   shipmentState,
+  expandedIndices,
 }: IShipmentTabsProps) {
   const boxGroupedByProductGender = _.values(
     _(details)
@@ -93,11 +101,14 @@ function ShipmentTabs({
           <ShipmentContent
             shipmentState={shipmentState}
             isLoadingMutation={isLoadingMutation}
+            currency={currency}
+            canUpdateShipment={canUpdateShipment}
             items={boxGroupedByProductGender}
             onRemoveBox={onRemoveBox}
             onBulkRemoveBox={onBulkRemoveBox}
             onUpdateBox={onUpdateBox}
             showRemoveIcon={showRemoveIcon}
+            expandedIndices={expandedIndices}
           />
         </TabPanel>
         <TabPanel>

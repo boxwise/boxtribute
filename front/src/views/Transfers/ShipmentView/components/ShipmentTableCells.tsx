@@ -2,6 +2,8 @@ import { Box, Button, HStack, Input, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { AiFillMinusCircle } from "react-icons/ai";
 import { Row } from "react-table";
+import { formatWeight, formatMonetaryValue } from "utils/helpers";
+import { currencySymbol } from "utils/currencySymbol";
 
 interface IRemoveBoxCellProps {
   row: Row<any>;
@@ -33,9 +35,10 @@ function isValidNonNegativeFloat(value: string): boolean {
 interface IWeightCellProps {
   row: Row<any>;
   onSave: (labelIdentifier: string, weight: number) => void;
+  canEdit: boolean;
 }
 
-export function WeightCell({ row, onSave }: IWeightCellProps) {
+export function WeightCell({ row, onSave, canEdit }: IWeightCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -54,13 +57,16 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
     setInputValue("");
   };
 
+  if (!canEdit) {
+    return <Text fontSize="sm">{formatWeight(weight, weightUnit)}</Text>;
+  }
+
   if (isEditing) {
     const isValid = isValidNonNegativeFloat(inputValue);
     return (
       <HStack
         spacing={1}
         onBlur={(e) => {
-          // Only cancel if focus leaves the entire HStack (i.e. not moving to Save button)
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
             cancelEditing();
           }
@@ -68,16 +74,16 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
       >
         <Input
           ref={inputRef}
-          size="xs"
+          size="sm"
           width="70px"
           bg="white"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="0.0"
         />
-        {weightUnit && <Text fontSize="xs">{weightUnit}</Text>}
+        {weightUnit && <Text fontSize="sm">{weightUnit}</Text>}
         <Button
-          size="xs"
+          size="sm"
           colorScheme="blue"
           isDisabled={!isValid}
           onClick={() => {
@@ -114,16 +120,15 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
 
   return (
     <Box
+      as="button"
+      type="button"
       cursor="pointer"
       onClick={() => {
         setInputValue(String(weight));
         setIsEditing(true);
       }}
     >
-      <Text fontSize="sm">
-        {weight}
-        {weightUnit ? ` ${weightUnit}` : ""}
-      </Text>
+      <Text fontSize="sm">{formatWeight(weight, weightUnit)}</Text>
     </Box>
   );
 }
@@ -131,9 +136,11 @@ export function WeightCell({ row, onSave }: IWeightCellProps) {
 interface IMonetaryValueCellProps {
   row: Row<any>;
   onSave: (labelIdentifier: string, monetaryValue: number) => void;
+  canEdit: boolean;
+  currency: string | null;
 }
 
-export function MonetaryValueCell({ row, onSave }: IMonetaryValueCellProps) {
+export function MonetaryValueCell({ row, onSave, canEdit, currency }: IMonetaryValueCellProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -151,30 +158,33 @@ export function MonetaryValueCell({ row, onSave }: IMonetaryValueCellProps) {
     setInputValue("");
   };
 
+  if (!canEdit) {
+    return <Text fontSize="sm">{formatMonetaryValue(monetaryValue, currency)}</Text>;
+  }
+
   if (isEditing) {
     const isValid = isValidNonNegativeFloat(inputValue);
     return (
       <HStack
         spacing={1}
         onBlur={(e) => {
-          // Only cancel if focus leaves the entire HStack (i.e. not moving to Save button)
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
             cancelEditing();
           }
         }}
       >
+        <Text fontSize="sm">{currencySymbol(currency)}</Text>
         <Input
           ref={inputRef}
-          size="xs"
+          size="sm"
           width="70px"
           bg="white"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="0.0"
         />
-        <Text fontSize="xs">€</Text>
         <Button
-          size="xs"
+          size="sm"
           colorScheme="blue"
           isDisabled={!isValid}
           onClick={() => {
@@ -211,13 +221,15 @@ export function MonetaryValueCell({ row, onSave }: IMonetaryValueCellProps) {
 
   return (
     <Box
+      as="button"
+      type="button"
       cursor="pointer"
       onClick={() => {
         setInputValue(String(monetaryValue));
         setIsEditing(true);
       }}
     >
-      <Text fontSize="sm">{monetaryValue} €</Text>
+      <Text fontSize="sm">{formatMonetaryValue(monetaryValue, currency)}</Text>
     </Box>
   );
 }

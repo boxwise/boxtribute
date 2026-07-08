@@ -99,7 +99,6 @@ interface IBoxEditProps {
   productAndSizesData: IProductWithSizeRangeData[];
   allLocations: ILocationData[];
   allTags: IDropdownOption[] | null | undefined;
-  currency?: string | null;
   onSubmitBoxEditForm: (boxEditFormData: IBoxEditFormDataOutput) => void;
 }
 
@@ -108,7 +107,6 @@ function BoxEdit({
   boxData,
   allLocations,
   allTags,
-  currency,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
   const authorize = useAuthorization();
@@ -294,7 +292,7 @@ function BoxEdit({
                       control={control}
                     />
                   </Box>
-                  <Text mb={2}>kg</Text>
+                  <Text mb={2}>{boxData?.weightDisplayUnit?.symbol ?? ""}</Text>
                 </HStack>
               </ListItem>
               <ListItem>
@@ -307,7 +305,9 @@ function BoxEdit({
                       control={control}
                     />
                   </Box>
-                  <Text mb={2}>{currencySymbol(currency)}</Text>
+                  <Text mb={2}>
+                    {currencySymbol(boxData?.location?.base?.monetaryCurrencyCode ?? null)}
+                  </Text>
                 </HStack>
               </ListItem>
             </>
