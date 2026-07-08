@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Card, CardBody, Wrap, HStack, Input, Text } from "@chakra-ui/react";
+import { Card, CardBody, Wrap, HStack, Input, Select, Text } from "@chakra-ui/react";
 import { BarDatum } from "@nivo/bar";
 import { eachMonthOfInterval, format, parseISO } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
@@ -252,38 +252,24 @@ export default function BeneficiaryReachChart({
               width="auto"
             />
           </Wrap>
-          <ButtonGroup size={{ base: "sm", md: "md" }} isAttached variant="outline">
-            <Button
-              colorScheme={metricMode === "unique" ? "blue" : "gray"}
-              variant={metricMode === "unique" ? "solid" : "outline"}
-              onClick={() => setMetricMode("unique")}
-            >
-              Unique Beneficiaries
-            </Button>
-            <Button
-              colorScheme={metricMode === "interactions" ? "blue" : "gray"}
-              variant={metricMode === "interactions" ? "solid" : "outline"}
-              onClick={() => setMetricMode("interactions")}
-            >
-              Total Interactions
-            </Button>
-          </ButtonGroup>
-          <ButtonGroup size={{ base: "sm", md: "md" }} isAttached variant="outline">
-            <Button
-              colorScheme={breakdownMode === "age" ? "blue" : "gray"}
-              variant={breakdownMode === "age" ? "solid" : "outline"}
-              onClick={() => setBreakdownMode("age")}
-            >
-              Age
-            </Button>
-            <Button
-              colorScheme={breakdownMode === "gender" ? "blue" : "gray"}
-              variant={breakdownMode === "gender" ? "solid" : "outline"}
-              onClick={() => setBreakdownMode("gender")}
-            >
-              Gender
-            </Button>
-          </ButtonGroup>
+          <Select
+            size="md"
+            value={metricMode}
+            onChange={(e) => setMetricMode(e.target.value as MetricMode)}
+            width="210px"
+          >
+            <option value="unique">Unique Beneficiaries</option>
+            <option value="interactions">Total Interactions</option>
+          </Select>
+          <Select
+            size="md"
+            value={breakdownMode}
+            onChange={(e) => setBreakdownMode(e.target.value as BreakdownMode)}
+            width="110px"
+          >
+            <option value="age">Age</option>
+            <option value="gender">Gender</option>
+          </Select>
         </HStack>
         <BarChart {...chartProps} />
       </CardBody>
