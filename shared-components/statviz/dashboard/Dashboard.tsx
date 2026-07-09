@@ -37,7 +37,7 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
   const movedBoxesIdx = showMovedBoxes ? idx++ : -1;
   const beneficiaryIdx = showBeneficiary ? idx++ : -1;
 
-  const [everOpened, setEverOpened] = useState<Set<number>>(new Set([0]));
+  const [everOpened, setEverOpened] = useState<Set<number>>(new Set());
 
   const handleAccordionChange = (indices: number | number[]) => {
     const next = Array.isArray(indices) ? indices : [indices];
@@ -114,7 +114,7 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
       <InfoText />
 
       <Accordion
-        defaultIndex={[0]}
+        defaultIndex={[]}
         allowMultiple
         marginBottom="100px"
         onChange={handleAccordionChange}
