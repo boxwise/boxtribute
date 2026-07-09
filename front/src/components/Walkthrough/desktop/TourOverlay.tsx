@@ -135,8 +135,8 @@ function CustomTooltip({
 
       <Progress value={progress} size="sm" colorScheme="green" mb={4} borderRadius="0" />
       <Button
-        id={`desktop-walkthrough-${idSuffix}`}
         {...primaryProps}
+        id={`desktop-walkthrough-${idSuffix}`}
         size="sm"
         colorScheme="blue"
         width="full"
