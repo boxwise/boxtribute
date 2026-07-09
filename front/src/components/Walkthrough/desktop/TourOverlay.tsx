@@ -17,7 +17,7 @@ import { nameToNavId } from "components/HeaderMenu/navId";
 import path1 from "./paths/path1";
 import path2 from "./paths/path2";
 import path3 from "./paths/path3";
-import { WalkthroughPath, TourStep } from "./paths/types";
+import { WalkthroughPath, PathId, TourStep } from "./paths/types";
 import { useVisiblePaths } from "./useVisiblePaths";
 
 export const PATHS: Record<string, WalkthroughPath> = {
@@ -70,6 +70,7 @@ function buildJoyrideSteps(tourSteps: TourStep[]): Step[] {
 interface CustomTooltipProps extends TooltipRenderProps {
   totalSteps: number;
   isLastPath: boolean;
+  activePath: PathId;
 }
 
 function CustomTooltip({
@@ -80,12 +81,15 @@ function CustomTooltip({
   tooltipProps,
   totalSteps,
   isLastPath,
+  activePath,
   isLastStep,
 }: CustomTooltipProps) {
   const progress = ((index + 1) / totalSteps) * 100;
   let buttonLabel: ReactNode;
+  let idSuffix: string;
   if (isLastStep && isLastPath) {
     buttonLabel = "Onboarding completed!";
+    idSuffix = "completed-onboarding";
   } else if (isLastStep) {
     buttonLabel = (
       <>
@@ -94,8 +98,10 @@ function CustomTooltip({
         Explore another one
       </>
     );
+    idSuffix = `${activePath}-completed`;
   } else {
     buttonLabel = "Next";
+    idSuffix = `${activePath}-next-on-${index}`;
   }
 
   return (
@@ -105,6 +111,7 @@ function CustomTooltip({
         {index > 0 && (
           <IconButton
             {...backProps}
+            id={`desktop-walkthrough-${activePath}-prev-on-${index}`}
             p={0}
             minW="auto"
             ml={-2}
@@ -129,6 +136,7 @@ function CustomTooltip({
       <Progress value={progress} size="sm" colorScheme="green" mb={4} borderRadius="0" />
       <Button
         {...primaryProps}
+        id={`desktop-walkthrough-${idSuffix}`}
         size="sm"
         colorScheme="blue"
         width="full"
@@ -232,7 +240,12 @@ function TourOverlay() {
       continuous
       onEvent={handleEvent}
       tooltipComponent={(props) => (
-        <CustomTooltip {...props} isLastPath={isLastPath} totalSteps={totalSteps} />
+        <CustomTooltip
+          {...props}
+          activePath={activePath}
+          isLastPath={isLastPath}
+          totalSteps={totalSteps}
+        />
       )}
       options={{
         overlayColor: "rgba(0,0,0,0.5)",

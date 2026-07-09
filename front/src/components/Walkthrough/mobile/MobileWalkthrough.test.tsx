@@ -9,8 +9,8 @@ vi.mock("@auth0/auth0-react");
 
 const mockedUseAuth0 = vi.mocked(useAuth0);
 
-function renderMobileWalkthrough(roles = "administrator") {
-  mockAuthenticatedUser(mockedUseAuth0, "test@example.com", ["be_user"], "0", roles);
+function renderMobileWalkthrough(role = "administrator") {
+  mockAuthenticatedUser(mockedUseAuth0, "test@example.com", ["be_user"], "0", [role]);
   return render(
     <MobileWalkthroughProvider>
       <MobileWalkthrough />

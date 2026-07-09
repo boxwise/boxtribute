@@ -36,6 +36,7 @@ from .crud import (
     move_boxes_to_location,
     unassign_tags_from_boxes,
     update_box,
+    update_marked_for_shipment_box,
 )
 from .sql import BOXES_WITH_MISSING_TAGS_QUERY
 
@@ -136,6 +137,19 @@ def resolve_update_box(*_, update_input):
             authorize(permission="tag:read", base_id=tag.base_id)
 
     return update_box(user_id=g.user.id, tags=tags, **update_input)
+
+
+@mutation.field("updateMarkedForShipmentBox")
+def resolve_update_marked_for_shipment_box(*_, update_input):
+    box = (
+        Box.select(Box, Location)
+        .join(Location)
+        .where(Box.label_identifier == update_input["label_identifier"])
+        .get()
+    )
+    authorize(permission="stock:write", base_id=box.location.base_id)
+
+    return update_marked_for_shipment_box(user_id=g.user.id, **update_input)
 
 
 # Common logic for bulk-action resolvers:

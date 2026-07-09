@@ -43,6 +43,7 @@ function WelcomeScreen() {
 
       {/* Actions */}
       <Button
+        id="mobile-walkthrough-welcome-start"
         w="full"
         colorScheme="blue"
         size="lg"
@@ -53,6 +54,7 @@ function WelcomeScreen() {
         Start
       </Button>
       <Button
+        id="mobile-walkthrough-welcome-skip"
         w="full"
         variant="ghost"
         size="lg"

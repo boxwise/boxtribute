@@ -45,6 +45,8 @@ def test_models(
     assert beneficiary.items() >= default_beneficiary.items()
 
     box = model_instance_dict(Box, default_box["id"])
+    for field in ["weight", "monetary_value"]:
+        assert float(box.pop(field)) == default_box.pop(field)
     assert box.items() >= default_box.items()
 
     history = model_instance_dict(DbChangeHistory, default_history["id"])

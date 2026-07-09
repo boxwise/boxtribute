@@ -9,6 +9,10 @@ export type BoxRow = {
   productCategory: { name: string; id: string };
   gender: { name: ProductGender; id: string };
   numberOfItems: number;
+  weight: number | null;
+  monetaryValue: number | null;
+  weightUnit: string | null;
+  currency: string | null;
   size: { name: string; id: string };
   location: { name: string; id: string };
   state: { name: BoxState; id: string };

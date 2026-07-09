@@ -17,7 +17,7 @@ export function mockAuthenticatedUser(
   email: string,
   actions = ["be_user"],
   betaUser = "0",
-  roles = "administrator",
+  roles = ["administrator"],
   bases = [1],
 ) {
   mockedUseAuth0.mockReturnValue({

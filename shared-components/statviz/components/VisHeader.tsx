@@ -8,7 +8,6 @@ import {
   Accordion,
   AccordionItem,
   AccordionButton,
-  AccordionIcon,
   AccordionPanel,
   Box,
   FormLabel,
@@ -38,7 +37,6 @@ const randomId = () => (Math.random() + 1).toString(36).substring(2);
 
 interface IVisHeaderProps {
   heading: string;
-  maxWidthPx: number | string;
   onExport: (
     width: number,
     height: number,
@@ -60,7 +58,6 @@ interface IVisHeaderProps {
 
 export default function VisHeader({
   heading,
-  maxWidthPx,
   onExport,
   defaultWidth,
   defaultHeight,
@@ -110,27 +107,16 @@ export default function VisHeader({
     );
   };
 
-  const getMaxWidth = () => {
-    const marginInPx = 50;
-    if (typeof maxWidthPx === "string") {
-      return parseInt(maxWidthPx, 10) + marginInPx;
-    }
-    return maxWidthPx + marginInPx;
-  };
-
   return (
-    <CardHeader maxWidth={getMaxWidth()}>
+    <CardHeader mb={-5}>
       <Accordion allowMultiple>
         {!isPublicView && (
           <AccordionItem border="none">
             <Flex>
               <Heading size="md">{heading}</Heading>
               <Spacer />
-              <AccordionButton w="150px">
-                <Box as="span" flex="1" textAlign="left">
-                  Download
-                </Box>
-                <AccordionIcon />
+              <AccordionButton w="auto" aria-label="Download options">
+                <DownloadIcon boxSize={5} />
               </AccordionButton>
             </Flex>
             <AccordionPanel>

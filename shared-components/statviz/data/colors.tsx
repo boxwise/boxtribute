@@ -1,44 +1,55 @@
 import type { NonNullProductGender } from "../../../graphql/types";
 
-export const genderColors: Record<NonNullProductGender, string> = {
-  Men: "#f3de02",
-  Women: "#375591",
-  Girl: "#375591",
-  Boy: "#f3de02",
-  UnisexKid: "#4dd75a",
-  UnisexBaby: "#c2217d",
-  UnisexAdult: "#c2217d",
-  TeenGirl: "#375591",
-  TeenBoy: "#f3de02",
-  BabyGirl: "#c2217d",
-  BabyBoy: "#4dd75a",
-  none: "#6d6e6d",
+export const PRODUCT_GENDER_COLORS: Record<NonNullProductGender, string> = {
+  Men: "#5f91c4",
+  Women: "#dc4f51",
+  Girl: "#962828",
+  Boy: "#82a8c3",
+  UnisexKid: "#a0aec0",
+  UnisexBaby: "#c5cdd8",
+  UnisexAdult: "#697f9b",
+  TeenGirl: "#6e1919",
+  TeenBoy: "#234d76",
+  BabyGirl: "#f58c8c",
+  BabyBoy: "#c8d6e4",
+  none: "#49596e",
 };
 
-export const getSizeColors = {
-  XS: "",
-  S: "",
-  M: "",
-  L: "",
-  XL: "",
-  "42 and bigger": "",
-  "46 and bigger": "",
-  "38 and smaller": "",
-  "One size": "",
-  Mixed: "",
-  Kids: "",
-  "0-6 months": "",
-  "7-24 months": "",
-  "2-5 years": "",
-  "6-10 years": "",
-  "11-15 years": "",
-  Singlepack: "",
-  Multipack: "",
-  default: "", // for uncommon sizes
+export const HUMAN_GENDER_COLORS: Record<string, string> = {
+  Male: "#5f91c4",
+  Female: "#dc4f51",
+  Diverse: "#a0aec0",
+  Unknown: "#b0b0b0",
 };
 
-export const calculateNumberSizeColor = () => {};
+export const AGE_GROUP_COLORS: Record<string, string> = {
+  "0-7": "#c8d6e4",
+  "8-15": "#a0aec0",
+  "16-25": "#234d76",
+  "26-40": "#5f91c4",
+  "41-65": "#f58c8c",
+  "66+": "#dc4f51",
+  Unknown: "#962828",
+};
 
-export const getProductColors = {};
+export const CALENDAR_COLORS: string[] = [
+  "#a0aec0",
+  "#c8d6e4",
+  "#5f91c4",
+  "#234d76",
+  "#f58c8c",
+  "#dc4f51",
+];
 
-export const getCategoryColors = {};
+export const SHIPMENT_PARTNER_COLORS: string[] = [...new Set(Object.values(PRODUCT_GENDER_COLORS))];
+
+export const SHIPMENT_NODE_COLORS: string[] = [
+  "#49596e",
+  "#a0aec0",
+  "#697f9b",
+  "#c8d6e4",
+  "#82a8c3",
+  "#5f91c4",
+  "#326395",
+  "#234d76",
+];

@@ -126,6 +126,13 @@ enum ShareableView {
   StockOverview
 }
 
+enum BeneficiaryReachType {
+  CreatedOrEdited
+  TagApplied
+  ServiceUsed
+  Checkout
+}
+
 """
 TODO: Add description here once specs are final/confirmed
 """
@@ -162,8 +169,8 @@ interface DataCube {
   dimensions: Dimensions
 }
 
-union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult
-union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions
+union Result = BeneficiaryDemographicsResult | CreatedBoxesResult | TopProductsCheckedOutResult | TopProductsDonatedResult | MovedBoxesResult | StockOverviewResult | BeneficiaryReachResult
+union Dimensions = BeneficiaryDemographicsDimensions | CreatedBoxDataDimensions | TopProductsDimensions | MovedBoxDataDimensions | StockOverviewDataDimensions | BeneficiaryReachDimensions
 
 type BeneficiaryDemographicsData implements DataCube {
   facts: [BeneficiaryDemographicsResult]
@@ -181,6 +188,30 @@ type BeneficiaryDemographicsResult {
   deletedOn: Date
   tagIds: [Int!]
   count: Int
+}
+
+type BeneficiaryReachData implements DataCube {
+  facts: [BeneficiaryReachResult!]!
+  dimensions: BeneficiaryReachDimensions!
+}
+
+type BeneficiaryReachResult {
+  reachedOn: Date!
+  beneficiaryId: Int!
+  reachType: BeneficiaryReachType
+  count: Int!
+}
+
+type BeneficiaryReachDimensions {
+  beneficiary: [BeneficiaryDimensionInfo!]
+  tag: [TagDimensionInfo!]
+}
+
+type BeneficiaryDimensionInfo {
+  id: Int!
+  age: Int
+  tagIds: [Int!]
+  gender: HumanGender!
 }
 
 type CreatedBoxesData implements DataCube {
@@ -343,6 +374,8 @@ type TargetDimensionInfo {
 input BoxCreationInput {
   productId: Int!
   sizeId: Int
+  weight: Float
+  monetaryValue: Float
   displayUnitId: Int
   measureValue: Float
   numberOfItems: Int
@@ -358,6 +391,8 @@ input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
+  weight: Float
+  monetaryValue: Float
   displayUnitId: Int
   measureValue: Float
   numberOfItems: Int
@@ -368,6 +403,12 @@ input BoxUpdateInput {
   tagIds: [Int!]
   " Names of new tags to be created on-the-fly "
   newTagNames: [String!]
+}
+
+input MarkedForShipmentBoxUpdateInput {
+  labelIdentifier: String!
+  weight: Float
+  monetaryValue: Float
 }
 
 input BoxFromBoxCreationInput {
@@ -600,6 +641,7 @@ type Mutation {
   createBox(creationInput: BoxCreationInput): Box
   " Update one or more properties of a box with specified label identifier. "
   updateBox(updateInput: BoxUpdateInput): Box
+  updateMarkedForShipmentBox(updateInput: MarkedForShipmentBoxUpdateInput): Box
   " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
   " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
@@ -803,6 +845,7 @@ type Query {
   metrics(organisationId: ID): Metrics
 
   beneficiaryDemographics(baseId: Int!): BeneficiaryDemographicsData
+  beneficiaryReach(baseId: Int!): BeneficiaryReachData
   createdBoxes(baseId: Int!): CreatedBoxesData
   topProductsCheckedOut(baseId: Int!): TopProductsCheckedOutData
   topProductsDonated(baseId: Int!): TopProductsDonatedData
@@ -852,6 +895,10 @@ type Box implements ItemsCollection {
   product: Product
   " If the box holds a 'measure' product (i.e. classified by a package measure like 500gr), its size is null "
   size: Size
+  weight: Float
+  weightDisplayUnit: Unit
+  " Determined by Base.monetaryCurrencyCode "
+  monetaryValue: Float
   " Information about the unit that the measure shall be displayed in. If the box holds a product with size (e.g. clothing), its unit is null "
   displayUnit: Unit
   " The value of the measure, expressed in ``unit``. If the box holds a product with size (e.g. clothing), its measure value is null "
@@ -1105,7 +1152,10 @@ type Base {
   deletedOn: Datetime
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
-  currencyName: String
+  " ISO 4217 currency code for monetary value of e.g. boxes "
+  monetaryCurrencyCode: String!
+  " Currency for FreeShop distributions "
+  freeshopCurrencyName: String
   " List of all non-deleted [`ClassicLocations`]({{Types.ClassicLocation}}) present in this base "
   locations: [ClassicLocation!]!
   " List of all non-deleted [`Products`]({{Types.Product}}) registered in this base "

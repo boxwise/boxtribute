@@ -21,6 +21,11 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
       box(labelIdentifier: $labelIdentifier) {
         labelIdentifier
         numberOfItems
+        monetaryValue
+        weight
+        weightDisplayUnit {
+          symbol
+        }
         comment
         product {
           id
@@ -35,6 +40,9 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
         location {
           id
           name
+          base {
+            monetaryCurrencyCode
+          }
         }
         tags {
           ...TagOptions
@@ -43,6 +51,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY = graphq
 
       base(id: $baseId) {
         id
+        monetaryCurrencyCode
         tags(resourceType: Box) {
           ...TagOptions
         }
@@ -67,6 +76,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = graphql(`
     $locationId: Int!
     $numberOfItems: Int!
     $sizeId: Int!
+    $weight: Float
+    $monetaryValue: Float
     $comment: String
     $tagIds: [Int!]
     $newTagNames: [String!]
@@ -78,6 +89,8 @@ export const UPDATE_CONTENT_OF_BOX_MUTATION = graphql(`
         numberOfItems: $numberOfItems
         sizeId: $sizeId
         locationId: $locationId
+        weight: $weight
+        monetaryValue: $monetaryValue
         comment: $comment
         tagIds: $tagIds
         newTagNames: $newTagNames
@@ -140,6 +153,8 @@ function BoxEditView() {
         locationId: parseInt(boxEditFormData.locationId.value, 10),
         tagIds,
         newTagNames,
+        weight: boxEditFormData.weight,
+        monetaryValue: boxEditFormData.monetaryValue,
         comment: boxEditFormData?.comment,
       },
     })

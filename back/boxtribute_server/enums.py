@@ -134,6 +134,13 @@ class TargetType(enum.IntEnum):
     BoxState = enum.auto()
 
 
+class BeneficiaryReachType(enum.IntEnum):
+    CreatedOrEdited = 1
+    TagApplied = enum.auto()
+    ServiceUsed = enum.auto()
+    Checkout = enum.auto()
+
+
 class ProductTypeFilter(enum.Enum):
     Custom = "Custom"
     StandardInstantiation = "StandardInstantiation"

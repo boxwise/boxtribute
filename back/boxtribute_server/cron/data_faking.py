@@ -809,6 +809,16 @@ class Generator:
                     product=product,
                     location=self.fake.random_element(in_stock_locations),
                     size_id=size_id,
+                    weight=(
+                        self.fake.random_int(min=1, max=100)
+                        if self.fake.boolean(20)
+                        else None
+                    ),
+                    monetary_value=(
+                        self.fake.random_int(min=1, max=100)
+                        if self.fake.boolean(20)
+                        else None
+                    ),
                     display_unit_id=display_unit_id,
                     measure_value=measure_value,
                     number_of_items=self.fake.random_int(max=999),
@@ -854,6 +864,18 @@ class Generator:
                 update_box(
                     label_identifier=box.label_identifier,
                     number_of_items=self.fake.random_int(max=999),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=50):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    weight=self.fake.random_int(min=1, max=100),
+                    user_id=self._user_id(b),
+                )
+            for box in self.fake.random_elements(boxes, length=50):
+                update_box(
+                    label_identifier=box.label_identifier,
+                    monetary_value=self.fake.random_int(min=1, max=999),
                     user_id=self._user_id(b),
                 )
             for box in self.fake.random_elements(boxes, length=50):

@@ -2,6 +2,8 @@
 input BoxCreationInput {
   productId: Int!
   sizeId: Int
+  weight: Float
+  monetaryValue: Float
   displayUnitId: Int
   measureValue: Float
   numberOfItems: Int
@@ -17,6 +19,8 @@ input BoxUpdateInput {
   labelIdentifier: String!
   productId: Int
   sizeId: Int
+  weight: Float
+  monetaryValue: Float
   displayUnitId: Int
   measureValue: Float
   numberOfItems: Int
@@ -27,6 +31,12 @@ input BoxUpdateInput {
   tagIds: [Int!]
   " Names of new tags to be created on-the-fly "
   newTagNames: [String!]
+}
+
+input MarkedForShipmentBoxUpdateInput {
+  labelIdentifier: String!
+  weight: Float
+  monetaryValue: Float
 }
 
 input BoxFromBoxCreationInput {

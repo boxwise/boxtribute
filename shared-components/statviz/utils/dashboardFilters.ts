@@ -1,6 +1,6 @@
 import { date2String } from "../../utils/helpers";
-import { subMonths, subYears } from "date-fns";
-import { ProductGender } from "../../../graphql/types";
+import { subYears } from "date-fns";
+import type { ProductGender, TagType } from "../../../graphql/types";
 import type { IFilterValue } from "../components/filter/ValueFilter";
 
 // ---------------------------------------------------------------------------
@@ -33,6 +33,7 @@ export interface ITagOption {
   /** Same as label; populated when created from backend data. */
   name?: string;
   color: string;
+  type?: TagType;
   /** = String(id) — required by chakra-react-select */
   value: string;
   /** = name — required by react-select for display */
@@ -64,7 +65,9 @@ export interface MovementAppliedFilters {
   excludedTags: ITagOption[];
 }
 
-export interface DemographicsAppliedFilters {
+export type MovementDirection = "out" | "in";
+
+export interface BeneficiaryAppliedFilters {
   /** e.g. ["0-7", "8-15"] */
   ageRanges: string[];
   /** HumanGender values: "Male", "Female", "Diverse" */
@@ -79,7 +82,7 @@ export interface CalendarAppliedFilters {
 }
 
 // ---------------------------------------------------------------------------
-// Age range definitions for demographics filter
+// Age range definitions for beneficiary filter
 // ---------------------------------------------------------------------------
 
 export interface IAgeRange {
@@ -120,9 +123,10 @@ export const MOVEMENT_URL_PARAMS = {
   includedTags: "mt",
   excludedTags: "mnt",
   boxesOrItems: "mboi",
+  direction: "mdir",
 } as const;
 
-export const DEMOGRAPHICS_URL_PARAMS = {
+export const BENEFICIARY_URL_PARAMS = {
   ageRanges: "ba",
   genders: "bg",
   includedTags: "bt",
@@ -132,6 +136,11 @@ export const DEMOGRAPHICS_URL_PARAMS = {
 export const CALENDAR_URL_PARAMS = {
   dateFrom: "cd1",
   dateTo: "cd2",
+} as const;
+
+export const BENE_REACH_URL_PARAMS = {
+  dateFrom: "br1",
+  dateTo: "br2",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -147,7 +156,7 @@ export const DEFAULT_STOCK_FILTERS: StockAppliedFilters = {
   excludedTags: [],
 };
 
-export const DEFAULT_DEMOGRAPHICS_FILTERS: DemographicsAppliedFilters = {
+export const DEFAULT_BENEFICIARY_FILTERS: BeneficiaryAppliedFilters = {
   ageRanges: [],
   genders: [],
   includedTags: [],
@@ -156,7 +165,7 @@ export const DEFAULT_DEMOGRAPHICS_FILTERS: DemographicsAppliedFilters = {
 
 export function defaultMovementFilters(): MovementAppliedFilters {
   return {
-    dateFrom: date2String(subMonths(new Date(), 3)),
+    dateFrom: date2String(subYears(new Date(), 1)),
     dateTo: date2String(new Date()),
     products: [],
     genders: [],
@@ -294,19 +303,19 @@ export function readMovementFiltersFromUrl(
   };
 }
 
-export function readDemographicsFiltersFromUrl(
+export function readBeneficiaryFiltersFromUrl(
   searchParams: URLSearchParams,
   allTags: ITagOption[],
-): DemographicsAppliedFilters {
+): BeneficiaryAppliedFilters {
   return {
-    ageRanges: parseValuesParam(searchParams.get(DEMOGRAPHICS_URL_PARAMS.ageRanges)),
-    genders: parseValuesParam(searchParams.get(DEMOGRAPHICS_URL_PARAMS.genders)),
+    ageRanges: parseValuesParam(searchParams.get(BENEFICIARY_URL_PARAMS.ageRanges)),
+    genders: parseValuesParam(searchParams.get(BENEFICIARY_URL_PARAMS.genders)),
     includedTags: resolveTagIds(
-      parseIdsParam(searchParams.get(DEMOGRAPHICS_URL_PARAMS.includedTags)),
+      parseIdsParam(searchParams.get(BENEFICIARY_URL_PARAMS.includedTags)),
       allTags,
     ),
     excludedTags: resolveTagIds(
-      parseIdsParam(searchParams.get(DEMOGRAPHICS_URL_PARAMS.excludedTags)),
+      parseIdsParam(searchParams.get(BENEFICIARY_URL_PARAMS.excludedTags)),
       allTags,
     ),
   };
@@ -374,20 +383,20 @@ export function writeMovementFiltersToUrl(
   );
 }
 
-export function writeDemographicsFiltersToUrl(
-  filters: DemographicsAppliedFilters,
+export function writeBeneficiaryFiltersToUrl(
+  filters: BeneficiaryAppliedFilters,
   params: URLSearchParams,
 ): void {
-  setOrDelete(params, DEMOGRAPHICS_URL_PARAMS.ageRanges, serializeValues(filters.ageRanges));
-  setOrDelete(params, DEMOGRAPHICS_URL_PARAMS.genders, serializeValues(filters.genders));
+  setOrDelete(params, BENEFICIARY_URL_PARAMS.ageRanges, serializeValues(filters.ageRanges));
+  setOrDelete(params, BENEFICIARY_URL_PARAMS.genders, serializeValues(filters.genders));
   setOrDelete(
     params,
-    DEMOGRAPHICS_URL_PARAMS.includedTags,
+    BENEFICIARY_URL_PARAMS.includedTags,
     serializeIds(filters.includedTags.map((t) => t.id)),
   );
   setOrDelete(
     params,
-    DEMOGRAPHICS_URL_PARAMS.excludedTags,
+    BENEFICIARY_URL_PARAMS.excludedTags,
     serializeIds(filters.excludedTags.map((t) => t.id)),
   );
 }
@@ -400,12 +409,28 @@ export function readCalendarFiltersFromUrl(searchParams: URLSearchParams): Calen
   };
 }
 
+export function readBeneReachFiltersFromUrl(searchParams: URLSearchParams): CalendarAppliedFilters {
+  const defaults = defaultCalendarFilters();
+  return {
+    dateFrom: searchParams.get(BENE_REACH_URL_PARAMS.dateFrom) ?? defaults.dateFrom,
+    dateTo: searchParams.get(BENE_REACH_URL_PARAMS.dateTo) ?? defaults.dateTo,
+  };
+}
+
 export function writeCalendarFiltersToUrl(
   filters: CalendarAppliedFilters,
   params: URLSearchParams,
 ): void {
   setOrDelete(params, CALENDAR_URL_PARAMS.dateFrom, filters.dateFrom || undefined);
   setOrDelete(params, CALENDAR_URL_PARAMS.dateTo, filters.dateTo || undefined);
+}
+
+export function writeBeneReachFiltersToUrl(
+  filters: CalendarAppliedFilters,
+  params: URLSearchParams,
+): void {
+  setOrDelete(params, BENE_REACH_URL_PARAMS.dateFrom, filters.dateFrom || undefined);
+  setOrDelete(params, BENE_REACH_URL_PARAMS.dateTo, filters.dateTo || undefined);
 }
 
 export function toFilterValues(items: { id: number; name: string }[]): IFilterValue[] {
@@ -423,3 +448,5 @@ export function toProductFilterValues(products: IProductOption[]): IFilterValue[
     urlId: String(p.id),
   }));
 }
+
+export type BoxesOrItemsCount = "boxesCount" | "itemsCount";

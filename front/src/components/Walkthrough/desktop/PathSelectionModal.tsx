@@ -65,12 +65,23 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
           <Button size="sm" variant="ghost" isDisabled cursor="default">
             Completed!
           </Button>
-          <Button size="sm" variant="outline" colorScheme="gray" onClick={() => onReplay(path.id)}>
+          <Button
+            id={`desktop-walkthrough-${path.id}-replay`}
+            size="sm"
+            variant="outline"
+            colorScheme="gray"
+            onClick={() => onReplay(path.id)}
+          >
             Replay
           </Button>
         </Flex>
       ) : (
-        <Button colorScheme="blue" size="sm" onClick={() => onExplore(path.id)}>
+        <Button
+          id={`desktop-walkthrough-${path.id}-explore`}
+          colorScheme="blue"
+          size="sm"
+          onClick={() => onExplore(path.id)}
+        >
           Explore
         </Button>
       )}

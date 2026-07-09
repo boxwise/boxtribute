@@ -1,4 +1,5 @@
 import type { Filters } from "react-table";
+import { currencySymbol } from "./currencySymbol";
 
 export function removeFilter<TRow extends object>(
   filterId: string,
@@ -110,3 +111,15 @@ export const formatTime = (date: Date | string): string => {
 
   return "";
 };
+
+const numberFormatter = new Intl.NumberFormat("en-GB", {
+  maximumFractionDigits: 2,
+});
+
+export const formatWeight = (weight: number | null, unit: string | null) =>
+  weight == null ? "" : `${numberFormatter.format(weight)} ${unit ?? ""}`.trim();
+
+export const formatMonetaryValue = (monetaryValue: number | null, currency: string | null) =>
+  monetaryValue == null
+    ? ""
+    : `${currencySymbol(currency)}${numberFormatter.format(monetaryValue)}`;

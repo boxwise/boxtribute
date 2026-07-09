@@ -37,6 +37,7 @@ function FinalScreen() {
         </Text>
 
         <Button
+          id="mobile-walkthrough-close"
           bg="black"
           color="white"
           _hover={{ bg: "gray.800" }}
@@ -49,6 +50,7 @@ function FinalScreen() {
         </Button>
 
         <Button
+          id="mobile-walkthrough-replay"
           variant="ghost"
           w="full"
           bg="white"

@@ -2,7 +2,7 @@ import { Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
-import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
+import { BoxesOrItemsCount } from "../../../utils/dashboardFilters";
 import PieChart from "../../nivo/PieChart";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
@@ -101,11 +101,7 @@ export default function StockOverviewRing({
 
   const total = useMemo(() => chartData.reduce((acc, d) => acc + d.value, 0), [chartData]);
 
-  const groupLabel = groupingOption.label;
-  const heading =
-    boxesOrItems === "boxesCount"
-      ? `Instock Boxes by ${groupLabel}`
-      : `Instock Items by ${groupLabel}`;
+  const heading = boxesOrItems === "boxesCount" ? "Instock Boxes" : "Instock Items";
 
   const centerData = {
     level: total,
@@ -126,7 +122,6 @@ export default function StockOverviewRing({
         defaultWidth={500}
         heading={heading}
         chartProps={chartProps}
-        maxWidthPx={600}
         customIncludes={[{ prop: { centerData }, value: "include center data" }]}
         view="StockOverview"
       />

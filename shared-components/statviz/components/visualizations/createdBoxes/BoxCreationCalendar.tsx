@@ -1,15 +1,15 @@
-import { Card, CardBody, HStack, Input, Text } from "@chakra-ui/react";
+import { Card, CardBody, Input, Wrap, Text } from "@chakra-ui/react";
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { groupBy, sum, summarize, tidy, map } from "@tidyjs/tidy";
 import { format, parseISO } from "date-fns";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
-import { BoxesOrItemsCount } from "../../../dashboard/ItemsAndBoxes";
 import CalendarChart from "../../nivo/CalendarChart";
 import VisHeader from "../../VisHeader";
 import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
 import {
+  BoxesOrItemsCount,
   readCalendarFiltersFromUrl,
   writeCalendarFiltersToUrl,
 } from "../../../utils/dashboardFilters";
@@ -85,7 +85,6 @@ export default function BoxCreationCalendar({
   return (
     <Card>
       <VisHeader
-        maxWidthPx={width}
         heading={heading}
         onExport={onExport}
         defaultHeight={200}
@@ -93,7 +92,7 @@ export default function BoxCreationCalendar({
         chartProps={chartProps}
       />
       <CardBody>
-        <HStack mb={4} spacing={2} align="center">
+        <Wrap mb={4} spacing={2} align="center">
           <Text>
             <strong>From</strong>
           </Text>
@@ -117,7 +116,7 @@ export default function BoxCreationCalendar({
             onChange={handleToChange}
             width="auto"
           />
-        </HStack>
+        </Wrap>
         <CalendarChart {...chartProps} />
       </CardBody>
     </Card>

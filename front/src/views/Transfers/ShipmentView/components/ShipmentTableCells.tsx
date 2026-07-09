@@ -1,6 +1,9 @@
-import { VStack } from "@chakra-ui/react";
+import { Box, Button, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import { useEffect, useRef, useState } from "react";
 import { AiFillMinusCircle } from "react-icons/ai";
 import { Row } from "react-table";
+import { formatWeight, formatMonetaryValue } from "utils/helpers";
+import { currencySymbol } from "utils/currencySymbol";
 
 interface IRemoveBoxCellProps {
   row: Row<any>;
@@ -20,5 +23,213 @@ export function RemoveBoxCell({ row, onRemoveIconClick, isLoadingMutation }: IRe
         style={{ cursor: "pointer", color: "red", fill: "red" }}
       />
     </VStack>
+  );
+}
+
+function isValidNonNegativeFloat(value: string): boolean {
+  if (value.trim() === "") return false;
+  const num = parseFloat(value);
+  return !isNaN(num) && num >= 0;
+}
+
+interface IWeightCellProps {
+  row: Row<any>;
+  onSave: (labelIdentifier: string, weight: number) => void;
+  canEdit: boolean;
+}
+
+export function WeightCell({ row, onSave, canEdit }: IWeightCellProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const weight: number | null = row.original.weight;
+  const weightUnit: string | null = row.original.weightUnit;
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setInputValue("");
+  };
+
+  if (!canEdit) {
+    return <Text fontSize="sm">{formatWeight(weight, weightUnit)}</Text>;
+  }
+
+  if (isEditing) {
+    const isValid = isValidNonNegativeFloat(inputValue);
+    return (
+      <HStack
+        spacing={1}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            cancelEditing();
+          }
+        }}
+      >
+        <Input
+          ref={inputRef}
+          size="sm"
+          width="70px"
+          bg="white"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="0.0"
+        />
+        {weightUnit && <Text fontSize="sm">{weightUnit}</Text>}
+        <Button
+          size="sm"
+          colorScheme="blue"
+          isDisabled={!isValid}
+          onClick={() => {
+            if (isValid) {
+              onSave(row.original.labelIdentifier, parseFloat(inputValue));
+              setIsEditing(false);
+              setInputValue("");
+            }
+          }}
+        >
+          Save
+        </Button>
+      </HStack>
+    );
+  }
+
+  if (weight == null) {
+    return (
+      <Box
+        bg="red.50"
+        cursor="pointer"
+        px={1}
+        onClick={() => {
+          setInputValue("");
+          setIsEditing(true);
+        }}
+      >
+        <Text fontWeight="bold" color="red.500">
+          -
+        </Text>
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      as="button"
+      type="button"
+      cursor="pointer"
+      onClick={() => {
+        setInputValue(String(weight));
+        setIsEditing(true);
+      }}
+    >
+      <Text fontSize="sm">{formatWeight(weight, weightUnit)}</Text>
+    </Box>
+  );
+}
+
+interface IMonetaryValueCellProps {
+  row: Row<any>;
+  onSave: (labelIdentifier: string, monetaryValue: number) => void;
+  canEdit: boolean;
+  currency: string | null;
+}
+
+export function MonetaryValueCell({ row, onSave, canEdit, currency }: IMonetaryValueCellProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const monetaryValue: number | null = row.original.monetaryValue;
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setInputValue("");
+  };
+
+  if (!canEdit) {
+    return <Text fontSize="sm">{formatMonetaryValue(monetaryValue, currency)}</Text>;
+  }
+
+  if (isEditing) {
+    const isValid = isValidNonNegativeFloat(inputValue);
+    return (
+      <HStack
+        spacing={1}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            cancelEditing();
+          }
+        }}
+      >
+        <Text fontSize="sm">{currencySymbol(currency)}</Text>
+        <Input
+          ref={inputRef}
+          size="sm"
+          width="70px"
+          bg="white"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="0.0"
+        />
+        <Button
+          size="sm"
+          colorScheme="blue"
+          isDisabled={!isValid}
+          onClick={() => {
+            if (isValid) {
+              onSave(row.original.labelIdentifier, parseFloat(inputValue));
+              setIsEditing(false);
+              setInputValue("");
+            }
+          }}
+        >
+          Save
+        </Button>
+      </HStack>
+    );
+  }
+
+  if (monetaryValue == null) {
+    return (
+      <Box
+        bg="red.50"
+        cursor="pointer"
+        px={1}
+        onClick={() => {
+          setInputValue("");
+          setIsEditing(true);
+        }}
+      >
+        <Text fontWeight="bold" color="red.500">
+          -
+        </Text>
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      as="button"
+      type="button"
+      cursor="pointer"
+      onClick={() => {
+        setInputValue(String(monetaryValue));
+        setIsEditing(true);
+      }}
+    >
+      <Text fontSize="sm">{formatMonetaryValue(monetaryValue, currency)}</Text>
+    </Box>
   );
 }

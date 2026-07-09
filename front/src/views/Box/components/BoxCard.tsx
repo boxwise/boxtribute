@@ -25,11 +25,12 @@ import {
 } from "@chakra-ui/react";
 import { MdHistory } from "react-icons/md";
 import { NavLink } from "react-router-dom";
-import { colorIsBright } from "utils/helpers";
+import { colorIsBright, formatWeight, formatMonetaryValue } from "utils/helpers";
 import { Style } from "victory";
 import HistoryEntries from "./HistoryEntries";
 import { BoxByLabelIdentifier } from "queries/types";
 import { RiQrCodeLine } from "react-icons/ri";
+import { useAuthorization } from "hooks/useAuthorization";
 
 export interface IBoxCardProps {
   boxData: BoxByLabelIdentifier;
@@ -60,6 +61,8 @@ function BoxCard({
     return color;
   };
 
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const hasTag = !!boxData?.tags?.length;
 
   const product =
@@ -214,6 +217,31 @@ function BoxCard({
               <Flex direction="row">
                 <Text fontWeight="bold">
                   Gender: <b>{product?.gender}</b>
+                </Text>
+              </Flex>
+            </ListItem>
+          )}
+          {showWeightAndValue && boxData?.weight != null && (
+            <ListItem>
+              <Flex direction="row">
+                <Text fontWeight="bold">
+                  Weight:{" "}
+                  <b>{formatWeight(boxData.weight, boxData.weightDisplayUnit?.symbol ?? null)}</b>
+                </Text>
+              </Flex>
+            </ListItem>
+          )}
+          {showWeightAndValue && boxData?.monetaryValue != null && (
+            <ListItem>
+              <Flex direction="row">
+                <Text fontWeight="bold">
+                  Value:{" "}
+                  <b>
+                    {formatMonetaryValue(
+                      boxData.monetaryValue,
+                      boxData.location?.base?.monetaryCurrencyCode ?? null,
+                    )}
+                  </b>
                 </Text>
               </Flex>
             </ListItem>

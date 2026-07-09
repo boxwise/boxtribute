@@ -6,6 +6,8 @@ from boxtribute_server.models.definitions.beneficiary import Beneficiary
 
 from .base import data as base_data
 
+today = datetime.today()
+
 
 def default_beneficiary_data():
     return {
@@ -100,7 +102,9 @@ def another_male_beneficiary_data():
         "last_name": "Body",
         "base": base_data()[0]["id"],
         "date_of_birth": date(1995, 5, 5),
-        "created_on": (datetime.today().replace(day=1) - timedelta(days=1)),
+        "created_on": (
+            today.replace(day=1, hour=0, minute=0, microsecond=0) - timedelta(days=1)
+        ),
         "created_by": None,
         "family_id": 10,
         "family_head": None,

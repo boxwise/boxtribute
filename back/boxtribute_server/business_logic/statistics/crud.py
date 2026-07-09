@@ -2,13 +2,13 @@ import hashlib
 import random
 import string
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from peewee import JOIN, SQL, fn
 
 from ...db import execute_sql
-from ...enums import BoxState, TaggableObjectType, TargetType
+from ...enums import BeneficiaryReachType, BoxState, TaggableObjectType, TargetType
 from ...errors import InvalidDate
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
@@ -27,7 +27,7 @@ from ...models.definitions.transaction import Transaction
 from ...models.utils import compute_age, convert_ids, utcnow
 from ...utils import in_ci_environment, in_production_environment
 from ..metrics.crud import exclude_test_organisation
-from .sql import MOVED_BOXES_QUERY, STOCK_OVERVIEW_QUERY
+from .sql import BENEFICIARIES_REACHED_QUERY, MOVED_BOXES_QUERY, STOCK_OVERVIEW_QUERY
 
 
 @dataclass(kw_only=True)
@@ -89,6 +89,32 @@ def _generate_dimensions(*names, facts):
         dimensions["location"] = (
             Location.select(Location.id, Location.name)
             .where(Location.id << location_ids)
+            .dicts()
+        )
+
+    if "beneficiary" in names:
+        beneficiary_ids = {f["beneficiary_id"] for f in facts}
+        age = fn.IF(
+            Beneficiary.date_of_birth > 0, compute_age(Beneficiary.date_of_birth), None
+        )
+        dimensions["beneficiary"] = (
+            Beneficiary.select(
+                Beneficiary.id,
+                age.alias("age"),
+                Beneficiary.gender,
+                fn.GROUP_CONCAT(TagsRelation.tag.distinct()).alias("tag_ids"),
+            )
+            .left_outer_join(
+                TagsRelation,
+                on=(
+                    (TagsRelation.object_id == Beneficiary.id)
+                    & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                    & (TagsRelation.deleted_on.is_null())
+                ),
+            )
+            .where(Beneficiary.id << beneficiary_ids)
+            .group_by(Beneficiary.id)
+            .order_by(Beneficiary.id)
             .dicts()
         )
 
@@ -178,6 +204,31 @@ def compute_beneficiary_demographics(base_id):
     return DataCube(
         facts=facts, dimensions=dimensions, type="BeneficiaryDemographicsData"
     )
+
+
+def compute_beneficiary_reach(base_id):
+    """Obtain data about beneficiary interactions (categorized by BeneficiaryReachType).
+    Related to the reachedBeneficiariesNumbers metric which is an aggregated form of
+    this data.
+    """
+    _validate_existing_base(base_id)
+    min_date = datetime(2019, 1, 1)
+    if in_production_environment():  # pragma: no cover
+        # Data from max. 2y ago
+        min_date = utcnow() - timedelta(weeks=104)
+    params = [base_id, min_date] * 5
+    facts = execute_sql(*params, query=BENEFICIARIES_REACHED_QUERY)
+    for fact in facts:
+        fact["reach_type"] = BeneficiaryReachType[fact["reach_type"]]
+
+    dimensions = _generate_dimensions("beneficiary", facts=facts)
+    beneficiary_dimensions = list(dimensions["beneficiary"])
+    for b in beneficiary_dimensions:
+        b["tag_ids"] = sorted(convert_ids(b["tag_ids"]))
+    dimensions["beneficiary"] = beneficiary_dimensions
+    dimensions.update(_generate_dimensions("tag", facts=beneficiary_dimensions))
+
+    return DataCube(facts=facts, dimensions=dimensions, type="BeneficiaryReachData")
 
 
 def compute_created_boxes(base_id):

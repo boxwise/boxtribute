@@ -28,7 +28,7 @@ function Layout() {
         <Container m="inherit" p="inherit" maxWidth="inherit">
           <Flex direction="row" height="100vh">
             <HeaderMenuContainer />
-            <Box flex={1} mt={8} mx={4} overflowX="auto">
+            <Box id="desktop-page-container" flex={1} mt={8} mx={4} overflowX="auto">
               <Outlet />
             </Box>
           </Flex>
@@ -42,7 +42,7 @@ function Layout() {
       <Container maxWidth="container.xl">
         <Flex direction="column" height="100vh">
           <HeaderMenuContainer />
-          <Box flex={1} minHeight="0">
+          <Box id="mobile-page-container" flex={1} minHeight="0">
             <Outlet />
           </Box>
         </Flex>
