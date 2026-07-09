@@ -105,7 +105,7 @@ function MenuDesktop({ menuItemsGroups }: IHeaderMenuProps) {
               <MenuIcon icon="Account" /> Account
             </AccordionButton>
           </AccordionItem>
-          <AccordionItem>
+          <AccordionItem id="desktop-walkthrough-open">
             <AccordionButton gap={3} color="red.500" onClick={goToPathSelection}>
               <MenuIcon icon="Open walkthrough" /> Open walkthrough
             </AccordionButton>
