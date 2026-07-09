@@ -64,6 +64,7 @@ function InstructionScreen() {
       {/* Skip button top-right */}
       <Flex justifyContent="flex-end" px={4} pt={4} pb={2}>
         <Button
+          id="mobile-walkthrough-skip"
           variant="ghost"
           size="md"
           onClick={closeWalkthrough}
@@ -98,6 +99,7 @@ function InstructionScreen() {
 
       <Flex px={4} pb={8} pt={2} justifyContent="space-between">
         <Button
+          id={`mobile-walkthrough-prev-on-${slideIndex}`}
           leftIcon={<ArrowBackIcon boxSize={6} />}
           colorScheme="blue"
           onClick={prev}
@@ -107,6 +109,7 @@ function InstructionScreen() {
           px={6}
         />
         <Button
+          id={`mobile-walkthrough-next-on-${slideIndex}`}
           rightIcon={<ArrowForwardIcon boxSize={6} />}
           colorScheme="blue"
           onClick={next}

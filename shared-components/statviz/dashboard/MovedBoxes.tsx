@@ -157,7 +157,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <AccordionItem>
+    <AccordionItem id="dashboard-section-movement">
       <AccordionButton padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Movement History</Heading>

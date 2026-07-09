@@ -44,7 +44,11 @@ function WelcomeModal() {
           </Text>
         </ModalBody>
         <ModalFooter justifyContent="center" pb={8}>
-          <Button colorScheme="blue" onClick={goToPathSelection}>
+          <Button
+            id="desktop-walkthrough-welcome-start"
+            colorScheme="blue"
+            onClick={goToPathSelection}
+          >
             Start
           </Button>
         </ModalFooter>

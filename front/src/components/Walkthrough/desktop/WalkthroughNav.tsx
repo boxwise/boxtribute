@@ -45,6 +45,7 @@ function WalkthroughNav() {
         </Menu>
       )}
       <Button
+        id="desktop-walkthrough-skip"
         bg="black"
         color="white"
         size="sm"

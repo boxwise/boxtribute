@@ -94,7 +94,7 @@ export default function BeneficiaryOverview({ isActive, tags }: BeneficiaryOverv
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <AccordionItem>
+    <AccordionItem id="dashboard-section-beneficiaries">
       <AccordionButton padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Beneficiary Overview</Heading>
