@@ -14,7 +14,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -125,6 +125,47 @@ export const START_RECEIVING_SHIPMENT = graphql(
   [SHIPMENT_FIELDS_FRAGMENT],
 );
 
+export const UPDATE_MARKED_FOR_SHIPMENT_BOX = graphql(`
+  mutation UpdateMarkedForShipmentBox(
+    $labelIdentifier: String!
+    $weight: Float
+    $monetaryValue: Float
+  ) {
+    updateMarkedForShipmentBox(
+      updateInput: {
+        labelIdentifier: $labelIdentifier
+        weight: $weight
+        monetaryValue: $monetaryValue
+      }
+    ) {
+      labelIdentifier
+      weight
+      monetaryValue
+      weightDisplayUnit {
+        symbol
+      }
+    }
+  }
+`);
+
+interface IMissingWeightOrMonetaryValueAlertProps {
+  show: boolean;
+  onClick: () => void;
+}
+
+function MissingWeightOrMonetaryValueAlert({
+  show,
+  onClick,
+}: IMissingWeightOrMonetaryValueAlertProps) {
+  if (!show) return null;
+  return (
+    <Alert status="warning" onClick={onClick} cursor="pointer">
+      <AlertIcon />
+      Add missing box weight/value (optional)
+    </Alert>
+  );
+}
+
 function ShipmentView() {
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
@@ -139,6 +180,10 @@ function ShipmentView() {
   const [showRemoveIcon, setShowRemoveIcon] = useState(false);
   // State to pass Data from a row to the Overlay
   const [shipmentOverlayData, setShipmentOverlayData] = useState<IShipmentOverlayData>();
+  // Accordion indices to expand when the missing weight/value alert is clicked
+  const [missingValueExpandedIndices, setMissingValueExpandedIndices] = useState<
+    number[] | undefined
+  >(undefined);
   const { isLoading: isGlobalStateLoading } = useLoadAndSetGlobalPreferences();
 
   // variables in URL
@@ -165,6 +210,8 @@ function ShipmentView() {
   const [updateShipmentWhenReceiving, updateShipmentWhenReceivingStatus] = useMutation(
     UPDATE_SHIPMENT_WHEN_RECEIVING,
   );
+
+  const [updateMarkedForShipmentBox] = useMutation(UPDATE_MARKED_FOR_SHIPMENT_BOX);
 
   // shipment actions in the modal
   const handleShipment = useCallback(
@@ -334,6 +381,37 @@ function ShipmentView() {
     [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
   );
 
+  const onUpdateBox = useCallback(
+    (labelIdentifier: string, weight: number | null, monetaryValue: number | null) => {
+      updateMarkedForShipmentBox({
+        variables: {
+          labelIdentifier,
+          weight: weight ?? undefined,
+          monetaryValue: monetaryValue ?? undefined,
+        },
+      })
+        .then((mutationResult) => {
+          if (mutationResult?.errors) {
+            triggerError({
+              message: "Error: Could not update box.",
+            });
+          } else {
+            createToast({
+              title: `Box ${labelIdentifier}`,
+              type: "success",
+              message: "Successfully updated the box.",
+            });
+          }
+        })
+        .catch(() => {
+          triggerError({
+            message: "Could not update the box.",
+          });
+        });
+    },
+    [triggerError, createToast, updateMarkedForShipmentBox],
+  );
+
   const isLoadingFromMutation =
     updateShipmentWhenPreparingStatus.loading ||
     cancelShipmentStatus.loading ||
@@ -342,8 +420,56 @@ function ShipmentView() {
     updateShipmentWhenReceivingStatus.loading ||
     lostShipmentStatus.loading;
 
-  const shipmentContents = (data?.shipment?.details.filter((item) => item.removedOn === null) ??
-    []) as ShipmentDetailWithAutomatchProduct[];
+  const shipmentContents = useMemo(
+    () =>
+      (data?.shipment?.details.filter((item) => item.removedOn === null) ??
+        []) as ShipmentDetailWithAutomatchProduct[],
+    [data?.shipment?.details],
+  );
+  const shipmentDetailsForTotals = shipmentContents.filter((item) => item.lostOn === null);
+  const hasShipmentWeight = shipmentDetailsForTotals.some((item) => item.box.weight != null);
+  const estimatedShipmentWeight = hasShipmentWeight
+    ? shipmentDetailsForTotals.reduce((total, item) => total + (item.box.weight ?? 0), 0)
+    : null;
+  const shipmentWeightUnit =
+    shipmentDetailsForTotals.find((item) => item.box.weightDisplayUnit?.symbol)?.box
+      .weightDisplayUnit?.symbol ?? null;
+  const hasShipmentMonetaryValue = shipmentDetailsForTotals.some(
+    (item) => item.box.monetaryValue != null,
+  );
+  const estimatedShipmentMonetaryValue = hasShipmentMonetaryValue
+    ? shipmentDetailsForTotals.reduce((total, item) => total + (item.box.monetaryValue ?? 0), 0)
+    : null;
+  const shipmentCurrency = data?.shipment?.sourceBase.monetaryCurrencyCode ?? null;
+  const hasMissingWeightOrMonetaryValue = shipmentContents.some(
+    (item) => item.box.weight == null || item.box.monetaryValue == null,
+  );
+
+  /**
+   * Computes which accordion group indices (using the same product-gender grouping
+   * as ShipmentTabs / ShipmentContent) have at least one box with a missing weight
+   * or monetary value, then expands those groups.
+   */
+  const onMissingValueAlertClick = useCallback(() => {
+    const groups = _.values(
+      _(shipmentContents)
+        .groupBy((detail) => `${detail?.sourceProduct?.name}_${detail?.sourceProduct?.gender}`)
+        .mapValues((group) => ({
+          totalLosts: group.filter((detail) => detail?.lostOn !== null).length,
+          hasMissing: group.some(
+            (detail) => detail.box.weight == null || detail.box.monetaryValue == null,
+          ),
+        }))
+        .orderBy((value) => value.totalLosts, "asc")
+        .value(),
+    );
+
+    const indices = groups
+      .map((group, index) => (group.hasMissing ? index : -1))
+      .filter((i) => i !== -1);
+
+    setMissingValueExpandedIndices(indices);
+  }, [shipmentContents]);
 
   const changesLabel = (history: any): string => {
     let changes = "";
@@ -521,10 +647,14 @@ function ShipmentView() {
         shipmentState={data?.shipment?.state}
         details={shipmentContents}
         histories={sortedGroupedHistoryEntries}
+        currency={shipmentCurrency}
         isLoadingMutation={isLoadingFromMutation}
+        canUpdateShipment={canUpdateShipment}
         onRemoveBox={onRemoveBox}
         onBulkRemoveBox={onBulkRemoveBox}
+        onUpdateBox={onUpdateBox}
         showRemoveIcon={showRemoveIcon}
+        expandedIndices={missingValueExpandedIndices}
       />
     );
 
@@ -538,6 +668,11 @@ function ShipmentView() {
         onCancel={openShipmentOverlay}
         onLost={openShipmentOverlay}
         shipment={data?.shipment}
+        estimatedWeight={estimatedShipmentWeight}
+        estimatedMonetaryValue={estimatedShipmentMonetaryValue}
+        weightUnit={shipmentWeightUnit}
+        currency={shipmentCurrency}
+        hasMissingWeightOrMonetaryValue={hasMissingWeightOrMonetaryValue}
       />
     ) : undefined;
   }
@@ -566,6 +701,10 @@ function ShipmentView() {
           <VStack>
             {shipmentTitle}
             {shipmentCard}
+            <MissingWeightOrMonetaryValueAlert
+              show={canUpdateShipment && hasMissingWeightOrMonetaryValue}
+              onClick={onMissingValueAlertClick}
+            />
           </VStack>
         </Center>
         <Spacer />

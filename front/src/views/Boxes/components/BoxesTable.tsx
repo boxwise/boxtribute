@@ -53,7 +53,8 @@ import type { IFilterValue } from "@boxtribute/shared-components/statviz/compone
 import { FilterChips } from "./FilterChips";
 import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import { createOptions } from "utils/filterOptions";
-import { removeFilter } from "utils/helpers";
+import { removeFilter, formatWeight, formatMonetaryValue } from "utils/helpers";
+import { useAuthorization } from "hooks/useAuthorization";
 
 interface IBoxesTableProps {
   isBackgroundFetchOfBoxesLoading: boolean;
@@ -81,6 +82,8 @@ function BoxesTable({
   shipmentOptions,
 }: IBoxesTableProps) {
   const baseId = useAtomValue(selectedBaseIdAtom);
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
   const { data: rawData } = useReadQuery(boxesQueryRef);
   const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
@@ -187,6 +190,15 @@ function BoxesTable({
   );
   const boxCount = rows.length;
   const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
+  const hasWeight = rows.some((row) => row.original.weight != null);
+  const totalWeight = rows.reduce((total, row) => total + (row.original.weight ?? 0), 0);
+  const weightUnit = rows.find((row) => row.original.weightUnit)?.original.weightUnit ?? null;
+  const hasMonetaryValue = rows.some((row) => row.original.monetaryValue != null);
+  const totalMonetaryValue = rows.reduce(
+    (total, row) => total + (row.original.monetaryValue ?? 0),
+    0,
+  );
+  const currency = rows.find((row) => row.original.currency)?.original.currency ?? null;
   const selectedCount = selectedFlatRows.length;
 
   const {
@@ -360,6 +372,22 @@ function BoxesTable({
               </Text>{" "}
               items
             </Text>
+            {showWeightAndValue && hasWeight && (
+              <Text>
+                <Text as="span" fontWeight="bold">
+                  {formatWeight(totalWeight, null)}
+                </Text>{" "}
+                est. weight{weightUnit ? ` (${weightUnit})` : ""}
+              </Text>
+            )}
+            {showWeightAndValue && hasMonetaryValue && (
+              <Text>
+                <Text as="span" fontWeight="bold">
+                  {formatMonetaryValue(totalMonetaryValue, currency)}
+                </Text>{" "}
+                est. value
+              </Text>
+            )}
           </HStack>
         ) : (
           <Text>Data unavailable</Text>

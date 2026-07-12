@@ -15,6 +15,7 @@ import {
   Stack,
   Tooltip,
 } from "@chakra-ui/react";
+import { WarningIcon } from "@chakra-ui/icons";
 import { BoxIcon } from "components/Icon/Transfer/BoxIcon";
 import { ShipmentIcon } from "components/Icon/Transfer/ShipmentIcon";
 import { qrReaderOverlayVar } from "queries/cache";
@@ -23,6 +24,8 @@ import { RiFilePaperFill } from "react-icons/ri";
 import { TbMapOff } from "react-icons/tb";
 import ShipmentColoredStatus from "./ShipmentColoredStatus";
 import { Shipment } from "queries/types";
+import { useAuthorization } from "hooks/useAuthorization";
+import { formatWeight, formatMonetaryValue } from "utils/helpers";
 
 export interface IShipmentProps {
   canCancelShipment: boolean;
@@ -30,6 +33,11 @@ export interface IShipmentProps {
   canLooseShipment: boolean;
   isLoadingMutation: boolean | undefined;
   shipment: Shipment;
+  estimatedWeight: number | null;
+  estimatedMonetaryValue: number | null;
+  weightUnit: string | null;
+  currency: string | null;
+  hasMissingWeightOrMonetaryValue: boolean;
   onRemove: () => void;
   onCancel: () => void;
   onLost: () => void;
@@ -41,10 +49,17 @@ function ShipmentCard({
   canLooseShipment,
   isLoadingMutation,
   shipment,
+  estimatedWeight,
+  estimatedMonetaryValue,
+  weightUnit,
+  currency,
+  hasMissingWeightOrMonetaryValue,
   onRemove,
   onCancel,
   onLost,
 }: IShipmentProps) {
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const totalLostBoxes = (
     shipment.details?.filter((item) => item.lostOn !== null && item.removedOn === null) ?? []
   ).length;
@@ -166,6 +181,38 @@ function ShipmentCard({
             </Flex>
           )}
         </>
+        {showWeightAndValue && (estimatedWeight != null || estimatedMonetaryValue != null) && (
+          <Flex p={2} mr={4} justify="center" align="center">
+            <VStack spacing={0} align="stretch">
+              {estimatedWeight != null && (
+                <Flex justifyContent="space-between" gap={2}>
+                  <Text fontSize="md" fontWeight="bold">
+                    Est. shipment weight:
+                  </Text>
+                  <Text fontSize="md">{formatWeight(estimatedWeight, weightUnit)}</Text>
+                </Flex>
+              )}
+              {estimatedMonetaryValue != null && (
+                <Flex justifyContent="space-between" gap={2}>
+                  <Text fontSize="md" fontWeight="bold">
+                    Est. shipment value:{" "}
+                  </Text>
+                  <Text fontSize="md">{formatMonetaryValue(estimatedMonetaryValue, currency)}</Text>
+                </Flex>
+              )}
+            </VStack>
+            {showWeightAndValue && canUpdateShipment && hasMissingWeightOrMonetaryValue && (
+              <Tooltip label="Some boxes are missing weight or value.">
+                <WarningIcon
+                  ml={4}
+                  boxSize={6}
+                  color="orange.400"
+                  aria-label="missing weight or value"
+                />
+              </Tooltip>
+            )}
+          </Flex>
+        )}
         <StackDivider borderColor="blackAlpha.800" marginTop={-3} />
         <Box p={2}>
           <Flex minWidth="max-content" alignItems="center" p={0}>

@@ -1,3 +1,4 @@
+import { ParentSize } from "@visx/responsive";
 import { ResponsivePie, PieLayer } from "@nivo/pie";
 import { useEffect, useRef } from "react";
 import {
@@ -8,6 +9,7 @@ import {
   scaledNivoTheme,
 } from "../../../utils/theme";
 import { percent } from "../../utils/chart";
+import { colorIsBright } from "../../../utils/helpers";
 
 export interface IPieChart {
   width: string;
@@ -25,7 +27,7 @@ export interface IPieChart {
   onClick?: (node) => void;
 }
 
-export default function PieChart(chart: IPieChart) {
+function PieChartInner(chart: Omit<IPieChart, "width"> & { width: number }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (ref.current === null) return;
@@ -36,7 +38,7 @@ export default function PieChart(chart: IPieChart) {
   }, [ref]);
 
   const height = parseInt(chart.height, 10);
-  const width = parseInt(chart.width, 10);
+  const width = chart.width;
   const baseFontSize = getBaseFontSize(width, height);
 
   const theme = scaledNivoTheme(width, height, 10);
@@ -79,7 +81,7 @@ export default function PieChart(chart: IPieChart) {
     layers.push(() => (
       <g transform={`translate(${x}, ${y})`} style={{ whiteSpace: "pre" }}>
         <text
-          style={{ textAnchor: "middle", fontSize: "1.7em" }}
+          style={{ textAnchor: "middle", fontSize: "2.7em" }}
           transform={`translate(0, -${baseFontSize * 1.5})`}
         >
           {chart.centerData?.level}
@@ -108,8 +110,9 @@ export default function PieChart(chart: IPieChart) {
         animate={chart.animate === true || chart.animate === null}
         onClick={chart.onClick}
         theme={theme}
-        // colors={{ scheme: 'tableau10' }}
+        colors={{ scheme: "red_blue" }}
         isInteractive
+        arcLabelsTextColor={({ color }) => (colorIsBright(color) ? "#000000" : "#ffffff")}
         activeOuterRadiusOffset={2}
         arcLinkLabelsSkipAngle={10}
         arcLinkLabelsTextColor="#333333"
@@ -122,4 +125,20 @@ export default function PieChart(chart: IPieChart) {
       />
     </div>
   );
+}
+
+export default function PieChart(chart: IPieChart) {
+  const isPercentWidth = String(chart.width).endsWith("%");
+
+  if (isPercentWidth) {
+    return (
+      <div style={{ width: chart.width, height: chart.height }}>
+        <ParentSize>
+          {({ width: measuredWidth }) => <PieChartInner {...chart} width={measuredWidth} />}
+        </ParentSize>
+      </div>
+    );
+  }
+
+  return <PieChartInner {...chart} width={parseInt(chart.width, 10)} />;
 }

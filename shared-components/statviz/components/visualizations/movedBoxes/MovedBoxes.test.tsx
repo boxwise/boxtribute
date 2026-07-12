@@ -1,5 +1,6 @@
 import { it, expect } from "vitest";
-import MovedBoxesDataContainer, { MOVED_BOXES_QUERY } from "./MovedBoxesDataContainer";
+import MovedBoxesDataContainer from "./MovedBoxesDataContainer";
+import { MOVED_BOXES_QUERY } from "../../../queries/queries";
 import { render, screen } from "../../../../tests/testUtils";
 import { GraphQLError } from "graphql";
 import { defaultMovementFilters } from "../../../utils/dashboardFilters";
@@ -45,8 +46,10 @@ movedBoxesDataTests.forEach(({ name, mocks, alert }) => {
   it(name, async () => {
     render(
       <MovedBoxesDataContainer
+        isActive={true}
         appliedFilters={defaultMovementFilters()}
         boxesOrItems="boxesCount"
+        direction="out"
       />,
       {
         routePath: "/bases/:baseId/",

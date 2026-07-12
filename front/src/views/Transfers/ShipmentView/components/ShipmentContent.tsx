@@ -11,13 +11,14 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CellProps } from "react-table";
 import { AiFillMinusCircle } from "react-icons/ai";
 import ShipmentTable from "./ShipmentTable";
-import { RemoveBoxCell } from "./ShipmentTableCells";
+import { RemoveBoxCell, WeightCell, MonetaryValueCell } from "./ShipmentTableCells";
 import { Product } from "../../../../../../graphql/types";
 import { Box as BoxType, ShipmentState } from "queries/types";
+import { useAuthorization } from "hooks/useAuthorization";
 
 export interface IShipmentContent {
   product: Product;
@@ -32,8 +33,17 @@ interface IShipmentContentProps {
   items: IShipmentContent[];
   showRemoveIcon: boolean;
   isLoadingMutation: boolean | undefined;
+  canUpdateShipment: boolean;
+  currency: string | null;
   onRemoveBox: (id: string) => void;
   onBulkRemoveBox: (ids: string[]) => void;
+  onUpdateBox: (
+    labelIdentifier: string,
+    weight: number | null,
+    monetaryValue: number | null,
+  ) => void;
+  /** When provided, these accordion item indices are expanded (controlled mode). */
+  expandedIndices?: number[];
 }
 
 function ShipmentContent({
@@ -41,9 +51,27 @@ function ShipmentContent({
   items,
   onRemoveBox,
   onBulkRemoveBox,
+  onUpdateBox,
   isLoadingMutation,
+  currency,
   showRemoveIcon,
+  canUpdateShipment,
+  expandedIndices,
 }: IShipmentContentProps) {
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
+  // Track which items are expanded internally so the user can still toggle freely.
+  const [manualExpanded, setManualExpanded] = useState<number[]>([]);
+
+  // Merge externally-requested expansions with items the user has manually opened.
+  // Once the user toggles anything, respect their selection so items opened via `expandedIndices`
+  // can also be collapsed again.
+  const resolvedExpanded = useMemo(() => {
+    if (expandedIndices === undefined) return manualExpanded;
+    if (manualExpanded.length > 0) return manualExpanded;
+    return expandedIndices;
+  }, [expandedIndices, manualExpanded]);
+
   const boxesToTableTransformer = useCallback(
     (boxes: BoxType[]) =>
       _.map(boxes, (box) => ({
@@ -55,6 +83,9 @@ function ShipmentContent({
           (box?.product?.gender && box?.product?.gender) !== "none" ? box?.product?.gender : ""
         } ${box?.product?.name || "Unassigned"}`,
         items: box?.numberOfItems || 0,
+        weight: box?.weight ?? null,
+        monetaryValue: box?.monetaryValue ?? null,
+        weightUnit: box?.weightDisplayUnit?.symbol ?? null,
       })),
     [shipmentState],
   );
@@ -85,6 +116,39 @@ function ShipmentContent({
         style: { overflowWrap: "break-word" },
         Cell: renderCell,
       },
+      ...(showWeightAndValue
+        ? [
+            {
+              id: "weight",
+              Header: "WEIGHT",
+              accessor: "weight",
+              Cell: ({ row }: CellProps<any>) => (
+                <WeightCell
+                  row={row}
+                  canEdit={canUpdateShipment}
+                  onSave={(labelIdentifier, weight) =>
+                    onUpdateBox(labelIdentifier, weight, row.original.monetaryValue)
+                  }
+                />
+              ),
+            },
+            {
+              id: "monetaryValue",
+              Header: "MONETARY VALUE",
+              accessor: "monetaryValue",
+              Cell: ({ row }: CellProps<any>) => (
+                <MonetaryValueCell
+                  row={row}
+                  canEdit={canUpdateShipment}
+                  currency={currency}
+                  onSave={(labelIdentifier, monetaryValue) =>
+                    onUpdateBox(labelIdentifier, row.original.weight, monetaryValue)
+                  }
+                />
+              ),
+            },
+          ]
+        : []),
       {
         id: "items",
         Header: "ITEMS",
@@ -104,11 +168,24 @@ function ShipmentContent({
         ),
       },
     ],
-    [showRemoveIcon, onRemoveBox, isLoadingMutation],
+    [
+      showRemoveIcon,
+      onRemoveBox,
+      isLoadingMutation,
+      onUpdateBox,
+      canUpdateShipment,
+      showWeightAndValue,
+      currency,
+    ],
   );
 
   return (
-    <Accordion allowToggle w="full">
+    <Accordion
+      allowMultiple
+      index={resolvedExpanded}
+      onChange={(expanded) => setManualExpanded(expanded as number[])}
+      w="full"
+    >
       {items.map((item, index) => (
         <AccordionItem key={item?.product?.id || index} alignItems="center">
           {({ isExpanded }) => (
@@ -160,7 +237,7 @@ function ShipmentContent({
                   data-testid={`shipment-accordion-button-${item?.product?.id}`}
                   _expanded={{ bg: "#F4E6A0" }}
                   maxWidth={5}
-                  _hover={{ bgColor: "white" }}
+                  _hover={{ bgColor: "transparent" }}
                 >
                   <AccordionIcon
                     mr={1}

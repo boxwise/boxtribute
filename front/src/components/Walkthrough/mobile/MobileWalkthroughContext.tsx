@@ -52,7 +52,7 @@ export function MobileWalkthroughProvider({ children }: { children: React.ReactN
   const userId = user?.sub ?? "anonymous";
 
   const [prevUserId, setPrevUserId] = useState("");
-  const roles: string | string[] = user?.[JWT_ROLE] ?? [];
+  const roles: string[] = user?.[JWT_ROLE] ?? [];
   const isCoordinator = isCoordinatorOrAbove(roles);
 
   const [step, setStep] = useState<MobileWalkthroughStep>("idle");

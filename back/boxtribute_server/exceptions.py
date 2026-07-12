@@ -192,18 +192,33 @@ class IncompatibleTagTypeAndResourceType(Exception):
         super().__init__(*args, **kwargs)
 
 
-class NegativeNumberOfItems(Exception):
-    extensions = {
-        "code": "BAD_USER_INPUT",
-        "description": "Invalid input: negative value for 'numberOfItems'",
-    }
+class NegativeValue(Exception):
+    def __init__(self, *args, field, **kwargs):
+        self.extensions = {
+            "code": "BAD_USER_INPUT",
+            "description": f"Invalid input: negative value for '{field}'",
+        }
+        super().__init__(*args, **kwargs)
 
 
-class NegativeMeasureValue(Exception):
-    extensions = {
-        "code": "BAD_USER_INPUT",
-        "description": "Invalid input: negative value for 'measureValue'",
-    }
+class NegativeNumberOfItems(NegativeValue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, field="numberOfItems", **kwargs)
+
+
+class NegativeMeasureValue(NegativeValue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, field="measureValue", **kwargs)
+
+
+class NegativeWeight(NegativeValue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, field="weight", **kwargs)
+
+
+class NegativeMonetaryValue(NegativeValue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, field="monetaryValue", **kwargs)
 
 
 class IncompatibleSizeAndMeasureInput(Exception):

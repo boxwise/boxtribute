@@ -31,7 +31,9 @@ from ....exceptions import (
     LocationTagBaseMismatch,
     MissingInputField,
     NegativeMeasureValue,
+    NegativeMonetaryValue,
     NegativeNumberOfItems,
+    NegativeWeight,
 )
 from ....exceptions import ProductLocationBaseMismatch as ProductLocationBaseMismatchExc
 from ....exceptions import (
@@ -107,6 +109,8 @@ def create_box(
     measure_value=None,
     comment="",
     number_of_items=None,
+    weight=None,
+    monetary_value=None,
     qr_code=None,
     tags=None,
     new_tag_names=None,
@@ -121,6 +125,12 @@ def create_box(
     """
     if number_of_items is not None and number_of_items < 0:
         raise NegativeNumberOfItems()
+
+    if weight is not None and weight < 0:
+        raise NegativeWeight()
+
+    if monetary_value is not None and monetary_value < 0:
+        raise NegativeMonetaryValue()
 
     if product.base_id != location.base_id:
         raise ProductLocationBaseMismatchExc()
@@ -176,6 +186,9 @@ def create_box(
             new_box.state = box_state
             new_box.qr_code = qr_id
             new_box.display_unit = display_unit_id
+            # omit conversion to base unit (kg); assume display_weight_unit_id as kg
+            new_box.weight = weight
+            new_box.monetary_value = monetary_value
             new_box.source_box = source_box_id
 
             if measure_value is not None:
@@ -283,6 +296,8 @@ def create_box_from_box(*, user_id, source_box, location, number_of_items):
         Box.state,
         Box.display_unit,
         Box.measure_value,
+        Box.weight,
+        Box.monetary_value,
     ],
 )
 def update_box(
@@ -294,6 +309,8 @@ def update_box(
     location_id=None,
     product_id=None,
     size_id=None,
+    weight=None,
+    monetary_value=None,
     display_unit_id=None,
     measure_value=None,
     state=None,
@@ -363,6 +380,14 @@ def update_box(
         if number_of_items < 0:
             raise NegativeNumberOfItems()
         box.number_of_items = number_of_items
+    if weight is not None:
+        if weight < 0:
+            raise NegativeWeight()
+        box.weight = Decimal(weight)
+    if monetary_value is not None:
+        if monetary_value < 0:
+            raise NegativeMonetaryValue()
+        box.monetary_value = Decimal(monetary_value)
     if location_id is not None:
         box.location = location_id
         box.state = (
@@ -450,6 +475,46 @@ def update_box(
             for tag_id in new_tag_ids
         ]
         TagsRelation.bulk_create(tags_relations, batch_size=BATCH_SIZE)
+
+    return box
+
+
+@save_update_to_history(
+    id_field_name="label_identifier",
+    fields=[
+        Box.label_identifier,
+        Box.weight,
+        Box.monetary_value,
+    ],
+)
+def update_marked_for_shipment_box(
+    label_identifier,
+    user_id,
+    now,
+    weight=None,
+    monetary_value=None,
+):
+    """Dedicated update for MarkedForShipment box. It's only permitted to change weight
+    and/or monetary value.
+    """
+    box = Box.get(Box.label_identifier == label_identifier)
+
+    if box.deleted_on is not None:
+        raise BoxDeleted(label_identifier=label_identifier)
+
+    if box.state_id != BoxState.MarkedForShipment:
+        raise InvalidBoxStateExc(
+            state=BoxState(box.state_id).name, label_identifier=label_identifier
+        )
+
+    if weight is not None:
+        if weight < 0:
+            raise NegativeWeight()
+        box.weight = Decimal(weight)
+    if monetary_value is not None:
+        if monetary_value < 0:
+            raise NegativeMonetaryValue()
+        box.monetary_value = Decimal(monetary_value)
 
     return box
 

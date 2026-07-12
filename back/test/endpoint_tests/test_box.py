@@ -38,6 +38,9 @@ def test_box_query_by_label_identifier(
                     numberOfItems
                     product {{ id }}
                     size {{ id }}
+                    weight
+                    weightDisplayUnit {{ id }}
+                    monetaryValue
                     displayUnit {{ id }}
                     measureValue
                     state
@@ -63,6 +66,9 @@ def test_box_query_by_label_identifier(
         "numberOfItems": default_box["number_of_items"],
         "product": {"id": str(default_box["product"])},
         "size": {"id": str(default_box["size"])},
+        "weight": default_box["weight"],
+        "weightDisplayUnit": {"id": str(default_box["weight_display_unit"])},
+        "monetaryValue": default_box["monetary_value"],
         "displayUnit": None,
         "measureValue": None,
         "state": BoxState.InStock.name,
@@ -228,12 +234,16 @@ def test_box_mutations(
     number_of_items = 3
     comment = "good box"
     tag_id = str(tags[1]["id"])
+    weight = 7.8
+    monetary_value = 10.11
     new_tag_name = "new"
     creation_input = f"""{{
                     productId: {product_id},
                     locationId: {location_id},
                     sizeId: {size_id},
                     numberOfItems: {number_of_items}
+                    weight: {weight}
+                    monetaryValue: {monetary_value}
                     comment: "{comment}"
                     qrCode: "{qr_code_without_box["code"]}"
                     tagIds: [{tag_id}]
@@ -247,6 +257,8 @@ def test_box_mutations(
                 product {{ id }}
                 size {{ id }}
                 qrCode {{ id }}
+                weight
+                monetaryValue
                 state
                 tags {{ id name }}
                 history {{ changes }}
@@ -262,6 +274,8 @@ def test_box_mutations(
         "product": {"id": product_id},
         "size": {"id": size_id},
         "qrCode": {"id": str(qr_code_without_box["id"])},
+        "weight": weight,
+        "monetaryValue": monetary_value,
         "state": BoxState.InStock.name,
         "tags": [{"name": tags[1]["name"]}, {"name": new_tag_name}],
         "history": [{"changes": "created box"}],
@@ -320,6 +334,8 @@ def test_box_mutations(
                     locationId: {new_location_id},
                     sizeId: {new_size_id},
                     productId: {new_product_id},
+                    weight: {weight}
+                    monetaryValue: {monetary_value}
                     state: {state}
                     newTagNames: ["{cool_tag_name}", "{cool_tag_name}"]
                     tagIds: []
@@ -333,6 +349,8 @@ def test_box_mutations(
                 location {{ id }}
                 size {{ id }}
                 product {{ id }}
+                weight
+                monetaryValue
                 state
                 tags {{ id name }}
             }}
@@ -344,6 +362,8 @@ def test_box_mutations(
     assert updated_box["location"]["id"] == new_location_id
     assert updated_box["size"]["id"] == new_size_id
     assert updated_box["product"]["id"] == new_product_id
+    assert updated_box["weight"] == weight
+    assert updated_box["monetaryValue"] == monetary_value
     assert updated_box["state"] == state
     another_new_tag_id = updated_box["tags"][0].pop("id")
     assert updated_box["tags"][0]["name"] == cool_tag_name
@@ -393,6 +413,14 @@ def test_box_mutations(
         {
             "changes": f"changed product type from {products[2]['name']} to "
             + f"{products[7]['name']}",
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f'changed monetary value from "" to {monetary_value}€',
+            "user": {"name": "coord"},
+        },
+        {
+            "changes": f'changed weight from "" to {weight}0kg',
             "user": {"name": "coord"},
         },
         {
@@ -928,6 +956,33 @@ def test_box_mutations(
         ),
     }
 
+    # Test case 8.2.11i
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+            labelIdentifier: "{box_without_qr_code['label_identifier']}"
+            weight: {weight}
+            monetaryValue: {monetary_value} }} ) {{
+                weight
+                monetaryValue
+            }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"weight": weight, "monetaryValue": monetary_value}
+
+    # Without actual changes
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+            labelIdentifier: "{box_without_qr_code['label_identifier']}"
+            }} ) {{
+                weight
+                monetaryValue
+            }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"weight": weight, "monetaryValue": monetary_value}
+
+    # Test case 8.2.11g
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+            labelIdentifier: "{created_box['label_identifier']}"
+            monetaryValue: {monetary_value} }} ) {{ id }} }}"""
+    response = assert_bad_user_input(client, mutation)
+
     # Test case 8.2.23k
     base_1_tag_id = str(tags[5]["id"])
     base_3_tag_id = str(tags[6]["id"])
@@ -1176,6 +1231,28 @@ def test_box_mutations(
             "to_float": None,
         },
         {
+            "changes": 'changed weight from "" to 7.80kg',
+            "from_float": None,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_float": weight,
+            "to_int": None,
+            "user": 8,
+        },
+        {
+            "changes": 'changed monetary value from "" to 10.11€',
+            "from_float": None,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_id,
+            "table_name": "stock",
+            "to_float": monetary_value,
+            "to_int": None,
+            "user": 8,
+        },
+        {
             "changes": "product_id",
             "from_int": int(new_product_id),
             "ip": None,
@@ -1388,6 +1465,28 @@ def test_box_mutations(
             "ip": None,
             "from_float": None,
             "to_float": None,
+        },
+        {
+            "changes": "changed weight from 15.60kg to 7.80kg",
+            "from_float": 15.6,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_without_qr_code["id"],
+            "table_name": "stock",
+            "to_float": weight,
+            "to_int": None,
+            "user": 8,
+        },
+        {
+            "changes": "changed monetary value from 99.90€ to 10.11€",
+            "from_float": 99.9,
+            "from_int": None,
+            "ip": None,
+            "record_id": box_without_qr_code["id"],
+            "table_name": "stock",
+            "to_float": monetary_value,
+            "to_int": None,
+            "user": 8,
         },
         {
             "changes": HISTORY_CREATION_MESSAGE,
@@ -1732,6 +1831,7 @@ def test_mutate_box_with_invalid_input(
     client,
     default_box,
     measure_product_box,
+    box_without_qr_code,
     default_product,
     default_location,
     default_size,
@@ -1823,6 +1923,24 @@ def test_mutate_box_with_invalid_input(
             createBox( creationInput : {creation_input} ) {{ id }} }}"""
     assert_bad_user_input(client, mutation)
 
+    # Test case 8.2.10h
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id},
+                    weight: -30
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    # Test case 8.2.10i
+    creation_input = f"""{{ {mandatory_input}
+                    sizeId: {size_id},
+                    monetaryValue: -1
+                }}"""
+    mutation = f"""mutation {{
+            createBox( creationInput : {creation_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
     # Test case 8.2.19
     label_identifier = default_box["label_identifier"]
     mandatory_input = f'labelIdentifier: "{label_identifier}"'
@@ -1831,6 +1949,41 @@ def test_mutate_box_with_invalid_input(
             }}"""
     mutation = f"""mutation {{
             updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    # Test case 8.2.19q
+    update_input = f"""{{ {mandatory_input}
+                weight: -5
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+                labelIdentifier: "{box_without_qr_code['label_identifier']}"
+                weight: -5 }} ) {{ id }}
+            }}"""
+    assert_bad_user_input(client, mutation)
+
+    # Test case 8.2.19r
+    update_input = f"""{{ {mandatory_input}
+                monetaryValue: -10
+            }}"""
+    mutation = f"""mutation {{
+            updateBox( updateInput : {update_input} ) {{ id }} }}"""
+    assert_bad_user_input(client, mutation)
+
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+                labelIdentifier: "{box_without_qr_code['label_identifier']}"
+                monetaryValue: -10 }} ) {{ id }}
+            }}"""
+    assert_bad_user_input(client, mutation)
+
+    # Test case 8.2.11j
+    mutation = f"""mutation {{ updateMarkedForShipmentBox( updateInput: {{
+                labelIdentifier: "{default_box['label_identifier']}"
+                monetaryValue: 10 }} ) {{ id }}
+            }}"""
     assert_bad_user_input(client, mutation)
 
     # Test case 8.2.19a

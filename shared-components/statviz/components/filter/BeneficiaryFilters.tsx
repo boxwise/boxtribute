@@ -10,30 +10,30 @@ import {
   FormLabel,
 } from "@chakra-ui/react";
 import TabbedTagDropdown from "./TabbedTagDropdown";
-import type { ITagOption, DemographicsAppliedFilters } from "../../utils/dashboardFilters";
+import type { ITagOption, BeneficiaryAppliedFilters } from "../../utils/dashboardFilters";
 import { AGE_RANGES } from "../../utils/dashboardFilters";
 
 const HUMAN_GENDERS = ["Male", "Female", "Diverse"] as const;
 
-interface DemographicsFiltersProps {
+interface BeneficiaryFiltersProps {
   isOpen: boolean;
   onClose: () => void;
-  appliedFilters: DemographicsAppliedFilters;
+  appliedFilters: BeneficiaryAppliedFilters;
   tags: ITagOption[];
-  onApply: (filters: DemographicsAppliedFilters) => void;
+  onApply: (filters: BeneficiaryAppliedFilters) => void;
 }
 
-export function DemographicsFilters({
+export function BeneficiaryFilters({
   isOpen,
   onClose,
   appliedFilters,
   tags,
   onApply,
-}: DemographicsFiltersProps) {
+}: BeneficiaryFiltersProps) {
   const [prevAppliedFilters, setPrevAppliedFilters] = useState(appliedFilters);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
-  const [staged, setStaged] = useState<DemographicsAppliedFilters>(appliedFilters);
+  const [staged, setStaged] = useState<BeneficiaryAppliedFilters>(appliedFilters);
 
   if (
     isOpen !== prevIsOpen ||
@@ -114,7 +114,7 @@ export function DemographicsFilters({
             colorScheme="blue"
             onClick={handleApply}
             width="100%"
-            data-testid="demographics-filter-apply"
+            data-testid="beneficiary-filter-apply"
           >
             Apply
           </Button>
@@ -122,7 +122,7 @@ export function DemographicsFilters({
             variant="outline"
             onClick={handleClear}
             width="100%"
-            data-testid="demographics-filter-clear"
+            data-testid="beneficiary-filter-clear"
           >
             Clear filters
           </Button>

@@ -1,4 +1,5 @@
 import { ResponsiveBar, BarDatum, BarLayer, BarLegendProps } from "@nivo/bar";
+import { OrdinalColorScaleConfig } from "@nivo/colors";
 import { useRef, useEffect } from "react";
 import {
   getMarginTop,
@@ -7,6 +8,7 @@ import {
   scaledNivoTheme,
 } from "../../../utils/theme";
 import { percent } from "../../utils/chart";
+import { colorIsBright } from "../../../utils/helpers";
 
 export interface IBarChart {
   width: string;
@@ -23,8 +25,10 @@ export interface IBarChart {
   labelAxisBottom?: string;
   labelAxisLeft?: string;
   rendered?: (ref: HTMLDivElement) => void;
-  colors?: string | string[] | ((bar: { id: string | number }) => string);
+  colors?: OrdinalColorScaleConfig | ((bar: { id: string | number }) => string);
 }
+
+const MIN_WIDTH = 500;
 
 export default function BarChart(barChart: IBarChart) {
   const ref = useRef<HTMLDivElement>(null);
@@ -38,10 +42,11 @@ export default function BarChart(barChart: IBarChart) {
   }, [ref]);
 
   const height = parseInt(barChart.height, 10);
-  const width = parseInt(barChart.width, 10);
+  const isPercentWidth = String(barChart.width).endsWith("%");
+  const width = isPercentWidth ? MIN_WIDTH : parseInt(barChart.width, 10);
 
   const theme = scaledNivoTheme(width, height, barChart.data.length);
-  const marginBottom = percent(height, 25);
+  const marginBottom = percent(height, 30);
 
   const layers: BarLayer<BarDatum>[] = [
     "grid",
@@ -76,7 +81,7 @@ export default function BarChart(barChart: IBarChart) {
             anchor: "bottom-right",
             direction: "column",
             justify: false,
-            translateX: 120,
+            translateX: 130,
             translateY: 0,
             itemsSpacing: 2,
             itemWidth: 100,
@@ -96,78 +101,80 @@ export default function BarChart(barChart: IBarChart) {
         ]
       : [];
 
+  const rightMargin = barChart.legend === true ? 150 : isPercentWidth ? 40 : percent(width, 10);
+  const leftMargin = isPercentWidth ? 40 : percent(width, 10);
+
   return (
-    <div ref={ref} style={{ width: barChart.width, height: barChart.height }}>
-      <ResponsiveBar
-        data={barChart.data}
-        keys={barChart.keys}
-        animate={barChart.animate === true || barChart.animate === null}
-        indexBy={barChart.indexBy}
-        margin={{
-          top: marginTop,
-          right: percent(width, 10),
-          bottom: marginBottom,
-          left: percent(width, 10),
-        }}
-        layers={layers}
-        padding={0.3}
-        valueScale={{ type: "linear" }}
-        indexScale={{ type: "band", round: true }}
-        theme={theme}
-        colors={barChart.colors ?? "#ec5063"}
-        defs={[
-          {
-            id: "dots",
-            type: "patternDots",
-            background: "inherit",
-            color: "#38bcb2",
-            size: 4,
-            padding: 1,
-            stagger: true,
-          },
-          {
-            id: "lines",
-            type: "patternLines",
-            background: "inherit",
-            color: "#eed312",
-            rotation: -45,
-            lineWidth: 6,
-            spacing: 10,
-          },
-        ]}
-        borderColor={{
-          from: "color",
-          modifiers: [["darker", 1.6]],
-        }}
-        axisTop={null}
-        axisRight={null}
-        axisBottom={{
-          tickSize: scaleTick(height),
-          tickPadding: scaleTick(height),
-          tickRotation: 45,
-          legend: barChart.labelAxisBottom,
-          legendPosition: "middle",
-          legendOffset: 32,
-        }}
-        axisLeft={{
-          tickSize: scaleTick(height),
-          tickPadding: scaleTick(height),
-          tickRotation: 0,
-          legend: barChart.labelAxisLeft,
-          legendPosition: "middle",
-          legendOffset: -40,
-        }}
-        labelSkipWidth={20}
-        labelSkipHeight={20}
-        labelTextColor={{
-          from: "color",
-          modifiers: [["darker", 1.6]],
-        }}
-        legends={legend}
-        role="application"
-        ariaLabel={barChart.ariaLabel}
-        barAriaLabel={(e) => `${e.id}: ${e.formattedValue} in country: ${e.indexValue}`}
-      />
+    <div style={{ width: barChart.width, overflowX: "auto" }}>
+      <div ref={ref} style={{ minWidth: MIN_WIDTH, height: barChart.height }}>
+        <ResponsiveBar
+          data={barChart.data}
+          keys={barChart.keys}
+          animate={barChart.animate === true || barChart.animate === null}
+          indexBy={barChart.indexBy}
+          margin={{
+            top: marginTop,
+            right: rightMargin,
+            bottom: marginBottom,
+            left: leftMargin,
+          }}
+          layers={layers}
+          padding={0.3}
+          valueScale={{ type: "linear" }}
+          indexScale={{ type: "band", round: true }}
+          theme={theme}
+          colors={barChart.colors ?? "#ec5063"}
+          defs={[
+            {
+              id: "dots",
+              type: "patternDots",
+              background: "inherit",
+              color: "#38bcb2",
+              size: 4,
+              padding: 1,
+              stagger: true,
+            },
+            {
+              id: "lines",
+              type: "patternLines",
+              background: "inherit",
+              color: "#eed312",
+              rotation: -45,
+              lineWidth: 6,
+              spacing: 10,
+            },
+          ]}
+          borderColor={{
+            from: "color",
+            modifiers: [["darker", 1.6]],
+          }}
+          axisTop={null}
+          axisRight={null}
+          axisBottom={{
+            tickSize: scaleTick(height),
+            tickPadding: scaleTick(height),
+            tickRotation: 45,
+            legend: barChart.labelAxisBottom,
+            legendPosition: "middle",
+            legendOffset: 32,
+          }}
+          axisLeft={{
+            tickSize: scaleTick(height),
+            tickPadding: scaleTick(height),
+            tickRotation: 0,
+            legend: barChart.labelAxisLeft,
+            legendPosition: "middle",
+            legendOffset: -40,
+          }}
+          labelSkipWidth={20}
+          labelSkipHeight={20}
+          labelTextColor={({ color }) => (colorIsBright(color) ? "#000000" : "#ffffff")}
+          legends={legend}
+          role="application"
+          ariaLabel={barChart.ariaLabel}
+          barAriaLabel={(e) => `${e.id}: ${e.formattedValue} in country: ${e.indexValue}`}
+        />
+      </div>
     </div>
   );
 }

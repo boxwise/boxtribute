@@ -3,7 +3,7 @@ import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import { filterListByInterval } from "../../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
 import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
-import type { MovementAppliedFilters } from "../../../utils/dashboardFilters";
+import type { MovementAppliedFilters, MovementDirection } from "../../../utils/dashboardFilters";
 import { filterByTags } from "../../../utils/filterByTags";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 
@@ -11,12 +11,14 @@ interface IMovedBoxesFilterContainerProps {
   movedBoxes: MovedBoxes;
   appliedFilters: MovementAppliedFilters;
   boxesOrItems: BoxesOrItems;
+  direction: MovementDirection;
 }
 
 export default function MovedBoxesFilterContainer({
   movedBoxes,
   appliedFilters,
   boxesOrItems,
+  direction,
 }: IMovedBoxesFilterContainerProps) {
   const { products, genders, categories, includedTags, excludedTags, dateFrom, dateTo } =
     appliedFilters;
@@ -75,5 +77,11 @@ export default function MovedBoxesFilterContainer({
     facts: filteredFacts,
     dimensions: movedBoxes?.dimensions,
   };
-  return <MovedBoxesCharts movedBoxes={filteredMovedBoxesCube} boxesOrItems={boxesOrItems} />;
+  return (
+    <MovedBoxesCharts
+      movedBoxes={filteredMovedBoxesCube}
+      boxesOrItems={boxesOrItems}
+      direction={direction}
+    />
+  );
 }

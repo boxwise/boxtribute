@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react";
 import { getMarginTop, getScaledExportFields, scaledNivoTheme } from "../../../utils/theme";
 import { percent } from "../../utils/chart";
 
+const MIN_WIDTH = 500;
+
 export interface ISankeyLink {
   source: string;
   target: string;
@@ -45,7 +47,8 @@ export default function SankeyChart(chart: ISankeyChart) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref]);
 
-  const width = parseInt(chart.width, 10);
+  const isPercentWidth = String(chart.width).endsWith("%");
+  const width = isPercentWidth ? MIN_WIDTH : parseInt(chart.width, 10);
   const height = parseInt(chart.height, 10);
 
   const includeHeading = typeof chart.heading === "string";
@@ -87,33 +90,35 @@ export default function SankeyChart(chart: ISankeyChart) {
   const colors = chart.data.nodes.map((e) => e.nodeColor ?? "green");
 
   return (
-    <div ref={ref} style={{ width: chart.width, height: chart.height }}>
-      <ResponsiveSankey
-        colors={colors}
-        layers={layers}
-        margin={{ ...margin }}
-        nodeHoverOthersOpacity={0.35}
-        nodeThickness={18}
-        nodeSpacing={24}
-        nodeBorderWidth={0}
-        nodeBorderRadius={3}
-        nodeBorderColor={{ from: "nodeColor" }}
-        linkOpacity={0.5}
-        linkHoverOthersOpacity={0.1}
-        linkContract={3}
-        sort="auto"
-        enableLinkGradient
-        label={(e) => `${e.name} ${e.value}`}
-        labelPosition="inside"
-        labelOrientation="horizontal"
-        labelPadding={16}
-        labelTextColor={{
-          from: "color",
-          modifiers: [["darker", 1]],
-        }}
-        theme={theme}
-        data={chart.data}
-      />
+    <div style={{ width: chart.width, overflowX: "auto" }}>
+      <div ref={ref} style={{ minWidth: MIN_WIDTH, height: chart.height }}>
+        <ResponsiveSankey
+          colors={colors}
+          layers={layers}
+          margin={{ ...margin }}
+          nodeHoverOthersOpacity={0.35}
+          nodeThickness={18}
+          nodeSpacing={24}
+          nodeBorderWidth={0}
+          nodeBorderRadius={3}
+          nodeBorderColor={{ from: "nodeColor" }}
+          linkOpacity={0.5}
+          linkHoverOthersOpacity={0.1}
+          linkContract={3}
+          sort="auto"
+          enableLinkGradient
+          label={(e) => `${e.name} ${e.value}`}
+          labelPosition="inside"
+          labelOrientation="horizontal"
+          labelPadding={16}
+          labelTextColor={{
+            from: "color",
+            modifiers: [["darker", 1]],
+          }}
+          theme={theme}
+          data={chart.data}
+        />
+      </div>
     </div>
   );
 }

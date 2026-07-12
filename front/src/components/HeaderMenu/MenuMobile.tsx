@@ -64,11 +64,11 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
 
   return (
     // use zIndex which is lower than the default for Chakra Modals (e.g. in HistoryOverlay)
-    <Flex as="nav" py={4} zIndex="1300">
+    <Flex id="mobile-nav" as="nav" py={4} zIndex="1300">
       <BaseSwitcher isOpen={isOpen} onClose={onClose} />
       <Flex justifyContent="space-between" w="100%" alignItems="center">
         <BoxtributeLogo maxH="3.5em" mb={1} />
-        <Menu isLazy>
+        <Menu isLazy id="mobile-nav-menu">
           {({ onClose }) => (
             <>
               <MenuButton
@@ -156,6 +156,7 @@ function MenuMobile({ onClickScanQrCode, menuItemsGroups }: IHeaderMenuProps) {
                   </SubItemBox>
                 </MenuItem>
                 <MenuItem
+                  id="mobile-walkthrough-open"
                   px={2}
                   bg="transparent"
                   _hover={{ bg: "transparent" }}

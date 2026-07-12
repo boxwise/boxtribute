@@ -5,9 +5,11 @@ import {
   Button,
   FormLabel,
   Heading,
+  HStack,
   Input,
   ButtonGroup,
   Stack,
+  Text,
 } from "@chakra-ui/react";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
 import { useEffect, useMemo, useRef } from "react";
@@ -22,6 +24,8 @@ import { ResultOf } from "gql.tada";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
 import { ProductGender } from "../../../../../graphql/types";
 import { NumberField } from "@boxtribute/shared-components";
+import { useAuthorization } from "hooks/useAuthorization";
+import { currencySymbol } from "utils/currencySymbol";
 
 export interface ICategoryData {
   name: string;
@@ -57,6 +61,11 @@ const singleSelectOptionSchema = z.object({
   __isNew__: z.boolean().optional(),
 });
 
+const optionalNonNegativeNumber = z.preprocess(
+  (value) => (value === "" || value == null ? undefined : value),
+  z.number().nonnegative().optional(),
+);
+
 export const BoxEditFormDataSchema = z.object({
   // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
   // It is based on this example https://codesandbox.io/s/chakra-react-select-single-react-hook-form-with-zod-validation-typescript-m1dqme?file=/app.tsx
@@ -78,6 +87,8 @@ export const BoxEditFormDataSchema = z.object({
     .transform((selectedOption) => selectedOption || z.NEVER),
   tags: singleSelectOptionSchema.array().optional(),
   comment: z.string().optional(),
+  weight: optionalNonNegativeNumber,
+  monetaryValue: optionalNonNegativeNumber,
 });
 
 export type IBoxEditFormDataInput = z.input<typeof BoxEditFormDataSchema>;
@@ -98,6 +109,8 @@ function BoxEdit({
   allTags,
   onSubmitBoxEditForm,
 }: IBoxEditProps) {
+  const authorize = useAuthorization();
+  const showWeightAndValue = authorize({ minBeta: 7 });
   const baseId = useAtomValue(selectedBaseIdAtom);
   const { labelIdentifier } = useParams<{
     labelIdentifier: string;
@@ -120,6 +133,8 @@ function BoxEdit({
       ? { label: boxData.location.name, value: boxData.location.id }
       : null,
     comment: boxData?.comment || undefined,
+    weight: boxData?.weight ?? undefined,
+    monetaryValue: boxData?.monetaryValue ?? undefined,
     tags: boxData?.tags || [],
   };
 
@@ -258,6 +273,38 @@ function BoxEdit({
               control={control}
             />
           </ListItem>
+          {showWeightAndValue && (
+            <>
+              <ListItem>
+                <HStack align="end">
+                  <Box flex="1">
+                    <NumberField
+                      fieldId="weight"
+                      fieldLabel="Weight"
+                      errors={errors}
+                      control={control}
+                    />
+                  </Box>
+                  <Text mb={2}>{boxData?.weightDisplayUnit?.symbol ?? ""}</Text>
+                </HStack>
+              </ListItem>
+              <ListItem>
+                <HStack align="end">
+                  <Box flex="1">
+                    <NumberField
+                      fieldId="monetaryValue"
+                      fieldLabel="Value"
+                      errors={errors}
+                      control={control}
+                    />
+                  </Box>
+                  <Text mb={2}>
+                    {currencySymbol(boxData?.location?.base?.monetaryCurrencyCode ?? null)}
+                  </Text>
+                </HStack>
+              </ListItem>
+            </>
+          )}
           <ListItem>
             <SelectField
               fieldId="tags"
