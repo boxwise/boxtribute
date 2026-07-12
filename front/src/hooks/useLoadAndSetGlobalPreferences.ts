@@ -17,6 +17,7 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
   const authorize = useAuthorization();
   const location = useLocation();
+  // const [error, setError] = useState<string>();
   const setOrganisation = useSetAtom(organisationAtom);
   const [selectedBase, setSelectedBase] = useAtom(selectedBaseAtom);
   const [availableBases, setAvailableBases] = useAtom(availableBasesAtom);
@@ -30,6 +31,10 @@ export const useLoadAndSetGlobalPreferences = () => {
     "canShareLink",
     authorize({ requiredAbps: ["create_shareable_link"] }).toString(),
   );
+
+  // validate if base Ids are set in auth0 id token
+  // if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length))
+  //   setError("You do not have access to any bases.");
 
   const [
     runOrganisationAndBasesQuery,
@@ -45,10 +50,37 @@ export const useLoadAndSetGlobalPreferences = () => {
       if (urlBaseId && !isGod && !user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
         return "The requested base is not available to you.";
       }
+
+      if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
+        const basesWithOrgData = organisationAndBaseData.bases;
+        const bases = basesWithOrgData.map((base) => ({
+          id: base.id,
+          name: base.name,
+        }));
+
+        if (bases.length <= 0) {
+          return "There are no available bases.";
+        } else {
+          if (selectedBase?.id) {
+            const matchingBase = basesWithOrgData.find((base) => base.id === selectedBase.id);
+
+            if (!matchingBase) {
+              return "The requested base is not available to you.";
+            }
+          }
+        }
+      }
     }
 
     return undefined;
-  }, [isGod, location.pathname, user]);
+  }, [
+    isGod,
+    isOrganisationAndBasesQueryLoading,
+    location.pathname,
+    organisationAndBaseData,
+    selectedBase,
+    user,
+  ]);
 
   // run query only if
   // - the access token is in the request header from the apollo client and
@@ -84,6 +116,9 @@ export const useLoadAndSetGlobalPreferences = () => {
             setSelectedBase({ id: urlBaseId });
           }
         }
+        // } else {
+        //   setError("The requested base is not available to you.");
+        // }
       }
     }
   }, [
@@ -118,8 +153,16 @@ export const useLoadAndSetGlobalPreferences = () => {
             // set organisation for selected base
             setOrganisation(matchingBase.organisation);
           }
+          // } else {
+          //   // this error is set if the requested base is not part of the available bases
+          //   setError("The requested base is not available to you.");
+          // }
         }
       }
+      // } else {
+      //   // this error is set if the bases query returned an empty array for bases
+      //   setError("There are no available bases.");
+      // }
     }
   }, [
     isOrganisationAndBasesQueryLoading,
@@ -130,29 +173,9 @@ export const useLoadAndSetGlobalPreferences = () => {
     setSelectedBase,
   ]);
 
-  const finalError = useMemo(() => {
-    const basesWithOrgData = organisationAndBaseData?.bases;
-    const bases = basesWithOrgData?.map((base) => ({
-      id: base.id,
-      name: base.name,
-    }));
-
-    if (!bases || bases.length <= 0) {
-      return "There are no available bases.";
-    } else if (selectedBase?.id) {
-      const matchingBase = basesWithOrgData?.find((base) => base.id === selectedBase.id);
-
-      if (!matchingBase) {
-        return "The requested base is not available to you.";
-      }
-    }
-
-    return error;
-  }, [error, organisationAndBaseData?.bases, selectedBase?.id]);
-
   const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 
   const isInitialized = selectedBaseId !== "0";
 
-  return { isLoading, finalError, isInitialized };
+  return { isLoading, error, isInitialized };
 };
