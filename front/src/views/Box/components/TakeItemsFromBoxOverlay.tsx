@@ -109,7 +109,7 @@ function TakeItemsFromBoxOverlay({
                   </Flex>
                 </Alert>
               )}
-              {authorize({ requiredAbps: ["manage_inventory"], minBeta: 7 }) && (
+              {authorize({ requiredAbps: ["manage_inventory"], minBeta: 5 }) && (
                 <SelectField
                   fieldId="locationId"
                   fieldLabel="...and move them into a new box in:"

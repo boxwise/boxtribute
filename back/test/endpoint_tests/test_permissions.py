@@ -99,6 +99,7 @@ def test_invalid_permission(unauthorized, client, query):
         """packingListEntry( id: 1 ) { id }""",
         # Test case 3.1.6
         """shipment( id: 5 ) { id }""",
+        """beneficiaryFigures( baseId: 2 ) { averageFamilySize }""",
     ],
     ids=operation_name,
 )

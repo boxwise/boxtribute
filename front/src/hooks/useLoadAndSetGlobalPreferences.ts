@@ -25,20 +25,18 @@ export const useLoadAndSetGlobalPreferences = () => {
   // Boxtribute God user
   const isGod: boolean = (user && user[JWT_ROLE]?.includes("boxtribute_god")) || false;
 
-  useEffect(() => {
-    // Set in localStore if current user can Share Public Dashboard Views
-    localStorage.setItem(
-      "canShareLink",
-      authorize({ requiredAbps: ["create_shareable_link"] }).toString(),
-    );
-  }, [authorize]);
+  // Set in localStore if current user can Share Public Dashboard Views
+  localStorage.setItem(
+    "canShareLink",
+    authorize({ requiredAbps: ["create_shareable_link"] }).toString(),
+  );
 
   const [
     runOrganisationAndBasesQuery,
-    { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData, error, called },
+    { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData },
   ] = useLazyQuery(ORGANISATION_AND_BASES_QUERY);
 
-  const localError = useMemo(() => {
+  const error = useMemo(() => {
     if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length)) {
       return "You do not have access to any bases.";
     } else {
@@ -56,118 +54,105 @@ export const useLoadAndSetGlobalPreferences = () => {
   // - the access token is in the request header from the apollo client and
   // - the base Name is not set
   useEffect(() => {
-    if (user && !selectedBase?.name && !localError) {
+    if (user && !selectedBase?.name && !error) {
       runOrganisationAndBasesQuery();
     }
-  }, [runOrganisationAndBasesQuery, user, selectedBase?.name, localError]);
+  }, [runOrganisationAndBasesQuery, user, selectedBase?.name, error]);
 
   // setting auth atoms initially from auth0
   useEffect(() => {
-    if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
-      if (!localError && user && (user[JWT_AVAILABLE_BASES] || isGod)) {
-        const basesWithOrgData = organisationAndBaseData.bases;
-        const bases = basesWithOrgData.map((base) => ({
-          id: base.id,
-          name: base.name,
-        }));
-        if (bases.length > 0) {
-          if (JSON.stringify(availableBases) !== JSON.stringify(bases)) {
-            setAvailableBases(bases);
-          }
-          // set available bases from auth0 id token only if they are not set yet.
-          // Otherwise, it would overwrite the names queried from the BE.
-          // if (!availableBases.length && !isGod) {
-          //   setAvailableBases(user[JWT_AVAILABLE_BASES].map((id: string) => ({ id })));
-          // }
+    if (!error && user && (user[JWT_AVAILABLE_BASES] || isGod)) {
+      // set available bases from auth0 id token only if they are not set yet.
+      // Otherwise, it would overwrite the names queried from the BE.
+      if (!availableBases.length && !isGod) {
+        setAvailableBases(user[JWT_AVAILABLE_BASES].map((id: string) => ({ id })));
+      }
 
-          // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
-          const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
-          const urlBaseId = urlBaseIdInput?.length && urlBaseIdInput[1];
+      // extract the current/selected base ID from the URL, default to "0" until a valid base ID is set
+      const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
+      const urlBaseId = urlBaseIdInput?.length && urlBaseIdInput[1];
 
-          // validate that
-          // - the selected base ID is part of the available base IDs from Auth0 or
-          // - that the user is a Boxtribute God
-          if (urlBaseId) {
-            if (isGod) {
-              // setSelectedBase({ id: urlBaseId });
-              const matchingBase = basesWithOrgData.find((base) => base.id === urlBaseId);
-
-              if (matchingBase) {
-                // set selected base
-                setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
-                // set organisation for selected base
-                setOrganisation(matchingBase.organisation);
-              }
-            } else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
-              // if (selectedBaseId !== urlBaseId) {
-              // only overwrite the selected base ID if the id is different from the existing one.
-              // setSelectedBase({ id: urlBaseId });
-
-              const matchingBase = basesWithOrgData.find((base) => base.id === urlBaseId);
-
-              if (matchingBase) {
-                // set selected base
-                setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
-                // set organisation for selected base
-                setOrganisation(matchingBase.organisation);
-              }
-              // }
-            }
+      // validate that
+      // - the selected base ID is part of the available base IDs from Auth0 or
+      // - that the user is a Boxtribute God
+      if (urlBaseId) {
+        if (isGod) {
+          setSelectedBase({ id: urlBaseId });
+        } else if (user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+          if (selectedBaseId !== urlBaseId) {
+            // only overwrite the selected base ID if the id is different from the existing one.
+            setSelectedBase({ id: urlBaseId });
           }
         }
       }
     }
   }, [
-    availableBases,
-    localError,
-    isGod,
-    isOrganisationAndBasesQueryLoading,
+    availableBases.length,
+    error,
     location.pathname,
-    organisationAndBaseData,
     setAvailableBases,
-    setOrganisation,
     setSelectedBase,
     user,
+    isGod,
+    selectedBaseId,
   ]);
 
-  const finalError = useMemo(() => {
-    if (organisationAndBaseData) {
+  // handle additional base information being returned from the query
+  useEffect(() => {
+    if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
       const basesWithOrgData = organisationAndBaseData.bases;
-      const bases = basesWithOrgData?.map((base) => ({
+      const bases = basesWithOrgData.map((base) => ({
         id: base.id,
         name: base.name,
       }));
 
-      if (!bases || bases.length <= 0) {
-        return "There are no available bases.";
-      } else if (selectedBase?.id) {
-        const matchingBase = basesWithOrgData?.find((base) => base.id === selectedBase.id);
+      if (bases.length > 0) {
+        setAvailableBases(bases);
 
-        if (!matchingBase) {
-          return "The requested base is not available to you.";
+        if (selectedBase?.id) {
+          const matchingBase = basesWithOrgData.find((base) => base.id === selectedBase.id);
+
+          if (matchingBase) {
+            // set selected base
+            setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
+            // set organisation for selected base
+            setOrganisation(matchingBase.organisation);
+          }
         }
       }
-
-      return localError;
-    } else if (error) {
-      return "Failed getting information " + error.message;
-    } else if (!isOrganisationAndBasesQueryLoading && called) {
-      return "The requested base is not available to you";
-    } else {
-      return;
     }
   }, [
-    called,
-    error,
     isOrganisationAndBasesQueryLoading,
-    localError,
     organisationAndBaseData,
     selectedBase?.id,
+    setAvailableBases,
+    setOrganisation,
+    setSelectedBase,
   ]);
+
+  const finalError = useMemo(() => {
+    const basesWithOrgData = organisationAndBaseData?.bases;
+    const bases = basesWithOrgData?.map((base) => ({
+      id: base.id,
+      name: base.name,
+    }));
+
+    if (!bases || bases.length <= 0) {
+      return "There are no available bases.";
+    } else if (selectedBase?.id) {
+      const matchingBase = basesWithOrgData?.find((base) => base.id === selectedBase.id);
+
+      if (!matchingBase) {
+        return "The requested base is not available to you.";
+      }
+    }
+
+    return error;
+  }, [error, organisationAndBaseData?.bases, selectedBase?.id]);
 
   const isLoading = !selectedBase?.name || isOrganisationAndBasesQueryLoading;
 
-  const isInitialized = !isLoading && selectedBaseId !== "0";
+  const isInitialized = selectedBaseId !== "0";
 
-  return { isLoading, error: finalError, isInitialized };
+  return { isLoading, finalError, isInitialized };
 };

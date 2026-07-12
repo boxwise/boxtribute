@@ -1,0 +1,83 @@
+import { MobileSlide } from "./types";
+import Slide01Image from "../../../assets/images/walkthrough/01-scanner.png";
+import Slide02Image from "../../../assets/images/walkthrough/02-dashboard.png";
+import Slide03Image from "../../../assets/images/walkthrough/03-manageboxes.png";
+import Slide04Image from "../../../assets/images/walkthrough/04-manageshipments.png";
+import Slide05Image from "../../../assets/images/walkthrough/05-addbeneficiary.png";
+import Slide06Image from "../../../assets/images/walkthrough/06-stockplanning.png";
+
+const slides: MobileSlide[] = [
+  {
+    title: "Scan any box, instantly",
+    text: (
+      <>
+        Point your camera at any box label to see its{" "}
+        <strong>contents, location, and status</strong> in seconds, or update it on the spot. You
+        can close the scanner and navigate freely, and access it again anytime from the navigation.
+      </>
+    ),
+    imageSrc: Slide01Image,
+  },
+  {
+    title: "Know your stock at a glance",
+    text: (
+      <>
+        Get a live snapshot of how many boxes, items, and locations your base is running through the{" "}
+        <strong>Dashboard</strong> feature and review your <strong>Sales Reports</strong> under{" "}
+        <strong>Statistics</strong>.
+      </>
+    ),
+    imageSrc: Slide02Image,
+  },
+  {
+    title: "Manage and track your boxes",
+    text: (
+      <>
+        Create, update, and organize boxes by category, location, and status.{" "}
+        <strong>Print Box Labels</strong> to physically tag them in the warehouse,{" "}
+        <strong>Manage Boxes</strong>, and perform <strong>Stock Planning</strong> - find all these
+        features under <strong>Aid Inventory</strong>.
+      </>
+    ),
+    imageSrc: Slide03Image,
+    requiredRole: "warehouse_volunteer",
+  },
+  {
+    title: "Move stock between bases",
+    text: (
+      <>
+        Create shipments and track boxes in transit from and to partner organizations. Find{" "}
+        <strong>Manage Shipments</strong> and <strong>Manage Network</strong> under{" "}
+        <strong>Aid Transfers</strong> in your main navigation.
+      </>
+    ),
+    imageSrc: Slide04Image,
+    requiredRole: "warehouse_volunteer",
+  },
+  {
+    title: "Register & support beneficiaries",
+    text: (
+      <>
+        Add new people, view their profile and service history. Update details on the go and{" "}
+        <strong>Manage Services</strong> for tracking custom activities - all from the{" "}
+        <strong>Beneficiaries</strong> section.
+      </>
+    ),
+    imageSrc: Slide05Image,
+    requiredRole: "free_shop_volunteer",
+  },
+  {
+    title: "Run a distribution session",
+    text: (
+      <>
+        See what&apos;s available in the free shop <strong>Stockroom</strong>, log{" "}
+        <strong>Checkout</strong>s in real time, and <strong>Give Tokens</strong>. Find your record
+        of what went to whom under <strong>Free Shop</strong>.
+      </>
+    ),
+    imageSrc: Slide06Image,
+    requiredRole: "free_shop_volunteer",
+  },
+];
+
+export default slides;

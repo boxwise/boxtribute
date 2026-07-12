@@ -115,7 +115,8 @@ enum ShipmentDirection {
 }
 
 enum TargetType {
-  Shipment
+  OutgoingShipment
+  IncomingShipment
   OutgoingLocation
   BoxState
 }

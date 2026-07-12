@@ -18,7 +18,6 @@ updates:
         exclude-patterns:
           # Exclude because package versions are v0.x, hence minor updates might contain breaking changes
           - "aiodataloader"
-          - "ariadne"
     assignees:
       - "pylipp"
   - package-ecosystem: "npm"
@@ -63,7 +62,17 @@ updates:
       - dependency-name: "jsdom"
         update-types:
           - "version-update:semver-major"
+      # Major SDK upgrade, cf. https://trello.com/c/I4BqskML
+      - dependency-name: "@apollo/client"
+        versions: ["4.x"]
     groups:
+      front-visx-update:
+        patterns:
+          - "*visx*"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
       front-dev-minor-update:
         dependency-type: development
         update-types:

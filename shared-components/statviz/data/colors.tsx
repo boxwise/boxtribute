@@ -1,11 +1,17 @@
-export const genderColors = {
+import type { NonNullProductGender } from "../../../graphql/types";
+
+export const genderColors: Record<NonNullProductGender, string> = {
   Men: "#f3de02",
-  Woman: "#375591",
+  Women: "#375591",
   Girl: "#375591",
   Boy: "#f3de02",
   UnisexKid: "#4dd75a",
   UnisexBaby: "#c2217d",
   UnisexAdult: "#c2217d",
+  TeenGirl: "#375591",
+  TeenBoy: "#f3de02",
+  BabyGirl: "#c2217d",
+  BabyBoy: "#4dd75a",
   none: "#6d6e6d",
 };
 

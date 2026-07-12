@@ -1,20 +1,23 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useMemo } from "react";
 import { gql, useQuery } from "@apollo/client";
+import { useSearchParams } from "react-router-dom";
 import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
 
 import BoxtributeLogo from "./BoxtributeLogo";
-import StockDataFilter from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockDataFilter";
+import StockOverviewRingFilterContainer from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockOverviewRingFilterContainer";
 import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
-import {
-  tagFilterIncludedValuesVar,
-  tagFilterExcludedValuesVar,
-} from "@boxtribute/shared-components/statviz/state/filter";
-import { tagToFilterValue } from "@boxtribute/shared-components/statviz/components/filter/TagFilter";
 import BoxesOrItemsSelect, {
   boxesOrItemsFilterValues,
+  type BoxesOrItems,
 } from "@boxtribute/shared-components/statviz/components/filter/BoxesOrItemsSelect";
+import {
+  readStockFiltersFromUrl,
+  type ICategoryOption,
+  type ILocationOption,
+  type ITagOption,
+} from "@boxtribute/shared-components/statviz/utils/dashboardFilters";
 
 const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
@@ -95,16 +98,49 @@ function App() {
   const code = searchParams.get("code");
   const view = searchParams.get("view");
 
+  const [routerSearchParams] = useSearchParams();
+  const boiUrlId = routerSearchParams.get("sboi");
+  const boxesOrItems: BoxesOrItems = (
+    boxesOrItemsFilterValues.find((f) => f.urlId === boiUrlId) ?? boxesOrItemsFilterValues[0]
+  ).value;
+
   const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
 
-  // Get tag filters.
-  useEffect(() => {
-    const tags = data?.resolveLink?.data[0].dimensions?.tag?.map((t) => tagToFilterValue(t!));
-    if (tags?.length) {
-      tagFilterIncludedValuesVar(tags);
-      tagFilterExcludedValuesVar(tags);
-    }
-  }, [data?.resolveLink?.data]);
+  const allCategories = useMemo<ICategoryOption[]>(
+    () =>
+      (data?.resolveLink?.data[0]?.dimensions?.category ?? []).map((c) => ({
+        id: Number(c.id),
+        name: c.name ?? "",
+      })),
+    [data],
+  );
+
+  const allLocations = useMemo<ILocationOption[]>(
+    () =>
+      (data?.resolveLink?.data[0]?.dimensions?.location ?? []).map((l) => ({
+        id: Number(l.id),
+        name: l.name ?? "",
+      })),
+    [data],
+  );
+
+  const allTags = useMemo<ITagOption[]>(
+    () =>
+      (data?.resolveLink?.data[0]?.dimensions?.tag ?? []).map((t) => ({
+        id: Number(t.id),
+        name: t.name ?? "",
+        color: t.color ?? "#999",
+        value: String(t.id),
+        label: t.name ?? "",
+        urlId: String(t.id),
+      })),
+    [data],
+  );
+
+  const appliedFilters = useMemo(
+    () => readStockFiltersFromUrl(routerSearchParams, [], allCategories, allLocations, allTags),
+    [routerSearchParams, allCategories, allLocations, allTags],
+  );
 
   // Redirect to full URL with view param once link data has loaded
   useEffect(() => {
@@ -173,7 +209,11 @@ function App() {
         </WrapItem>
       </Flex>
       {/* TODO: Match view with view returned from data once other views are implemented. */}
-      <StockDataFilter stockOverview={data.resolveLink.data[0]} />
+      <StockOverviewRingFilterContainer
+        stockOverview={data.resolveLink.data[0]}
+        appliedFilters={appliedFilters}
+        boxesOrItems={boxesOrItems}
+      />
     </>
   );
 }

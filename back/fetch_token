@@ -6,6 +6,7 @@ another .env file to load.
 """
 
 import argparse
+import getpass
 import logging
 import os
 import sys
@@ -24,8 +25,16 @@ logger.addHandler(logging.StreamHandler())
 
 def _create_cli_parser():
     parser = argparse.ArgumentParser(description=globals()["__doc__"])
-    parser.add_argument("-u", "--username")
-    parser.add_argument("-p", "--password")
+    parser.add_argument(
+        "-u",
+        "--username",
+        help="defaults to AUTH0_USERNAME from env (required unless -m or -t given)",
+    )
+    parser.add_argument(
+        "-p",
+        "--password",
+        help="defaults to AUTH0_PASSWORD from env; prompts if missing",
+    )
     parser.add_argument("-d", "--dotenv-filepath")
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="show env variables"
@@ -37,7 +46,10 @@ def _create_cli_parser():
         help="fetch JWT for test user, ignoring -u and -p options",
     )
     parser.add_argument(
-        "-m", "--management-api", action="store_true", help="fetch management API token"
+        "-m",
+        "--management-api",
+        action="store_true",
+        help="fetch management API token, ignoring -u and -p options",
     )
     return parser
 
@@ -45,17 +57,6 @@ def _create_cli_parser():
 def main():
     parser = _create_cli_parser()
     options = parser.parse_args()
-
-    if (
-        options.username is None
-        and options.password is None
-        and options.dotenv_filepath is None
-        and not options.test
-        and not options.management_api
-    ):
-        # Exit with help message if no CLI arguments passed
-        parser.print_help()
-        raise SystemExit(0)
 
     if options.verbose:
         logger.setLevel(logging.DEBUG)
@@ -66,6 +67,16 @@ def main():
     for k, v in sorted(os.environ.items()):
         if "AUTH0" in k:
             logger.debug(f"{k}={v}")
+
+    if (
+        options.username is None
+        and os.getenv("AUTH0_USERNAME") is None
+        and not options.test
+        and not options.management_api
+    ):
+        # Exit with help message if no CLI arguments passed
+        parser.print_help()
+        raise SystemExit(1)
 
     parameters = dict(
         audience=os.environ["AUTH0_AUDIENCE"],
@@ -89,11 +100,14 @@ def main():
             password=None,
         )
     else:
+        username = options.username or os.environ["AUTH0_USERNAME"]
         extras = dict(
             client_id=os.environ["AUTH0_CLIENT_ID"],
             client_secret=os.environ["AUTH0_CLIENT_SECRET"],
-            username=options.username or os.environ["AUTH0_USERNAME"],
-            password=options.password or os.environ["AUTH0_PASSWORD"],
+            username=username,
+            password=options.password
+            or os.getenv("AUTH0_PASSWORD")
+            or getpass.getpass(f"Password for {username}: "),
         )
     parameters.update(extras)
 
@@ -105,4 +119,7 @@ def main():
 
 
 if __name__ == "__main__":
-    print(main())
+    try:
+        print(main())
+    except KeyboardInterrupt:
+        raise SystemExit("Cancelled by user.")

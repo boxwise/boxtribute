@@ -1,0 +1,42 @@
+import { Box, Link, Text } from "@chakra-ui/react";
+import { useWalkthrough } from "./WalkthroughContext";
+import { PATHS } from "./TourOverlay";
+
+const PATH_LABELS: Record<string, string> = {
+  path1: `Path 1 – Stock management`,
+  path2: `Path 2 – Beneficiary & distribution management`,
+  path3: `Path 3 – Coordinator overview`,
+};
+
+// In-tour fixed top-left path indicator + guidance link.
+function PathIndicator() {
+  const { isWalkthroughActive, currentStep, activePath } = useWalkthrough();
+
+  if (!isWalkthroughActive || currentStep !== "tour" || !activePath) return null;
+
+  return (
+    <Box
+      position="fixed"
+      top={4}
+      left={4}
+      zIndex={10001}
+      bg="white"
+      borderWidth={1}
+      borderRadius="md"
+      px={3}
+      py={1}
+      boxShadow="md"
+    >
+      <Text fontSize="md" fontWeight="semibold">
+        {PATH_LABELS[activePath] ?? activePath}
+      </Text>
+      {PATHS[activePath].guidanceUrl && (
+        <Link href={PATHS[activePath].guidanceUrl} isExternal fontSize="xs" color="blue.500">
+          Get more guidance on this topic &rsaquo;
+        </Link>
+      )}
+    </Box>
+  );
+}
+
+export default PathIndicator;

@@ -4,7 +4,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 // TODO: Move common utils to shared-components, use alias for imports.
 import { graphql } from "../../../graphql/graphql";
 import { useNotification } from "../../../front/src/hooks/useNotification";
-import { useMutation, useReactiveVar } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import useValueFilter from "./useValueFilter";
 import {
   boxesOrItemsFilterValues,
@@ -12,9 +12,6 @@ import {
   defaultBoxesOrItems,
   IBoxesOrItemsFilter,
 } from "../components/filter/BoxesOrItemsSelect";
-import { tagFilterIncludedId, tagFilterExcludedId } from "../components/filter/TabbedTagFilter";
-import { tagFilterIncludedValuesVar, tagFilterExcludedValuesVar } from "../state/filter";
-import useIncludeExcludeFilter from "./useIncludeExcludeFilter";
 
 const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
 
@@ -54,15 +51,6 @@ export default function useShareableLink({
     defaultBoxesOrItems,
     boxesOrItemsUrlId,
   );
-  const includedTagFilterValues = useReactiveVar(tagFilterIncludedValuesVar);
-  const excludedTagFilterValues = useReactiveVar(tagFilterExcludedValuesVar);
-  const { includedFilterValue: includedTags, excludedFilterValue: excludedTags } =
-    useIncludeExcludeFilter(
-      includedTagFilterValues,
-      tagFilterIncludedId,
-      excludedTagFilterValues,
-      tagFilterExcludedId,
-    );
   const [expirationDate, setExpirationDate] = useState<string | undefined>();
 
   // Remove the JSX from the hook
@@ -73,12 +61,6 @@ export default function useShareableLink({
 
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
-  const alertType: "info" | "warning" | undefined = submittedGlobalParams
-    ? searchParams.toString() !== submittedGlobalParams
-      ? "warning"
-      : "info"
-    : undefined;
-
   const copyLinkToClipboard = useCallback(
     async (code?: string) => {
       // Use retrieved code from mutation right away, otherwise use the computed state value.
@@ -88,7 +70,8 @@ export default function useShareableLink({
 
       try {
         await navigator.clipboard.writeText(linkTobeCopied);
-      } catch {
+      } catch (error) {
+        console.error(error);
         createToast({
           type: "error",
           message: "Failed to copy to clipboard.",
@@ -130,12 +113,13 @@ export default function useShareableLink({
   return {
     shareableLink,
     shareableLinkURL,
-    alertType,
+    alertType:
+      submittedGlobalParams && searchParams.toString() !== submittedGlobalParams
+        ? "warning"
+        : "info",
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-    includedTags,
-    excludedTags,
     boi,
     expirationDate,
   };

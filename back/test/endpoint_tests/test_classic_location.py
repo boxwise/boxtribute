@@ -72,9 +72,9 @@ def test_crud(client, default_base):
         base_id=base_id,
         user_id=8,
     )
-    # assert location.box_state == BoxState.InStock
     assert location.box_state_id == BoxState.InStock.value
     assert location.box_state_id == BoxState.InStock
+    assert location.visible
 
     name = "new test location"
     location = update_location(id=location.id, name=name, user_id=8)
@@ -85,6 +85,8 @@ def test_crud(client, default_base):
     box_state = BoxState.Lost
     location = update_location(id=location.id, box_state=box_state, user_id=8)
     assert location.box_state_id == box_state
+    assert location.is_lost
+    assert not location.visible
     is_stockroom = True
     location = update_location(id=location.id, is_stockroom=is_stockroom, user_id=8)
     assert location.is_stockroom
@@ -107,3 +109,36 @@ def test_crud(client, default_base):
         "isShop": is_shop,
         "createdBy": {"id": "8"},
     }
+
+    lost_location = create_location(
+        name=name,
+        base_id=base_id,
+        user_id=8,
+        box_state=BoxState.Lost,
+    )
+    assert lost_location.box_state_id == BoxState.Lost
+    assert not lost_location.is_donated
+    assert lost_location.is_lost
+    assert not lost_location.is_scrap
+    assert not lost_location.visible
+
+    donated_location = create_location(
+        name=name,
+        base_id=base_id,
+        user_id=8,
+        box_state=BoxState.Donated,
+    )
+    assert donated_location.box_state_id == BoxState.Donated
+    assert donated_location.is_donated
+    assert not donated_location.is_lost
+    assert not donated_location.is_scrap
+    assert not donated_location.visible
+
+    donated_location = update_location(
+        id=donated_location.id, user_id=8, box_state=BoxState.InStock
+    )
+    assert donated_location.box_state_id == BoxState.InStock
+    assert not donated_location.is_donated
+    assert not donated_location.is_lost
+    assert not donated_location.is_scrap
+    assert donated_location.visible

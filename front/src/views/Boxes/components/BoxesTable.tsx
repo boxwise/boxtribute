@@ -51,7 +51,7 @@ import { IDropdownOption } from "components/Form/SelectField";
 import { BoxesFilter } from "./BoxesFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { FilterChips } from "./FilterChips";
-import { FilterPanel } from "components/Table/FilterPanel";
+import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import { createOptions } from "utils/filterOptions";
 import { removeFilter } from "utils/helpers";
 

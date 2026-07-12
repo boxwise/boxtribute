@@ -218,6 +218,11 @@ def default_location_boxes():
 
 
 @pytest.fixture
+def base1_instock_boxes():
+    return [b for b in data()[1:-1] if b["state"] == BoxState.InStock]
+
+
+@pytest.fixture
 def default_box():
     return default_box_data()
 
