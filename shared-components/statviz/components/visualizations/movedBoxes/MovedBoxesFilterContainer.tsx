@@ -33,12 +33,12 @@ export default function MovedBoxesFilterContainer({
 
   const movedBoxesFacts = useMemo(() => {
     try {
-      return filterListByInterval(movedBoxes?.facts! as MovedBoxesResult[], "movedOn", interval);
+      return filterListByInterval(movedBoxes?.facts as MovedBoxesResult[], "movedOn", interval);
     } catch {
       // TODO show toast with error message?
     }
     return [];
-  }, [interval, movedBoxes?.facts]);
+  }, [interval, movedBoxes]);
 
   const filteredFacts = useMemo(() => {
     const filters: TidyFn<object, object>[] = [];

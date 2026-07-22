@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import { Center } from "@chakra-ui/react";
@@ -97,10 +97,6 @@ function BoxCreateView() {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const baseName = selectedBase?.name;
 
-  // no warehouse location or products associated with base
-  const [noLocation, setNoLocation] = useState(false);
-  const [noProducts, setNoProducts] = useState(false);
-
   // variables in URL
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
@@ -164,14 +160,6 @@ function BoxCreateView() {
       name: location.name ?? "",
     }))
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
-
-  useEffect(() => {
-    // Disable form submission if no warehouse location or products associated with base, but only if the query response is available
-    if (allLocations !== undefined && allLocations.length < 1) setNoLocation(true);
-    else if (noLocation) setNoLocation(false);
-    if (allProducts !== undefined && allProducts.length < 1) setNoProducts(true);
-    else if (noProducts) setNoProducts(false);
-  }, [allLocations, allProducts, noLocation, noProducts]);
 
   // check data for form
   useEffect(() => {
@@ -294,12 +282,12 @@ function BoxCreateView() {
 
   return (
     <Center flexDirection="column" gap={4}>
-      {noLocation && (
+      {allLocations !== undefined && allLocations.length < 1 && (
         <AlertWithoutAction
           alertText={`${baseName} needs a coordinator to create an <InStock> warehouse location before boxes can be created!`}
         />
       )}
-      {noProducts && (
+      {allProducts !== undefined && allProducts.length < 1 && (
         <AlertWithoutAction
           alertText={`${baseName} needs a coordinator to activate products types before boxes can be created!`}
         />
@@ -311,7 +299,10 @@ function BoxCreateView() {
         onSubmitBoxCreateFormAndCreateAnother={onSubmitBoxCreateFormAndCreateAnother}
         allTags={allTags}
         currency={allFormOptions.data?.base?.monetaryCurrencyCode}
-        disableSubmission={noLocation || noProducts}
+        disableSubmission={
+          (allLocations !== undefined && allLocations.length < 1) ||
+          (allProducts !== undefined && allProducts.length < 1)
+        }
       />
     </Center>
   );

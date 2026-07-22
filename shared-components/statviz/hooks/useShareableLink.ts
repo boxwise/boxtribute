@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 // TODO: Move common utils to shared-components, use alias for imports.
@@ -45,7 +45,6 @@ export default function useShareableLink({
   const { createToast } = useNotification();
   const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
-  const [alertType, setAlertType] = useState<"info" | "warning" | undefined>();
   const [submittedGlobalParams, setSubmittedGlobalParams] = useState<string | undefined>();
   const { filterValue: boi } = useValueFilter<IBoxesOrItemsFilter>(
     boxesOrItemsFilterValues,
@@ -62,16 +61,6 @@ export default function useShareableLink({
 
   const [createShareableLinkMutation] = useMutation(CREATE_SHAREABLE_LINK);
 
-  useEffect(() => {
-    if (submittedGlobalParams) {
-      if (searchParams.toString() !== submittedGlobalParams) {
-        setAlertType("warning");
-      } else {
-        setAlertType("info");
-      }
-    }
-  }, [searchParams, submittedGlobalParams]);
-
   const copyLinkToClipboard = useCallback(
     async (code?: string) => {
       // Use retrieved code from mutation right away, otherwise use the computed state value.
@@ -82,6 +71,7 @@ export default function useShareableLink({
       try {
         await navigator.clipboard.writeText(linkTobeCopied);
       } catch (error) {
+        console.error(error);
         createToast({
           type: "error",
           message: "Failed to copy to clipboard.",
@@ -106,7 +96,6 @@ export default function useShareableLink({
       }).then(({ data }) => {
         if (data?.createShareableLink?.__typename === "ShareableLink") {
           setShareableLink(data.createShareableLink.code);
-          setAlertType("info");
           setExpirationDate(new Date(data.createShareableLink.validUntil || "").toUTCString());
           setSubmittedGlobalParams(searchParams.toString());
           copyLinkToClipboard(data.createShareableLink.code);
@@ -124,7 +113,10 @@ export default function useShareableLink({
   return {
     shareableLink,
     shareableLinkURL,
-    alertType,
+    alertType:
+      submittedGlobalParams && searchParams.toString() !== submittedGlobalParams
+        ? "warning"
+        : "info",
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,

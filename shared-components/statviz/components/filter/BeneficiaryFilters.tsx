@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   VStack,
   Button,
@@ -30,13 +30,22 @@ export function BeneficiaryFilters({
   tags,
   onApply,
 }: BeneficiaryFiltersProps) {
+  const [prevAppliedFilters, setPrevAppliedFilters] = useState(appliedFilters);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
   const [staged, setStaged] = useState<BeneficiaryAppliedFilters>(appliedFilters);
 
-  useEffect(() => {
+  if (
+    isOpen !== prevIsOpen ||
+    JSON.stringify(appliedFilters) !== JSON.stringify(prevAppliedFilters)
+  ) {
+    setPrevIsOpen(isOpen);
+    setPrevAppliedFilters(appliedFilters);
+
     if (isOpen) {
       setStaged(appliedFilters);
     }
-  }, [isOpen, appliedFilters]);
+  }
 
   const handleApply = useCallback(() => {
     onApply(staged);

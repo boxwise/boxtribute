@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 import { VStack, Button, Box, FormControl, FormLabel, SimpleGrid } from "@chakra-ui/react";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
@@ -76,22 +76,22 @@ export function BoxesFilter({
     }));
   }, []);
 
-  useEffect(() => {
-    if (isOpen) {
-      const filtersMap: Record<string, string[]> = {};
-      columnFilters.forEach((filter) => {
-        if (filter.value == null) {
-          return;
-        }
-        if (Array.isArray(filter.value)) {
-          filtersMap[filter.id] = filter.value.map(String);
-        } else {
-          filtersMap[filter.id] = [String(filter.value)];
-        }
-      });
-      setStagedFilters(filtersMap);
-    }
-  }, [isOpen, columnFilters]);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen && !prevIsOpen) {
+    setPrevIsOpen(true);
+    const filtersMap: Record<string, string[]> = {};
+    columnFilters.forEach((filter) => {
+      if (filter.value == null) return;
+      if (Array.isArray(filter.value)) {
+        filtersMap[filter.id] = filter.value.map(String);
+      } else {
+        filtersMap[filter.id] = [String(filter.value)];
+      }
+    });
+    setStagedFilters(filtersMap);
+  } else if (!isOpen && prevIsOpen) {
+    setPrevIsOpen(false);
+  }
 
   const handleFilterChange = useCallback((filterId: string, values: string[]) => {
     setStagedFilters((prev) => ({

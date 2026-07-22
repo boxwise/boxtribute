@@ -488,7 +488,7 @@ function ShipmentsOverviewView() {
             onClose={filterDisclosure.onClose}
           >
             <ShipmentFilter
-              isOpen={filterDisclosure.isOpen}
+              key={String(filterDisclosure.isOpen)}
               onClose={filterDisclosure.onClose}
               columnFilters={visibleFilters}
               onApplyFilters={handleApplyFilters}
