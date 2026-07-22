@@ -39,6 +39,16 @@ function storageKey(userId: string) {
   return `boxtribute_mobile_walkthrough_${userId}`;
 }
 
+function loadState(userId: string): MobileWalkthroughState {
+  try {
+    const raw = localStorage.getItem(storageKey(userId));
+    if (raw) return JSON.parse(raw) as MobileWalkthroughState;
+  } catch {
+    // ignore
+  }
+  return { hasSeenWelcome: false };
+}
+
 function saveState(userId: string, state: MobileWalkthroughState) {
   try {
     localStorage.setItem(storageKey(userId), JSON.stringify(state));
@@ -50,44 +60,16 @@ function saveState(userId: string, state: MobileWalkthroughState) {
 export function MobileWalkthroughProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth0();
   const userId = user?.sub ?? "anonymous";
-
-  const [prevUserId, setPrevUserId] = useState("");
   const roles: string[] = user?.[JWT_ROLE] ?? [];
   const isCoordinator = isCoordinatorOrAbove(roles);
 
-  const [step, setStep] = useState<MobileWalkthroughStep>("idle");
+  // Initialize state lazily based on local storage
+  const [step, setStep] = useState<MobileWalkthroughStep>(() => {
+    const state = loadState(userId);
+    return state.hasSeenWelcome ? "idle" : "welcome";
+  });
+
   const [slideIndex, setSlideIndex] = useState(0);
-
-  function loadState(userId: string): MobileWalkthroughState {
-    let returnState;
-    try {
-      const raw = localStorage.getItem(storageKey(userId));
-      if (raw) {
-        returnState = JSON.parse(raw) as MobileWalkthroughState;
-      }
-    } catch {
-      // ignore
-    }
-    returnState = { hasSeenWelcome: false };
-
-    if (!returnState.hasSeenWelcome) {
-      setStep("welcome");
-    }
-
-    return returnState;
-  }
-
-  if (prevUserId !== userId) {
-    loadState(userId);
-    setPrevUserId(userId);
-  }
-  // // Auto-show welcome for first-time mobile users
-  // useEffect(() => {
-  //   const state = loadState(userId);
-  //   if (!state.hasSeenWelcome) {
-  //     setStep("welcome");
-  //   }
-  // }, [userId]);
 
   const markSeen = useCallback(() => {
     saveState(userId, { hasSeenWelcome: true });

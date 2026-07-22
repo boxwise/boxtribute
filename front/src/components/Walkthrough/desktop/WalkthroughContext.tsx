@@ -68,10 +68,8 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const userId = user?.sub ?? "anonymous";
   const visiblePaths = useVisiblePaths();
 
-  // 1. Track the previous userId to detect when it changes
   const [prevUserId, setPrevUserId] = useState(userId);
 
-  // 2. Initialize state lazily from localStorage
   const [isWalkthroughActive, setIsWalkthroughActive] = useState(() => {
     const state = loadState(userId);
     return !state.hasSeenWelcome;
