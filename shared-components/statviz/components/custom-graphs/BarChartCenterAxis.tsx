@@ -59,7 +59,13 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     if (firstRender && chart.rendered) {
       chart.rendered(firstRender);
     }
-  });
+
+    return () => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+      }
+    };
+  }, [chart]);
 
   const {
     showTooltip,
@@ -73,6 +79,8 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
     tooltipOpen: false,
   });
 
+  const tooltipTimeoutRef = useRef<number | undefined>(undefined);
+
   if (typeof chart.width === "string") {
     // Fluid mode: let ParentSize measure the container and re-render with a real pixel width
     return (
@@ -85,8 +93,6 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
   }
 
   const fields = { ...chart };
-
-  let tooltipTimeout: number;
 
   if (!fields.settings) {
     fields.settings = {};
@@ -183,10 +189,10 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   x={x}
                   y={Math.round(y - barHight / 2)}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                    tooltipTimeoutRef.current = window.setTimeout(() => hideTooltip(), 300);
                   }}
                   onMouseMove={(event) => {
-                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
                     const localY = localPoint(event)?.y ?? 0;
                     showTooltip({
                       tooltipData: tooltip,
@@ -214,10 +220,10 @@ export default function BarChartCenterAxis(chart: IBarChartCenterAxis) {
                   y={Math.round(y - barHight / 2)}
                   fill={fields.colorBarRight}
                   onMouseLeave={() => {
-                    tooltipTimeout = window.setTimeout(() => hideTooltip(), 300);
+                    tooltipTimeoutRef.current = window.setTimeout(() => hideTooltip(), 300);
                   }}
                   onMouseMove={(event) => {
-                    if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                    if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current);
                     const localY = localPoint(event)?.y ?? 0;
 
                     showTooltip({
