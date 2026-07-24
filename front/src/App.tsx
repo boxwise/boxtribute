@@ -33,6 +33,8 @@ import EditStandardProductView from "views/EditStandardProduct/EditStandardProdu
 import { TagsView } from "views/Tags/TagsOverview/TagsView";
 import { CreateTagView } from "views/Tags/CreateTag/CreateTagView";
 import { UpdateTagView } from "views/Tags/UpdateTag/UpdateTagView";
+import GuidesOverviewView from "views/Guides/GuidesOverviewView";
+import GuideDetailView from "views/Guides/GuideDetailView";
 import { useAuth0 } from "@auth0/auth0-react";
 import { JWT_ROLE } from "utils/constants";
 
@@ -385,6 +387,11 @@ function App() {
                 />
               }
             />
+          </Route>
+
+          <Route path="guides">
+            <Route index element={<GuidesOverviewView />} />
+            <Route path=":guideSlug" element={<GuideDetailView />} />
           </Route>
         </Route>
       </Route>
