@@ -3,6 +3,7 @@ import { useQuery } from "@apollo/client";
 import { useParams } from "react-router-dom";
 import { useMemo, useState } from "react";
 import BeneficiaryOverview from "./BeneficiaryOverview";
+import GuideBanner from "./GuideBanner";
 import MovedBoxes from "./MovedBoxes";
 import StockOverview from "./StockOverview";
 import InfoText from "./InfoText";
@@ -112,7 +113,7 @@ export default function Dashboard({ roles = [] }: DashboardProps) {
     <div>
       <Heading style={{ marginBottom: "15px" }}>Dashboard</Heading>
       <InfoText />
-
+      <GuideBanner />
       <Accordion
         defaultIndex={[]}
         allowMultiple
