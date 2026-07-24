@@ -33,24 +33,40 @@ function StepScreenMock({
   tags?: string[];
 }) {
   return (
-    <Box
-      bg="brandBlue.300"
-      borderRadius="md"
-      p={4}
-      color="white"
-      fontSize="sm"
-      minH="220px"
-      w="full"
-    >
-      <Flex justify="space-between" align="center" mb={3}>
-        <Text fontWeight="bold" fontSize="xs" textTransform="uppercase" letterSpacing="wide">
-          {title}
+    <VStack spacing={0} w="full" borderRadius="md" overflow="hidden">
+      {/* Top: placeholder screenshot */}
+      <Flex
+        w="full"
+        h="180px"
+        bg="gray.100"
+        align="center"
+        justify="center"
+        direction="column"
+        gap={2}
+        flexShrink={0}
+      >
+        <Box
+          w={12}
+          h={10}
+          bg="gray.300"
+          borderRadius="sm"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Box w={4} h={3} bg="gray.400" borderRadius="xs" />
+        </Box>
+        <Text fontSize="xs" color="gray.400" fontWeight="medium">
+          Screenshot placeholder
         </Text>
-        <Box w={3} h={3} borderRadius="full" bg="whiteAlpha.400" />
       </Flex>
 
-      <Box bg="whiteAlpha.100" borderRadius="sm" p={3} mb={3}>
-        <Text fontSize="xs" color="whiteAlpha.700" mb={2}>
+      {/* Bottom: blue explanation box */}
+      <Box bg="brandBlue.300" w="full" p={4} color="white" fontSize="sm">
+        <Text fontWeight="bold" fontSize="xs" textTransform="uppercase" letterSpacing="wide" mb={2}>
+          {title}
+        </Text>
+        <Text fontSize="xs" color="whiteAlpha.800" mb={fields || tags ? 3 : 0}>
           {description}
         </Text>
         {fields?.map((f) => (
@@ -81,16 +97,15 @@ function StepScreenMock({
             ))}
           </HStack>
         )}
+        {note && (
+          <Box bg="brandBlue.200" borderRadius="sm" p={2} mt={2}>
+            <Text fontSize="xs" color="white">
+              • {note}
+            </Text>
+          </Box>
+        )}
       </Box>
-
-      {note && (
-        <Box bg="brandBlue.200" borderRadius="sm" p={2}>
-          <Text fontSize="xs" color="white">
-            • {note}
-          </Text>
-        </Box>
-      )}
-    </Box>
+    </VStack>
   );
 }
 
@@ -121,8 +136,13 @@ export default function GuideDetailView() {
     }
   };
 
-  const handleExportPDF = () => {
-    window.print();
+  const handleDownloadPDF = () => {
+    const link = document.createElement("a");
+    link.href = "/guides/placeholder-guide.pdf";
+    link.download = `${guide.slug}-guide.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const guidesPath = `/bases/${baseId}/guides`;
@@ -164,9 +184,10 @@ export default function GuideDetailView() {
           </Breadcrumb>
 
           <Button
+            display={{ base: "none", md: "flex" }}
             size="sm"
             variant="outline"
-            onClick={handleExportPDF}
+            onClick={handleDownloadPDF}
             data-heap-event="guide-export-pdf"
             data-heap-guide={guide.slug}
             className="no-print"
@@ -338,7 +359,21 @@ export default function GuideDetailView() {
           </Box>
         )}
 
-        <Flex justify="space-between" align="center" mb={6} className="no-print">
+        {/* Mobile-only Export PDF button */}
+        <Box display={{ base: "block", md: "none" }} mb={4} className="no-print">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleDownloadPDF}
+            w="full"
+            data-heap-event="guide-export-pdf"
+            data-heap-guide={guide.slug}
+          >
+            Export PDF
+          </Button>
+        </Box>
+
+        <Flex justify="space-between" align="center" mb={2} className="no-print">
           <Button
             onClick={handlePrev}
             isDisabled={currentStep === 0}
@@ -351,7 +386,25 @@ export default function GuideDetailView() {
             ← Prev
           </Button>
 
-          {!isDesktop && (
+          <Button
+            onClick={handleNext}
+            isDisabled={isLastStep}
+            bg="brandBlue.300"
+            color="white"
+            size="sm"
+            _hover={{ bg: "brandBlue.200" }}
+            _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
+            data-heap-event="guide-next-step"
+            data-heap-guide={guide.slug}
+            data-heap-step={currentStep + 1}
+          >
+            Next →
+          </Button>
+        </Flex>
+
+        {/* Mobile-only progress circles below nav */}
+        {!isDesktop && (
+          <Flex justify="center" mb={6} className="no-print">
             <HStack spacing={2}>
               {guide.steps.map((_, i) => (
                 <Circle
@@ -374,21 +427,8 @@ export default function GuideDetailView() {
                 </Circle>
               ))}
             </HStack>
-          )}
-
-          <Button
-            onClick={handleNext}
-            bg="brandBlue.300"
-            color="white"
-            size="sm"
-            _hover={{ bg: "brandBlue.200" }}
-            data-heap-event={isLastStep ? "guide-finish" : "guide-next-step"}
-            data-heap-guide={guide.slug}
-            data-heap-step={currentStep + 1}
-          >
-            {isLastStep ? "Finish ✓" : "Next →"}
-          </Button>
-        </Flex>
+          </Flex>
+        )}
 
         {isLastStep && (
           <Flex
@@ -501,7 +541,14 @@ export default function GuideDetailView() {
           </Box>
         </Flex>
 
-        <Text textAlign="center" fontSize="xs" color="gray.400" mt={8} mb={4}>
+        <Text
+          display={{ base: "none", md: "block" }}
+          textAlign="center"
+          fontSize="xs"
+          color="gray.400"
+          mt={8}
+          mb={4}
+        >
           Boxtribute · Guide · Step {currentStep + 1} of {guide.steps.length}
         </Text>
       </Box>

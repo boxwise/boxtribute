@@ -97,9 +97,18 @@ export default function GuidesOverviewView() {
                 </Text>
               </Text>
 
-              <Text fontSize="sm" color="brandRed.300" fontWeight="semibold">
-                Open capability →
-              </Text>
+              <Box
+                bg="red.50"
+                borderRadius="md"
+                px={3}
+                py={1}
+                display="inline-flex"
+                alignItems="center"
+              >
+                <Text fontSize="sm" color="brandRed.300" fontWeight="semibold">
+                  Open capability →
+                </Text>
+              </Box>
 
               <HStack spacing={1} color="brandBlue.200" fontSize="xs">
                 <TimeIcon boxSize={3} />
