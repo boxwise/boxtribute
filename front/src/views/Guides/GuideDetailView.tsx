@@ -14,15 +14,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { CheckIcon, ChevronRightIcon, TimeIcon } from "@chakra-ui/icons";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
-import {
-  trackGuideAbandoned,
-  trackGuideCompleted,
-  trackGuideStarted,
-  trackGuideStepViewed,
-} from "./guideAnalytics";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
 
 function StepScreenMock({
@@ -103,40 +97,10 @@ function StepScreenMock({
 export default function GuideDetailView() {
   const { baseId, guideSlug } = useParams<{ baseId: string; guideSlug: string }>();
   const [isDesktop] = useMediaQuery(DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY);
-  const device = isDesktop ? "desktop" : "mobile";
 
   const guide = GUIDES.find((g) => g.slug === guideSlug);
 
   const [currentStep, setCurrentStep] = useState(0);
-  const hasTrackedStart = useRef(false);
-  const hasTrackedStep = useRef<Set<number>>(new Set());
-
-  useEffect(() => {
-    if (!guide) return;
-    if (!hasTrackedStart.current) {
-      hasTrackedStart.current = true;
-      trackGuideStarted(guide.slug, device);
-    }
-  }, [guide, device]);
-
-  useEffect(() => {
-    if (!guide) return;
-    if (!hasTrackedStep.current.has(currentStep)) {
-      hasTrackedStep.current.add(currentStep);
-      trackGuideStepViewed(guide.slug, currentStep + 1, guide.steps.length, device);
-    }
-  }, [currentStep, guide, device]);
-
-  useEffect(() => {
-    if (!guide) return;
-    const handleBeforeUnload = () => {
-      if (currentStep < guide.steps.length - 1) {
-        trackGuideAbandoned(guide.slug, currentStep + 1, guide.steps.length, device);
-      }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [guide, currentStep, device]);
 
   if (!guide) {
     return <Navigate to={`/bases/${baseId}/guides`} replace />;
@@ -146,9 +110,7 @@ export default function GuideDetailView() {
   const isLastStep = currentStep === guide.steps.length - 1;
 
   const handleNext = () => {
-    if (isLastStep) {
-      trackGuideCompleted(guide.slug, device);
-    } else {
+    if (!isLastStep) {
       setCurrentStep((s) => s + 1);
     }
   };
@@ -180,7 +142,14 @@ export default function GuideDetailView() {
         <Flex justify="space-between" align="center" mb={4} className="no-print">
           <Breadcrumb separator={<ChevronRightIcon color="gray.400" />} fontSize="sm">
             <BreadcrumbItem>
-              <BreadcrumbLink as={RouterLink} to={guidesPath} color="gray.500">
+              <BreadcrumbLink
+                as={RouterLink}
+                to={guidesPath}
+                color="gray.500"
+                data-heap-event="guide-abandon"
+                data-heap-guide={guide.slug}
+                data-heap-step={currentStep + 1}
+              >
                 Guide
               </BreadcrumbLink>
             </BreadcrumbItem>
