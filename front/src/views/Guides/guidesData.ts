@@ -24,7 +24,6 @@ export interface Guide {
   requirement: string;
   steps: GuideStep[];
   reference?: GuideReference;
-  featureUnderneathTags: string[];
   featureUnderneathDescription: string;
   featureUnderneathLink: string;
 }
@@ -34,8 +33,8 @@ export const GUIDES: Guide[] = [
     slug: "roles-and-permissions",
     title: "Set up roles & team permissions",
     subtitle: "Control who can see what in Boxtribute",
-    tags: ["Team Setup", "Users", "Roles"],
-    feature: "Users + roles",
+    tags: ["Users", "Roles"],
+    feature: "Manage Users",
     estimatedMinutes: 5,
     status: "live",
     requirement:
@@ -185,10 +184,9 @@ export const GUIDES: Guide[] = [
 </table>
 `,
     },
-    featureUnderneathTags: ["Manage Users"],
     featureUnderneathDescription:
       "Set this up once and every team member logs in with the right level of access from day one.",
-    featureUnderneathLink: "See how it works →",
+    featureUnderneathLink: "/?camp=2&action=cms_users",
   },
   {
     slug: "import-stock-beneficiaries",
@@ -224,7 +222,6 @@ export const GUIDES: Guide[] = [
         note: "Skipped rows are not lost — you can re-import them separately.",
       },
     ],
-    featureUnderneathTags: ["CSV import"],
     featureUnderneathDescription:
       "CSV import works for both stock items and beneficiary records. Run it as many times as you need.",
     featureUnderneathLink: "See how CSV import works →",
@@ -269,7 +266,6 @@ export const GUIDES: Guide[] = [
         note: "The tag travels with the person into services and checkout, so the most at-risk are matched first — by default, not by luck.",
       },
     ],
-    featureUnderneathTags: ["Beneficiary tags", "Manage Services"],
     featureUnderneathDescription:
       "Learn these two building blocks once and most 'can you add a field for...?' requests answer themselves.",
     featureUnderneathLink: "See how tags & services work →",
@@ -307,7 +303,6 @@ export const GUIDES: Guide[] = [
         note: "Scanning the box QR code and tapping 'Move' is the fastest way to update location in bulk.",
       },
     ],
-    featureUnderneathTags: ["Locations"],
     featureUnderneathDescription:
       "Locations are the backbone of stock visibility. Set them up to match your space and volunteers will always know where to look.",
     featureUnderneathLink: "See how locations work →",

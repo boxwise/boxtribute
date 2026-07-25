@@ -242,7 +242,7 @@ export default function GuideDetailView() {
             letterSpacing="wide"
             color="gray.500"
           >
-            {guide.tags[0]}
+            {guide.feature}
           </Text>
           <HStack spacing={1} color="brandBlue.200" fontSize="xs">
             <TimeIcon boxSize={3} />
@@ -509,22 +509,21 @@ export default function GuideDetailView() {
               The Feature Underneath
             </Text>
             <HStack flexWrap="wrap" spacing={2} mb={3}>
-              {guide.featureUnderneathTags.map((tag) => (
-                <Badge key={tag} bg="gray.100" color="gray.700" px={2} py={0.5} borderRadius="sm">
-                  {tag}
-                </Badge>
-              ))}
-              {guide.featureUnderneathTags.length > 1 && (
-                <Text color="gray.400" fontWeight="bold">
-                  +
-                </Text>
-              )}
+              <Badge
+                as={RouterLink}
+                to={guide.featureUnderneathLink}
+                key={guide.feature}
+                bg="gray.100"
+                color="gray.700"
+                px={2}
+                py={0.5}
+                borderRadius="sm"
+              >
+                {guide.feature}
+              </Badge>
             </HStack>
             <Text fontSize="sm" color="gray.600" mb={2}>
               {guide.featureUnderneathDescription}
-            </Text>
-            <Text fontSize="sm" color="brandRed.300" fontWeight="semibold">
-              {guide.featureUnderneathLink}
             </Text>
           </Box>
 
@@ -544,7 +543,7 @@ export default function GuideDetailView() {
               color="gray.500"
               mb={3}
             >
-              More in {guide.tags[0]}
+              More Guides
             </Text>
             <VStack align="stretch" spacing={3} divider={<Divider />}>
               {otherGuides.map((og) => (
