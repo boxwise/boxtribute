@@ -165,7 +165,7 @@ export default function GuideDetailView() {
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem>
-              <BreadcrumbLink color="gray.500">{guide.category}</BreadcrumbLink>
+              <BreadcrumbLink color="gray.500">{guide.tags[0]}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink color="gray.700" fontWeight="semibold">
@@ -201,7 +201,7 @@ export default function GuideDetailView() {
             letterSpacing="wide"
             color="gray.500"
           >
-            {guide.category}
+            {guide.tags[0]}
           </Text>
           <HStack spacing={1} color="brandBlue.200" fontSize="xs">
             <TimeIcon boxSize={3} />
@@ -477,7 +477,7 @@ export default function GuideDetailView() {
               color="gray.500"
               mb={3}
             >
-              More in {guide.category}
+              More in {guide.tags[0]}
             </Text>
             <VStack align="stretch" spacing={3} divider={<Divider />}>
               {otherGuides.map((og) => (

@@ -10,7 +10,6 @@ export interface Guide {
   slug: string;
   title: string;
   subtitle: string;
-  category: string;
   tags: string[];
   feature: string;
   estimatedMinutes: number;
@@ -27,8 +26,7 @@ export const GUIDES: Guide[] = [
     slug: "roles-and-permissions",
     title: "Set up roles & team permissions",
     subtitle: "Control who can see and do what in Boxtribute.",
-    category: "Team Setup",
-    tags: ["Users", "Roles"],
+    tags: ["Team Setup", "Users", "Roles"],
     feature: "Users + roles",
     estimatedMinutes: 5,
     status: "live",
@@ -70,8 +68,7 @@ export const GUIDES: Guide[] = [
     slug: "import-stock-beneficiaries",
     title: "Import your existing stock or beneficiaries",
     subtitle: "Bring your existing data into Boxtribute with a CSV upload.",
-    category: "Data Import",
-    tags: ["CSV import"],
+    tags: ["Data Import", "CSV import"],
     feature: "CSV import",
     estimatedMinutes: 5,
     status: "live",
@@ -107,8 +104,7 @@ export const GUIDES: Guide[] = [
     slug: "identify-most-vulnerable",
     title: "Identify & prioritise the most vulnerable",
     subtitle: "Use beneficiary tags to flag and fast-track the people who need help most.",
-    category: "Protection & targeting",
-    tags: ["Beneficiary Tags"],
+    tags: ["Protection & Targeting", "Beneficiary Tags"],
     feature: "Beneficiary tags",
     estimatedMinutes: 5,
     status: "live",
@@ -149,8 +145,7 @@ export const GUIDES: Guide[] = [
     slug: "organise-warehouse-space",
     title: "Organise your warehouse space",
     subtitle: "Map your physical warehouse into Boxtribute so boxes are always findable.",
-    category: "Warehouse Setup",
-    tags: ["Locations"],
+    tags: ["Warehouse Setup", "Locations"],
     feature: "Locations",
     estimatedMinutes: 5,
     status: "live",
