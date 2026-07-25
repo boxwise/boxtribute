@@ -15,11 +15,29 @@ import {
 } from "@chakra-ui/react";
 import { CheckIcon, ChevronRightIcon, TimeIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import ReactMarkdownBase from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
 
-function StepContent({ picture, html, note }: { picture?: string; html?: string; note?: string }) {
+// Type cast needed due to peer @types/react version mismatch with react-markdown
+const ReactMarkdown = ReactMarkdownBase as unknown as React.FC<{
+  children: string;
+  rehypePlugins?: unknown[];
+}>;
+
+function StepContent({
+  picture,
+  alt,
+  markdown,
+  note,
+}: {
+  picture?: string;
+  alt?: string;
+  markdown?: string;
+  note?: string;
+}) {
   return (
     <VStack
       spacing={0}
@@ -30,7 +48,7 @@ function StepContent({ picture, html, note }: { picture?: string; html?: string;
       borderColor="gray.200"
     >
       {picture ? (
-        <Box as="img" src={picture} alt="" w="full" display="block" />
+        <Box as="img" src={picture} alt={alt ?? ""} w="full" display="block" />
       ) : (
         <Flex
           w="full"
@@ -59,7 +77,7 @@ function StepContent({ picture, html, note }: { picture?: string; html?: string;
         </Flex>
       )}
 
-      {html && (
+      {markdown && (
         <Box
           w="full"
           bg="white"
@@ -78,9 +96,9 @@ function StepContent({ picture, html, note }: { picture?: string; html?: string;
               padding: "0 3px",
             },
           }}
-          // html is static content defined in guidesData.ts, not user input
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        >
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{markdown}</ReactMarkdown>
+        </Box>
       )}
 
       {note && (
@@ -93,7 +111,7 @@ function StepContent({ picture, html, note }: { picture?: string; html?: string;
           fontSize="xs"
           borderBottomRadius="md"
         >
-          <Text>• {note}</Text>
+          <Text>{note}</Text>
         </Box>
       )}
     </VStack>
@@ -163,9 +181,6 @@ export default function GuideDetailView() {
               >
                 Guide
               </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              <BreadcrumbLink color="gray.500">{guide.tags[0]}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink color="gray.700" fontWeight="semibold">
@@ -289,9 +304,16 @@ export default function GuideDetailView() {
                         {i < currentStep ? <CheckIcon boxSize={3} /> : i + 1}
                       </Circle>
                       <Box flex={1} minW={0}>
-                        <Text fontWeight={i === currentStep ? "bold" : "medium"} fontSize="sm">
-                          {s.title}
-                        </Text>
+                        <HStack spacing={2}>
+                          <Text fontWeight={i === currentStep ? "bold" : "medium"} fontSize="sm">
+                            {s.title}
+                          </Text>
+                          {s.optional && (
+                            <Badge fontSize="xs" colorScheme="gray" variant="subtle">
+                              Optional
+                            </Badge>
+                          )}
+                        </HStack>
                         {i === currentStep && (
                           <Text fontSize="xs" color="gray.500" mt={0.5}>
                             {s.description}
@@ -307,7 +329,12 @@ export default function GuideDetailView() {
               </VStack>
 
               <Box flex="1" minW="0">
-                <StepContent picture={step.picture} html={step.html} note={step.note} />
+                <StepContent
+                  picture={step.picture}
+                  alt={step.alt}
+                  markdown={step.markdown}
+                  note={step.note}
+                />
               </Box>
             </Flex>
           </Box>
@@ -317,11 +344,23 @@ export default function GuideDetailView() {
               How you do it in Boxtribute
             </Text>
 
-            <StepContent picture={step.picture} html={step.html} note={step.note} />
+            <StepContent
+              picture={step.picture}
+              alt={step.alt}
+              markdown={step.markdown}
+              note={step.note}
+            />
 
-            <Text fontWeight="bold" fontSize="sm" mt={4} mb={1}>
-              {currentStep + 1}. {step.title}
-            </Text>
+            <HStack spacing={2} mt={4} mb={1}>
+              <Text fontWeight="bold" fontSize="sm">
+                {currentStep + 1}. {step.title}
+              </Text>
+              {step.optional && (
+                <Badge fontSize="xs" colorScheme="gray" variant="subtle">
+                  Optional
+                </Badge>
+              )}
+            </HStack>
             {step.description && (
               <Text fontSize="sm" color="gray.600">
                 {step.description}
