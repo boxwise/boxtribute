@@ -173,9 +173,6 @@ export default function GuideDetailView() {
                 Guide
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbItem>
-              <BreadcrumbLink color="gray.500">{guide.category}</BreadcrumbLink>
-            </BreadcrumbItem>
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink color="gray.700" fontWeight="semibold">
                 {guide.title}
