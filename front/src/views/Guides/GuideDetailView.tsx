@@ -19,6 +19,7 @@ import ReactMarkdownBase from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
+import type { GuideReference } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
 
 // Type cast needed due to peer @types/react version mismatch with react-markdown
@@ -115,6 +116,58 @@ function StepContent({
         </Box>
       )}
     </VStack>
+  );
+}
+
+function ReferenceSection({ reference }: { reference: GuideReference }) {
+  return (
+    <Box
+      bg="white"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="lg"
+      p={6}
+      mb={6}
+      overflowX="auto"
+    >
+      <Text
+        fontSize="xs"
+        fontWeight="bold"
+        textTransform="uppercase"
+        letterSpacing="wide"
+        color="gray.500"
+        mb={2}
+      >
+        Reference
+      </Text>
+      <Text fontWeight="bold" fontSize="md" mb={4}>
+        {reference.title}
+      </Text>
+      <Box
+        fontSize="sm"
+        color="gray.700"
+        sx={{
+          table: { width: "100%", borderCollapse: "collapse" },
+          "th, td": {
+            border: "1px solid",
+            borderColor: "var(--chakra-colors-gray-200)",
+            px: 3,
+            py: 2,
+            textAlign: "left",
+          },
+          th: {
+            bg: "var(--chakra-colors-gray-50)",
+            fontWeight: "semibold",
+            fontSize: "xs",
+            color: "var(--chakra-colors-gray-600)",
+          },
+          "td:not(:first-of-type)": { textAlign: "center" },
+          "tr:hover td": { bg: "var(--chakra-colors-gray-50)" },
+        }}
+      >
+        <ReactMarkdown>{reference.markdown}</ReactMarkdown>
+      </Box>
+    </Box>
   );
 }
 
@@ -460,6 +513,8 @@ export default function GuideDetailView() {
             </Circle>
           </Flex>
         )}
+
+        {guide.reference && <ReferenceSection reference={guide.reference} />}
 
         <Flex gap={6} flexDir={{ base: "column", md: "row" }}>
           <Box

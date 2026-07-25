@@ -8,6 +8,11 @@ export interface GuideStep {
   optional?: boolean;
 }
 
+export interface GuideReference {
+  title: string;
+  markdown: string;
+}
+
 export interface Guide {
   slug: string;
   title: string;
@@ -18,6 +23,7 @@ export interface Guide {
   status: "live" | "roadmap";
   requirement: string;
   steps: GuideStep[];
+  reference?: GuideReference;
   featureUnderneathTags: string[];
   featureUnderneathDescription: string;
   featureUnderneathLink: string;
@@ -65,6 +71,19 @@ export const GUIDES: Guide[] = [
         note: "You can deactivate a user at any time without deleting their history.",
       },
     ],
+    reference: {
+      title: "Preset roles — who can do what?",
+      markdown: `| Capability | Label Creation | Warehouse Volunteer | External Free Shop Checkout | Free Shop Volunteer | General Volunteer | Coordinator | Head of Operations |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Create Labels | ✓ | ✓ | | | ✓ | ✓ | ✓ |
+| Scan Boxes / See Box Content | | ✓ | | ✓ | ✓ | ✓ | ✓ |
+| Move Boxes / Manage Inventory | | ✓ | | | ✓ | ✓ | ✓ |
+| Free Shop Checkout | | | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Register / Edit Beneficiaries | | | | ✓ | ✓ | ✓ | ✓ |
+| Authorize Sending / Receiving Shipments | | | | | | ✓ | ✓ |
+| Manage Tags, Products, Locations, Services | | | | | | ✓ | ✓ |
+| Manage Users | | | | | | ✓ | ✓ |`,
+    },
     featureUnderneathTags: ["Users + roles"],
     featureUnderneathDescription:
       "Set this up once and every team member logs in with the right level of access from day one.",
