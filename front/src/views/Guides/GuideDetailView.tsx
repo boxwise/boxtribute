@@ -19,92 +19,83 @@ import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
 
-function StepScreenMock({
-  title,
-  description,
-  fields,
-  note,
-  tags,
-}: {
-  title: string;
-  description: string;
-  fields?: { label: string; value?: string; highlight?: boolean }[];
-  note?: string;
-  tags?: string[];
-}) {
+function StepContent({ picture, html, note }: { picture?: string; html?: string; note?: string }) {
   return (
-    <VStack spacing={0} w="full" borderRadius="md" overflow="hidden">
-      {/* Top: placeholder screenshot */}
-      <Flex
-        w="full"
-        h="180px"
-        bg="gray.100"
-        align="center"
-        justify="center"
-        direction="column"
-        gap={2}
-        flexShrink={0}
-      >
-        <Box
-          w={12}
-          h={10}
-          bg="gray.300"
-          borderRadius="sm"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+    <VStack
+      spacing={0}
+      w="full"
+      borderRadius="md"
+      overflow="hidden"
+      border="1px solid"
+      borderColor="gray.200"
+    >
+      {picture ? (
+        <Box as="img" src={picture} alt="" w="full" display="block" />
+      ) : (
+        <Flex
+          w="full"
+          h="180px"
+          bg="gray.100"
+          align="center"
+          justify="center"
+          direction="column"
+          gap={2}
+          flexShrink={0}
         >
-          <Box w={4} h={3} bg="gray.400" borderRadius="xs" />
-        </Box>
-        <Text fontSize="xs" color="gray.400" fontWeight="medium">
-          Screenshot placeholder
-        </Text>
-      </Flex>
+          <Box
+            w={12}
+            h={10}
+            bg="gray.300"
+            borderRadius="sm"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Box w={4} h={3} bg="gray.400" borderRadius="xs" />
+          </Box>
+          <Text fontSize="xs" color="gray.400" fontWeight="medium">
+            Screenshot placeholder
+          </Text>
+        </Flex>
+      )}
 
-      {/* Bottom: blue explanation box */}
-      <Box bg="brandBlue.300" w="full" p={4} color="white" fontSize="sm">
-        <Text fontWeight="bold" fontSize="xs" textTransform="uppercase" letterSpacing="wide" mb={2}>
-          {title}
-        </Text>
-        <Text fontSize="xs" color="whiteAlpha.800" mb={fields || tags ? 3 : 0}>
-          {description}
-        </Text>
-        {fields?.map((f) => (
-          <Box key={f.label} mb={2}>
-            <Text fontSize="xs" color="whiteAlpha.600" mb={0.5}>
-              {f.label.toUpperCase()}
-            </Text>
-            <Box
-              bg={f.highlight ? "brandYellow.200" : "whiteAlpha.200"}
-              color={f.highlight ? "brandBlue.300" : "white"}
-              borderRadius="sm"
-              px={2}
-              py={0.5}
-              display="inline-block"
-              fontSize="xs"
-              fontWeight={f.highlight ? "bold" : "normal"}
-            >
-              {f.value}
-            </Box>
-          </Box>
-        ))}
-        {tags && (
-          <HStack flexWrap="wrap" spacing={1} mt={1}>
-            {tags.map((t) => (
-              <Badge key={t} bg="brandRed.300" color="white" fontSize="xs" borderRadius="sm">
-                {t}
-              </Badge>
-            ))}
-          </HStack>
-        )}
-        {note && (
-          <Box bg="brandBlue.200" borderRadius="sm" p={2} mt={2}>
-            <Text fontSize="xs" color="white">
-              • {note}
-            </Text>
-          </Box>
-        )}
-      </Box>
+      {html && (
+        <Box
+          w="full"
+          bg="white"
+          px={4}
+          py={3}
+          fontSize="sm"
+          color="gray.700"
+          sx={{
+            p: { marginBottom: "0.5rem" },
+            "ul, ol": { paddingLeft: "1.25rem", marginBottom: "0.5rem" },
+            li: { marginBottom: "0.25rem" },
+            mark: {
+              backgroundColor: "var(--chakra-colors-brandYellow-100)",
+              color: "var(--chakra-colors-brandBlue-300)",
+              borderRadius: "2px",
+              padding: "0 3px",
+            },
+          }}
+          // html is static content defined in guidesData.ts, not user input
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      )}
+
+      {note && (
+        <Box
+          bg="brandBlue.300"
+          w="full"
+          px={4}
+          py={3}
+          color="white"
+          fontSize="xs"
+          borderBottomRadius="md"
+        >
+          <Text>• {note}</Text>
+        </Box>
+      )}
     </VStack>
   );
 }
@@ -306,11 +297,6 @@ export default function GuideDetailView() {
                             {s.description}
                           </Text>
                         )}
-                        {s.optional && (
-                          <Badge fontSize="xs" colorScheme="gray" mt={0.5}>
-                            Optional
-                          </Badge>
-                        )}
                       </Box>
                     </HStack>
                     {i < guide.steps.length - 1 && (
@@ -321,13 +307,7 @@ export default function GuideDetailView() {
               </VStack>
 
               <Box flex="1" minW="0">
-                <StepScreenMock
-                  title={step.screenTitle}
-                  description={step.screenDescription}
-                  fields={step.screenFields}
-                  note={step.screenNote}
-                  tags={step.tags}
-                />
+                <StepContent picture={step.picture} html={step.html} note={step.note} />
               </Box>
             </Flex>
           </Box>
@@ -337,24 +317,15 @@ export default function GuideDetailView() {
               How you do it in Boxtribute
             </Text>
 
-            <StepScreenMock
-              title={step.screenTitle}
-              description={step.screenDescription}
-              fields={step.screenFields}
-              note={step.screenNote}
-              tags={step.tags}
-            />
+            <StepContent picture={step.picture} html={step.html} note={step.note} />
 
             <Text fontWeight="bold" fontSize="sm" mt={4} mb={1}>
               {currentStep + 1}. {step.title}
             </Text>
-            <Text fontSize="sm" color="gray.600">
-              {step.description}
-            </Text>
-            {step.optional && (
-              <Badge fontSize="xs" colorScheme="gray" mt={1}>
-                Optional
-              </Badge>
+            {step.description && (
+              <Text fontSize="sm" color="gray.600">
+                {step.description}
+              </Text>
             )}
           </Box>
         )}
