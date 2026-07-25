@@ -87,16 +87,102 @@ export const GUIDES: Guide[] = [
     reference: {
       title: "Preset roles — who can do what?",
       markdown: `
-| Capability | Label Creation | Warehouse Volunteer | External Free Shop Checkout | Free Shop Volunteer | General Volunteer | Coordinator | Head of Operations |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Create Labels | ✓ | ✓ | | | ✓ | ✓ | ✓ |
-| Scan Boxes / See Box Content | | ✓ | | ✓ | ✓ | ✓ | ✓ |
-| Move Boxes / Manage Inventory | | ✓ | | | ✓ | ✓ | ✓ |
-| Free Shop Checkout | | | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Register / Edit Beneficiaries | | | | ✓ | ✓ | ✓ | ✓ |
-| Authorize Sending / Receiving Shipments | | | | | | ✓ | ✓ |
-| Manage Tags, Products, Locations, Services | | | | | | ✓ | ✓ |
-| Manage Users | | | | | | ✓ | ✓ |
+<table>
+  <thead>
+    <tr>
+      <th>Capability</th>
+      <th>Label Creation</th>
+      <th>Warehouse Volunteer</th>
+      <th>External Free Shop Checkout</th>
+      <th>Free Shop Volunteer</th>
+      <th>General Volunteer</th>
+      <th>Coordinator</th>
+      <th>Head of Operations</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Create Labels</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td>Scan Boxes / See Box Content</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td>Move Boxes / Manage Inventory</td>
+      <td></td>
+      <td>✓</td>
+      <td></td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td>Free Shop Checkout</td>
+      <td></td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td>Register / Edit Beneficiaries</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td>Authorize Sending / Receiving Shipments</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td>Manage Tags, Products, Locations, Services</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+    <tr>
+      <td>Manage Users</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>✓</td>
+      <td>✓</td>
+    </tr>
+  </tbody>
+</table>
 `,
     },
     featureUnderneathTags: ["Manage Users"],

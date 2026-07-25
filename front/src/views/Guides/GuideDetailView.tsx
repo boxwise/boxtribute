@@ -48,35 +48,7 @@ function StepContent({
       border="1px solid"
       borderColor="gray.200"
     >
-      {picture ? (
-        <Box as="img" src={picture} alt={alt ?? ""} w="full" display="block" />
-      ) : (
-        <Flex
-          w="full"
-          h="180px"
-          bg="gray.100"
-          align="center"
-          justify="center"
-          direction="column"
-          gap={2}
-          flexShrink={0}
-        >
-          <Box
-            w={12}
-            h={10}
-            bg="gray.300"
-            borderRadius="sm"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Box w={4} h={3} bg="gray.400" borderRadius="xs" />
-          </Box>
-          <Text fontSize="xs" color="gray.400" fontWeight="medium">
-            Screenshot placeholder
-          </Text>
-        </Flex>
-      )}
+      {picture && <Box as="img" src={picture} alt={alt ?? ""} w="full" display="block" />}
 
       {markdown && (
         <Box
@@ -146,6 +118,7 @@ function ReferenceSection({ reference }: { reference: GuideReference }) {
       <Box
         fontSize="sm"
         color="gray.700"
+        overflowX="auto"
         sx={{
           table: { width: "100%", borderCollapse: "collapse" },
           "th, td": {
@@ -165,7 +138,7 @@ function ReferenceSection({ reference }: { reference: GuideReference }) {
           "tr:hover td": { bg: "var(--chakra-colors-gray-50)" },
         }}
       >
-        <ReactMarkdown>{reference.markdown}</ReactMarkdown>
+        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{reference.markdown}</ReactMarkdown>
       </Box>
     </Box>
   );
