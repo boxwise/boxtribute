@@ -15,97 +15,132 @@ import {
 } from "@chakra-ui/react";
 import { CheckIcon, ChevronRightIcon, TimeIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import ReactMarkdownBase from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
+import type { GuideReference } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
 
-function StepScreenMock({
-  title,
-  description,
-  fields,
+// Type cast needed due to peer @types/react version mismatch with react-markdown
+const ReactMarkdown = ReactMarkdownBase as unknown as React.FC<{
+  children: string;
+  rehypePlugins?: unknown[];
+}>;
+
+function StepContent({
+  picture,
+  alt,
+  markdown,
   note,
-  tags,
 }: {
-  title: string;
-  description: string;
-  fields?: { label: string; value?: string; highlight?: boolean }[];
+  picture?: string;
+  alt?: string;
+  markdown?: string;
   note?: string;
-  tags?: string[];
 }) {
   return (
-    <VStack spacing={0} w="full" borderRadius="md" overflow="hidden">
-      {/* Top: placeholder screenshot */}
-      <Flex
-        w="full"
-        h="180px"
-        bg="gray.100"
-        align="center"
-        justify="center"
-        direction="column"
-        gap={2}
-        flexShrink={0}
-      >
-        <Box
-          w={12}
-          h={10}
-          bg="gray.300"
-          borderRadius="sm"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Box w={4} h={3} bg="gray.400" borderRadius="xs" />
-        </Box>
-        <Text fontSize="xs" color="gray.400" fontWeight="medium">
-          Screenshot placeholder
-        </Text>
-      </Flex>
+    <VStack
+      spacing={0}
+      w="full"
+      borderRadius="md"
+      overflow="hidden"
+      border="1px solid"
+      borderColor="gray.200"
+    >
+      {picture && <Box as="img" src={picture} alt={alt ?? ""} w="full" display="block" />}
 
-      {/* Bottom: blue explanation box */}
-      <Box bg="brandBlue.300" w="full" p={4} color="white" fontSize="sm">
-        <Text fontWeight="bold" fontSize="xs" textTransform="uppercase" letterSpacing="wide" mb={2}>
-          {title}
-        </Text>
-        <Text fontSize="xs" color="whiteAlpha.800" mb={fields || tags ? 3 : 0}>
-          {description}
-        </Text>
-        {fields?.map((f) => (
-          <Box key={f.label} mb={2}>
-            <Text fontSize="xs" color="whiteAlpha.600" mb={0.5}>
-              {f.label.toUpperCase()}
-            </Text>
-            <Box
-              bg={f.highlight ? "brandYellow.200" : "whiteAlpha.200"}
-              color={f.highlight ? "brandBlue.300" : "white"}
-              borderRadius="sm"
-              px={2}
-              py={0.5}
-              display="inline-block"
-              fontSize="xs"
-              fontWeight={f.highlight ? "bold" : "normal"}
-            >
-              {f.value}
-            </Box>
-          </Box>
-        ))}
-        {tags && (
-          <HStack flexWrap="wrap" spacing={1} mt={1}>
-            {tags.map((t) => (
-              <Badge key={t} bg="brandRed.300" color="white" fontSize="xs" borderRadius="sm">
-                {t}
-              </Badge>
-            ))}
-          </HStack>
-        )}
-        {note && (
-          <Box bg="brandBlue.200" borderRadius="sm" p={2} mt={2}>
-            <Text fontSize="xs" color="white">
-              • {note}
-            </Text>
-          </Box>
-        )}
-      </Box>
+      {markdown && (
+        <Box
+          w="full"
+          bg="white"
+          px={4}
+          py={3}
+          fontSize="sm"
+          color="gray.700"
+          sx={{
+            p: { marginBottom: "0.5rem" },
+            "ul, ol": { paddingLeft: "1.25rem", marginBottom: "0.5rem" },
+            li: { marginBottom: "0.25rem" },
+            mark: {
+              backgroundColor: "var(--chakra-colors-brandYellow-100)",
+              color: "var(--chakra-colors-brandBlue-300)",
+              borderRadius: "2px",
+              padding: "0 3px",
+            },
+          }}
+        >
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{markdown}</ReactMarkdown>
+        </Box>
+      )}
+
+      {note && (
+        <Box
+          bg="brandBlue.300"
+          w="full"
+          px={4}
+          py={3}
+          color="white"
+          fontSize="xs"
+          borderBottomRadius="md"
+        >
+          <Text>{note}</Text>
+        </Box>
+      )}
     </VStack>
+  );
+}
+
+function ReferenceSection({ reference }: { reference: GuideReference }) {
+  return (
+    <Box
+      bg="white"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="lg"
+      p={6}
+      mb={6}
+      overflowX="auto"
+    >
+      <Text
+        fontSize="xs"
+        fontWeight="bold"
+        textTransform="uppercase"
+        letterSpacing="wide"
+        color="gray.500"
+        mb={2}
+      >
+        Reference
+      </Text>
+      <Text fontWeight="bold" fontSize="md" mb={4}>
+        {reference.title}
+      </Text>
+      <Box
+        fontSize="sm"
+        color="gray.700"
+        overflowX="auto"
+        sx={{
+          table: { width: "100%", borderCollapse: "collapse" },
+          "th, td": {
+            border: "1px solid",
+            borderColor: "var(--chakra-colors-gray-200)",
+            px: 3,
+            py: 2,
+            textAlign: "left",
+          },
+          th: {
+            bg: "var(--chakra-colors-gray-50)",
+            fontWeight: "semibold",
+            fontSize: "xs",
+            color: "var(--chakra-colors-gray-600)",
+          },
+          "td:not(:first-of-type)": { textAlign: "center" },
+          "tr:hover td": { bg: "var(--chakra-colors-gray-50)" },
+        }}
+      >
+        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{reference.markdown}</ReactMarkdown>
+      </Box>
+    </Box>
   );
 }
 
@@ -173,9 +208,6 @@ export default function GuideDetailView() {
                 Guide
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbItem>
-              <BreadcrumbLink color="gray.500">{guide.category}</BreadcrumbLink>
-            </BreadcrumbItem>
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink color="gray.700" fontWeight="semibold">
                 {guide.title}
@@ -210,7 +242,7 @@ export default function GuideDetailView() {
             letterSpacing="wide"
             color="gray.500"
           >
-            {guide.category}
+            {guide.feature}
           </Text>
           <HStack spacing={1} color="brandBlue.200" fontSize="xs">
             <TimeIcon boxSize={3} />
@@ -298,18 +330,20 @@ export default function GuideDetailView() {
                         {i < currentStep ? <CheckIcon boxSize={3} /> : i + 1}
                       </Circle>
                       <Box flex={1} minW={0}>
-                        <Text fontWeight={i === currentStep ? "bold" : "medium"} fontSize="sm">
-                          {s.title}
-                        </Text>
+                        <HStack spacing={2}>
+                          <Text fontWeight={i === currentStep ? "bold" : "medium"} fontSize="sm">
+                            {s.title}
+                          </Text>
+                          {s.optional && (
+                            <Badge fontSize="xs" colorScheme="gray" variant="subtle">
+                              Optional
+                            </Badge>
+                          )}
+                        </HStack>
                         {i === currentStep && (
                           <Text fontSize="xs" color="gray.500" mt={0.5}>
                             {s.description}
                           </Text>
-                        )}
-                        {s.optional && (
-                          <Badge fontSize="xs" colorScheme="gray" mt={0.5}>
-                            Optional
-                          </Badge>
                         )}
                       </Box>
                     </HStack>
@@ -321,12 +355,11 @@ export default function GuideDetailView() {
               </VStack>
 
               <Box flex="1" minW="0">
-                <StepScreenMock
-                  title={step.screenTitle}
-                  description={step.screenDescription}
-                  fields={step.screenFields}
-                  note={step.screenNote}
-                  tags={step.tags}
+                <StepContent
+                  picture={step.picture}
+                  alt={step.alt}
+                  markdown={step.markdown}
+                  note={step.note}
                 />
               </Box>
             </Flex>
@@ -337,24 +370,27 @@ export default function GuideDetailView() {
               How you do it in Boxtribute
             </Text>
 
-            <StepScreenMock
-              title={step.screenTitle}
-              description={step.screenDescription}
-              fields={step.screenFields}
-              note={step.screenNote}
-              tags={step.tags}
+            <StepContent
+              picture={step.picture}
+              alt={step.alt}
+              markdown={step.markdown}
+              note={step.note}
             />
 
-            <Text fontWeight="bold" fontSize="sm" mt={4} mb={1}>
-              {currentStep + 1}. {step.title}
-            </Text>
-            <Text fontSize="sm" color="gray.600">
-              {step.description}
-            </Text>
-            {step.optional && (
-              <Badge fontSize="xs" colorScheme="gray" mt={1}>
-                Optional
-              </Badge>
+            <HStack spacing={2} mt={4} mb={1}>
+              <Text fontWeight="bold" fontSize="sm">
+                {currentStep + 1}. {step.title}
+              </Text>
+              {step.optional && (
+                <Badge fontSize="xs" colorScheme="gray" variant="subtle">
+                  Optional
+                </Badge>
+              )}
+            </HStack>
+            {step.description && (
+              <Text fontSize="sm" color="gray.600">
+                {step.description}
+              </Text>
             )}
           </Box>
         )}
@@ -451,6 +487,8 @@ export default function GuideDetailView() {
           </Flex>
         )}
 
+        {guide.reference && <ReferenceSection reference={guide.reference} />}
+
         <Flex gap={6} flexDir={{ base: "column", md: "row" }}>
           <Box
             flex={1}
@@ -471,22 +509,21 @@ export default function GuideDetailView() {
               The Feature Underneath
             </Text>
             <HStack flexWrap="wrap" spacing={2} mb={3}>
-              {guide.featureUnderneathTags.map((tag) => (
-                <Badge key={tag} bg="gray.100" color="gray.700" px={2} py={0.5} borderRadius="sm">
-                  {tag}
-                </Badge>
-              ))}
-              {guide.featureUnderneathTags.length > 1 && (
-                <Text color="gray.400" fontWeight="bold">
-                  +
-                </Text>
-              )}
+              <Badge
+                as={RouterLink}
+                to={guide.featureUnderneathLink}
+                key={guide.feature}
+                bg="gray.100"
+                color="gray.700"
+                px={2}
+                py={0.5}
+                borderRadius="sm"
+              >
+                {guide.feature}
+              </Badge>
             </HStack>
             <Text fontSize="sm" color="gray.600" mb={2}>
               {guide.featureUnderneathDescription}
-            </Text>
-            <Text fontSize="sm" color="brandRed.300" fontWeight="semibold">
-              {guide.featureUnderneathLink}
             </Text>
           </Box>
 
@@ -506,7 +543,7 @@ export default function GuideDetailView() {
               color="gray.500"
               mb={3}
             >
-              More in {guide.category}
+              More Guides
             </Text>
             <VStack align="stretch" spacing={3} divider={<Divider />}>
               {otherGuides.map((og) => (
