@@ -33,47 +33,61 @@ export const GUIDES: Guide[] = [
   {
     slug: "roles-and-permissions",
     title: "Set up roles & team permissions",
-    subtitle: "Control who can see and do what in Boxtribute.",
+    subtitle: "Control who can see what in Boxtribute",
     tags: ["Team Setup", "Users", "Roles"],
     feature: "Users + roles",
     estimatedMinutes: 5,
     status: "live",
     requirement:
-      "We need different people to have different levels of access — volunteers shouldn't be able to delete beneficiaries, and managers need oversight of the whole warehouse.",
+      "We need different people to have different levels of access - only volunteers who have received the protection training should interact with beneficiaries, and managers need oversight of the whole warehouse.",
     steps: [
       {
-        title: "Go to Admin → Users",
-        description: "Navigate to the Coordinator Admin panel and open the Users section.",
-        markdown:
-          "**Coordinator Admin · Users**\n\nLists all team members and their current roles.\n\n- **Name:** Anna M.\n- **Role:** Warehouse Volunteer\n- **Base:** Lesvos",
-        note: "Each person can have one role per base they are assigned to.",
-      },
-      {
-        title: "Add or edit a user",
-        description: "Click 'Add User' or select an existing user to change their role.",
-        markdown:
-          "**Edit User · Anna M.**\n\nAssign a role that matches the person's responsibilities.\n\n- **Email:** anna@example.org\n- **Role:** <mark>Coordinator</mark>",
-        note: "Roles are predefined. A Coordinator can manage stock, users and settings.",
-      },
-      {
-        title: "Assign to a base",
-        description: "Select which base(s) the user should have access to.",
-        markdown:
-          "**Edit User · Anna M.**\n\nA user can belong to multiple bases with the same or different roles.\n\n- **Base:** Lesvos\n- **Base 2:** Samos",
-        note: "Access is always scoped to a specific base — no cross-base leakage.",
-      },
-      {
-        title: "Save and confirm",
+        title: "Understand what each role can do",
         description:
-          "Hit Save. The user will receive an email invitation and can log in immediately.",
+          "Boxtribute comes with preset roles for the most common jobs in aid response. Take a look at our recommendations for the two most common setups.",
+        markdown: `
+**General Team:** Most common in an ad-hoc emergency response, this setup usually involves response teams who work across multiple functions with one manager overseeing the work. For this, we recommend:
+
+<ol type="i">
+  <li>Assigning <em>General Volunteer</em> for team members;</li>
+  <li>Assigning <em>Coordinator</em> for the overseeing manager.</li>
+</ol>
+
+**Separate Logistics and Beneficiary-Facing Teams:** For projects with a stricter separation between team members working with beneficiaries and those working in the warehouse, we recommend:
+
+<ol type="i" start="3">
+  <li>Assigning <em>Volunteer (Warehouse)</em> for logistics team members;</li>
+  <li>Assigning <em>Volunteer (Free Shop)</em> for beneficiary-facing members;</li>
+  <li>Assigning <em>Coordinator</em> for overseeing managers of both teams.</li>
+</ol>
+`,
+        note: "Coordinators can see both warehouse and beneficiary activities.",
+      },
+      {
+        title: "Invite your team",
+        picture: "",
         markdown:
-          "**User Saved**\n\nChanges take effect immediately. The user gets an email notification.\n\n- **Status:** <mark>Active</mark>",
-        note: "You can deactivate a user at any time without deleting their history.",
+          "Select [+ New User] and enter the name and email of your team member, pick the role that aligns with their job, then select “Save and Close”. The team member will receive an email inviting them to sign into Boxtribute; access begins immediately.",
+        note: "Tip: It is good to allocate all staff individual logins, even if it is just for the short term, as this allows you to see activity per role and quickly identify operational issues.",
+      },
+      {
+        title: "Managing multiple teams across the organisation",
+        markdown:
+          "Boxtribute separates each operational unit by “base”, short for “base of operations”. Usually, bases are separated by physical locations (e.g., Base: Balkans vs. Base: Athens), but “base” can also be used to fully separate project teams or workstreams.  Staff are assigned individually to a base and can only see and work with data in the bases they are assigned to.",
+        note: "People assigned to the Head of Operations role can see all data and users across all bases in the organisation.",
+      },
+      {
+        title: "Managing Handover",
+        description: "What to do when someone leaves or changes their role",
+        markdown:
+          "When someone leaves or transitions into a new role, you can easily assign a new role to their account, or deactivate them. If you are changing coordinators, we recommend using the “Valid from“ and “Valid until” fields to schedule overlapping access between incoming and outgoing coordinators. Deactivated or Expired users with the <em>Volunteer</em> role can always be activated by users with a <em>Coordinator</em> or <em>Head of Operations</em> role. Deactivated or Expired users with a <em>Coordinator</em> role can only be activated by a user with a <em>Head of Operations</em> role.",
+        note: "Tip: Never delete a user account. Deactivating keeps the audit trail intact. You can view all deactivated users in the “Deactivated“ tab in Manage Users.",
       },
     ],
     reference: {
       title: "Preset roles — who can do what?",
-      markdown: `| Capability | Label Creation | Warehouse Volunteer | External Free Shop Checkout | Free Shop Volunteer | General Volunteer | Coordinator | Head of Operations |
+      markdown: `
+| Capability | Label Creation | Warehouse Volunteer | External Free Shop Checkout | Free Shop Volunteer | General Volunteer | Coordinator | Head of Operations |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | Create Labels | ✓ | ✓ | | | ✓ | ✓ | ✓ |
 | Scan Boxes / See Box Content | | ✓ | | ✓ | ✓ | ✓ | ✓ |
@@ -82,12 +96,13 @@ export const GUIDES: Guide[] = [
 | Register / Edit Beneficiaries | | | | ✓ | ✓ | ✓ | ✓ |
 | Authorize Sending / Receiving Shipments | | | | | | ✓ | ✓ |
 | Manage Tags, Products, Locations, Services | | | | | | ✓ | ✓ |
-| Manage Users | | | | | | ✓ | ✓ |`,
+| Manage Users | | | | | | ✓ | ✓ |
+`,
     },
-    featureUnderneathTags: ["Users + roles"],
+    featureUnderneathTags: ["Manage Users"],
     featureUnderneathDescription:
       "Set this up once and every team member logs in with the right level of access from day one.",
-    featureUnderneathLink: "See how roles work →",
+    featureUnderneathLink: "See how it works →",
   },
   {
     slug: "import-stock-beneficiaries",
@@ -96,7 +111,7 @@ export const GUIDES: Guide[] = [
     tags: ["Data Import", "CSV import"],
     feature: "CSV import",
     estimatedMinutes: 5,
-    status: "live",
+    status: "roadmap",
     requirement:
       "We already track our stock and beneficiaries in spreadsheets and need to migrate that data into Boxtribute without re-entering everything by hand.",
     steps: [
@@ -135,7 +150,7 @@ export const GUIDES: Guide[] = [
     tags: ["Protection & Targeting", "Beneficiary Tags"],
     feature: "Beneficiary tags",
     estimatedMinutes: 5,
-    status: "live",
+    status: "roadmap",
     requirement:
       "We need to flag people with specific vulnerabilities — medical needs, unaccompanied minors, pregnant women — and make sure they are served first at every touchpoint, not just when a staff member happens to remember.",
     steps: [
@@ -180,7 +195,7 @@ export const GUIDES: Guide[] = [
     tags: ["Warehouse Setup", "Locations"],
     feature: "Locations",
     estimatedMinutes: 5,
-    status: "live",
+    status: "roadmap",
     requirement:
       "Our warehouse has multiple rooms and sections but Boxtribute doesn't reflect the physical layout. Volunteers spend time searching for boxes because the system doesn't tell them where things actually are.",
     steps: [
