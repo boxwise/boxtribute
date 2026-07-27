@@ -402,8 +402,9 @@ it("4.4.1.11 - Selected tab is remembered when returning to the page", async () 
   expect(receivingTab0).toHaveAttribute("aria-selected", "true");
 
   // Switch to the Sending tab
-  await user.click(screen.getByText(/Sending \(/i));
+  await user.click(sendingTab0);
   expect(await screen.findByText(/Sending \(1\)/i)).toBeInTheDocument();
+  expect(JSON.parse(localStorage.getItem("shipmentsDirection") ?? "null")).toBe("Sending");
 
   // Simulate leaving the page
   unmount();
