@@ -44,6 +44,7 @@ export const GUIDES: Guide[] = [
         title: "Understand what each role can do",
         description:
           "Boxtribute comes with preset roles for the most common jobs in aid response. Take a look at our recommendations for the two most common setups.",
+        picture: "/guides/example-response-team-set-up.png",
         markdown: `
 **General Team:** Most common in an ad-hoc emergency response, this setup usually involves response teams who work across multiple functions with one manager overseeing the work. For this, we recommend:
 
@@ -64,12 +65,14 @@ export const GUIDES: Guide[] = [
       },
       {
         title: "Invite your team",
+        picture: "/guides/invite-your-team.png",
         markdown:
           "Select [+ New User] and enter the name and email of your team member, pick the role that aligns with their job, then select “Save and Close”. The team member will receive an email inviting them to sign into Boxtribute; access begins immediately.",
         note: "Tip: It is good to allocate all staff individual logins, even if it is just for the short term, as this allows you to see activity per role and quickly identify operational issues.",
       },
       {
         title: "Managing multiple teams across the organisation",
+        picture: "/guides/org-chart.png",
         markdown:
           "Boxtribute separates each operational unit by “base”, short for “base of operations”. Usually, bases are separated by physical locations (e.g., Base: Balkans vs. Base: Athens), but “base” can also be used to fully separate project teams or workstreams.  Staff are assigned individually to a base and can only see and work with data in the bases they are assigned to.",
         note: "People assigned to the Head of Operations role can see all data and users across all bases in the organisation.",
@@ -77,7 +80,7 @@ export const GUIDES: Guide[] = [
       {
         title: "Managing Handover",
         description: "What to do when someone leaves or changes their role",
-        picture: "/src/views/Guides/images/manage-handover.png",
+        picture: "/guides/manage-handover.png",
         markdown:
           "When someone leaves or transitions into a new role, you can easily assign a new role to their account, or deactivate them. If you are changing coordinators, we recommend using the “Valid from“ and “Valid until” fields to schedule overlapping access between incoming and outgoing coordinators. Deactivated or Expired users with the <em>Volunteer</em> role can always be activated by users with a <em>Coordinator</em> or <em>Head of Operations</em> role. Deactivated or Expired users with a <em>Coordinator</em> role can only be activated by a user with a <em>Head of Operations</em> role.",
         note: "Tip: Never delete a user account. Deactivating keeps the audit trail intact. You can view all deactivated users in the “Deactivated“ tab in Manage Users.",
@@ -284,6 +287,7 @@ export const GUIDES: Guide[] = [
       {
         title: "Open Locations in Admin",
         description: "Go to Coordinator Admin → Locations to see your current warehouse layout.",
+        picture: "/guides/warehouse-floor-plan.png",
         markdown:
           "**Coordinator Admin · Locations**\n\nLists every location currently configured in your base.\n\n- **Location:** Main Hall\n- **Location:** Cold Storage",
         note: "Locations are per-base. Each location maps to a physical area in your warehouse.",
@@ -291,16 +295,26 @@ export const GUIDES: Guide[] = [
       {
         title: "Add a new location",
         description: "Click 'Add location' and give it a name that matches your physical signage.",
+        picture: "/guides/warehouse-locations.png",
         markdown:
           "**Add Location**\n\nName it exactly as labelled in the warehouse so volunteers recognise it instantly.\n\n- **Name:** <mark>Rack A3 — Clothing</mark>\n- **Type:** Stocking",
         note: "Avoid generic names like 'Room 1'. The name appears on every box label.",
       },
       {
-        title: "Assign boxes to the location",
-        description: "When receiving or moving stock, assign each box to the correct location.",
+        title: "Add a new location",
+        description: "Click 'Add location' and give it a name that matches your physical signage.",
+        picture: "/guides/tags.png",
         markdown:
-          "**Box · Edit Location**\n\nYou can update a box's location at any time — it takes effect immediately.\n\n- **Box:** #00145\n- **Location:** <mark>Rack A3 — Clothing</mark>",
-        note: "Scanning the box QR code and tapping 'Move' is the fastest way to update location in bulk.",
+          "**Add Location**\n\nName it exactly as labelled in the warehouse so volunteers recognise it instantly.\n\n- **Name:** <mark>Rack A3 — Clothing</mark>\n- **Type:** Stocking",
+        note: "Avoid generic names like 'Room 1'. The name appears on every box label.",
+      },
+      {
+        title: "Add a new location",
+        description: "Click 'Add location' and give it a name that matches your physical signage.",
+        picture: "/guides/move-a-box.png",
+        markdown:
+          "**Add Location**\n\nName it exactly as labelled in the warehouse so volunteers recognise it instantly.\n\n- **Name:** <mark>Rack A3 — Clothing</mark>\n- **Type:** Stocking",
+        note: "Avoid generic names like 'Room 1'. The name appears on every box label.",
       },
     ],
     featureUnderneathDescription:
