@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
 type IdNameTuple = {
   id: string;
@@ -26,3 +27,8 @@ export const selectedBaseIdAtom = atom((get) => {
   // This case should not happen except on initial render
   return "0";
 });
+
+export const shipmentsDirectionAtom = atomWithStorage<"Receiving" | "Sending">(
+  "shipmentsDirection", // localStorage key
+  "Receiving",          // default value
+);
