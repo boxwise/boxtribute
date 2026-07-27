@@ -316,9 +316,8 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (87,35,'Checkout','check_out',7,NULL,NULL,NULL,NULL,0,0,1,0,0,'checkout_beneficiaries'),
   (90,99,'Classic Manage Boxes','stock',3,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL),
   (92,35,'Give Tokens <span>To</span> All','give2all',10,NULL,NULL,NULL,NULL,0,0,1,0,0,'manage_tokens'),
-  (96,128,'Sales Reports','sales_list',16,NULL,NULL,NULL,NULL,0,0,1,0,0,'list_sales'),
+  (96,128,'Sales Reports','sales_list',19,NULL,NULL,NULL,NULL,0,0,1,0,0,'list_sales'),
   (99,NULL,'Inventory','',1,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
-  (102,128,'Fancy Graphs (<span>beta</span>)','fancygraphs',17,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_beneficiary_graph'),
   (110,35,'Stockroom','container-stock',8,NULL,NULL,NULL,NULL,0,0,1,0,0,'view_stockroom'),
   (111,35,'Generate Market Schedule','market_schedule',9,NULL,NULL,NULL,NULL,0,0,0,0,0,'generate_market_schedule'),
   (112,99,'Print Box Labels','qr',1,NULL,NULL,NULL,NULL,0,0,1,0,0,'create_label'),
@@ -332,7 +331,7 @@ INSERT INTO `cms_functions` VALUES (35,NULL,'Free Shop','',3,NULL,NULL,NULL,NULL
   (125,121,'User Profile','cms_profile',28,NULL,NULL,NULL,NULL,0,0,0,1,0,'be_user'),
   (126,121,'Exit Login As','exitloginas',29,NULL,NULL,NULL,NULL,0,0,0,1,0,NULL),
   (127,96,'Sales List Download','sales_list_download',9,NULL,NULL,NULL,NULL,0,0,1,1,0,'list_sales'),
-  (128,NULL,'Insight','',6,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
+  (128,NULL,'Statistics','',0,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (130,35,'Lists','food_lists',11,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL),
   (131,NULL,'Services','',4,NULL,NULL,NULL,NULL,0,0,1,0,0,NULL),
   (132,131,'Bicycles / Sport','borrow',13,NULL,NULL,NULL,NULL,0,0,0,0,0,NULL),
@@ -2333,7 +2332,8 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20260421140000,'DropAuditColumnsFromSizes','2026-05-20 07:43:02','2026-05-20 07:43:03',0),
   (20260421150000,'FixSizesData','2026-05-20 07:43:03','2026-05-20 07:43:03',0),
   (20260421160000,'RemoveSizegroup20','2026-05-20 07:43:03','2026-05-20 07:43:03',0),
-  (20260701113522,'AddBoxMonetaryValueWeight','2026-07-07 09:26:30','2026-07-07 09:26:31',0);
+  (20260701113522,'AddBoxMonetaryValueWeight','2026-07-07 09:26:30','2026-07-07 09:26:31',0),
+  (20260727102106,'UpdateInsightMenu','2026-07-27 08:54:28','2026-07-27 08:54:28',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
