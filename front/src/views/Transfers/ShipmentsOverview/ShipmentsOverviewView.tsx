@@ -337,7 +337,7 @@ function ShipmentsOverviewView() {
       globalFilter: shipmentGlobalFilterFn,
       initialState: {
         hiddenColumns: ["direction"],
-        filters: [{ id: "direction", value: ["Receiving"] }],
+        filters: [{ id: "direction", value: [direction] }],
         sortBy: [{ id: "lastUpdated", desc: true }],
       },
     },
