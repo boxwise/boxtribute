@@ -349,6 +349,7 @@ function ShipmentsOverviewView() {
     const newDir = direction === "Receiving" ? "Sending" : "Receiving";
     setDirection(newDir);
     setFilter("direction", [newDir]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction, setFilter]);
 
   const handleApplyFilters = useCallback(
