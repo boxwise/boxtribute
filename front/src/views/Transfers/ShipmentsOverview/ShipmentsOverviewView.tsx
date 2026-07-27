@@ -500,7 +500,11 @@ function ShipmentsOverviewView() {
           </FilterPanel>
         </HStack>
       </HStack>
-      <Tabs index={direction === "Receiving" ? 0 : 1} variant="enclosed-colored" onChange={handleDirectionChange}>
+      <Tabs
+        index={direction === "Receiving" ? 0 : 1}
+        variant="enclosed-colored"
+        onChange={handleDirectionChange}
+      >
         <TabList>
           <Tab
             flex={1}

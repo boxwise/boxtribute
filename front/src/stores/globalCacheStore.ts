@@ -40,7 +40,7 @@ export const reconciliationReceiveLocationAtom = atomWithStorage<IReceiveLocatio
 
 export const shipmentsDirectionAtom = atomWithStorage<"Receiving" | "Sending">(
   "shipmentsDirection", // localStorage key
-  "Receiving",          // default value
+  "Receiving", // default value
   undefined,
   { getOnInit: true },
 );
