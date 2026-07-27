@@ -374,3 +374,53 @@ it("4.4.1.10 - Tab counts reflect active GlobalFilter", async () => {
   await user.clear(searchInput);
   expect(await screen.findByText(/Sending \(1\)/i)).toBeInTheDocument();
 });
+
+it("4.4.1.11 - Selected tab is remembered when returning to the page", async () => {
+  const mocks = [
+    mockSuccessfulShipmentsQuery({}),
+    // Second render re-uses the same mock response
+    mockSuccessfulShipmentsQuery({}),
+  ];
+
+  const user = userEvent.setup();
+
+  // First render: default tab is Receiving
+  const { unmount } = render(<ShipmentsOverviewView />, {
+    routePath: "/bases/:baseId/transfers/shipments",
+    initialUrl: "/bases/1/transfers/shipments",
+    mocks,
+  });
+
+  await screen.findByRole("table");
+  expect(screen.getByText(/Receiving \(0\)/i)).toBeInTheDocument();
+  expect(screen.getByText(/Sending \(1\)/i)).toBeInTheDocument();
+
+  const sendingTab0 = screen.getByRole("tab", { name: /Sending \(/i });
+  expect(sendingTab0).toHaveAttribute("aria-selected", "false");
+
+  const receivingTab0 = screen.getByRole("tab", { name: /Receiving \(/i });
+  expect(receivingTab0).toHaveAttribute("aria-selected", "true");
+
+  // Switch to the Sending tab
+  await user.click(screen.getByText(/Sending \(/i));
+  expect(await screen.findByText(/Sending \(1\)/i)).toBeInTheDocument();
+
+  // Simulate leaving the page
+  unmount();
+
+  // Second render: Sending tab should be restored automatically
+  render(<ShipmentsOverviewView />, {
+    routePath: "/bases/:baseId/transfers/shipments",
+    initialUrl: "/bases/1/transfers/shipments",
+    mocks,
+  });
+
+  await screen.findByRole("table");
+
+  // Sending tab should be selected without any click
+  const sendingTab = screen.getByRole("tab", { name: /Sending \(/i });
+  expect(sendingTab).toHaveAttribute("aria-selected", "true");
+
+  const receivingTab = screen.getByRole("tab", { name: /Receiving \(/i });
+  expect(receivingTab).toHaveAttribute("aria-selected", "false");
+});
