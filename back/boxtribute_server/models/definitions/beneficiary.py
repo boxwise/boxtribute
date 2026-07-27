@@ -97,7 +97,7 @@ class Beneficiary(Model):
         model="self",
         column_name="parent_id",
         field="id",
-        null=False,
+        null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
         object_id_name="family_head_id",
