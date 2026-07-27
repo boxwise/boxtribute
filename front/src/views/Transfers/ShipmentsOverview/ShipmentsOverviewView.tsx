@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { useQuery } from "@apollo/client";
 import {
   Alert,
@@ -19,7 +19,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { ALL_SHIPMENTS_QUERY } from "queries/queries";
 import { AddIcon } from "@chakra-ui/icons";
 import { TableSkeleton } from "components/Skeletons";
@@ -35,6 +35,7 @@ import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import { BaseOrgCell, BoxesCell, StateCell } from "./components/TableCells";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { shipmentsDirectionAtom } from "stores/globalCacheStore";
 import { SendingIcon } from "components/Icon/Transfer/SendingIcon";
 import { ReceivingIcon } from "components/Icon/Transfer/ReceivingIcon";
 import { ShipmentState } from "queries/types";
@@ -108,7 +109,7 @@ function ShipmentsOverviewView() {
   const showWeightAndValue = authorize({ minBeta: 7 });
   const baseId = useAtomValue(selectedBaseIdAtom);
   const navigate = useNavigate();
-  const [direction, setDirection] = useState<"Receiving" | "Sending">("Receiving");
+  const [direction, setDirection] = useAtom(shipmentsDirectionAtom);
   const filterDisclosure = useDisclosure();
 
   // fetch shipments data
@@ -336,7 +337,7 @@ function ShipmentsOverviewView() {
       globalFilter: shipmentGlobalFilterFn,
       initialState: {
         hiddenColumns: ["direction"],
-        filters: [{ id: "direction", value: ["Receiving"] }],
+        filters: [{ id: "direction", value: [direction] }],
         sortBy: [{ id: "lastUpdated", desc: true }],
       },
     },
@@ -349,6 +350,7 @@ function ShipmentsOverviewView() {
     const newDir = direction === "Receiving" ? "Sending" : "Receiving";
     setDirection(newDir);
     setFilter("direction", [newDir]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [direction, setFilter]);
 
   const handleApplyFilters = useCallback(
@@ -498,7 +500,11 @@ function ShipmentsOverviewView() {
           </FilterPanel>
         </HStack>
       </HStack>
-      <Tabs variant="enclosed-colored" onChange={handleDirectionChange}>
+      <Tabs
+        index={direction === "Receiving" ? 0 : 1}
+        variant="enclosed-colored"
+        onChange={handleDirectionChange}
+      >
         <TabList>
           <Tab
             flex={1}

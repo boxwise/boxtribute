@@ -37,3 +37,11 @@ export const reconciliationReceiveLocationAtom = atomWithStorage<IReceiveLocatio
   undefined,
   { getOnInit: true },
 );
+
+/** Persisted atom to cache the last selected Shipments tab (Receiving/Sending). */
+export const shipmentsDirectionAtom = atomWithStorage<"Receiving" | "Sending">(
+  "shipmentsDirection", // localStorage key
+  "Receiving", // default value
+  undefined,
+  { getOnInit: true },
+);
