@@ -113,9 +113,9 @@ class Box(Model):
         null=True,
     )
     source_box = UIntForeignKeyField(
+        model="self",
         column_name="source_box_id",
         field="id",
-        model="self",
         null=True,
         on_update="CASCADE",
         on_delete="SET NULL",

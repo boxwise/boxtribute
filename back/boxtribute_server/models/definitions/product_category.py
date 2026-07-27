@@ -7,9 +7,9 @@ from . import Model
 class ProductCategory(Model):
     name = CharField(column_name="label")
     parent = UIntForeignKeyField(
+        model="self",
         column_name="parent_id",
         field="id",
-        model="self",
         null=True,
         on_update="CASCADE",
     )
