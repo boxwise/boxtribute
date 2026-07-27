@@ -354,7 +354,7 @@ export default function GuideDetailView() {
                 ))}
               </VStack>
 
-              <Box flex="1" minW="0">
+              <Box flex="2" minW="0">
                 <StepContent
                   picture={step.picture}
                   alt={step.alt}
