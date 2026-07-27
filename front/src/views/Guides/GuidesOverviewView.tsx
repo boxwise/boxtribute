@@ -1,4 +1,16 @@
-import { Badge, Box, Flex, Heading, HStack, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Flex,
+  Heading,
+  HStack,
+  SimpleGrid,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { TimeIcon } from "@chakra-ui/icons";
 import { GUIDES } from "./guidesData";
@@ -110,12 +122,12 @@ export default function GuidesOverviewView() {
                 </Text>
               </Box>
 
-              <HStack spacing={1} color="brandBlue.200" fontSize="xs">
-                <TimeIcon boxSize={3} />
-                <Text fontWeight="semibold" textTransform="uppercase" letterSpacing="wide">
+              <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
+                <TagLeftIcon boxSize={3} as={TimeIcon} />
+                <TagLabel fontWeight="semibold" textTransform="uppercase" letterSpacing="wide">
                   ≈ {guide.estimatedMinutes} min to set up
-                </Text>
-              </HStack>
+                </TagLabel>
+              </Tag>
             </VStack>
           </Box>
         ))}

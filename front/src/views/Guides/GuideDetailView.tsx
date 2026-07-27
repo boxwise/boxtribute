@@ -9,6 +9,9 @@ import {
   Divider,
   Flex,
   HStack,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
   Text,
   useMediaQuery,
   VStack,
@@ -244,12 +247,12 @@ export default function GuideDetailView() {
           >
             {guide.feature}
           </Text>
-          <HStack spacing={1} color="brandBlue.200" fontSize="xs">
-            <TimeIcon boxSize={3} />
-            <Text fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
+          <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
+            <TagLeftIcon boxSize={3} as={TimeIcon} />
+            <TagLabel fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
               ≈ {guide.estimatedMinutes} min to set up
-            </Text>
-          </HStack>
+            </TagLabel>
+          </Tag>
         </HStack>
 
         <Text
