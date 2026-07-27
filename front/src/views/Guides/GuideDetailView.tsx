@@ -370,16 +370,19 @@ export default function GuideDetailView() {
               How you do it in Boxtribute
             </Text>
 
-            <StepContent
-              picture={step.picture}
-              alt={step.alt}
-              markdown={step.markdown}
-              note={step.note}
-            />
-
-            <HStack spacing={2} mt={4} mb={1}>
+            <HStack spacing={2} mb={step.description ? 1 : 4}>
+              <Circle
+                size={7}
+                bg="brandBlue.300"
+                color="white"
+                fontSize="xs"
+                fontWeight="bold"
+                flexShrink={0}
+              >
+                {currentStep + 1}
+              </Circle>
               <Text fontWeight="bold" fontSize="sm">
-                {currentStep + 1}. {step.title}
+                {step.title}
               </Text>
               {step.optional && (
                 <Badge fontSize="xs" colorScheme="gray" variant="subtle">
@@ -388,10 +391,17 @@ export default function GuideDetailView() {
               )}
             </HStack>
             {step.description && (
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color="gray.600" mb={4}>
                 {step.description}
               </Text>
             )}
+
+            <StepContent
+              picture={step.picture}
+              alt={step.alt}
+              markdown={step.markdown}
+              note={step.note}
+            />
           </Box>
         )}
 
