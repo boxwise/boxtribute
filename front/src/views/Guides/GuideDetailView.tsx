@@ -9,6 +9,9 @@ import {
   Divider,
   Flex,
   HStack,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
   Text,
   useMediaQuery,
   VStack,
@@ -244,12 +247,12 @@ export default function GuideDetailView() {
           >
             {guide.feature}
           </Text>
-          <HStack spacing={1} color="brandBlue.200" fontSize="xs">
-            <TimeIcon boxSize={3} />
-            <Text fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
+          <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
+            <TagLeftIcon boxSize={3} as={TimeIcon} />
+            <TagLabel fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
               ≈ {guide.estimatedMinutes} min to set up
-            </Text>
-          </HStack>
+            </TagLabel>
+          </Tag>
         </HStack>
 
         <Text
@@ -354,7 +357,7 @@ export default function GuideDetailView() {
                 ))}
               </VStack>
 
-              <Box flex="1" minW="0">
+              <Box flex="2" minW="0">
                 <StepContent
                   picture={step.picture}
                   alt={step.alt}
@@ -370,16 +373,19 @@ export default function GuideDetailView() {
               How you do it in Boxtribute
             </Text>
 
-            <StepContent
-              picture={step.picture}
-              alt={step.alt}
-              markdown={step.markdown}
-              note={step.note}
-            />
-
-            <HStack spacing={2} mt={4} mb={1}>
+            <HStack spacing={2} mb={step.description ? 1 : 4}>
+              <Circle
+                size={7}
+                bg="brandBlue.300"
+                color="white"
+                fontSize="xs"
+                fontWeight="bold"
+                flexShrink={0}
+              >
+                {currentStep + 1}
+              </Circle>
               <Text fontWeight="bold" fontSize="sm">
-                {currentStep + 1}. {step.title}
+                {step.title}
               </Text>
               {step.optional && (
                 <Badge fontSize="xs" colorScheme="gray" variant="subtle">
@@ -388,10 +394,17 @@ export default function GuideDetailView() {
               )}
             </HStack>
             {step.description && (
-              <Text fontSize="sm" color="gray.600">
+              <Text fontSize="sm" color="gray.600" mb={4}>
                 {step.description}
               </Text>
             )}
+
+            <StepContent
+              picture={step.picture}
+              alt={step.alt}
+              markdown={step.markdown}
+              note={step.note}
+            />
           </Box>
         )}
 
