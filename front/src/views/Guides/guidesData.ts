@@ -359,7 +359,7 @@ export const GUIDES: Guide[] = [
       title: "Locations vs Tags in Boxtribute - what's the difference?",
       markdown: `Boxtribute gives you tools to organise your stock: **Locations** and **Tags**. It’s helpful to use them to know exactly where stock is and who it is for. It can also support with donor reporting as you can tag to the donor, project and budget cycle. Understand what thresholds you have - where stock is in your warehouse, freeshop, or various bases.
 <br/>
-<img src="/guides/tags.png" alt="loc-tags-difference"></img>
+<img src="/guides/locations-and-tags.png" alt="loc-tags-difference"></img>
 <br/>
 <table>
   <thead>
