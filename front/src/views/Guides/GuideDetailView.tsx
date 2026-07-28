@@ -9,10 +9,16 @@ import {
   Divider,
   Flex,
   HStack,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Tag,
   TagLabel,
   TagLeftIcon,
   Text,
+  useDisclosure,
   useMediaQuery,
   VStack,
 } from "@chakra-ui/react";
@@ -43,55 +49,104 @@ function StepContent({
   markdown?: string;
   note?: string;
 }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
-    <VStack
-      spacing={0}
-      w="full"
-      borderRadius="md"
-      overflow="hidden"
-      border="1px solid"
-      borderColor="gray.200"
-    >
-      {picture && <Box as="img" src={picture} alt={alt ?? ""} w="full" display="block" />}
+    <>
+      <VStack
+        spacing={0}
+        w="full"
+        borderRadius="md"
+        overflow="hidden"
+        border="1px solid"
+        borderColor="gray.200"
+      >
+        {picture && (
+          <Box
+            as="img"
+            src={picture}
+            alt={alt ?? ""}
+            w="full"
+            display="block"
+            cursor="zoom-in"
+            onClick={onOpen}
+            title="Click to enlarge"
+          />
+        )}
 
-      {markdown && (
-        <Box
-          w="full"
-          bg="white"
-          px={4}
-          py={3}
-          fontSize="sm"
-          color="gray.700"
-          sx={{
-            p: { marginBottom: "0.5rem" },
-            "ul, ol": { paddingLeft: "1.25rem", marginBottom: "0.5rem" },
-            li: { marginBottom: "0.25rem" },
-            mark: {
-              backgroundColor: "var(--chakra-colors-brandYellow-100)",
-              color: "var(--chakra-colors-brandBlue-300)",
-              borderRadius: "2px",
-              padding: "0 3px",
-            },
-          }}
-        >
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{markdown}</ReactMarkdown>
-        </Box>
-      )}
+        {markdown && (
+          <Box
+            w="full"
+            bg="white"
+            px={4}
+            py={3}
+            fontSize="sm"
+            color="gray.700"
+            sx={{
+              p: { marginBottom: "0.5rem" },
+              "ul, ol": { paddingLeft: "1.25rem", marginBottom: "0.5rem" },
+              li: { marginBottom: "0.25rem" },
+              mark: {
+                backgroundColor: "var(--chakra-colors-brandYellow-100)",
+                color: "var(--chakra-colors-brandBlue-300)",
+                borderRadius: "2px",
+                padding: "0 3px",
+              },
+            }}
+          >
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{markdown}</ReactMarkdown>
+          </Box>
+        )}
 
-      {note && (
-        <Box
-          bg="brandBlue.300"
-          w="full"
-          px={4}
-          py={3}
-          color="white"
-          fontSize="xs"
-          borderBottomRadius="md"
-        >
-          <Text>{note}</Text>
-        </Box>
-      )}
-    </VStack>
+        {note && (
+          <Box
+            bg="brandBlue.300"
+            w="full"
+            px={4}
+            py={3}
+            color="white"
+            fontSize="xs"
+            borderBottomRadius="md"
+          >
+            <Text>{note}</Text>
+          </Box>
+        )}
+      </VStack>
+
+      <Modal isOpen={isOpen} onClose={onClose} size="full" isCentered>
+        <ModalOverlay bg="blackAlpha.900" />
+        <ModalContent bg="transparent" boxShadow="none" onClick={onClose}>
+          <ModalCloseButton
+            color="white"
+            size="lg"
+            zIndex={10}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <ModalBody
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            p={4}
+            overflow="auto"
+          >
+            <Box
+              as="img"
+              src={picture}
+              alt={alt ?? ""}
+              maxW="100%"
+              maxH="90vh"
+              objectFit="contain"
+              borderRadius="md"
+              cursor="zoom-out"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              sx={{
+                touchAction: "pinch-zoom",
+              }}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 
