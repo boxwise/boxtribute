@@ -28,6 +28,8 @@ export interface Guide {
   featureUnderneathLink: string;
 }
 
+const moveIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M208 320h384c8.8 0 16-7.2 16-16V48c0-8.8-7.2-16-16-16H448v128l-48-32-48 32V32H208c-8.8 0-16 7.2-16 16v256c0 8.8 7.2 16 16 16zm416 64H128V16c0-8.8-7.2-16-16-16H16C7.2 0 0 7.2 0 16v32c0 8.8 7.2 16 16 16h48v368c0 8.8 7.2 16 16 16h82.9c-1.8 5-2.9 10.4-2.9 16 0 26.5 21.5 48 48 48s48-21.5 48-48c0-5.6-1.2-11-2.9-16H451c-1.8 5-2.9 10.4-2.9 16 0 26.5 21.5 48 48 48s48-21.5 48-48c0-5.6-1.2-11-2.9-16H624c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16z"/></svg>`;
+
 export const GUIDES: Guide[] = [
   {
     slug: "roles-and-permissions",
@@ -310,6 +312,39 @@ export const GUIDES: Guide[] = [
         markdown:
           "It is recommended to add tags based on your distribution planning needs, or data that you may need to pull for your programming and reporting needs. Commonly created tags may relate to project cycle, vulnerability or expiry date.\n1. Go to Coordinator Admin → Manage Tags\n1. Select [+ Create Tag] and enter the tag category, what it should apply to (beneficiaries, boxes or both) a color for easy sorting and the description, then select ‘Save Tag’.\n1. Examples frequently include:\n\t- **By recipient**: 'PLW (pregnant and lactating woman)', 'NA (new arrivals)' 'FHH (female head of Household)'\n\t- **By project or donor**: 'Project cycle 1234', 'Winter Kit', 'ECHO', 'UNICEF'\n\t- **By partner category**: 'NGO X, Greece', 'NGO Y, Syria'",
         note: "You can filter your entire stock view in both Manage Boxes and in the Dashboard by tag - useful before a distribution or when preparing a report.",
+      },
+      {
+        title: "Move boxes into the right location",
+        description: "How to move your boxes into different locations",
+        picture: "/guides/move-a-box.png",
+        markdown: `When stock arrives or moves, update the location in Boxtribute immediately. This keeps your live stock view accurate. To move boxes into a location:
+<table>
+  <thead>
+    <tr>
+      <th>On Mobile / inside the warehouse</th>
+      <th>On Desktop</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <ol>
+          <li>Select “Scan QR Label” from the mobile menu, and make sure the “SOLO BOX” option is selected</li>
+          <li>Once the camera viewer shows, point it at any box QR code label to pull up its information</li>
+          <li>Select the location you want it to move to under the “${moveIconSvg} Move” section</li>
+        </ol>
+      </td>
+      <td>
+        <ol>
+          <li>Go to Aid Inventory ->  Manage Boxes</li>
+          <li>Search or filter for the box you want, then select its row on the table</li>
+          <li>Select the location you want it to move to under the “${moveIconSvg} Move” section</li>
+        </ol>
+      </td>
+    </tr>
+  </tbody>
+</table>`,
+        note: "You can also move boxes in bulk on mobile by selecting the “MULTI BOX” scan option; on desktop, you can select multiple boxes from the Manage Boxes screen, then move them using the move button at the top of the table.",
       },
       {
         title: "Use filters to find what you need",
