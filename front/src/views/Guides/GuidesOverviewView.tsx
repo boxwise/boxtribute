@@ -15,7 +15,7 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import { TimeIcon } from "@chakra-ui/icons";
 import { GUIDES } from "./guidesData";
 
-function StatusDot({ status }: { status: "live" | "roadmap" }) {
+export function StatusDot({ status }: { status: "live" | "roadmap" }) {
   return (
     <Box
       w={2}
