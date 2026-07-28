@@ -276,47 +276,80 @@ export const GUIDES: Guide[] = [
   {
     slug: "organise-warehouse-space",
     title: "Organise your warehouse space",
-    subtitle: "Map your physical warehouse into Boxtribute so boxes are always findable.",
+    subtitle: "Find, filter, and sort stock easily using Locations and Tags",
     tags: ["Warehouse Setup", "Locations"],
     feature: "Locations",
-    estimatedMinutes: 5,
+    estimatedMinutes: 10,
     status: "roadmap",
     requirement:
-      "Our warehouse has multiple rooms and sections but Boxtribute doesn't reflect the physical layout. Volunteers spend time searching for boxes because the system doesn't tell them where things actually are.",
+      "Our warehouse has multiple rooms and sections, and it takes Staff a lot of time to look through and search for the boxes we need. How do we set up Boxtribute so that the system can quickly find and tell us where things actually are?",
     steps: [
       {
-        title: "Open Locations in Admin",
-        description: "Go to Coordinator Admin → Locations to see your current warehouse layout.",
+        title: "Identify the key areas in your warehouse(s)",
+        description: "Whether it's a makeshift storage hub in a garage or a professional warehouse space, having clear zones and storage areas helps the logistics of inbound and outbound aid delivery flow smoothly.",
         picture: "/guides/warehouse-floor-plan.png",
         markdown:
-          "**Coordinator Admin · Locations**\n\nLists every location currently configured in your base.\n\n- **Location:** Main Hall\n- **Location:** Cold Storage",
-        note: "Locations are per-base. Each location maps to a physical area in your warehouse.",
+          "  Consider how stock is coming into and leaving the warehouse. Try to organize the warehouse so stock flows smoothly as it comes into and goes out of the warehouse. Try to minimize the need to carry things back and forth, especially by hand.  The team should sit together and identify zones in the warehouse and allocate these in Boxtribute - You will most likely need at least the following activity areas:\n\n1. Incoming\n1. Sort / Label / Register\n1. Storage\n1. Outgoing stock\n\nClear signage will help the warehouse team do their best. Even in makeshift storage hubs, you can use color masking tape and cardboard signs to clearly identify different warehouse areas.",
+        note: "When picking storage areas for different types of items, consider any special storage requirements for stock (e.g. heavy items, temperature control, protection from sunlight/water, keeping it away from walls to prevent vermin), as well as staff safety. Make sure you secure storage areas to prevent accidents and injuries.",
       },
       {
-        title: "Add a new location",
-        description: "Click 'Add location' and give it a name that matches your physical signage.",
+        title: "Set up Locations",
+        description: "Set up Locations so that they match warehouse storage areas will help you easily find where items are in your available spaces.",
         picture: "/guides/warehouse-locations.png",
         markdown:
-          "**Add Location**\n\nName it exactly as labelled in the warehouse so volunteers recognise it instantly.\n\n- **Name:** <mark>Rack A3 — Clothing</mark>\n- **Type:** Stocking",
-        note: "Avoid generic names like 'Room 1'. The name appears on every box label.",
+          "Create a location for each warehouse and zone. Choosing clear names will help you to find stock quickly and easily. Keep names short and consistent to allow for easy allocation and sorting.\n1. Go to Coordinator Admin → Edit Warehouses\n1. Select [+Add Location] and enter the location label, pick the default status of Boxes, then select ‘Save and Close’.\n1. Example location naming:\n\t- WH 1, Refrigeration\n\t- WH 1, Aisle 1: Hygiene & Health\n\t- WH 1, Aisle 1: Medical Supplies\n\t- WH1, Aisle 2: Baby and Children\n\t- WH1, Aisle 2: Womens’ Clothing\n\t- WH2, Loft\n\t- WH2, Floor Left\n\t- WH2, Floor Right (Scrap)\n\t- WH2, Outbound Area 1",
+        note: "If the needs served by the warehouse change, you can add, edit, or archive locations at any time.",
       },
       {
-        title: "Add a new location",
-        description: "Click 'Add location' and give it a name that matches your physical signage.",
+        title: "Use Tags",
+        description: "Tags allow you to categorize and sort your stock and/or beneficiary data to allow for easy filtering, planning and reporting.",
         picture: "/guides/tags.png",
         markdown:
-          "**Add Location**\n\nName it exactly as labelled in the warehouse so volunteers recognise it instantly.\n\n- **Name:** <mark>Rack A3 — Clothing</mark>\n- **Type:** Stocking",
-        note: "Avoid generic names like 'Room 1'. The name appears on every box label.",
+          "It is recommended to add tags based on your distribution planning needs, or data that you may need to pull for your programming and reporting needs. Commonly created tags may relate to project cycle, vulnerability or expiry date.\n1. Go to Coordinator Admin → Manage Tags\n1. Select [+ Create Tag] and enter the tag category, what it should apply to (beneficiaries, boxes or both) a color for easy sorting and the description, then select ‘Save Tag’.\n1. Examples frequently include:\n\t- **By recipient**: 'PLW (pregnant and lactating woman)', 'NA (new arrivals)' 'FHH (female head of Household)'\n\t- **By project or donor**: 'Project cycle 1234', 'Winter Kit', 'ECHO', 'UNICEF'\n\t- **By partner category**: 'NGO X, Greece', 'NGO Y, Syria'",
+        note: "You can filter your entire stock view in both Manage Boxes and in the Dashboard by tag - useful before a distribution or when preparing a report.",
       },
       {
-        title: "Add a new location",
-        description: "Click 'Add location' and give it a name that matches your physical signage.",
+        title: "Use filters to find what you need",
+        description: "Plan for your distribution, search by vulnerability - how to use tags to search through your data to help with your planning.",
         picture: "/guides/move-a-box.png",
         markdown:
-          "**Add Location**\n\nName it exactly as labelled in the warehouse so volunteers recognise it instantly.\n\n- **Name:** <mark>Rack A3 — Clothing</mark>\n- **Type:** Stocking",
-        note: "Avoid generic names like 'Room 1'. The name appears on every box label.",
+          "Combine location and tag filters to drill down quickly and pull the data you are needing. For example; you can export a report showing a tag ‘winterization kits’ and the ‘project cycle’ which will show how many winterization kits you have donated from that donor and at which location so you can plan for your upcoming distribution.",
       },
     ],
+    reference: {
+      "title": "Locations vs Tags in Boxtribute - what's the difference?",
+      "markdown": `Boxtribute gives you tools to organise your stock: **Locations** and **Tags**. It’s helpful to use them to know exactly where stock is and who it is for. It can also support with donor reporting as you can tag to the donor, project and budget cycle. Understand what thresholds you have - where stock is in your warehouse, freeshop, or various bases.
+<br/>
+<br/>
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Locations</th>
+      <th>Tags</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>What it is</b></td>
+      <td>A physical area in your warehouse</td>
+      <td>A tag you add in the boxtribute app that allows you to filter and sort</td>
+    </tr>
+    <tr>
+      <td><b>Use it for</b></td>
+      <td>Where stock is stored</td>
+      <td>Grouping boxes by purpose, recipient, donor, beneficiary vulnerability etc.</td>
+    </tr>
+    <tr>
+      <td><b>Example</b></td>
+      <td>"Shelf A", "Incoming Area", "Clothing Zone"</td>
+      <td>"PLW", "Project cycle 1234", "Donor: UNHCR"</td>
+    </tr>
+  </tbody>
+</table>
+<br/>
+Tip: Tags can work alongside locations. A box can have multiple tags at the same time, but only one location.`
+    },
     featureUnderneathDescription:
       "Locations are the backbone of stock visibility. Set them up to match your space and volunteers will always know where to look.",
     featureUnderneathLink: "See how locations work →",
