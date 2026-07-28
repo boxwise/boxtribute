@@ -286,7 +286,8 @@ export const GUIDES: Guide[] = [
     steps: [
       {
         title: "Identify the key areas in your warehouse(s)",
-        description: "Whether it's a makeshift storage hub in a garage or a professional warehouse space, having clear zones and storage areas helps the logistics of inbound and outbound aid delivery flow smoothly.",
+        description:
+          "Whether it's a makeshift storage hub in a garage or a professional warehouse space, having clear zones and storage areas helps the logistics of inbound and outbound aid delivery flow smoothly.",
         picture: "/guides/warehouse-floor-plan.png",
         markdown:
           "  Consider how stock is coming into and leaving the warehouse. Try to organize the warehouse so stock flows smoothly as it comes into and goes out of the warehouse. Try to minimize the need to carry things back and forth, especially by hand.  The team should sit together and identify zones in the warehouse and allocate these in Boxtribute - You will most likely need at least the following activity areas:\n\n1. Incoming\n1. Sort / Label / Register\n1. Storage\n1. Outgoing stock\n\nClear signage will help the warehouse team do their best. Even in makeshift storage hubs, you can use color masking tape and cardboard signs to clearly identify different warehouse areas.",
@@ -294,7 +295,8 @@ export const GUIDES: Guide[] = [
       },
       {
         title: "Set up Locations",
-        description: "Set up Locations so that they match warehouse storage areas will help you easily find where items are in your available spaces.",
+        description:
+          "Set up Locations so that they match warehouse storage areas will help you easily find where items are in your available spaces.",
         picture: "/guides/warehouse-locations.png",
         markdown:
           "Create a location for each warehouse and zone. Choosing clear names will help you to find stock quickly and easily. Keep names short and consistent to allow for easy allocation and sorting.\n1. Go to Coordinator Admin → Edit Warehouses\n1. Select [+Add Location] and enter the location label, pick the default status of Boxes, then select ‘Save and Close’.\n1. Example location naming:\n\t- WH 1, Refrigeration\n\t- WH 1, Aisle 1: Hygiene & Health\n\t- WH 1, Aisle 1: Medical Supplies\n\t- WH1, Aisle 2: Baby and Children\n\t- WH1, Aisle 2: Womens’ Clothing\n\t- WH2, Loft\n\t- WH2, Floor Left\n\t- WH2, Floor Right (Scrap)\n\t- WH2, Outbound Area 1",
@@ -302,7 +304,8 @@ export const GUIDES: Guide[] = [
       },
       {
         title: "Use Tags",
-        description: "Tags allow you to categorize and sort your stock and/or beneficiary data to allow for easy filtering, planning and reporting.",
+        description:
+          "Tags allow you to categorize and sort your stock and/or beneficiary data to allow for easy filtering, planning and reporting.",
         picture: "/guides/tags.png",
         markdown:
           "It is recommended to add tags based on your distribution planning needs, or data that you may need to pull for your programming and reporting needs. Commonly created tags may relate to project cycle, vulnerability or expiry date.\n1. Go to Coordinator Admin → Manage Tags\n1. Select [+ Create Tag] and enter the tag category, what it should apply to (beneficiaries, boxes or both) a color for easy sorting and the description, then select ‘Save Tag’.\n1. Examples frequently include:\n\t- **By recipient**: 'PLW (pregnant and lactating woman)', 'NA (new arrivals)' 'FHH (female head of Household)'\n\t- **By project or donor**: 'Project cycle 1234', 'Winter Kit', 'ECHO', 'UNICEF'\n\t- **By partner category**: 'NGO X, Greece', 'NGO Y, Syria'",
@@ -310,15 +313,16 @@ export const GUIDES: Guide[] = [
       },
       {
         title: "Use filters to find what you need",
-        description: "Plan for your distribution, search by vulnerability - how to use tags to search through your data to help with your planning.",
+        description:
+          "Plan for your distribution, search by vulnerability - how to use tags to search through your data to help with your planning.",
         picture: "/guides/move-a-box.png",
         markdown:
           "Combine location and tag filters to drill down quickly and pull the data you are needing. For example; you can export a report showing a tag ‘winterization kits’ and the ‘project cycle’ which will show how many winterization kits you have donated from that donor and at which location so you can plan for your upcoming distribution.",
       },
     ],
     reference: {
-      "title": "Locations vs Tags in Boxtribute - what's the difference?",
-      "markdown": `Boxtribute gives you tools to organise your stock: **Locations** and **Tags**. It’s helpful to use them to know exactly where stock is and who it is for. It can also support with donor reporting as you can tag to the donor, project and budget cycle. Understand what thresholds you have - where stock is in your warehouse, freeshop, or various bases.
+      title: "Locations vs Tags in Boxtribute - what's the difference?",
+      markdown: `Boxtribute gives you tools to organise your stock: **Locations** and **Tags**. It’s helpful to use them to know exactly where stock is and who it is for. It can also support with donor reporting as you can tag to the donor, project and budget cycle. Understand what thresholds you have - where stock is in your warehouse, freeshop, or various bases.
 <br/>
 <img src="/guides/tags.png" alt="loc-tags-difference"></img>
 <br/>
@@ -349,7 +353,7 @@ export const GUIDES: Guide[] = [
   </tbody>
 </table>
 <br/>
-Tip: Tags can work alongside locations. A box can have multiple tags at the same time, but only one location.`
+<b>Tip</b>: Tags can work alongside locations. A box can have multiple tags at the same time, but only one location.`,
     },
     featureUnderneathDescription:
       "Locations are the backbone of stock visibility. Set them up to match your space and volunteers will always know where to look.",
