@@ -5,10 +5,9 @@ import { useMobileWalkthrough } from "./MobileWalkthroughContext";
 
 function FinalScreen() {
   const { step, closeWalkthrough, replayTour, isCoordinator } = useMobileWalkthrough();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   if (step !== "done") return null;
-
-  const baseId = useAtomValue(selectedBaseIdAtom);
 
   return (
     /* Semi-transparent backdrop */

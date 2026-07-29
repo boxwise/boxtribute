@@ -13,10 +13,10 @@ const PATH_LABELS: Record<string, string> = {
 // In-tour fixed top-left path indicator + guidance link.
 function PathIndicator() {
   const { isWalkthroughActive, currentStep, activePath } = useWalkthrough();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   if (!isWalkthroughActive || currentStep !== "tour" || !activePath) return null;
 
-  const baseId = useAtomValue(selectedBaseIdAtom);
   const dest = `/bases/${baseId}/guides/${PATHS[activePath].guidanceUrl}`;
 
   return (
