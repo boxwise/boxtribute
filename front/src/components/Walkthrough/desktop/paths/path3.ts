@@ -6,6 +6,7 @@ const path3: WalkthroughPath = {
   description:
     "Get an overview of how to manage stock, products, users, locations, and other coordination features!",
   icon: "Coordinator Admin",
+  guidanceUrl: "roles-and-permissions",
   steps: [
     {
       target: "#nav-dashboard",
