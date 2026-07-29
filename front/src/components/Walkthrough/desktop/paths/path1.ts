@@ -6,6 +6,7 @@ const path1: WalkthroughPath = {
   description:
     "Learn where to start with Boxtribute, set up boxes, track your warehouse inventory, and more!",
   icon: "Aid Inventory",
+  guidanceUrl: "organise-warehouse-space",
   steps: [
     {
       target: "#nav-dashboard",

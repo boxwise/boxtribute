@@ -5,6 +5,7 @@ const path2: WalkthroughPath = {
   title: "How to register & support beneficiaries",
   description: "Learn where to add beneficiaries, assign services, and tokens!",
   icon: "Beneficiaries",
+  guidanceUrl: "identify-most-vulnerable",
   steps: [
     {
       target: "#nav-dashboard",

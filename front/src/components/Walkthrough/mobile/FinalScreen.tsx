@@ -1,8 +1,11 @@
-import { Box, Button, Text } from "@chakra-ui/react";
+import { Box, Button, Link, Text } from "@chakra-ui/react";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useMobileWalkthrough } from "./MobileWalkthroughContext";
 
 function FinalScreen() {
   const { step, closeWalkthrough, replayTour, isCoordinator } = useMobileWalkthrough();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   if (step !== "done") return null;
 
@@ -24,16 +27,28 @@ function FinalScreen() {
           You are all set!
         </Text>
 
-        <Text color="black" lineHeight="tall" mb={6}>
+        <Text color="black" lineHeight="tall" mb={4}>
           You&apos;ve seen the key parts of Boxtribute on mobile, and you can revisit this tour
           anytime from the <strong>Menu</strong>.{" "}
           {isCoordinator && (
             <>
               <br />
-              Managing products, locations, users, and full reports is much easier on desktop, where
-              tables and data have the space they need. Head there for the expanded experience!
+              Have a <strong>Coordinator</strong> role? Managing products, locations, users, and
+              full reports is much easier on <strong>Desktop</strong>, where tables and data have
+              the space they need. Head there for the expanded experience!
             </>
           )}
+        </Text>
+
+        <Text color="black" lineHeight="tall" mb={6}>
+          <Link
+            href={`/bases/${baseId}/guides`}
+            fontWeight="bold"
+            textDecoration="underline"
+            _hover={{ textDecoration: "underline" }}
+          >
+            Learn more about Boxtribute by accessing the Guide.
+          </Link>
         </Text>
 
         <Button
