@@ -14,18 +14,7 @@ import {
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { TimeIcon } from "@chakra-ui/icons";
 import { GUIDES } from "./guidesData";
-
-export function StatusDot({ status }: { status: "live" | "roadmap" }) {
-  return (
-    <Box
-      w={2}
-      h={2}
-      borderRadius="full"
-      bg={status === "live" ? "brandGreen" : "brandYellow.200"}
-      flexShrink={0}
-    />
-  );
-}
+import { StatusDot } from "./components/StatusDot";
 
 export default function GuidesOverviewView() {
   const { baseId } = useParams();

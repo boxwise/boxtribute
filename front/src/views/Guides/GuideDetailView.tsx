@@ -30,7 +30,7 @@ import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
 import type { GuideReference } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
-import { StatusDot } from "./GuidesOverviewView";
+import { StatusDot } from "./components/StatusDot";
 
 // Type cast needed due to peer @types/react version mismatch with react-markdown
 const ReactMarkdown = ReactMarkdownBase as unknown as React.FC<{
