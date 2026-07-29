@@ -7,10 +7,10 @@ from .language import Language
 
 class User(Model):
     created = DateTimeField(null=True)
-    created_by = UIntForeignKeyField(
+    created_by = UIntForeignKeyField(  # type: ignore
+        model="self",
         column_name="created_by",
         field="id",
-        model="self",
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
@@ -28,10 +28,10 @@ class User(Model):
     last_action = DateTimeField(column_name="lastaction")
     last_login = DateTimeField(column_name="lastlogin")
     modified = DateTimeField(null=True)
-    modified_by = UIntForeignKeyField(
+    modified_by = UIntForeignKeyField(  # type: ignore
+        model="self",
         column_name="modified_by",
         field="id",
-        model="self",
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
