@@ -9,10 +9,16 @@ import {
   Divider,
   Flex,
   HStack,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalOverlay,
   Tag,
   TagLabel,
   TagLeftIcon,
   Text,
+  useDisclosure,
   useMediaQuery,
   VStack,
 } from "@chakra-ui/react";
@@ -24,6 +30,7 @@ import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
 import type { GuideReference } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
+import { StatusDot } from "./components/StatusDot";
 
 // Type cast needed due to peer @types/react version mismatch with react-markdown
 const ReactMarkdown = ReactMarkdownBase as unknown as React.FC<{
@@ -42,55 +49,121 @@ function StepContent({
   markdown?: string;
   note?: string;
 }) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
-    <VStack
-      spacing={0}
-      w="full"
-      borderRadius="md"
-      overflow="hidden"
-      border="1px solid"
-      borderColor="gray.200"
-    >
-      {picture && <Box as="img" src={picture} alt={alt ?? ""} w="full" display="block" />}
+    <>
+      <VStack
+        spacing={0}
+        w="full"
+        borderRadius="md"
+        overflow="hidden"
+        border="1px solid"
+        borderColor="gray.200"
+      >
+        {picture && (
+          <Box
+            as="img"
+            src={picture}
+            alt={alt ?? ""}
+            w="full"
+            display="block"
+            cursor="zoom-in"
+            role="button"
+            tabIndex={0}
+            aria-label="Enlarge image"
+            onClick={onOpen}
+            title="Click to enlarge"
+          />
+        )}
 
-      {markdown && (
-        <Box
-          w="full"
-          bg="white"
-          px={4}
-          py={3}
-          fontSize="sm"
-          color="gray.700"
-          sx={{
-            p: { marginBottom: "0.5rem" },
-            "ul, ol": { paddingLeft: "1.25rem", marginBottom: "0.5rem" },
-            li: { marginBottom: "0.25rem" },
-            mark: {
-              backgroundColor: "var(--chakra-colors-brandYellow-100)",
-              color: "var(--chakra-colors-brandBlue-300)",
-              borderRadius: "2px",
-              padding: "0 3px",
-            },
-          }}
-        >
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>{markdown}</ReactMarkdown>
-        </Box>
-      )}
+        {markdown && (
+          <Box
+            w="full"
+            bg="white"
+            px={4}
+            py={3}
+            fontSize="sm"
+            color="gray.700"
+            overflowX="auto"
+            sx={{
+              p: { marginBottom: "0.5rem" },
+              "ul, ol": { paddingLeft: "1.25rem", marginBottom: "0.5rem" },
+              li: { marginBottom: "0.25rem" },
+              table: { width: "100%", borderCollapse: "collapse" },
+              "th, td": {
+                border: "1px solid",
+                borderColor: "var(--chakra-colors-gray-200)",
+                px: 3,
+                py: 2,
+                textAlign: "left",
+              },
+              th: {
+                bg: "var(--chakra-colors-gray-50)",
+                fontWeight: "semibold",
+                fontSize: "xs",
+                color: "var(--chakra-colors-gray-600)",
+              },
+              mark: {
+                backgroundColor: "var(--chakra-colors-brandYellow-100)",
+                color: "var(--chakra-colors-brandBlue-300)",
+                borderRadius: "2px",
+                padding: "0 3px",
+              },
+            }}
+          >
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{markdown}</ReactMarkdown>
+          </Box>
+        )}
 
-      {note && (
-        <Box
-          bg="brandBlue.300"
-          w="full"
-          px={4}
-          py={3}
-          color="white"
-          fontSize="xs"
-          borderBottomRadius="md"
-        >
-          <Text>{note}</Text>
-        </Box>
-      )}
-    </VStack>
+        {note && (
+          <Box
+            bg="brandBlue.300"
+            w="full"
+            px={4}
+            py={3}
+            color="white"
+            fontSize="xs"
+            borderBottomRadius="md"
+          >
+            <Text>{note}</Text>
+          </Box>
+        )}
+      </VStack>
+
+      <Modal isOpen={isOpen} onClose={onClose} size="full" isCentered>
+        <ModalOverlay bg="blackAlpha.900" />
+        <ModalContent bg="transparent" boxShadow="none" onClick={onClose}>
+          <ModalCloseButton
+            color="white"
+            size="lg"
+            zIndex={10}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <ModalBody
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            p={4}
+            overflow="auto"
+          >
+            <Box
+              as="img"
+              src={picture}
+              alt={alt ?? ""}
+              maxW="100%"
+              maxH="90vh"
+              objectFit="contain"
+              borderRadius="md"
+              onClick={onClose}
+              sx={{
+                touchAction: "pinch-zoom",
+              }}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 
@@ -233,9 +306,9 @@ export default function GuideDetailView() {
 
         <HStack spacing={3} mb={4} flexWrap="wrap">
           <HStack spacing={1}>
-            <Box w={2} h={2} borderRadius="full" bg="brandGreen" />
+            <StatusDot status={guide.status} />
             <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
-              Live Feature
+              {guide.status === "live" ? "Live" : "Roadmap"}
             </Text>
           </HStack>
           <Text
@@ -284,7 +357,7 @@ export default function GuideDetailView() {
           >
             The requirement — in your words
           </Text>
-          <Text fontSize="sm" color="gray.700" fontStyle="italic">
+          <Text fontSize="sm" color="gray.700" mr={2} fontStyle="italic">
             {guide.requirement}
           </Text>
         </Box>
