@@ -6,7 +6,7 @@ from . import Model
 
 class ProductCategory(Model):
     name = CharField(column_name="label")
-    parent = UIntForeignKeyField(
+    parent = UIntForeignKeyField(  # type: ignore
         model="self",
         column_name="parent_id",
         field="id",
