@@ -69,6 +69,9 @@ function StepContent({
             w="full"
             display="block"
             cursor="zoom-in"
+            role="button"
+            tabIndex={0}
+            aria-label="Enlarge image"
             onClick={onOpen}
             title="Click to enlarge"
           />
@@ -82,10 +85,25 @@ function StepContent({
             py={3}
             fontSize="sm"
             color="gray.700"
+            overflowX="auto"
             sx={{
               p: { marginBottom: "0.5rem" },
               "ul, ol": { paddingLeft: "1.25rem", marginBottom: "0.5rem" },
               li: { marginBottom: "0.25rem" },
+              table: { width: "100%", borderCollapse: "collapse" },
+              "th, td": {
+                border: "1px solid",
+                borderColor: "var(--chakra-colors-gray-200)",
+                px: 3,
+                py: 2,
+                textAlign: "left",
+              },
+              th: {
+                bg: "var(--chakra-colors-gray-50)",
+                fontWeight: "semibold",
+                fontSize: "xs",
+                color: "var(--chakra-colors-gray-600)",
+              },
               mark: {
                 backgroundColor: "var(--chakra-colors-brandYellow-100)",
                 color: "var(--chakra-colors-brandBlue-300)",
@@ -137,8 +155,7 @@ function StepContent({
               maxH="90vh"
               objectFit="contain"
               borderRadius="md"
-              cursor="zoom-out"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              onClick={onClose}
               sx={{
                 touchAction: "pinch-zoom",
               }}
