@@ -246,7 +246,7 @@ def authorize_cross_organisation_access(
 
     # If the base that's about to be accessed belongs to the user's organisation, run
     # try to authorize for all given base-specific resources
-    if base.organisation_id == current_user.organisation_id:
+    if base.organisation_id == current_user.organisation_id:  # type: ignore
         for resource in base_specific_resources:
             permission = f"{resource}:read"
             authorize(current_user, permission=permission, base_id=base_id)

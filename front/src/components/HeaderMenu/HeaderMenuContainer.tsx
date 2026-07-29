@@ -33,13 +33,6 @@ function HeaderMenuContainer() {
             requiredAbps: ["list_sales"],
             external: true,
           },
-          {
-            link: `${oldAppUrlWithBase}&action=fancygraphs`,
-            name: "Fancy Graphs",
-            requiredAbps: ["view_beneficiary_graph"],
-            beta: true,
-            external: true,
-          },
         ],
       },
       {
