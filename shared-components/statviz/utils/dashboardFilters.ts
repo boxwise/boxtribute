@@ -23,6 +23,12 @@ export interface ILocationOption {
   name: string;
 }
 
+export interface ITargetOption {
+  id: number;
+  name: string;
+  type?: string;
+}
+
 /**
  * Tag option for dashboard filters.
  * Structurally compatible with ITagFilterValue so it can be used directly
@@ -61,6 +67,7 @@ export interface MovementAppliedFilters {
   products: IProductOption[];
   genders: string[];
   categories: ICategoryOption[];
+  targets: ITargetOption[];
   includedTags: ITagOption[];
   excludedTags: ITagOption[];
 }
@@ -120,6 +127,7 @@ export const MOVEMENT_URL_PARAMS = {
   products: "mp",
   genders: "mg",
   categories: "mc",
+  targets: "mtar",
   includedTags: "mt",
   excludedTags: "mnt",
   boxesOrItems: "mboi",
@@ -170,6 +178,7 @@ export function defaultMovementFilters(): MovementAppliedFilters {
     products: [],
     genders: [],
     categories: [],
+    targets: [],
     includedTags: [],
     excludedTags: [],
   };
@@ -237,6 +246,10 @@ export function resolveTagIds(ids: number[], allTags: ITagOption[]): ITagOption[
   return allTags.filter((t) => ids.includes(t.id));
 }
 
+export function resolveTargetIds(ids: number[], allTargets: ITargetOption[]): ITargetOption[] {
+  return allTargets.filter((t) => ids.includes(t.id));
+}
+
 // ---------------------------------------------------------------------------
 // Read applied filters from URL search params
 // ---------------------------------------------------------------------------
@@ -277,6 +290,7 @@ export function readMovementFiltersFromUrl(
   searchParams: URLSearchParams,
   allProducts: IProductOption[],
   allCategories: ICategoryOption[],
+  allTargets: ITargetOption[],
   allTags: ITagOption[],
 ): MovementAppliedFilters {
   const defaults = defaultMovementFilters();
@@ -291,6 +305,10 @@ export function readMovementFiltersFromUrl(
     categories: resolveCategoryIds(
       parseIdsParam(searchParams.get(MOVEMENT_URL_PARAMS.categories)),
       allCategories,
+    ),
+    targets: resolveTargetIds(
+      parseIdsParam(searchParams.get(MOVEMENT_URL_PARAMS.targets)),
+      allTargets,
     ),
     includedTags: resolveTagIds(
       parseIdsParam(searchParams.get(MOVEMENT_URL_PARAMS.includedTags)),
@@ -371,6 +389,7 @@ export function writeMovementFiltersToUrl(
     MOVEMENT_URL_PARAMS.categories,
     serializeIds(filters.categories.map((c) => c.id)),
   );
+  setOrDelete(params, MOVEMENT_URL_PARAMS.targets, serializeIds(filters.targets.map((t) => t.id)));
   setOrDelete(
     params,
     MOVEMENT_URL_PARAMS.includedTags,
