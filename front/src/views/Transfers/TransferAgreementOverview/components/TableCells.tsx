@@ -11,7 +11,8 @@ export enum CanAcceptTransferAgreementState {
 }
 
 export type IExtendedTransferAgreementState =
-  TransferAgreements["state"] | CanAcceptTransferAgreementState;
+  | TransferAgreements["state"]
+  | CanAcceptTransferAgreementState;
 
 export function StatusCell({ onClick, ...cellProps }: CellProps<any>) {
   if (cellProps.value === "UnderReview") {
