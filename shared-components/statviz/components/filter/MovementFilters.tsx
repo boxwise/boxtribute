@@ -153,7 +153,7 @@ export function MovementFilters({
           placeholder="All"
         />
         <MultiSelectFilter
-          fieldLabel="Target"
+          fieldLabel="Partner / Target"
           values={targetOptions}
           filterId="mtar-staged"
           filterValue={selectedTargetValues}
