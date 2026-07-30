@@ -232,43 +232,88 @@ export const GUIDES: Guide[] = [
     featureUnderneathLink: "See how CSV import works →",
   },
   {
-    slug: "identify-most-vulnerable",
-    title: "Identify & prioritise the most vulnerable",
-    subtitle: "Use beneficiary tags to flag and fast-track the people who need help most.",
+    slug: "tracking-services-prioritising-vulnerable",
+    title: "Tracking Services & Distributions and Prioritising the Most Vulnerable",
+    subtitle:
+      "How to identify and prioritise the most vulnerable - tracking services and distributions with beneficiaries.",
     tags: ["Protection & Targeting", "Beneficiary Tags"],
     feature: "Beneficiary tags",
-    estimatedMinutes: 5,
+    estimatedMinutes: 20,
     status: "roadmap",
     requirement:
-      "We need to flag people with specific vulnerabilities — medical needs, unaccompanied minors, pregnant women — and make sure they are served first at every touchpoint, not just when a staff member happens to remember.",
+      "We work with beneficiaries with varying vulnerabilities and need for support -  some have medical needs, some are unaccompanied minors, others are new arrivals. We need a way to flag who needs support and make sure they are prioritized and overall that we provide fair access to aid.",
     steps: [
       {
-        title: "Create your vulnerability tags",
-        description: "Add beneficiary tags once for the situations you need to flag.",
-        markdown:
-          "**Manage Tags · Beneficiary tags**\n\nCreate reusable tags that describe vulnerability situations.\n\n- **New beneficiary tag:** Medical attention needed\n\nExample tags: Medical attention needed, Unaccompanied minor, Supporting disabled member, Pregnant / lactating",
-        note: "These tags become each person's protection status. No custom 'vulnerability field' to build — one tag set, reused on every beneficiary you register.",
+        title: "Register your beneficiaries",
+        description:
+          "Every person or household receiving support should be added as a beneficiary within Boxtribute so you can track your impact and reach.",
+        picture: "/guides/move-a-box.png",
+        markdown: `1. Go to Beneficiaries → Add Beneficiary.
+1. Enter relevant beneficiary data, including tags and comments. Utilize the comments section to add any relevant information that is specific to the beneficiary.
+1. Then select 'Save and Close'.`,
+        note: "Create your beneficiary tags first; this will allow you to select the appropriate tags from the drop down options when registering beneficiaries.",
       },
       {
-        title: "Flag people as you register them",
-        description: "Apply the tag on the Add a Beneficiary form — everyone carries their status.",
-        markdown:
-          "**Add Beneficiary · Tags**\n\nTags are applied during registration and travel with the person.\n\n- **Beneficiary:** Amara N.\n- **Vulnerability tag:** <mark>Medical attention needed</mark>",
-        note: "The tag travels with the person so staff at any station can see the status at a glance.",
+        title: "Use tags to identify and prioritise the most vulnerable",
+        description:
+          "Tags on beneficiary records work the same way as tags on boxes, allowing you to group and filter quickly. It is especially helpful to utilize tags to flag vulnerability categories.",
+        picture: "/guides/move-a-box.png",
+        markdown: `You are able to enter tags that are relevant to the programming and support that you are providing. The following are some suggestions we see widely used.\n
+**Vulnerability category**
+- **FHH**: Female head of household
+- **CHH**: Child head of household
+- **PLW**: Pregnant or lactating woman
+- **UNMIN**: unaccompanied minor
+- **Elderly**: Elderly Household or individual”
+**Priority status**
+- “new arrival”
+- “emergency case”
+- “referred by partner X”`,
+        note: "Once tagged, you can filter your beneficiary list by vulnerability category before a distribution. This ensures that priority beneficiaries are served first.",
       },
       {
-        title: "Filter to the priority list",
-        description: "Pull everyone who needs protection first, in one click.",
-        markdown:
-          "**Beneficiaries · Filter by Tag**\n\nFilter the beneficiary list to a specific vulnerability tag instantly.\n\n- **Filter by tag:** <mark>Medical attention needed</mark>\n- **Results:** 14 people",
-        note: "You can combine multiple tags to see e.g. everyone who is both pregnant and unaccompanied.",
+        title: "Add your list of services / distributions",
+        description:
+          "You are able to add all programming sectors and support that your NGO provides. This will allow you to track beneficiary usage, follow-up if services are missed and also have the most up to date information for reporting.",
+        picture: "/guides/move-a-box.png",
+        markdown: `1. Select 'Manage services'
+1. Click 'Add service'
+1. Add all services that your NGO offers.`,
+        note: "You can use this functionality to track service attendance, not just distributions. For example: If you run a weekly MHPSS support group, register the MHPSS support group as a service in Boxtribute. You'll instantly see who attended week one but dropped off by week two — so your team can follow up before someone disengages.",
       },
       {
-        title: "Match them to aid & services",
-        description: "Assign a service, or give priority at Free Shop checkout.",
-        markdown:
-          "**Beneficiaries · Assign to Service**\n\nLink a vulnerability tag to a specific service for automatic matching.\n\n- **Beneficiary:** <mark>Amara N. · Medical attention needed</mark>\n- **Service:** Medical referral — Clinic partner",
-        note: "The tag travels with the person into services and checkout, so the most at-risk are matched first — by default, not by luck.",
+        title: "Use filters to prepare for a distribution",
+        description:
+          "Filter through your beneficiary details to determine who should be prioritised for support and ensure that aid access is fairly granted. Filter functions can include tagged vulnerabilities, date of last visit, services accessed etc.",
+        picture: "/guides/move-a-box.png",
+        markdown: `Before a distribution event, filter your beneficiary list to:
+- Identify who has not visited recently
+- Find all households with a specific vulnerability tag
+- Confirm who is due for their next collection`,
+        note: "Sort by last visit date to quickly spot beneficiaries who may have been missed in recent distributions.",
+      },
+      {
+        title: "Record a distribution or service",
+        description:
+          "Record each beneficiary who has received support from your organisation. This allows you to track goods received, services provided, and follow up if appointments are missed.",
+        picture: "/guides/move-a-box.png",
+        markdown: `When beneficiaries comes to collect goods or access a service:
+1. Go to “Use Service” under the “Beneficiaries” section of the menu
+1. Under “Service”, select the name of the service or distribution being run
+1. Add the beneficiary or beneficiaries who are receiving the distribution or service;
+1. Select “Save”.`,
+        note: "Boxtribute records the date, time, items given, and the staff member who processed it automatically.\nBoxtribute also has the ability to manage a Free Shop, where beneficiaries can choose their own items according to their needs. Boxtribute supports this with a dedicated functionality. The system allows you to arrange free access or to allocate vouchers to each eligible beneficiary, and each item selected is logged against the beneficiary record in real time. Please contact Boxtribute directly to discuss training on this.",
+      },
+      {
+        title: "View distribution history",
+        description:
+          "Easily see the full picture at every level - from an individual beneficiary's complete history of goods and services received, to programme-wide targets for donor reporting",
+        picture: "/guides/move-a-box.png",
+        markdown: `Every distribution is logged on the beneficiary's profile. You can see:
+- What they received and when;
+- How many visits they have made; and
+- Their remaining voucher allowance for the current cycle`,
+        note: "Use Sales Report -> by People (under) to see unique beneficiary counts, total visits, and distribution totals across your whole programme - useful for donor reporting!",
       },
     ],
     featureUnderneathDescription:
