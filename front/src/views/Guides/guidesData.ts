@@ -199,7 +199,7 @@ export const GUIDES: Guide[] = [
     title: "Tracking Services & Distributions and Prioritising the Most Vulnerable",
     subtitle:
       "How to identify and prioritise the most vulnerable - tracking services and distributions with beneficiaries.",
-    tags: ["Protection & Targeting", "Beneficiary Tags"],
+    tags: ["Beneficiary Tags"],
     feature: "Beneficiary tags",
     estimatedMinutes: 20,
     status: "roadmap",
