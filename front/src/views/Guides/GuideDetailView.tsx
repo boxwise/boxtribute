@@ -597,7 +597,7 @@ export default function GuideDetailView() {
             <HStack flexWrap="wrap" spacing={2} mb={3}>
               <Badge
                 as={RouterLink}
-                to={guide.featureUnderneathLink}
+                to={guide.featureUnderneathLink.replace("BASE_ID", baseId)}
                 key={guide.feature}
                 bg="gray.100"
                 color="gray.700"

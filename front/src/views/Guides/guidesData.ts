@@ -28,6 +28,7 @@ export interface Guide {
   featureUnderneathLink: string;
 }
 
+const oldAppUrl = import.meta.env.FRONT_OLD_APP_BASE_URL;
 const moveIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M208 320h384c8.8 0 16-7.2 16-16V48c0-8.8-7.2-16-16-16H448v128l-48-32-48 32V32H208c-8.8 0-16 7.2-16 16v256c0 8.8 7.2 16 16 16zm416 64H128V16c0-8.8-7.2-16-16-16H16C7.2 0 0 7.2 0 16v32c0 8.8 7.2 16 16 16h48v368c0 8.8 7.2 16 16 16h82.9c-1.8 5-2.9 10.4-2.9 16 0 26.5 21.5 48 48 48s48-21.5 48-48c0-5.6-1.2-11-2.9-16H451c-1.8 5-2.9 10.4-2.9 16 0 26.5 21.5 48 48 48s48-21.5 48-48c0-5.6-1.2-11-2.9-16H624c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16z"/></svg>`;
 
 export const GUIDES: Guide[] = [
@@ -191,7 +192,7 @@ export const GUIDES: Guide[] = [
     },
     featureUnderneathDescription:
       "Set this up once and every team member logs in with the right level of access from day one.",
-    featureUnderneathLink: "/?camp=2&action=cms_users",
+    featureUnderneathLink: `${oldAppUrl}/?camp=BASE_ID&action=cms_users`,
   },
   {
     slug: "identify-most-vulnerable",
@@ -287,8 +288,8 @@ export const GUIDES: Guide[] = [
 Tip: _Only staff with the appropriate role can view and edit beneficiary information. See the [**Preset roles - who can do what?**](../roles-and-permissions) reference if you need to check permissions._`,
     },
     featureUnderneathDescription:
-      "Learn these two building blocks once and most 'can you add a field for...?' requests answer themselves.",
-    featureUnderneathLink: "See how tags & services work →",
+      "Your beneficiaries are who matter most. Learn to prepare for fair and dignified distributions.",
+    featureUnderneathLink: `${oldAppUrl}/?camp=BASE_ID&action=people`,
   },
   {
     slug: "organise-warehouse-space",
@@ -407,6 +408,6 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
     },
     featureUnderneathDescription:
       "Locations are the backbone of stock visibility. Set them up to match your space and volunteers will always know where to look.",
-    featureUnderneathLink: "See how locations work →",
+    featureUnderneathLink: `${oldAppUrl}/?camp=BASE_ID&action=locations`,
   },
 ];
