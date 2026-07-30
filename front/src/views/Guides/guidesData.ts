@@ -241,7 +241,7 @@ export const GUIDES: Guide[] = [
     estimatedMinutes: 20,
     status: "roadmap",
     requirement:
-      "We work with beneficiaries with varying vulnerabilities and need for support -  some have medical needs, some are unaccompanied minors, others are new arrivals. We need a way to flag who needs support and make sure they are prioritized and overall that we provide fair access to aid.",
+      "We work with beneficiaries with varying vulnerabilities and need for support - some have medical needs, some are unaccompanied minors, others are new arrivals. We need a way to flag who needs support and make sure they are prioritised and overall that we provide fair access to aid.",
     steps: [
       {
         title: "Register your beneficiaries",
@@ -251,7 +251,7 @@ export const GUIDES: Guide[] = [
         markdown: `1. Go to Beneficiaries → Add Beneficiary.
 1. Enter relevant beneficiary data, including tags and comments. Utilize the comments section to add any relevant information that is specific to the beneficiary.
 1. Then select 'Save and Close'.`,
-        note: "Create your beneficiary tags first; this will allow you to select the appropriate tags from the drop down options when registering beneficiaries.",
+        note: "Create your beneficiary tags first; this will allow you to select the appropriate tags from the dropdown options when registering beneficiaries.",
       },
       {
         title: "Use tags to identify and prioritise the most vulnerable",
