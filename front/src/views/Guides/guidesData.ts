@@ -258,13 +258,15 @@ export const GUIDES: Guide[] = [
         description:
           "Tags on beneficiary records work the same way as tags on boxes, allowing you to group and filter quickly. It is especially helpful to utilize tags to flag vulnerability categories.",
         picture: "/guides/move-a-box.png",
-        markdown: `You are able to enter tags that are relevant to the programming and support that you are providing. The following are some suggestions we see widely used.\n
+        markdown: `You are able to enter tags that are relevant to the programming and support that you are providing. The following are some suggestions we see widely used.
+
 **Vulnerability category**
-- **FHH**: Female head of household
-- **CHH**: Child head of household
-- **PLW**: Pregnant or lactating woman
-- **UNMIN**: unaccompanied minor
-- **Elderly**: Elderly Household or individual”
+- “FHH”: Female head of household
+- “CHH”: Child head of household
+- “PLW”: Pregnant or lactating woman
+- “UNMIN”: unaccompanied minor
+- “Elderly”: Elderly Household or individual
+
 **Priority status**
 - “new arrival”
 - “emergency case”
@@ -297,12 +299,12 @@ export const GUIDES: Guide[] = [
         description:
           "Record each beneficiary who has received support from your organisation. This allows you to track goods received, services provided, and follow up if appointments are missed.",
         picture: "/guides/move-a-box.png",
-        markdown: `When beneficiaries comes to collect goods or access a service:
+        markdown: `When beneficiaries come to collect goods or access a service:
 1. Go to “Use Service” under the “Beneficiaries” section of the menu
 1. Under “Service”, select the name of the service or distribution being run
 1. Add the beneficiary or beneficiaries who are receiving the distribution or service;
 1. Select “Save”.`,
-        note: "Boxtribute records the date, time, items given, and the staff member who processed it automatically.\nBoxtribute also has the ability to manage a Free Shop, where beneficiaries can choose their own items according to their needs. Boxtribute supports this with a dedicated functionality. The system allows you to arrange free access or to allocate vouchers to each eligible beneficiary, and each item selected is logged against the beneficiary record in real time. Please contact Boxtribute directly to discuss training on this.",
+        note: "Boxtribute records the date, time, items given, and the staff member who processed it automatically. The software also has the ability to manage a Free Shop, where beneficiaries can choose their own items according to their needs. Boxtribute supports this with a dedicated functionality. The system allows you to arrange free access or to allocate vouchers to each eligible beneficiary, and each item selected is logged against the beneficiary record in real time. Please contact Boxtribute directly to discuss training on this.",
       },
       {
         title: "View distribution history",
@@ -313,9 +315,15 @@ export const GUIDES: Guide[] = [
 - What they received and when;
 - How many visits they have made; and
 - Their remaining voucher allowance for the current cycle`,
-        note: "Use Sales Report -> by People (under) to see unique beneficiary counts, total visits, and distribution totals across your whole programme - useful for donor reporting!",
+        note: "Use 'Sales Report' → 'by People' (under Type) to see unique beneficiary counts, total visits, and distribution totals across your whole programme - useful for donor reporting!",
       },
     ],
+    reference: {
+      title: "",
+      markdown: `Boxtribute lets you manage your beneficiaries within the platform, categorize by vulnerability or other status and capture who receives what, when, and how often. This keeps your distributions fair, accountable, and focused on the people who need support most.
+
+Tip: _Only staff with the appropriate role can view and edit beneficiary information. See the [**Preset roles - who can do what?**](../roles-and-permissions) reference if you need to check permissions._`,
+    },
     featureUnderneathDescription:
       "Learn these two building blocks once and most 'can you add a field for...?' requests answer themselves.",
     featureUnderneathLink: "See how tags & services work →",
