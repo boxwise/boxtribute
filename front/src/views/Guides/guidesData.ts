@@ -247,7 +247,7 @@ export const GUIDES: Guide[] = [
         title: "Register your beneficiaries",
         description:
           "Every person or household receiving support should be added as a beneficiary within Boxtribute so you can track your impact and reach.",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/register-beneficiary.png",
         markdown: `1. Go to Beneficiaries → Add Beneficiary.
 1. Enter relevant beneficiary data, including tags and comments. Utilize the comments section to add any relevant information that is specific to the beneficiary.
 1. Then select 'Save and Close'.`,
@@ -257,7 +257,7 @@ export const GUIDES: Guide[] = [
         title: "Use tags to identify and prioritise the most vulnerable",
         description:
           "Tags on beneficiary records work the same way as tags on boxes, allowing you to group and filter quickly. It is especially helpful to utilize tags to flag vulnerability categories.",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/vulnerability-tag.png",
         markdown: `You are able to enter tags that are relevant to the programming and support that you are providing. The following are some suggestions we see widely used.
 
 **Vulnerability category**
@@ -277,7 +277,7 @@ export const GUIDES: Guide[] = [
         title: "Add your list of services / distributions",
         description:
           "You are able to add all programming sectors and support that your NGO provides. This will allow you to track beneficiary usage, follow-up if services are missed and also have the most up to date information for reporting.",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/manage-services.png",
         markdown: `1. Select 'Manage services'
 1. Click 'Add service'
 1. Add all services that your NGO offers.`,
@@ -287,7 +287,7 @@ export const GUIDES: Guide[] = [
         title: "Use filters to prepare for a distribution",
         description:
           "Filter through your beneficiary details to determine who should be prioritised for support and ensure that aid access is fairly granted. Filter functions can include tagged vulnerabilities, date of last visit, services accessed etc.",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/vulnerability-tag.png",
         markdown: `Before a distribution event, filter your beneficiary list to:
 - Identify who has not visited recently
 - Find all households with a specific vulnerability tag
@@ -298,7 +298,7 @@ export const GUIDES: Guide[] = [
         title: "Record a distribution or service",
         description:
           "Record each beneficiary who has received support from your organisation. This allows you to track goods received, services provided, and follow up if appointments are missed.",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/register-service-usage.png",
         markdown: `When beneficiaries come to collect goods or access a service:
 1. Go to “Use Service” under the “Beneficiaries” section of the menu
 1. Under “Service”, select the name of the service or distribution being run
@@ -310,7 +310,7 @@ export const GUIDES: Guide[] = [
         title: "View distribution history",
         description:
           "Easily see the full picture at every level - from an individual beneficiary's complete history of goods and services received, to programme-wide targets for donor reporting",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/services-accessed.png",
         markdown: `Every distribution is logged on the beneficiary's profile. You can see:
 - What they received and when;
 - How many visits they have made; and
