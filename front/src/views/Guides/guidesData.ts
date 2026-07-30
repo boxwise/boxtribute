@@ -287,7 +287,7 @@ export const GUIDES: Guide[] = [
         title: "Use filters to prepare for a distribution",
         description:
           "Filter through your beneficiary details to determine who should be prioritised for support and ensure that aid access is fairly granted. Filter functions can include tagged vulnerabilities, date of last visit, services accessed etc.",
-        picture: "/guides/vulnerability-tag.png",
+        picture: "/guides/filter-beneficiaries.png",
         markdown: `Before a distribution event, filter your beneficiary list to:
 - Identify who has not visited recently
 - Find all households with a specific vulnerability tag
