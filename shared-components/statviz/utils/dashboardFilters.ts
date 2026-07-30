@@ -24,7 +24,7 @@ export interface ILocationOption {
 }
 
 export interface ITargetOption {
-  id: number;
+  id: string;
   name: string;
   type?: string;
 }
@@ -246,7 +246,7 @@ export function resolveTagIds(ids: number[], allTags: ITagOption[]): ITagOption[
   return allTags.filter((t) => ids.includes(t.id));
 }
 
-export function resolveTargetIds(ids: number[], allTargets: ITargetOption[]): ITargetOption[] {
+export function resolveTargetIds(ids: string[], allTargets: ITargetOption[]): ITargetOption[] {
   return allTargets.filter((t) => ids.includes(t.id));
 }
 
@@ -307,7 +307,7 @@ export function readMovementFiltersFromUrl(
       allCategories,
     ),
     targets: resolveTargetIds(
-      parseIdsParam(searchParams.get(MOVEMENT_URL_PARAMS.targets)),
+      parseValuesParam(searchParams.get(MOVEMENT_URL_PARAMS.targets)),
       allTargets,
     ),
     includedTags: resolveTagIds(
@@ -389,7 +389,11 @@ export function writeMovementFiltersToUrl(
     MOVEMENT_URL_PARAMS.categories,
     serializeIds(filters.categories.map((c) => c.id)),
   );
-  setOrDelete(params, MOVEMENT_URL_PARAMS.targets, serializeIds(filters.targets.map((t) => t.id)));
+  setOrDelete(
+    params,
+    MOVEMENT_URL_PARAMS.targets,
+    serializeValues(filters.targets.map((t) => t.id)),
+  );
   setOrDelete(
     params,
     MOVEMENT_URL_PARAMS.includedTags,

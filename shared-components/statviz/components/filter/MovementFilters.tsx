@@ -43,7 +43,7 @@ export function MovementFilters({
 
   const productOptions = toProductFilterValues(products);
   const categoryOptions = toFilterValues(categories);
-  const targetOptions = toFilterValues(targets);
+  const targetOptions = targets.map((t) => ({ value: t.id, label: t.name, urlId: t.id }));
 
   const handleApply = useCallback(() => {
     onApply(staged);
@@ -158,10 +158,10 @@ export function MovementFilters({
           filterId="mtar-staged"
           filterValue={selectedTargetValues}
           onFilterChange={(selected) => {
-            const selectedIds = selected.map((s) => Number(s.value));
+            const selectedIds = new Set(selected.map((s) => s.value));
             setStaged((prev) => ({
               ...prev,
-              targets: targets.filter((t) => selectedIds.includes(t.id)),
+              targets: targets.filter((t) => selectedIds.has(t.id)),
             }));
           }}
           placeholder="All"

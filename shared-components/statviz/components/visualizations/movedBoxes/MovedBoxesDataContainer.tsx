@@ -39,9 +39,9 @@ export default function MovedBoxesDataContainer({
   useEffect(() => {
     if (!data?.movedBoxes?.dimensions?.target) return;
     const targets: ITargetOption[] = data.movedBoxes.dimensions.target
-      .filter((t): t is NonNullable<typeof t> => t !== null)
+      .filter((t): t is NonNullable<typeof t> => t !== null && t.id != null)
       .map((t) => ({
-        id: Number(t.id),
+        id: t.id as string,
         name: t.name ?? "",
         type: t.type ?? undefined,
       }));

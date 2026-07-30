@@ -61,8 +61,8 @@ export default function MovedBoxesFilterContainer({
       filters.push(filter((fact: MovedBoxesResult) => categoryIds.has(fact.categoryId!)));
     }
     if (targets.length > 0) {
-      const targetIds = new Set(targets.map((t) => String(t.id)));
-      filters.push(filter((fact: MovedBoxesResult) => targetIds.has(String(fact.targetId!))));
+      const targetIds = new Set(targets.map((t) => t.id));
+      filters.push(filter((fact: MovedBoxesResult) => targetIds.has(fact.targetId!)));
     }
 
     let filtered = movedBoxesFacts;
