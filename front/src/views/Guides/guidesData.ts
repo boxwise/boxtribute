@@ -232,7 +232,7 @@ export const GUIDES: Guide[] = [
     featureUnderneathLink: "See how CSV import works →",
   },
   {
-    slug: "tracking-services-prioritising-vulnerable",
+    slug: "identify-most-vulnerable",
     title: "Tracking Services & Distributions and Prioritising the Most Vulnerable",
     subtitle:
       "How to identify and prioritise the most vulnerable - tracking services and distributions with beneficiaries.",
