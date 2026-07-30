@@ -4,7 +4,6 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 
 const FEATURED_GUIDES = [
   { slug: "roles-and-permissions", title: "Set up roles & team permissions" },
-  { slug: "import-stock-beneficiaries", title: "Import your existing stock or beneficiaries" },
   { slug: "identify-most-vulnerable", title: "Identify & prioritise the most vulnerable" },
   { slug: "organise-warehouse-space", title: "Organise your warehouse space" },
 ];

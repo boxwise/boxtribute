@@ -194,44 +194,6 @@ export const GUIDES: Guide[] = [
     featureUnderneathLink: "/?camp=2&action=cms_users",
   },
   {
-    slug: "import-stock-beneficiaries",
-    title: "Import your existing stock or beneficiaries",
-    subtitle: "Bring your existing data into Boxtribute with a CSV upload.",
-    tags: ["Data Import", "CSV import"],
-    feature: "CSV import",
-    estimatedMinutes: 5,
-    status: "roadmap",
-    requirement:
-      "We already track our stock and beneficiaries in spreadsheets and need to migrate that data into Boxtribute without re-entering everything by hand.",
-    steps: [
-      {
-        title: "Prepare your CSV file",
-        description:
-          "Download the Boxtribute template and map your existing columns to the required fields.",
-        markdown:
-          "**CSV Import · Download Template**\n\nUse the template to ensure the column headers match what Boxtribute expects.\n\n- **Required columns:** Name, Category, Size, Quantity\n- **Optional:** Comment, Tags",
-        note: "UTF-8 encoding and comma delimiters are required.",
-      },
-      {
-        title: "Upload the file",
-        description: "Go to Admin → Import and drag your completed CSV onto the upload area.",
-        markdown:
-          "**CSV Import · Upload**\n\nFiles up to 10 MB are supported. Rows with errors are flagged before import.\n\n- **File:** <mark>stock_2024.csv</mark>",
-        note: "You'll get a preview of the first 20 rows before committing the import.",
-      },
-      {
-        title: "Review and confirm",
-        description: "Check the preview for any mapping errors, then click Import.",
-        markdown:
-          "**CSV Import · Preview**\n\nAny rows that can't be parsed are shown in red. Fix them or skip them.\n\n- **Valid rows:** 1 204\n- **Errors:** <mark>3</mark>",
-        note: "Skipped rows are not lost — you can re-import them separately.",
-      },
-    ],
-    featureUnderneathDescription:
-      "CSV import works for both stock items and beneficiary records. Run it as many times as you need.",
-    featureUnderneathLink: "See how CSV import works →",
-  },
-  {
     slug: "identify-most-vulnerable",
     title: "Tracking Services & Distributions and Prioritising the Most Vulnerable",
     subtitle:
