@@ -275,6 +275,8 @@ function BoxesTable({
     return createOptions(enrichedData, "product");
   }, [tableData]);
 
+  const categoryOptions = useMemo(() => createOptions(tableData, "productCategory"), [tableData]);
+
   const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
 
   const sizeOptions = useMemo(() => createOptions(tableData, "size"), [tableData]);
@@ -333,6 +335,7 @@ function BoxesTable({
               columnFilters={filters}
               onApplyFilters={handleApplyFilters}
               productOptions={productOptions}
+              categoryOptions={categoryOptions}
               genderOptions={genderOptions}
               sizeOptions={sizeOptions}
               locationOptions={locationOptions}
@@ -344,6 +347,7 @@ function BoxesTable({
       <FilterChips
         filters={filters}
         productOptions={productOptions}
+        categoryOptions={categoryOptions}
         genderOptions={genderOptions}
         sizeOptions={sizeOptions}
         locationOptions={locationOptions}

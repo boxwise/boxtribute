@@ -7,6 +7,7 @@ import type { IFilterValue } from "@boxtribute/shared-components/statviz/compone
 interface FilterChipsProps {
   filters: Filters<any>;
   productOptions: IFilterValue[];
+  categoryOptions: IFilterValue[];
   genderOptions: IFilterValue[];
   sizeOptions: IFilterValue[];
   locationOptions: IFilterValue[];
@@ -18,6 +19,7 @@ interface FilterChipsProps {
 // Filter display configuration
 const FILTER_CONFIG = {
   product: { label: "Product" },
+  productCategory: { label: "Category" },
   gender: { label: "Gender" },
   size: { label: "Size" },
   state: { label: "Status" },
@@ -29,6 +31,7 @@ const FILTER_CONFIG = {
 export function FilterChips({
   filters,
   productOptions,
+  categoryOptions,
   genderOptions,
   sizeOptions,
   locationOptions,
@@ -40,13 +43,14 @@ export function FilterChips({
   const optionsMap = useMemo(
     () => ({
       product: productOptions,
+      productCategory: categoryOptions,
       gender: genderOptions,
       size: sizeOptions,
       location: locationOptions,
       tags: tagOptions,
       no_tags: tagOptions,
     }),
-    [productOptions, genderOptions, sizeOptions, locationOptions, tagOptions],
+    [productOptions, categoryOptions, genderOptions, sizeOptions, locationOptions, tagOptions],
   );
 
   // Get label for a filter value
