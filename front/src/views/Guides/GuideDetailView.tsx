@@ -283,6 +283,7 @@ export default function GuideDetailView() {
         <HStack spacing={3} mb={4} flexWrap="wrap">
           {guide.features.map((feature) => (
             <Text
+              key={feature}
               fontSize="xs"
               fontWeight="bold"
               textTransform="uppercase"
@@ -596,7 +597,7 @@ export default function GuideDetailView() {
                   </Text>
                   <VStack spacing={2} flexShrink={0} ml={2}>
                     {og.features.map((feature) => (
-                      <Text fontSize="xs" color="gray.400">
+                      <Text key={feature} fontSize="xs" color="gray.400">
                         {feature}
                       </Text>
                     ))}
