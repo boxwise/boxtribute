@@ -20,7 +20,6 @@ export interface Guide {
   tags: string[];
   features: string[];
   estimatedMinutes: number;
-  status: "live" | "roadmap";
   requirement: string;
   steps: GuideStep[];
   reference?: GuideReference;
@@ -39,7 +38,6 @@ export const GUIDES: Guide[] = [
     tags: ["Users", "Roles"],
     features: ["Manage Users"],
     estimatedMinutes: 5,
-    status: "live",
     requirement:
       "We need different people to have different levels of access - only volunteers who have received the protection training should interact with beneficiaries, and managers need oversight of the whole warehouse.",
     steps: [
@@ -202,7 +200,6 @@ export const GUIDES: Guide[] = [
     tags: ["Beneficiaries", "Tags"],
     features: ["Manage Beneficiaries", "Beneficiary Tags"],
     estimatedMinutes: 20,
-    status: "roadmap",
     requirement:
       "We work with beneficiaries with varying vulnerabilities and need for support - some have medical needs, some are unaccompanied minors, others are new arrivals. We need a way to flag who needs support and make sure they are prioritised and overall that we provide fair access to aid.",
     steps: [
@@ -298,7 +295,6 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
     tags: ["Locations", "Tags"],
     features: ["Edit Warehouses", "Boxes Tags"],
     estimatedMinutes: 10,
-    status: "roadmap",
     requirement:
       "Our warehouse has multiple rooms and sections, and it takes Staff a lot of time to look through and search for the boxes we need. How do we set up Boxtribute so that the system can quickly find and tell us where things actually are?",
     steps: [
