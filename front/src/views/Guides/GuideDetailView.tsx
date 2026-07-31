@@ -318,7 +318,7 @@ export default function GuideDetailView() {
           <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
             <TagLeftIcon boxSize={3} as={TimeIcon} />
             <TagLabel fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
-              ≈ {guide.estimatedMinutes} min to set up
+              {guide.estimatedMinutes} min to set up
             </TagLabel>
           </Tag>
         </HStack>
