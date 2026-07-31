@@ -199,8 +199,8 @@ export const GUIDES: Guide[] = [
     title: "Tracking Services & Distributions and Prioritising the Most Vulnerable",
     subtitle:
       "How to identify and prioritise the most vulnerable - tracking services and distributions with beneficiaries.",
-    tags: ["Beneficiary Tags"],
-    feature: "Beneficiary tags",
+    tags: ["Beneficiaries", "Tags"],
+    feature: "Manage Beneficiaries & Beneficiary Tags",
     estimatedMinutes: 20,
     status: "roadmap",
     requirement:
@@ -285,7 +285,7 @@ export const GUIDES: Guide[] = [
       title: "",
       markdown: `Boxtribute lets you manage your beneficiaries within the platform, categorize by vulnerability or other status and capture who receives what, when, and how often. This keeps your distributions fair, accountable, and focused on the people who need support most.
 
-Tip: _Only staff with the appropriate role can view and edit beneficiary information. See the [**Preset roles - who can do what?**](../roles-and-permissions) reference if you need to check permissions._`,
+Tip: _Only staff with the appropriate role can view and edit beneficiary information. See the [**Preset roles - who can do what?**](./roles-and-permissions) reference if you need to check permissions._`,
     },
     featureUnderneathDescription:
       "Your beneficiaries are who matter most. Learn to prepare for fair and dignified distributions.",
@@ -295,8 +295,8 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
     slug: "organise-warehouse-space",
     title: "Organise your warehouse space",
     subtitle: "Find, filter, and sort stock easily using Locations and Tags",
-    tags: ["Warehouse Setup", "Locations"],
-    feature: "Locations",
+    tags: ["Locations", "Tags"],
+    feature: "Edit Warehouses & Boxes Tags",
     estimatedMinutes: 10,
     status: "roadmap",
     requirement:
