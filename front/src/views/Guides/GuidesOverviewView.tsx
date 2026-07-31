@@ -14,7 +14,6 @@ import {
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { TimeIcon } from "@chakra-ui/icons";
 import { GUIDES } from "./guidesData";
-import { StatusDot } from "./components/StatusDot";
 
 export default function GuidesOverviewView() {
   const { baseId } = useParams();
@@ -69,16 +68,6 @@ export default function GuidesOverviewView() {
             data-heap-guide={guide.slug}
           >
             <HStack spacing={2} mb={3} flexWrap="wrap">
-              <HStack spacing={1}>
-                <StatusDot status={guide.status} />
-                <Badge
-                  colorScheme={guide.status === "live" ? "green" : "yellow"}
-                  fontSize="xs"
-                  textTransform="uppercase"
-                >
-                  {guide.status === "live" ? "Live" : "Roadmap"}
-                </Badge>
-              </HStack>
               {guide.tags.map((tag) => (
                 <Badge key={tag} bg="gray.700" color="white" fontSize="xs" borderRadius="sm">
                   {tag}

@@ -30,7 +30,6 @@ import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
 import type { GuideReference } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
-import { StatusDot } from "./components/StatusDot";
 
 // Type cast needed due to peer @types/react version mismatch with react-markdown
 const ReactMarkdown = ReactMarkdownBase as unknown as React.FC<{
@@ -305,12 +304,6 @@ export default function GuideDetailView() {
         </Flex>
 
         <HStack spacing={3} mb={4} flexWrap="wrap">
-          <HStack spacing={1}>
-            <StatusDot status={guide.status} />
-            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
-              {guide.status === "live" ? "Live" : "Roadmap"}
-            </Text>
-          </HStack>
           {guide.features.map((feature) => (
             <Text
               fontSize="xs"
