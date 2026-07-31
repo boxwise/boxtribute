@@ -553,7 +553,7 @@ export default function GuideDetailView() {
             <HStack flexWrap="wrap" spacing={2} mb={3}>
               {guide.features.map((feature) => (
                 <Badge
-                  key={guide.features[0]}
+                  key={feature}
                   bg="gray.100"
                   color="gray.700"
                   px={2}
