@@ -52,14 +52,7 @@ function StepContent({
 
   return (
     <>
-      <VStack
-        spacing={0}
-        w="full"
-        borderRadius="md"
-        overflow="hidden"
-        border="1px solid"
-        borderColor="gray.200"
-      >
+      <VStack spacing={0} w="full" overflow="hidden" border="1px solid" borderColor="gray.200">
         {picture && (
           <Box
             as="img"
@@ -116,15 +109,7 @@ function StepContent({
         )}
 
         {note && (
-          <Box
-            bg="brandBlue.300"
-            w="full"
-            px={4}
-            py={3}
-            color="white"
-            fontSize="xs"
-            borderBottomRadius="md"
-          >
+          <Box bg="brandBlue.300" w="full" px={4} py={3} color="white" fontSize="xs">
             <Text>{note}</Text>
           </Box>
         )}
@@ -168,15 +153,7 @@ function StepContent({
 
 function ReferenceSection({ reference }: { reference: GuideReference }) {
   return (
-    <Box
-      bg="white"
-      border="1px solid"
-      borderColor="gray.200"
-      borderRadius="lg"
-      p={6}
-      mb={6}
-      overflowX="auto"
-    >
+    <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6} overflowX="auto">
       <Text
         fontSize="xs"
         fontWeight="bold"
@@ -333,15 +310,7 @@ export default function GuideDetailView() {
           {guide.subtitle}
         </Text>
 
-        <Box
-          borderLeft="3px solid"
-          borderColor="brandRed.300"
-          pl={4}
-          py={2}
-          mb={6}
-          bg="red.50"
-          borderRadius="0 4px 4px 0"
-        >
+        <Box borderLeft="3px solid" borderColor="brandRed.300" pl={4} py={2} mb={6} bg="red.50">
           <Text
             fontSize="xs"
             fontWeight="bold"
@@ -387,7 +356,7 @@ export default function GuideDetailView() {
 
 
         {isDesktop ? (
-          <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="lg" p={6} mb={6}>
+          <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6}>
             <Flex justify="space-between" align="center" mb={4}>
               <Text fontWeight="bold" fontSize="md">
                 How you do it in Boxtribute
@@ -404,7 +373,6 @@ export default function GuideDetailView() {
                     <HStack
                       spacing={3}
                       p={3}
-                      borderRadius="md"
                       cursor="pointer"
                       bg={i === currentStep ? "gray.50" : "transparent"}
                       _hover={{ bg: "gray.50" }}
@@ -465,7 +433,7 @@ export default function GuideDetailView() {
             </Flex>
           </Box>
         ) : (
-          <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="lg" p={4} mb={6}>
+          <Box bg="white" border="1px solid" borderColor="gray.200" p={4} mb={6}>
             <Text fontWeight="bold" fontSize="md" mb={3}>
               How you do it in Boxtribute
             </Text>
@@ -556,7 +524,6 @@ export default function GuideDetailView() {
             mb={6}
             p={3}
             bg="green.50"
-            borderRadius="md"
             className="no-print"
           >
             <Divider flex={1} borderColor="green.300" />
@@ -572,14 +539,7 @@ export default function GuideDetailView() {
         {guide.reference && <ReferenceSection reference={guide.reference} />}
 
         <Flex gap={6} flexDir={{ base: "column", md: "row" }}>
-          <Box
-            flex={1}
-            bg="white"
-            border="1px solid"
-            borderColor="gray.200"
-            borderRadius="lg"
-            p={4}
-          >
+          <Box flex={1} bg="white" border="1px solid" borderColor="gray.200" p={4}>
             <Text
               fontSize="xs"
               fontWeight="bold"
@@ -609,14 +569,7 @@ export default function GuideDetailView() {
             </Text>
           </Box>
 
-          <Box
-            flex={1}
-            bg="white"
-            border="1px solid"
-            borderColor="gray.200"
-            borderRadius="lg"
-            p={4}
-          >
+          <Box flex={1} bg="white" border="1px solid" borderColor="gray.200" p={4}>
             <Text
               fontSize="xs"
               fontWeight="bold"

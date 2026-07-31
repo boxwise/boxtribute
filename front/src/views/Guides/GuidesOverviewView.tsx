@@ -35,7 +35,6 @@ export default function GuidesOverviewView() {
             as={RouterLink}
             to={`/bases/${baseId}/guides/${guide.slug}`}
             bg="white"
-            borderRadius="lg"
             border="1px solid"
             borderColor="gray.200"
             p={5}
