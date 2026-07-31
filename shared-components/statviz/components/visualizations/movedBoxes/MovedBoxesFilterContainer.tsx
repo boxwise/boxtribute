@@ -20,7 +20,7 @@ export default function MovedBoxesFilterContainer({
   boxesOrItems,
   direction,
 }: IMovedBoxesFilterContainerProps) {
-  const { products, genders, categories, includedTags, excludedTags, dateFrom, dateTo } =
+  const { products, genders, categories, targets, includedTags, excludedTags, dateFrom, dateTo } =
     appliedFilters;
 
   const interval = useMemo(
@@ -60,6 +60,10 @@ export default function MovedBoxesFilterContainer({
       const categoryIds = new Set(categories.map((c) => c.id));
       filters.push(filter((fact: MovedBoxesResult) => categoryIds.has(fact.categoryId!)));
     }
+    if (targets.length > 0) {
+      const targetIds = new Set(targets.map((t) => t.id));
+      filters.push(filter((fact: MovedBoxesResult) => targetIds.has(fact.targetId!)));
+    }
 
     let filtered = movedBoxesFacts;
     if (filters.length > 0) {
@@ -71,7 +75,7 @@ export default function MovedBoxesFilterContainer({
     filtered = filterByTags(filtered, includedTags, excludedTags);
 
     return filtered;
-  }, [movedBoxesFacts, genders, products, categories, includedTags, excludedTags]);
+  }, [movedBoxesFacts, genders, products, categories, targets, includedTags, excludedTags]);
 
   const filteredMovedBoxesCube = {
     facts: filteredFacts,

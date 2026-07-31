@@ -6,6 +6,7 @@ import type {
   IProductOption,
   ICategoryOption,
   ITagOption,
+  ITargetOption,
   MovementAppliedFilters,
 } from "../../utils/dashboardFilters";
 import { genders } from "./constants";
@@ -17,6 +18,7 @@ interface MovementFiltersProps {
   appliedFilters: MovementAppliedFilters;
   products: IProductOption[];
   categories: ICategoryOption[];
+  targets: ITargetOption[];
   tags: ITagOption[];
   onApply: (filters: MovementAppliedFilters) => void;
 }
@@ -27,6 +29,7 @@ export function MovementFilters({
   appliedFilters,
   products,
   categories,
+  targets,
   tags,
   onApply,
 }: MovementFiltersProps) {
@@ -40,6 +43,7 @@ export function MovementFilters({
 
   const productOptions = toProductFilterValues(products);
   const categoryOptions = toFilterValues(categories);
+  const targetOptions = targets.map((t) => ({ value: t.id, label: t.name, urlId: t.id }));
 
   const handleApply = useCallback(() => {
     onApply(staged);
@@ -52,6 +56,7 @@ export function MovementFilters({
       products: [],
       genders: [],
       categories: [],
+      targets: [],
       includedTags: [],
       excludedTags: [],
     }));
@@ -64,6 +69,9 @@ export function MovementFilters({
     staged.categories.some((c) => String(c.id) === o.value),
   );
   const selectedGenderValues = genders.filter((g) => staged.genders.includes(g.value));
+  const selectedTargetValues = targetOptions.filter((o) =>
+    staged.targets.some((t) => String(t.id) === o.value),
+  );
 
   return (
     <VStack spacing={4} align="stretch">
@@ -140,6 +148,20 @@ export function MovementFilters({
             setStaged((prev) => ({
               ...prev,
               categories: categories.filter((c) => selectedIds.includes(c.id)),
+            }));
+          }}
+          placeholder="All"
+        />
+        <MultiSelectFilter
+          fieldLabel="Partner / Target"
+          values={targetOptions}
+          filterId="mtar-staged"
+          filterValue={selectedTargetValues}
+          onFilterChange={(selected) => {
+            const selectedIds = new Set(selected.map((s) => s.value));
+            setStaged((prev) => ({
+              ...prev,
+              targets: targets.filter((t) => selectedIds.has(t.id)),
             }));
           }}
           placeholder="All"

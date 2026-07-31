@@ -10,7 +10,7 @@ import {
   Select,
   VStack,
 } from "@chakra-ui/react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type React from "react";
 import { useSearchParams } from "react-router-dom";
 import MovedBoxesDataContainer from "../components/visualizations/movedBoxes/MovedBoxesDataContainer";
@@ -19,6 +19,7 @@ import { MovementFilters } from "./../components/filter/MovementFilters";
 import {
   MOVEMENT_URL_PARAMS,
   type MovementDirection,
+  type ITargetOption,
   defaultMovementFilters,
   readMovementFiltersFromUrl,
   writeMovementFiltersToUrl,
@@ -39,10 +40,11 @@ interface MovedBoxesProps {
 
 export default function MovedBoxes({ isActive, products, categories, tags }: MovedBoxesProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [availableTargets, setAvailableTargets] = useState<ITargetOption[]>([]);
 
   const appliedFilters = useMemo(
-    () => readMovementFiltersFromUrl(searchParams, products, categories, tags),
-    [searchParams, products, categories, tags],
+    () => readMovementFiltersFromUrl(searchParams, products, categories, availableTargets, tags),
+    [searchParams, products, categories, availableTargets, tags],
   );
 
   const boxesOrItems: BoxesOrItems =
@@ -131,6 +133,15 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
             categories: appliedFilters.categories.filter((c) => c.id !== category.id),
           }),
       })),
+      ...appliedFilters.targets.map((target) => ({
+        key: `target-${target.id}`,
+        label: target.name,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            targets: appliedFilters.targets.filter((t) => t.id !== target.id),
+          }),
+      })),
       ...appliedFilters.includedTags.map((tag) => ({
         key: `included-tag-${tag.id}`,
         label: tag.label,
@@ -198,6 +209,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
                   appliedFilters={appliedFilters}
                   products={products}
                   categories={categories}
+                  targets={availableTargets}
                   tags={tags}
                   onApply={handleApplyFilters}
                 />
@@ -209,6 +221,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
             appliedFilters={appliedFilters}
             boxesOrItems={boxesOrItems}
             direction={direction}
+            onTargetsAvailable={setAvailableTargets}
           />
         </VStack>
       </AccordionPanel>
