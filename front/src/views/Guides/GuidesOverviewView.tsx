@@ -23,9 +23,9 @@ export default function GuidesOverviewView() {
         Find the capability that answers your requirement.
       </Heading>
 
-      <Text color="gray.600" fontSize="md" mb={8} maxW="600px">
-        Tell us what you need to do, in your own words, and we&apos;ll show you how Boxtribute does
-        it, and the feature underneath.
+      <Text color="gray.600" fontSize="sm" mb={8} maxW="680px">
+        Tell us what you need to do, and we&apos;ll show you how Boxtribute does it, and the feature
+        underneath.
       </Text>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>

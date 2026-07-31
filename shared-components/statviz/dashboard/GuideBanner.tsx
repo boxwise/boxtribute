@@ -25,7 +25,7 @@ export default function GuideBanner() {
               textTransform="uppercase"
               color="brandYellow.200"
             >
-              Guide · Start here
+              Guide
             </Text>
           </HStack>
 
@@ -33,7 +33,7 @@ export default function GuideBanner() {
             New here? Start with what most teams ask.
           </Text>
 
-          <Text fontSize="sm" color="whiteAlpha.800" maxW="sm">
+          <Text fontSize="sm" color="whiteAlpha.800">
             The Guide maps your own requirements to how Boxtribute already does them. Browse the
             most-asked capabilities.
           </Text>
@@ -67,7 +67,6 @@ export default function GuideBanner() {
                 data-heap-guide={guide.slug}
                 w="full"
               >
-                <Box w={2} h={2} borderRadius="full" bg="brandGreen" flexShrink={0} mt="3px" />
                 <Text fontSize="sm" color="whiteAlpha.900" _hover={{ color: "white" }}>
                   {guide.title}
                 </Text>

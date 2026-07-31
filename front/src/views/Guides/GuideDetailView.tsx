@@ -354,7 +354,6 @@ export default function GuideDetailView() {
           </Flex>
         )}
 
-
         {isDesktop ? (
           <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6}>
             <Flex justify="space-between" align="center" mb={4}>
