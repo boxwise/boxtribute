@@ -364,6 +364,35 @@ export default function GuideDetailView() {
           </Text>
         </Box>
 
+        {/* Mobile-only progress circles below nav */}
+        {!isDesktop && (
+          <Flex justify="center" mb={6} className="no-print">
+            <HStack spacing={2}>
+              {guide.steps.map((_, i) => (
+                <Circle
+                  key={i}
+                  size={6}
+                  bg={
+                    i < currentStep
+                      ? "brandGreen"
+                      : i === currentStep
+                        ? "brandBlue.300"
+                        : "gray.200"
+                  }
+                  color={i <= currentStep ? "white" : "gray.600"}
+                  fontSize="xs"
+                  fontWeight="bold"
+                  cursor="pointer"
+                  onClick={() => setCurrentStep(i)}
+                >
+                  {i < currentStep ? <CheckIcon boxSize={2.5} /> : i + 1}
+                </Circle>
+              ))}
+            </HStack>
+          </Flex>
+        )}
+
+
         {isDesktop ? (
           <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="lg" p={6} mb={6}>
             <Flex justify="space-between" align="center" mb={4}>
@@ -525,34 +554,6 @@ export default function GuideDetailView() {
             Next →
           </Button>
         </Flex>
-
-        {/* Mobile-only progress circles below nav */}
-        {!isDesktop && (
-          <Flex justify="center" mb={6} className="no-print">
-            <HStack spacing={2}>
-              {guide.steps.map((_, i) => (
-                <Circle
-                  key={i}
-                  size={6}
-                  bg={
-                    i < currentStep
-                      ? "brandGreen"
-                      : i === currentStep
-                        ? "brandBlue.300"
-                        : "gray.200"
-                  }
-                  color={i <= currentStep ? "white" : "gray.600"}
-                  fontSize="xs"
-                  fontWeight="bold"
-                  cursor="pointer"
-                  onClick={() => setCurrentStep(i)}
-                >
-                  {i < currentStep ? <CheckIcon boxSize={2.5} /> : i + 1}
-                </Circle>
-              ))}
-            </HStack>
-          </Flex>
-        )}
 
         {isLastStep && (
           <Flex
