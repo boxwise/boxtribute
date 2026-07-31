@@ -94,7 +94,7 @@ export default function GuidesOverviewView() {
               <Text fontSize="sm" color="gray.500">
                 Feature:{" "}
                 <Text as="span" color="gray.700">
-                  {guide.feature}
+                  {guide.features.join(" & ")}
                 </Text>
               </Text>
 

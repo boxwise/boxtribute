@@ -18,7 +18,7 @@ export interface Guide {
   title: string;
   subtitle: string;
   tags: string[];
-  feature: string;
+  features: string[];
   estimatedMinutes: number;
   status: "live" | "roadmap";
   requirement: string;
@@ -37,7 +37,7 @@ export const GUIDES: Guide[] = [
     title: "Set up roles & team permissions",
     subtitle: "Control who can see what in Boxtribute",
     tags: ["Users", "Roles"],
-    feature: "Manage Users",
+    features: ["Manage Users"],
     estimatedMinutes: 5,
     status: "live",
     requirement:
@@ -200,7 +200,7 @@ export const GUIDES: Guide[] = [
     subtitle:
       "How to identify and prioritise the most vulnerable - tracking services and distributions with beneficiaries.",
     tags: ["Beneficiaries", "Tags"],
-    feature: "Manage Beneficiaries & Beneficiary Tags",
+    features: ["Manage Beneficiaries", "Beneficiary Tags"],
     estimatedMinutes: 20,
     status: "roadmap",
     requirement:
@@ -296,7 +296,7 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
     title: "Organise your warehouse space",
     subtitle: "Find, filter, and sort stock easily using Locations and Tags",
     tags: ["Locations", "Tags"],
-    feature: "Edit Warehouses & Boxes Tags",
+    features: ["Edit Warehouses", "Boxes Tags"],
     estimatedMinutes: 10,
     status: "roadmap",
     requirement:

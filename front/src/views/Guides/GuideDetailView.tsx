@@ -311,15 +311,17 @@ export default function GuideDetailView() {
               {guide.status === "live" ? "Live" : "Roadmap"}
             </Text>
           </HStack>
-          <Text
-            fontSize="xs"
-            fontWeight="bold"
-            textTransform="uppercase"
-            letterSpacing="wide"
-            color="gray.500"
-          >
-            {guide.feature}
-          </Text>
+          {guide.features.map((feature) => (
+            <Text
+              fontSize="xs"
+              fontWeight="bold"
+              textTransform="uppercase"
+              letterSpacing="wide"
+              color="gray.500"
+            >
+              {feature}
+            </Text>
+          ))}
           <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
             <TagLeftIcon boxSize={3} as={TimeIcon} />
             <TagLabel fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
@@ -595,18 +597,18 @@ export default function GuideDetailView() {
               The Feature Underneath
             </Text>
             <HStack flexWrap="wrap" spacing={2} mb={3}>
-              <Badge
-                as={RouterLink}
-                to={guide.featureUnderneathLink.replace("BASE_ID", baseId)}
-                key={guide.feature}
-                bg="gray.100"
-                color="gray.700"
-                px={2}
-                py={0.5}
-                borderRadius="sm"
-              >
-                {guide.feature}
-              </Badge>
+              {guide.features.map((feature) => (
+                <Badge
+                  key={guide.features[0]}
+                  bg="gray.100"
+                  color="gray.700"
+                  px={2}
+                  py={0.5}
+                  borderRadius="sm"
+                >
+                  {feature}
+                </Badge>
+              ))}
             </HStack>
             <Text fontSize="sm" color="gray.600" mb={2}>
               {guide.featureUnderneathDescription}
@@ -646,18 +648,13 @@ export default function GuideDetailView() {
                   <Text fontSize="sm" color="gray.700" flex={1}>
                     {og.title}
                   </Text>
-                  <HStack spacing={2} flexShrink={0} ml={2}>
-                    <Badge
-                      colorScheme={og.status === "live" ? "green" : "yellow"}
-                      fontSize="xs"
-                      textTransform="uppercase"
-                    >
-                      {og.status}
-                    </Badge>
-                    <Text fontSize="xs" color="gray.400">
-                      {og.feature}
-                    </Text>
-                  </HStack>
+                  <VStack spacing={2} flexShrink={0} ml={2}>
+                    {og.features.map((feature) => (
+                      <Text fontSize="xs" color="gray.400">
+                        {feature}
+                      </Text>
+                    ))}
+                  </VStack>
                 </Flex>
               ))}
             </VStack>
