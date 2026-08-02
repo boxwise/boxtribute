@@ -11,6 +11,7 @@ export interface GuideStep {
 export interface GuideReference {
   title: string;
   markdown: string;
+  mobileContent?: string;
 }
 
 export interface Guide {
@@ -186,6 +187,133 @@ export const GUIDES: Guide[] = [
     </tr>
   </tbody>
 </table>
+`,
+      mobileContent: `
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Label Creation</strong>
+      <span class="role-accordion__subtitle">Create Labels Only</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-no">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create labels</li>
+    <li class="role-no">Register / edit beneficiaries</li>
+    <li class="role-no">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>External Free Shop Checkout</strong>
+      <span class="role-accordion__subtitle">Beneficiary Checkout Only</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-no">Scan &amp; move boxes (mobile)</li>
+    <li class="role-no">Create / edit boxes &amp; labels</li>
+    <li class="role-no">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Warehouse Volunteer</strong>
+      <span class="role-accordion__subtitle">Create Labels · Scan &amp; Move Boxes</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-no">Register / edit beneficiaries</li>
+    <li class="role-no">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Free Shop Volunteer</strong>
+      <span class="role-accordion__subtitle">Scan Boxes · Manage Beneficiaries</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan boxes (mobile)</li>
+    <li class="role-no">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>General Volunteer</strong>
+      <span class="role-accordion__subtitle">All Above · Beneficiaries &amp; Boxes</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Coordinator</strong>
+      <span class="role-accordion__subtitle">All Above · Users, Tags, Shipments, Services</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-yes">Manage tags, products, locations</li>
+    <li class="role-yes">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Admin</strong>
+      <span class="role-accordion__subtitle">All Above · Manage Coordinators</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-yes">Manage tags, products, locations</li>
+    <li class="role-yes">View reports &amp; dashboard</li>
+    <li class="role-yes">Manage users &amp; roles</li>
+  </ul>
+</details>
 `,
     },
     featureUnderneathDescription:

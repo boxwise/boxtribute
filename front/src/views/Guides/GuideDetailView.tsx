@@ -151,7 +151,18 @@ function StepContent({
   );
 }
 
-function ReferenceSection({ reference }: { reference: GuideReference }) {
+function ReferenceSection({
+  isDesktop,
+  reference,
+}: {
+  isDesktop: boolean;
+  reference: GuideReference;
+}) {
+  const content = isDesktop
+    ? reference.markdown
+    : reference.mobileContent !== undefined
+      ? reference.mobileContent
+      : reference.markdown;
   return (
     <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6} overflowX="auto">
       <Text
@@ -188,9 +199,83 @@ function ReferenceSection({ reference }: { reference: GuideReference }) {
           },
           "td:not(:first-of-type)": { textAlign: "center" },
           "tr:hover td": { bg: "var(--chakra-colors-gray-50)" },
+          "details.role-accordion": {
+            border: "1px solid",
+            borderColor: "var(--chakra-colors-gray-200)",
+            mb: 2,
+            overflow: "hidden",
+          },
+          "details.role-accordion > summary.role-accordion__summary": {
+            listStyle: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 4,
+            py: 3,
+            cursor: "pointer",
+            userSelect: "none",
+            _hover: { bg: "var(--chakra-colors-gray-50)" },
+          },
+          // Remove default marker in all browsers
+          "details.role-accordion > summary::-webkit-details-marker": { display: "none" },
+          // Chevron via pseudo-element — down when closed, up when open
+          "details.role-accordion > summary.role-accordion__summary::after": {
+            content: '"\\203A"', // ›
+            display: "inline-block",
+            transform: "rotate(90deg)",
+            transition: "transform 0.2s",
+            fontSize: "lg",
+            color: "var(--chakra-colors-gray-500)",
+            flexShrink: 0,
+          },
+          "details.role-accordion[open] > summary.role-accordion__summary::after": {
+            transform: "rotate(-90deg)",
+          },
+          ".role-accordion__header": {
+            display: "flex",
+            flexDirection: "column",
+            gap: "2px",
+          },
+          ".role-accordion__header strong": {
+            fontSize: "sm",
+            fontWeight: "bold",
+            color: "var(--chakra-colors-gray-800)",
+          },
+          ".role-accordion__subtitle": {
+            fontSize: "xs",
+            color: "var(--chakra-colors-gray-500)",
+          },
+          "ul.role-accordion__list": {
+            listStyle: "none",
+            px: 4,
+            py: 3,
+            borderTop: "1px solid",
+            borderColor: "var(--chakra-colors-gray-100)",
+            m: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          },
+          "ul.role-accordion__list li": {
+            fontSize: "sm",
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          },
+          "ul.role-accordion__list li.role-yes::before": {
+            content: '"✓"',
+            color: "var(--chakra-colors-green-500)",
+            fontWeight: "bold",
+            flexShrink: 0,
+          },
+          "ul.role-accordion__list li.role-no::before": {
+            content: '"✗"',
+            color: "var(--chakra-colors-red-400)",
+            flexShrink: 0,
+          },
         }}
       >
-        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{reference.markdown}</ReactMarkdown>
+        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
       </Box>
     </Box>
   );
@@ -536,7 +621,7 @@ export default function GuideDetailView() {
           </Flex>
         )}
 
-        {guide.reference && <ReferenceSection reference={guide.reference} />}
+        {guide.reference && <ReferenceSection isDesktop={isDesktop} reference={guide.reference} />}
 
         <Flex gap={6} flexDir={{ base: "column", md: "row" }}>
           <Box flex={1} bg="white" border="1px solid" borderColor="gray.200" p={4}>
