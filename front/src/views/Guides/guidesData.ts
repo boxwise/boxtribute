@@ -25,7 +25,6 @@ export interface Guide {
   steps: GuideStep[];
   reference?: GuideReference;
   featureUnderneathDescription: string;
-  featureUnderneathLink: string;
 }
 
 const oldAppUrl = import.meta.env.FRONT_OLD_APP_BASE_URL;
@@ -318,7 +317,6 @@ export const GUIDES: Guide[] = [
     },
     featureUnderneathDescription:
       "Set this up once and every team member logs in with the right level of access from day one.",
-    featureUnderneathLink: `${oldAppUrl}/?camp=BASE_ID&action=cms_users`,
   },
   {
     slug: "identify-most-vulnerable",
@@ -414,7 +412,6 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
     },
     featureUnderneathDescription:
       "Your beneficiaries are who matter most. Learn to prepare for fair and dignified distributions.",
-    featureUnderneathLink: `${oldAppUrl}/?camp=BASE_ID&action=people`,
   },
   {
     slug: "organise-warehouse-space",
@@ -532,6 +529,5 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
     },
     featureUnderneathDescription:
       "Locations are the backbone of stock visibility. Set them up to match your space and volunteers will always know where to look.",
-    featureUnderneathLink: `${oldAppUrl}/?camp=BASE_ID&action=locations`,
   },
 ];
