@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  Flex,
   Heading,
   HStack,
   SimpleGrid,
@@ -14,41 +13,20 @@ import {
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { TimeIcon } from "@chakra-ui/icons";
 import { GUIDES } from "./guidesData";
-import { StatusDot } from "./components/StatusDot";
 
 export default function GuidesOverviewView() {
   const { baseId } = useParams();
 
   return (
     <Box maxW="1100px" mx="auto" px={{ base: 4, md: 8 }} py={8}>
-      <Text
-        fontSize="xs"
-        fontWeight="bold"
-        letterSpacing="wider"
-        textTransform="uppercase"
-        color="brandRed.300"
-        mb={1}
-      >
-        The How · Your requirements
-      </Text>
-
       <Heading as="h1" fontSize={{ base: "2xl", md: "4xl" }} fontWeight="bold" mb={3}>
         Find the capability that answers your requirement.
       </Heading>
 
-      <Text color="gray.600" fontSize="md" mb={8} maxW="600px">
-        Tell us what you need to do, in your own words, and we&apos;ll show you how Boxtribute does
-        it, and the feature underneath.
+      <Text color="gray.600" fontSize="sm" mb={8} maxW="680px">
+        Tell us what you need to do, and we&apos;ll show you how Boxtribute does it, and the feature
+        underneath.
       </Text>
-
-      <Flex align="center" mb={6} gap={2}>
-        <Box color="brandRed.300" fontSize="lg">
-          ★
-        </Box>
-        <Heading as="h2" fontSize="lg" fontWeight="bold" color="brandRed.300">
-          Start Here
-        </Heading>
-      </Flex>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {GUIDES.map((guide) => (
@@ -57,7 +35,6 @@ export default function GuidesOverviewView() {
             as={RouterLink}
             to={`/bases/${baseId}/guides/${guide.slug}`}
             bg="white"
-            borderRadius="lg"
             border="1px solid"
             borderColor="gray.200"
             p={5}
@@ -69,16 +46,6 @@ export default function GuidesOverviewView() {
             data-heap-guide={guide.slug}
           >
             <HStack spacing={2} mb={3} flexWrap="wrap">
-              <HStack spacing={1}>
-                <StatusDot status={guide.status} />
-                <Badge
-                  colorScheme={guide.status === "live" ? "green" : "yellow"}
-                  fontSize="xs"
-                  textTransform="uppercase"
-                >
-                  {guide.status === "live" ? "Live" : "Roadmap"}
-                </Badge>
-              </HStack>
               {guide.tags.map((tag) => (
                 <Badge key={tag} bg="gray.700" color="white" fontSize="xs" borderRadius="sm">
                   {tag}
@@ -94,7 +61,7 @@ export default function GuidesOverviewView() {
               <Text fontSize="sm" color="gray.500">
                 Feature:{" "}
                 <Text as="span" color="gray.700">
-                  {guide.feature}
+                  {guide.features.join(" & ")}
                 </Text>
               </Text>
 
@@ -114,7 +81,7 @@ export default function GuidesOverviewView() {
               <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
                 <TagLeftIcon boxSize={3} as={TimeIcon} />
                 <TagLabel fontWeight="semibold" textTransform="uppercase" letterSpacing="wide">
-                  ≈ {guide.estimatedMinutes} min to set up
+                  ≈ {guide.estimatedMinutes} min
                 </TagLabel>
               </Tag>
             </VStack>

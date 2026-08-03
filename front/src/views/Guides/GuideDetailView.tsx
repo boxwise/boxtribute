@@ -30,7 +30,6 @@ import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
 import { GUIDES } from "./guidesData";
 import type { GuideReference } from "./guidesData";
 import { DESKTOP_OR_TABLET_SCREEN_MEDIA_QUERY } from "components/HeaderMenu/consts";
-import { StatusDot } from "./components/StatusDot";
 
 // Type cast needed due to peer @types/react version mismatch with react-markdown
 const ReactMarkdown = ReactMarkdownBase as unknown as React.FC<{
@@ -53,14 +52,7 @@ function StepContent({
 
   return (
     <>
-      <VStack
-        spacing={0}
-        w="full"
-        borderRadius="md"
-        overflow="hidden"
-        border="1px solid"
-        borderColor="gray.200"
-      >
+      <VStack spacing={0} w="full" overflow="hidden" border="1px solid" borderColor="gray.200">
         {picture && (
           <Box
             as="img"
@@ -117,15 +109,7 @@ function StepContent({
         )}
 
         {note && (
-          <Box
-            bg="brandBlue.300"
-            w="full"
-            px={4}
-            py={3}
-            color="white"
-            fontSize="xs"
-            borderBottomRadius="md"
-          >
+          <Box bg="brandBlue.300" w="full" px={4} py={3} color="white" fontSize="xs">
             <Text>{note}</Text>
           </Box>
         )}
@@ -167,17 +151,20 @@ function StepContent({
   );
 }
 
-function ReferenceSection({ reference }: { reference: GuideReference }) {
+function ReferenceSection({
+  isDesktop,
+  reference,
+}: {
+  isDesktop: boolean;
+  reference: GuideReference;
+}) {
+  const content = isDesktop
+    ? reference.markdown
+    : reference.mobileContent !== undefined
+      ? reference.mobileContent
+      : reference.markdown;
   return (
-    <Box
-      bg="white"
-      border="1px solid"
-      borderColor="gray.200"
-      borderRadius="lg"
-      p={6}
-      mb={6}
-      overflowX="auto"
-    >
+    <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6} overflowX="auto">
       <Text
         fontSize="xs"
         fontWeight="bold"
@@ -212,9 +199,83 @@ function ReferenceSection({ reference }: { reference: GuideReference }) {
           },
           "td:not(:first-of-type)": { textAlign: "center" },
           "tr:hover td": { bg: "var(--chakra-colors-gray-50)" },
+          "details.role-accordion": {
+            border: "1px solid",
+            borderColor: "var(--chakra-colors-gray-200)",
+            mb: 2,
+            overflow: "hidden",
+          },
+          "details.role-accordion > summary.role-accordion__summary": {
+            listStyle: "none",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 4,
+            py: 3,
+            cursor: "pointer",
+            userSelect: "none",
+            _hover: { bg: "var(--chakra-colors-gray-50)" },
+          },
+          // Remove default marker in all browsers
+          "details.role-accordion > summary::-webkit-details-marker": { display: "none" },
+          // Chevron via pseudo-element — down when closed, up when open
+          "details.role-accordion > summary.role-accordion__summary::after": {
+            content: '"\\203A"', // ›
+            display: "inline-block",
+            transform: "rotate(90deg)",
+            transition: "transform 0.2s",
+            fontSize: "lg",
+            color: "var(--chakra-colors-gray-500)",
+            flexShrink: 0,
+          },
+          "details.role-accordion[open] > summary.role-accordion__summary::after": {
+            transform: "rotate(-90deg)",
+          },
+          ".role-accordion__header": {
+            display: "flex",
+            flexDirection: "column",
+            gap: "2px",
+          },
+          ".role-accordion__header strong": {
+            fontSize: "sm",
+            fontWeight: "bold",
+            color: "var(--chakra-colors-gray-800)",
+          },
+          ".role-accordion__subtitle": {
+            fontSize: "xs",
+            color: "var(--chakra-colors-gray-500)",
+          },
+          "ul.role-accordion__list": {
+            listStyle: "none",
+            px: 4,
+            py: 3,
+            borderTop: "1px solid",
+            borderColor: "var(--chakra-colors-gray-100)",
+            m: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          },
+          "ul.role-accordion__list li": {
+            fontSize: "sm",
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          },
+          "ul.role-accordion__list li.role-yes::before": {
+            content: '"✓"',
+            color: "var(--chakra-colors-green-500)",
+            fontWeight: "bold",
+            flexShrink: 0,
+          },
+          "ul.role-accordion__list li.role-no::before": {
+            content: '"✗"',
+            color: "var(--chakra-colors-red-400)",
+            flexShrink: 0,
+          },
         }}
       >
-        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{reference.markdown}</ReactMarkdown>
+        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
       </Box>
     </Box>
   );
@@ -305,25 +366,22 @@ export default function GuideDetailView() {
         </Flex>
 
         <HStack spacing={3} mb={4} flexWrap="wrap">
-          <HStack spacing={1}>
-            <StatusDot status={guide.status} />
-            <Text fontSize="xs" fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
-              {guide.status === "live" ? "Live" : "Roadmap"}
+          {guide.features.map((feature) => (
+            <Text
+              key={feature}
+              fontSize="xs"
+              fontWeight="bold"
+              textTransform="uppercase"
+              letterSpacing="wide"
+              color="gray.500"
+            >
+              {feature}
             </Text>
-          </HStack>
-          <Text
-            fontSize="xs"
-            fontWeight="bold"
-            textTransform="uppercase"
-            letterSpacing="wide"
-            color="gray.500"
-          >
-            {guide.feature}
-          </Text>
+          ))}
           <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
             <TagLeftIcon boxSize={3} as={TimeIcon} />
             <TagLabel fontWeight="bold" textTransform="uppercase" letterSpacing="wide">
-              ≈ {guide.estimatedMinutes} min to set up
+              {guide.estimatedMinutes} min to set up
             </TagLabel>
           </Tag>
         </HStack>
@@ -338,15 +396,7 @@ export default function GuideDetailView() {
           {guide.subtitle}
         </Text>
 
-        <Box
-          borderLeft="3px solid"
-          borderColor="brandRed.300"
-          pl={4}
-          py={2}
-          mb={6}
-          bg="red.50"
-          borderRadius="0 4px 4px 0"
-        >
+        <Box borderLeft="3px solid" borderColor="brandRed.300" pl={4} py={2} mb={6} bg="red.50">
           <Text
             fontSize="xs"
             fontWeight="bold"
@@ -362,8 +412,36 @@ export default function GuideDetailView() {
           </Text>
         </Box>
 
+        {/* Mobile-only progress circles below nav */}
+        {!isDesktop && (
+          <Flex justify="center" mb={6} className="no-print">
+            <HStack spacing={2}>
+              {guide.steps.map((_, i) => (
+                <Circle
+                  key={i}
+                  size={6}
+                  bg={
+                    i < currentStep
+                      ? "brandGreen"
+                      : i === currentStep
+                        ? "brandBlue.300"
+                        : "gray.200"
+                  }
+                  color={i <= currentStep ? "white" : "gray.600"}
+                  fontSize="xs"
+                  fontWeight="bold"
+                  cursor="pointer"
+                  onClick={() => setCurrentStep(i)}
+                >
+                  {i < currentStep ? <CheckIcon boxSize={2.5} /> : i + 1}
+                </Circle>
+              ))}
+            </HStack>
+          </Flex>
+        )}
+
         {isDesktop ? (
-          <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="lg" p={6} mb={6}>
+          <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6}>
             <Flex justify="space-between" align="center" mb={4}>
               <Text fontWeight="bold" fontSize="md">
                 How you do it in Boxtribute
@@ -380,7 +458,6 @@ export default function GuideDetailView() {
                     <HStack
                       spacing={3}
                       p={3}
-                      borderRadius="md"
                       cursor="pointer"
                       bg={i === currentStep ? "gray.50" : "transparent"}
                       _hover={{ bg: "gray.50" }}
@@ -441,7 +518,7 @@ export default function GuideDetailView() {
             </Flex>
           </Box>
         ) : (
-          <Box bg="white" border="1px solid" borderColor="gray.200" borderRadius="lg" p={4} mb={6}>
+          <Box bg="white" border="1px solid" borderColor="gray.200" p={4} mb={6}>
             <Text fontWeight="bold" fontSize="md" mb={3}>
               How you do it in Boxtribute
             </Text>
@@ -524,34 +601,6 @@ export default function GuideDetailView() {
           </Button>
         </Flex>
 
-        {/* Mobile-only progress circles below nav */}
-        {!isDesktop && (
-          <Flex justify="center" mb={6} className="no-print">
-            <HStack spacing={2}>
-              {guide.steps.map((_, i) => (
-                <Circle
-                  key={i}
-                  size={6}
-                  bg={
-                    i < currentStep
-                      ? "brandGreen"
-                      : i === currentStep
-                        ? "brandBlue.300"
-                        : "gray.200"
-                  }
-                  color={i <= currentStep ? "white" : "gray.600"}
-                  fontSize="xs"
-                  fontWeight="bold"
-                  cursor="pointer"
-                  onClick={() => setCurrentStep(i)}
-                >
-                  {i < currentStep ? <CheckIcon boxSize={2.5} /> : i + 1}
-                </Circle>
-              ))}
-            </HStack>
-          </Flex>
-        )}
-
         {isLastStep && (
           <Flex
             align="center"
@@ -560,7 +609,6 @@ export default function GuideDetailView() {
             mb={6}
             p={3}
             bg="green.50"
-            borderRadius="md"
             className="no-print"
           >
             <Divider flex={1} borderColor="green.300" />
@@ -573,17 +621,10 @@ export default function GuideDetailView() {
           </Flex>
         )}
 
-        {guide.reference && <ReferenceSection reference={guide.reference} />}
+        {guide.reference && <ReferenceSection isDesktop={isDesktop} reference={guide.reference} />}
 
         <Flex gap={6} flexDir={{ base: "column", md: "row" }}>
-          <Box
-            flex={1}
-            bg="white"
-            border="1px solid"
-            borderColor="gray.200"
-            borderRadius="lg"
-            p={4}
-          >
+          <Box flex={1} bg="white" border="1px solid" borderColor="gray.200" p={4}>
             <Text
               fontSize="xs"
               fontWeight="bold"
@@ -595,32 +636,25 @@ export default function GuideDetailView() {
               The Feature Underneath
             </Text>
             <HStack flexWrap="wrap" spacing={2} mb={3}>
-              <Badge
-                as={RouterLink}
-                to={guide.featureUnderneathLink}
-                key={guide.feature}
-                bg="gray.100"
-                color="gray.700"
-                px={2}
-                py={0.5}
-                borderRadius="sm"
-              >
-                {guide.feature}
-              </Badge>
+              {guide.features.map((feature) => (
+                <Badge
+                  key={feature}
+                  bg="gray.100"
+                  color="gray.700"
+                  px={2}
+                  py={0.5}
+                  borderRadius="sm"
+                >
+                  {feature}
+                </Badge>
+              ))}
             </HStack>
             <Text fontSize="sm" color="gray.600" mb={2}>
               {guide.featureUnderneathDescription}
             </Text>
           </Box>
 
-          <Box
-            flex={1}
-            bg="white"
-            border="1px solid"
-            borderColor="gray.200"
-            borderRadius="lg"
-            p={4}
-          >
+          <Box flex={1} bg="white" border="1px solid" borderColor="gray.200" p={4}>
             <Text
               fontSize="xs"
               fontWeight="bold"
@@ -646,18 +680,13 @@ export default function GuideDetailView() {
                   <Text fontSize="sm" color="gray.700" flex={1}>
                     {og.title}
                   </Text>
-                  <HStack spacing={2} flexShrink={0} ml={2}>
-                    <Badge
-                      colorScheme={og.status === "live" ? "green" : "yellow"}
-                      fontSize="xs"
-                      textTransform="uppercase"
-                    >
-                      {og.status}
-                    </Badge>
-                    <Text fontSize="xs" color="gray.400">
-                      {og.feature}
-                    </Text>
-                  </HStack>
+                  <VStack spacing={2} flexShrink={0} ml={2}>
+                    {og.features.map((feature) => (
+                      <Text key={feature} fontSize="xs" color="gray.400">
+                        {feature}
+                      </Text>
+                    ))}
+                  </VStack>
                 </Flex>
               ))}
             </VStack>

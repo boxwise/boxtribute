@@ -11,6 +11,7 @@ export interface GuideStep {
 export interface GuideReference {
   title: string;
   markdown: string;
+  mobileContent?: string;
 }
 
 export interface Guide {
@@ -18,14 +19,12 @@ export interface Guide {
   title: string;
   subtitle: string;
   tags: string[];
-  feature: string;
+  features: string[];
   estimatedMinutes: number;
-  status: "live" | "roadmap";
   requirement: string;
   steps: GuideStep[];
   reference?: GuideReference;
   featureUnderneathDescription: string;
-  featureUnderneathLink: string;
 }
 
 const moveIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M208 320h384c8.8 0 16-7.2 16-16V48c0-8.8-7.2-16-16-16H448v128l-48-32-48 32V32H208c-8.8 0-16 7.2-16 16v256c0 8.8 7.2 16 16 16zm416 64H128V16c0-8.8-7.2-16-16-16H16C7.2 0 0 7.2 0 16v32c0 8.8 7.2 16 16 16h48v368c0 8.8 7.2 16 16 16h82.9c-1.8 5-2.9 10.4-2.9 16 0 26.5 21.5 48 48 48s48-21.5 48-48c0-5.6-1.2-11-2.9-16H451c-1.8 5-2.9 10.4-2.9 16 0 26.5 21.5 48 48 48s48-21.5 48-48c0-5.6-1.2-11-2.9-16H624c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16z"/></svg>`;
@@ -36,9 +35,8 @@ export const GUIDES: Guide[] = [
     title: "Set up roles & team permissions",
     subtitle: "Control who can see what in Boxtribute",
     tags: ["Users", "Roles"],
-    feature: "Manage Users",
+    features: ["Manage Users"],
     estimatedMinutes: 5,
-    status: "live",
     requirement:
       "We need different people to have different levels of access - only volunteers who have received the protection training should interact with beneficiaries, and managers need oversight of the whole warehouse.",
     steps: [
@@ -188,58 +186,145 @@ export const GUIDES: Guide[] = [
   </tbody>
 </table>
 `,
+      mobileContent: `
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Label Creation</strong>
+      <span class="role-accordion__subtitle">Create Labels Only</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-no">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create labels</li>
+    <li class="role-no">Register / edit beneficiaries</li>
+    <li class="role-no">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>External Free Shop Checkout</strong>
+      <span class="role-accordion__subtitle">Beneficiary Checkout Only</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-no">Scan &amp; move boxes (mobile)</li>
+    <li class="role-no">Create / edit boxes &amp; labels</li>
+    <li class="role-no">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Warehouse Volunteer</strong>
+      <span class="role-accordion__subtitle">Create Labels · Scan &amp; Move Boxes</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-no">Register / edit beneficiaries</li>
+    <li class="role-no">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Free Shop Volunteer</strong>
+      <span class="role-accordion__subtitle">Scan Boxes · Manage Beneficiaries</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan boxes (mobile)</li>
+    <li class="role-no">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>General Volunteer</strong>
+      <span class="role-accordion__subtitle">All Above · Beneficiaries &amp; Boxes</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-no">Manage tags, products, locations</li>
+    <li class="role-no">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Coordinator</strong>
+      <span class="role-accordion__subtitle">All Above · Users, Tags, Shipments, Services</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-yes">Manage tags, products, locations</li>
+    <li class="role-yes">View reports &amp; dashboard</li>
+    <li class="role-no">Manage users &amp; roles</li>
+  </ul>
+</details>
+
+<details class="role-accordion">
+  <summary class="role-accordion__summary">
+    <span class="role-accordion__header">
+      <strong>Admin</strong>
+      <span class="role-accordion__subtitle">All Above · Manage Coordinators</span>
+    </span>
+  </summary>
+  <ul class="role-accordion__list">
+    <li class="role-yes">Scan &amp; move boxes (mobile)</li>
+    <li class="role-yes">Create / edit boxes &amp; labels</li>
+    <li class="role-yes">Register / edit beneficiaries</li>
+    <li class="role-yes">Free Shop checkout</li>
+    <li class="role-yes">Manage tags, products, locations</li>
+    <li class="role-yes">View reports &amp; dashboard</li>
+    <li class="role-yes">Manage users &amp; roles</li>
+  </ul>
+</details>
+`,
     },
     featureUnderneathDescription:
       "Set this up once and every team member logs in with the right level of access from day one.",
-    featureUnderneathLink: "/?camp=2&action=cms_users",
-  },
-  {
-    slug: "import-stock-beneficiaries",
-    title: "Import your existing stock or beneficiaries",
-    subtitle: "Bring your existing data into Boxtribute with a CSV upload.",
-    tags: ["Data Import", "CSV import"],
-    feature: "CSV import",
-    estimatedMinutes: 5,
-    status: "roadmap",
-    requirement:
-      "We already track our stock and beneficiaries in spreadsheets and need to migrate that data into Boxtribute without re-entering everything by hand.",
-    steps: [
-      {
-        title: "Prepare your CSV file",
-        description:
-          "Download the Boxtribute template and map your existing columns to the required fields.",
-        markdown:
-          "**CSV Import · Download Template**\n\nUse the template to ensure the column headers match what Boxtribute expects.\n\n- **Required columns:** Name, Category, Size, Quantity\n- **Optional:** Comment, Tags",
-        note: "UTF-8 encoding and comma delimiters are required.",
-      },
-      {
-        title: "Upload the file",
-        description: "Go to Admin → Import and drag your completed CSV onto the upload area.",
-        markdown:
-          "**CSV Import · Upload**\n\nFiles up to 10 MB are supported. Rows with errors are flagged before import.\n\n- **File:** <mark>stock_2024.csv</mark>",
-        note: "You'll get a preview of the first 20 rows before committing the import.",
-      },
-      {
-        title: "Review and confirm",
-        description: "Check the preview for any mapping errors, then click Import.",
-        markdown:
-          "**CSV Import · Preview**\n\nAny rows that can't be parsed are shown in red. Fix them or skip them.\n\n- **Valid rows:** 1 204\n- **Errors:** <mark>3</mark>",
-        note: "Skipped rows are not lost — you can re-import them separately.",
-      },
-    ],
-    featureUnderneathDescription:
-      "CSV import works for both stock items and beneficiary records. Run it as many times as you need.",
-    featureUnderneathLink: "See how CSV import works →",
   },
   {
     slug: "identify-most-vulnerable",
     title: "Tracking Services & Distributions and Prioritising the Most Vulnerable",
     subtitle:
       "How to identify and prioritise the most vulnerable - tracking services and distributions with beneficiaries.",
-    tags: ["Protection & Targeting", "Beneficiary Tags"],
-    feature: "Beneficiary tags",
+    tags: ["Beneficiaries", "Tags"],
+    features: ["Manage Beneficiaries", "Beneficiary Tags"],
     estimatedMinutes: 20,
-    status: "roadmap",
     requirement:
       "We work with beneficiaries with varying vulnerabilities and need for support - some have medical needs, some are unaccompanied minors, others are new arrivals. We need a way to flag who needs support and make sure they are prioritised and overall that we provide fair access to aid.",
     steps: [
@@ -322,20 +407,18 @@ export const GUIDES: Guide[] = [
       title: "",
       markdown: `Boxtribute lets you manage your beneficiaries within the platform, categorize by vulnerability or other status and capture who receives what, when, and how often. This keeps your distributions fair, accountable, and focused on the people who need support most.
 
-Tip: _Only staff with the appropriate role can view and edit beneficiary information. See the [**Preset roles - who can do what?**](../roles-and-permissions) reference if you need to check permissions._`,
+Tip: _Only staff with the appropriate role can view and edit beneficiary information. See the [**Preset roles - who can do what?**](./roles-and-permissions) reference if you need to check permissions._`,
     },
     featureUnderneathDescription:
-      "Learn these two building blocks once and most 'can you add a field for...?' requests answer themselves.",
-    featureUnderneathLink: "See how tags & services work →",
+      "Your beneficiaries are who matter most. Learn to prepare for fair and dignified distributions.",
   },
   {
     slug: "organise-warehouse-space",
     title: "Organise your warehouse space",
     subtitle: "Find, filter, and sort stock easily using Locations and Tags",
-    tags: ["Warehouse Setup", "Locations"],
-    feature: "Locations",
+    tags: ["Locations", "Tags"],
+    features: ["Edit Warehouses", "Boxes Tags"],
     estimatedMinutes: 10,
-    status: "roadmap",
     requirement:
       "Our warehouse has multiple rooms and sections, and it takes Staff a lot of time to look through and search for the boxes we need. How do we set up Boxtribute so that the system can quickly find and tell us where things actually are?",
     steps: [
@@ -403,7 +486,7 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
         title: "Use filters to find what you need",
         description:
           "Plan for your distribution, search by vulnerability - how to use tags to search through your data to help with your planning.",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/filter-boxes.png",
         markdown:
           "Combine location and tag filters to drill down quickly and pull the data you are needing. For example; you can export a report showing a tag ‘winterization kits’ and the ‘project cycle’ which will show how many winterization kits you have donated from that donor and at which location so you can plan for your upcoming distribution.",
       },
@@ -445,6 +528,5 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
     },
     featureUnderneathDescription:
       "Locations are the backbone of stock visibility. Set them up to match your space and volunteers will always know where to look.",
-    featureUnderneathLink: "See how locations work →",
   },
 ];
