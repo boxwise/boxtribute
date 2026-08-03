@@ -39,6 +39,7 @@ export default function GuideBanner() {
           </Text>
 
           <Button
+            id="guide-banner-open-app"
             as={RouterLink}
             to={guidesPath}
             bg="brandYellow.200"
@@ -47,7 +48,6 @@ export default function GuideBanner() {
             fontWeight="bold"
             _hover={{ bg: "brandYellow.300", color: "white" }}
             rightIcon={<ArrowForwardIcon />}
-            data-heap-event="guide-banner-open-app"
             borderRadius="sm"
           >
             Open in app
@@ -58,13 +58,12 @@ export default function GuideBanner() {
           <VStack align="flex-start" spacing={3}>
             {FEATURED_GUIDES.map((guide) => (
               <HStack
+                id={`guide-banner-click-${guide.slug}`}
                 key={guide.slug}
                 as={RouterLink}
                 to={`${guidesPath}/${guide.slug}`}
                 spacing={3}
                 _hover={{ textDecoration: "none" }}
-                data-heap-event="guide-banner-item-click"
-                data-heap-guide={guide.slug}
                 w="full"
               >
                 <Text fontSize="sm" color="whiteAlpha.900" _hover={{ color: "white" }}>
@@ -81,6 +80,7 @@ export default function GuideBanner() {
             ))}
 
             <Text
+              id="guide-banner-browse-full"
               as={RouterLink}
               to={guidesPath}
               fontSize="sm"
@@ -88,7 +88,6 @@ export default function GuideBanner() {
               fontWeight="semibold"
               _hover={{ textDecoration: "underline" }}
               pt={2}
-              data-heap-event="guide-banner-browse-full"
             >
               Browse the full guide →
             </Text>
