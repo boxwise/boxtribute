@@ -34,11 +34,11 @@ function buildLegendItems(data: { day: string; value: number }[], colors: string
   const items: LegendItem[] = [];
   for (let i = 0; i < colors.length; i += 1) {
     const lo = Math.round(min + i * step);
-     const hi = i === colors.length - 1 ? max : Math.round(min + (i + 1) * step) - 1;
-     if (hi < lo) continue;
-     items.push({ color: colors[i], label: (lo === hi) ? `${lo}` : `${lo}–${hi}` });
-   }
-   return items;
+    const hi = i === colors.length - 1 ? max : Math.round(min + (i + 1) * step) - 1;
+    if (hi < lo) continue;
+    items.push({ color: colors[i], label: lo === hi ? `${lo}` : `${lo}–${hi}` });
+  }
+  return items;
 }
 
 export default function CalendarChart(chart: ICalendarChart) {
