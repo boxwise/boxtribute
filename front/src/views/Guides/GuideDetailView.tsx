@@ -317,7 +317,11 @@ export default function GuideDetailView() {
   };
 
   const handleDownloadPDF = () => {
-    window.open(`https://boxtribute.org/uploads/guide-${guide.slug}.pdf`, "_blank", "noopener,noreferrer");
+    window.open(
+      `https://boxtribute.org/uploads/guide-${guide.slug}.pdf`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const guidesPath = `/bases/${baseId}/guides`;
