@@ -11,7 +11,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -90,6 +90,12 @@ export interface IBoxCreateProps {
   allTags: IDropdownOption[] | null | undefined;
   currency?: string | null;
   disableSubmission?: boolean;
+  initialValues?: {
+    productId?: { label: string; value: string };
+    sizeId?: { label: string; value: string };
+    locationId?: { label: string; value: string };
+    numberOfItems?: number;
+  };
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
   onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
 }
@@ -99,6 +105,7 @@ export function BoxCreate({
   allLocations,
   allTags,
   currency,
+  initialValues,
   onSubmitBoxCreateForm,
   onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
@@ -159,6 +166,12 @@ export function BoxCreate({
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(CreateBoxFormDataSchema),
+    defaultValues: {
+      productId: initialValues?.productId,
+      sizeId: initialValues?.sizeId,
+      locationId: initialValues?.locationId,
+      numberOfItems: initialValues?.numberOfItems,
+    },
   });
 
   const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
@@ -166,6 +179,11 @@ export function BoxCreate({
   >([]);
 
   const productId = watch("productId");
+
+  // When there is a cached sizeId, we must not reset it on the very first render
+  // (triggered by the default productId).  After the first product change the
+  // normal reset behaviour is restored.
+  const preserveInitialSizeId = useRef(initialValues?.sizeId != null);
 
   useEffect(() => {
     if (productId != null) {
@@ -179,6 +197,13 @@ export function BoxCreate({
             value: s.id,
           })) || [],
       );
+
+      if (preserveInitialSizeId.current) {
+        // Keep the cached sizeId intact on the initial load; from now on
+        // changing the product will trigger a normal reset.
+        preserveInitialSizeId.current = false;
+        return;
+      }
 
       resetField("sizeId");
       // Put a default value for sizeId when there's only one option
