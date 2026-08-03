@@ -13,6 +13,7 @@ interface BoxesFilterProps {
   columnFilters: Filters<any>;
   onApplyFilters: (filters: Filters<any>) => void;
   productOptions: IFilterValue[];
+  categoryOptions: IFilterValue[];
   genderOptions: IFilterValue[];
   sizeOptions: IFilterValue[];
   locationOptions: IFilterValue[];
@@ -25,6 +26,7 @@ export function BoxesFilter({
   columnFilters,
   onApplyFilters,
   productOptions,
+  categoryOptions,
   genderOptions,
   sizeOptions,
   locationOptions,
@@ -129,6 +131,22 @@ export function BoxesFilter({
           onFilterChange={(selected) =>
             handleFilterChange(
               "product",
+              selected.map((s) => s.value),
+            )
+          }
+          placeholder="All"
+        />
+
+        <MultiSelectFilter
+          fieldLabel="Category"
+          values={categoryOptions}
+          filterId="productCategory"
+          filterValue={categoryOptions.filter((o) =>
+            stagedFilters.productCategory?.includes(o.value),
+          )}
+          onFilterChange={(selected) =>
+            handleFilterChange(
+              "productCategory",
               selected.map((s) => s.value),
             )
           }

@@ -10,7 +10,7 @@ import {
   Select,
   VStack,
 } from "@chakra-ui/react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type React from "react";
 import { useSearchParams } from "react-router-dom";
 import MovedBoxesDataContainer from "../components/visualizations/movedBoxes/MovedBoxesDataContainer";
@@ -19,6 +19,7 @@ import { MovementFilters } from "./../components/filter/MovementFilters";
 import {
   MOVEMENT_URL_PARAMS,
   type MovementDirection,
+  type ITargetOption,
   defaultMovementFilters,
   readMovementFiltersFromUrl,
   writeMovementFiltersToUrl,
@@ -39,10 +40,11 @@ interface MovedBoxesProps {
 
 export default function MovedBoxes({ isActive, products, categories, tags }: MovedBoxesProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [availableTargets, setAvailableTargets] = useState<ITargetOption[]>([]);
 
   const appliedFilters = useMemo(
-    () => readMovementFiltersFromUrl(searchParams, products, categories, tags),
-    [searchParams, products, categories, tags],
+    () => readMovementFiltersFromUrl(searchParams, products, categories, availableTargets, tags),
+    [searchParams, products, categories, availableTargets, tags],
   );
 
   const boxesOrItems: BoxesOrItems =
@@ -131,6 +133,15 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
             categories: appliedFilters.categories.filter((c) => c.id !== category.id),
           }),
       })),
+      ...appliedFilters.targets.map((target) => ({
+        key: `target-${target.id}`,
+        label: target.name,
+        onRemove: () =>
+          handleApplyFilters({
+            ...appliedFilters,
+            targets: appliedFilters.targets.filter((t) => t.id !== target.id),
+          }),
+      })),
       ...appliedFilters.includedTags.map((tag) => ({
         key: `included-tag-${tag.id}`,
         label: tag.label,
@@ -158,14 +169,14 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
 
   return (
     <AccordionItem id="dashboard-section-movement">
-      <AccordionButton padding="15px 10px">
+      <AccordionButton _hover={{ bg: "gray.100" }} padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Movement History</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel>
-        <VStack align="stretch" spacing={4}>
+      <AccordionPanel bg="gray.100" mx={-4}>
+        <VStack align="stretch" mx={4} spacing={4}>
           <HStack justify="space-between" spacing={2} align="flex-start">
             <DashboardFilterChips
               chips={filterChips}
@@ -198,6 +209,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
                   appliedFilters={appliedFilters}
                   products={products}
                   categories={categories}
+                  targets={availableTargets}
                   tags={tags}
                   onApply={handleApplyFilters}
                 />
@@ -209,6 +221,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
             appliedFilters={appliedFilters}
             boxesOrItems={boxesOrItems}
             direction={direction}
+            onTargetsAvailable={setAvailableTargets}
           />
         </VStack>
       </AccordionPanel>

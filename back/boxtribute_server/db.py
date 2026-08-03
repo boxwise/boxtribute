@@ -57,13 +57,16 @@ class DatabaseManager:
         ):
             return
 
+        # Provide fallback for non-JSON and non-GraphQL requests
+        payload = request.get_json(silent=True) or {}
+        if "query" not in payload or payload["query"] is None:
+            return
+
         if not self.database:
             raise RuntimeError("DatabaseManager.database not set")
 
         self.database.connect()
 
-        # Provide fallback for non-JSON and non-GraphQL requests
-        payload = request.get_json(silent=True) or {"query": []}
         if self.replica and (
             any([q in payload["query"] for q in statistics_queries()])
             or request.blueprint == shared_bp.name

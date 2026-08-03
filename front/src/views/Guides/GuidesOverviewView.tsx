@@ -1,0 +1,92 @@
+import {
+  Badge,
+  Box,
+  Heading,
+  HStack,
+  SimpleGrid,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import { Link as RouterLink, useParams } from "react-router-dom";
+import { TimeIcon } from "@chakra-ui/icons";
+import { GUIDES } from "./guidesData";
+
+export default function GuidesOverviewView() {
+  const { baseId } = useParams();
+
+  return (
+    <Box maxW="1100px" mx="auto" px={{ base: 4, md: 8 }} py={8}>
+      <Heading as="h1" fontSize={{ base: "2xl", md: "4xl" }} fontWeight="bold" mb={3}>
+        Find the capability that answers your requirement.
+      </Heading>
+
+      <Text color="gray.600" fontSize="sm" mb={8} maxW="680px">
+        Tell us what you need to do, and we&apos;ll show you how Boxtribute does it, and the feature
+        underneath.
+      </Text>
+
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+        {GUIDES.map((guide) => (
+          <Box
+            id={`guide-card-click-${guide.slug}`}
+            key={guide.slug}
+            as={RouterLink}
+            to={`/bases/${baseId}/guides/${guide.slug}`}
+            bg="white"
+            border="1px solid"
+            borderColor="gray.200"
+            p={5}
+            _hover={{ textDecoration: "none", boxShadow: "md", borderColor: "gray.300" }}
+            transition="box-shadow 0.15s, border-color 0.15s"
+            display="flex"
+            flexDirection="column"
+          >
+            <HStack spacing={2} mb={3} flexWrap="wrap">
+              {guide.tags.map((tag) => (
+                <Badge key={tag} bg="gray.700" color="white" fontSize="xs" borderRadius="sm">
+                  {tag}
+                </Badge>
+              ))}
+            </HStack>
+
+            <Text fontWeight="bold" fontSize="md" mb={2} color="gray.800" flex={1}>
+              {guide.title}
+            </Text>
+
+            <VStack align="flex-start" spacing={2} mt="auto">
+              <Text fontSize="sm" color="gray.500">
+                Feature:{" "}
+                <Text as="span" color="gray.700">
+                  {guide.features.join(" & ")}
+                </Text>
+              </Text>
+
+              <Box
+                bg="red.50"
+                borderRadius="md"
+                px={3}
+                py={1}
+                display="inline-flex"
+                alignItems="center"
+              >
+                <Text fontSize="sm" color="brandRed.300" fontWeight="semibold">
+                  Open capability →
+                </Text>
+              </Box>
+
+              <Tag variant="subtle" colorScheme={"brandBlue"} fontSize="xs">
+                <TagLeftIcon boxSize={3} as={TimeIcon} />
+                <TagLabel fontWeight="semibold" textTransform="uppercase" letterSpacing="wide">
+                  ≈ {guide.estimatedMinutes} min
+                </TagLabel>
+              </Tag>
+            </VStack>
+          </Box>
+        ))}
+      </SimpleGrid>
+    </Box>
+  );
+}

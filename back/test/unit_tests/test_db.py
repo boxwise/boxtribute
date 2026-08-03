@@ -38,6 +38,6 @@ def test_uninitialized_database_manager():
     manager = DatabaseManager()
     app = create_app()
     app.register_blueprint(api_bp)
-    with app.test_request_context(method="POST"):
+    with app.test_request_context(method="POST", json={"query": "foo"}):
         with pytest.raises(RuntimeError, match="database not set"):
             manager.connect_db()
