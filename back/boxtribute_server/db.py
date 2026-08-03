@@ -58,8 +58,8 @@ class DatabaseManager:
             return
 
         # Provide fallback for non-JSON and non-GraphQL requests
-        payload = request.get_json(silent=True) or {"query": []}
-        if "query" not in payload:
+        payload = request.get_json(silent=True) or {}
+        if "query" not in payload or payload["query"] is None:
             return
 
         if not self.database:

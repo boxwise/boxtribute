@@ -6,6 +6,7 @@ from auth import (
     get_authorization_header,
 )
 from boxtribute_server.auth import CurrentUser, decode_jwt, get_public_key
+from boxtribute_server.blueprints import API_GRAPHQL_PATH
 from utils import (
     assert_bad_request,
     assert_forbidden_request,
@@ -229,7 +230,15 @@ def test_god_user():
 
 
 def test_request_without_query_payload(dev_client):
-    response = dev_client.post("/?rest_route=batch/v1", json={"requests": []})
+    response = dev_client.post(
+        f"{API_GRAPHQL_PATH}?rest_route=batch/v1", json={"requests": []}
+    )
+    assert response.status_code == 401
+
+    response = dev_client.post(API_GRAPHQL_PATH, json={"query": None})
+    assert response.status_code == 401
+
+    response = dev_client.post(API_GRAPHQL_PATH)
     assert response.status_code == 401
 
 
