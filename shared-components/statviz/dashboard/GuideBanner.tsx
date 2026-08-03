@@ -1,4 +1,4 @@
-import { Box, Button, Grid, HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { Box, Grid, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useParams } from "react-router-dom";
 
@@ -37,34 +37,18 @@ export default function GuideBanner() {
             The Guide maps your own requirements to how Boxtribute already does them. Browse the
             most-asked capabilities.
           </Text>
-
-          <Button
-            as={RouterLink}
-            to={guidesPath}
-            bg="brandYellow.200"
-            color="brandBlue.300"
-            size="sm"
-            fontWeight="bold"
-            _hover={{ bg: "brandYellow.300", color: "white" }}
-            rightIcon={<ArrowForwardIcon />}
-            data-heap-event="guide-banner-open-app"
-            borderRadius="sm"
-          >
-            Open in app
-          </Button>
         </VStack>
 
         <Box bg="whiteAlpha.200" borderRadius="md" p={4}>
           <VStack align="flex-start" spacing={3}>
             {FEATURED_GUIDES.map((guide) => (
               <HStack
+                id={`guide-banner-click-${guide.slug}`}
                 key={guide.slug}
                 as={RouterLink}
                 to={`${guidesPath}/${guide.slug}`}
                 spacing={3}
                 _hover={{ textDecoration: "none" }}
-                data-heap-event="guide-banner-item-click"
-                data-heap-guide={guide.slug}
                 w="full"
               >
                 <Text fontSize="sm" color="whiteAlpha.900" _hover={{ color: "white" }}>
@@ -81,6 +65,7 @@ export default function GuideBanner() {
             ))}
 
             <Text
+              id="guide-banner-browse-full"
               as={RouterLink}
               to={guidesPath}
               fontSize="sm"
@@ -88,7 +73,6 @@ export default function GuideBanner() {
               fontWeight="semibold"
               _hover={{ textDecoration: "underline" }}
               pt={2}
-              data-heap-event="guide-banner-browse-full"
             >
               Browse the full guide →
             </Text>
