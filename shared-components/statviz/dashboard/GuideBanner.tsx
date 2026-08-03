@@ -1,4 +1,4 @@
-import { Box, Button, Grid, HStack, Icon, Text, VStack } from "@chakra-ui/react";
+import { Box, Grid, HStack, Icon, Text, VStack } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useParams } from "react-router-dom";
 
@@ -37,21 +37,6 @@ export default function GuideBanner() {
             The Guide maps your own requirements to how Boxtribute already does them. Browse the
             most-asked capabilities.
           </Text>
-
-          <Button
-            id="guide-banner-open-app"
-            as={RouterLink}
-            to={guidesPath}
-            bg="brandYellow.200"
-            color="brandBlue.300"
-            size="sm"
-            fontWeight="bold"
-            _hover={{ bg: "brandYellow.300", color: "white" }}
-            rightIcon={<ArrowForwardIcon />}
-            borderRadius="sm"
-          >
-            Open in app
-          </Button>
         </VStack>
 
         <Box bg="whiteAlpha.200" borderRadius="md" p={4}>
