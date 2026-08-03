@@ -33,9 +33,10 @@ export function FilterPanel({
   return (
     <>
       <IconButton
-        icon={<MdFilterList color="black" size={25} />}
+        icon={<MdFilterList color="white" size={25} />}
         aria-label={`Open ${label}`}
         size="md"
+        bg="blue.500"
         data-testid={`${label.replaceAll(" ", "").toLowerCase()}-drawer-button`}
         onClick={onOpen}
       />
