@@ -164,7 +164,15 @@ function ReferenceSection({
       ? reference.mobileContent
       : reference.markdown;
   return (
-    <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6} overflowX="auto">
+    <Box
+      bg="white"
+      boxShadow="md"
+      border="1px solid"
+      borderColor="gray.200"
+      p={6}
+      mb={6}
+      overflowX="auto"
+    >
       <Text
         fontSize="xs"
         fontWeight="bold"
@@ -438,7 +446,7 @@ export default function GuideDetailView() {
         )}
 
         {isDesktop ? (
-          <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6}>
+          <Box bg="white" boxShadow="md" border="1px solid" borderColor="gray.200" p={6} mb={6}>
             <Flex justify="space-between" align="center" mb={4}>
               <Text fontWeight="bold" fontSize="md">
                 How you do it in Boxtribute
