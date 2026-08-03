@@ -228,6 +228,11 @@ def test_god_user():
     assert user.is_god
 
 
+def test_request_without_query_payload(dev_client):
+    response = dev_client.post("/?rest_route=batch/v1", json={"requests": []})
+    assert response.status_code == 401
+
+
 def test_check_beta_feature_access(auth0_client):
     mutation = "mutation { createQrCode { id } }"
     assert_successful_request(auth0_client, mutation)
