@@ -487,7 +487,7 @@ Tip: _Only staff with the appropriate role can view and edit beneficiary informa
         title: "Use filters to find what you need",
         description:
           "Plan for your distribution, search by vulnerability - how to use tags to search through your data to help with your planning.",
-        picture: "/guides/move-a-box.png",
+        picture: "/guides/filter-boxes.png",
         markdown:
           "Combine location and tag filters to drill down quickly and pull the data you are needing. For example; you can export a report showing a tag ‘winterization kits’ and the ‘project cycle’ which will show how many winterization kits you have donated from that donor and at which location so you can plan for your upcoming distribution.",
       },
