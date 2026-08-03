@@ -317,12 +317,7 @@ export default function GuideDetailView() {
   };
 
   const handleDownloadPDF = () => {
-    const link = document.createElement("a");
-    link.href = "/guides/placeholder-guide.pdf";
-    link.download = `${guide.slug}-guide.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(`https://boxtribute.org/uploads/guide-${guide.slug}.pdf`, "_blank");
   };
 
   const guidesPath = `/bases/${baseId}/guides`;
