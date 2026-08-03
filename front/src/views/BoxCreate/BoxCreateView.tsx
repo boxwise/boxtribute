@@ -11,8 +11,10 @@ import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import { BoxCreate, ICreateBoxFormData } from "./components/BoxCreate";
 import { AlertWithoutAction } from "components/Alerts";
 import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
+import { boxCreateFormCacheAtom } from "stores/globalCacheStore";
+import { useAuth0 } from "@auth0/auth0-react";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
@@ -96,6 +98,15 @@ function BoxCreateView() {
   const selectedBase = useAtomValue(selectedBaseAtom);
   const baseId = useAtomValue(selectedBaseIdAtom);
   const baseName = selectedBase?.name;
+
+  // Box-creation form cache
+  const { user } = useAuth0();
+  const [boxCreateFormCache, setBoxCreateFormCache] = useAtom(boxCreateFormCacheAtom);
+  // Only use the cache when it belongs to the currently logged-in user.
+  const validCachedFormData =
+    boxCreateFormCache.userEmail && boxCreateFormCache.userEmail === user?.email
+      ? boxCreateFormCache
+      : undefined;
 
   // no warehouse location or products associated with base
   const [noLocation, setNoLocation] = useState(false);
@@ -250,6 +261,15 @@ function BoxCreateView() {
             });
           }
         } else {
+          // Persist the submitted field values so the next box creation is pre-filled.
+          setBoxCreateFormCache({
+            userEmail: user?.email,
+            productId: createBoxData.productId,
+            sizeId: createBoxData.sizeId,
+            locationId: createBoxData.locationId,
+            numberOfItems: createBoxData.numberOfItems,
+          });
+
           createToast({
             title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,
             type: "success",
@@ -312,6 +332,7 @@ function BoxCreateView() {
         allTags={allTags}
         currency={allFormOptions.data?.base?.monetaryCurrencyCode}
         disableSubmission={noLocation || noProducts}
+        initialValues={validCachedFormData}
       />
     </Center>
   );

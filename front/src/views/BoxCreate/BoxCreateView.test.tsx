@@ -1,5 +1,5 @@
 import { vi, it, describe, expect, beforeEach } from "vitest";
-import { screen, render, waitFor } from "tests/test-utils";
+import { screen, render, waitFor, jotaiAtomsInitialValues } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
 import { selectOptionInSelectField } from "tests/helpers";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
@@ -14,6 +14,7 @@ import { mockAuthenticatedUser } from "mocks/hooks";
 import { product1, productBasic1 } from "mocks/products";
 import { location1 } from "mocks/locations";
 import { tag1, tag2 } from "mocks/tags";
+import { boxCreateFormCacheAtom } from "stores/globalCacheStore";
 
 vi.setConfig({ testTimeout: 40_000 });
 
@@ -416,5 +417,79 @@ describe("BoxCreateView", () => {
         }),
       ),
     );
+  });
+
+  it("stores form field values in the cache after successful box creation", async () => {
+    const user = userEvent.setup();
+    render(<BoxCreateView />, {
+      routePath: "/bases/:baseId/boxes/create",
+      initialUrl: "/bases/1/boxes/create",
+      mocks: [initialQuery, successfulCreateBoxMutation],
+      addTypename: true,
+    });
+
+    await screen.findByRole("heading", { name: /create new box/i });
+
+    // Fill in the form
+    await selectOptionInSelectField(user, /product/i, "Snow trousers (Boy)", "Create New Box");
+    await selectOptionInSelectField(user, /size/i, "S", "Create New Box");
+    await selectOptionInSelectField(user, /location/i, "Warehouse", "Create New Box");
+
+    const numberOfItemsInput = screen.getByRole("spinbutton");
+    await user.clear(numberOfItemsInput);
+    await user.type(numberOfItemsInput, "5");
+
+    // Added new tag (not cached)
+    await user.type(screen.getByLabelText(/Tags/), "epic");
+    const createOption = await screen.findByText('Create "epic"');
+    await user.click(createOption);
+
+    await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+    // Wait for the success toast, which signals the mutation has completed
+    await waitFor(() =>
+      expect(mockedCreateToast).toHaveBeenCalledWith(expect.objectContaining({ type: "success" })),
+    );
+
+    // The cache in localStorage should now hold the submitted field values
+    const rawCache = localStorage.getItem("boxCreateFormCache");
+    expect(rawCache).not.toBeNull();
+    const cache = JSON.parse(rawCache!);
+    expect(cache).toMatchObject({
+      userEmail: "dev_coordinator@boxaid.org",
+      productId: { value: "2", label: "Snow trousers (Boy)" },
+      sizeId: { value: "1", label: "S" },
+      locationId: { value: "1", label: "Warehouse" },
+      numberOfItems: 5,
+    });
+  });
+
+  it("pre-populates form fields from the cache on subsequent box creation", async () => {
+    const cachedValues = {
+      userEmail: "dev_coordinator@boxaid.org",
+      productId: { value: "2", label: "Snow trousers (Boy)" },
+      sizeId: { value: "1", label: "S" },
+      locationId: { value: "1", label: "Warehouse" },
+      numberOfItems: 5,
+    };
+
+    render(<BoxCreateView />, {
+      routePath: "/bases/:baseId/boxes/create",
+      initialUrl: "/bases/1/boxes/create",
+      mocks: [initialQuery],
+      addTypename: true,
+      jotaiAtoms: [...jotaiAtomsInitialValues, [boxCreateFormCacheAtom, cachedValues]],
+    });
+
+    await screen.findByRole("heading", { name: /create new box/i });
+
+    // The product, size and location fields should be pre-filled from the cache
+    expect(await screen.findByText("Snow trousers (Boy)")).toBeInTheDocument();
+    expect(await screen.findByText("S")).toBeInTheDocument();
+    expect(await screen.findByText("Warehouse")).toBeInTheDocument();
+
+    // The number-of-items field should be pre-filled
+    const numberOfItemsInput = screen.getByRole("spinbutton");
+    expect(numberOfItemsInput).toHaveValue("5");
   });
 });

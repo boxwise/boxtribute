@@ -2,6 +2,28 @@ import { MatchProductsFormData } from "components/BoxReconciliationOverlay/compo
 import { IReceiveLocationFormData } from "components/BoxReconciliationOverlay/components/ReceiveLocationForm";
 import { atomWithStorage } from "jotai/utils";
 
+interface SelectOption {
+  label: string;
+  value: string;
+}
+
+export interface BoxCreateFormCache {
+  /** Identifies the user who stored this cache, so it can be discarded when a different user logs in. */
+  userEmail?: string;
+  productId?: SelectOption;
+  sizeId?: SelectOption;
+  locationId?: SelectOption;
+  numberOfItems?: number;
+}
+
+/** Persisted atom to cache the most recently submitted box-creation form fields. */
+export const boxCreateFormCacheAtom = atomWithStorage<BoxCreateFormCache>(
+  "boxCreateFormCache",
+  {},
+  undefined,
+  { getOnInit: true },
+);
+
 type ReconciliationMatchProductFields = Record<
   `${number}`,
   Pick<MatchProductsFormData, "productId" | "sizeId">
