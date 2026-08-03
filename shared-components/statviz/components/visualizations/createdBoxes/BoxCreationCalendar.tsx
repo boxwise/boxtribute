@@ -68,7 +68,7 @@ export default function BoxCreationCalendar({
     ) as { day: string; value: number }[];
   }, [data, boxesOrItems]);
 
-  const heading = "Box Creation over Time";
+  const heading = `${boxesOrItems === "boxesCount" ? "Box" : "Item"} Creation over Time`;
 
   if (calendarData.length === 0) {
     return <NoDataCard header={heading} />;

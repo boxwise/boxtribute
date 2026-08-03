@@ -71,6 +71,7 @@ Object.defineProperty(navigator, "userAgent", {
 });
 
 beforeEach(() => {
+  localStorage.clear();
   // Reset the cache before each test
   cache.restore(emptyCache);
   // Reset the mocked toast before each test

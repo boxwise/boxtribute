@@ -11,6 +11,9 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
+import { Link as RouterLink } from "react-router-dom";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useWalkthrough } from "./WalkthroughContext";
 import { PathId, WalkthroughPath } from "./paths/types";
 import { useVisiblePaths } from "./useVisiblePaths";
@@ -91,6 +94,8 @@ function PathCard({ path, isCompleted, onExplore, onReplay }: PathCardProps) {
 
 function AllDoneMessage() {
   const { closeWalkthrough } = useWalkthrough();
+  const baseId = useAtomValue(selectedBaseIdAtom);
+
   return (
     <Box
       bg="green.50"
@@ -108,9 +113,19 @@ function AllDoneMessage() {
         You&apos;ve seen the key parts of Boxtribute. You can always access this tutorial from the
         Settings in the bottom left, or replay below!
       </Text>
-      <Button bg="black" color="white" _hover={{ bg: "gray.800" }} onClick={closeWalkthrough}>
-        Close walkthrough
-      </Button>
+      <Flex gap={3} justifyContent="center">
+        <Button bg="black" color="white" _hover={{ bg: "gray.800" }} onClick={closeWalkthrough}>
+          Close walkthrough
+        </Button>
+        <Button
+          as={RouterLink}
+          to={`/bases/${baseId}/guides`}
+          variant="outline"
+          onClick={closeWalkthrough}
+        >
+          Access the Guide
+        </Button>
+      </Flex>
     </Box>
   );
 }

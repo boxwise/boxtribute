@@ -1,4 +1,6 @@
 import { Box, Link, Text } from "@chakra-ui/react";
+import { useAtomValue } from "jotai";
+import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { useWalkthrough } from "./WalkthroughContext";
 import { PATHS } from "./TourOverlay";
 
@@ -11,8 +13,11 @@ const PATH_LABELS: Record<string, string> = {
 // In-tour fixed top-left path indicator + guidance link.
 function PathIndicator() {
   const { isWalkthroughActive, currentStep, activePath } = useWalkthrough();
+  const baseId = useAtomValue(selectedBaseIdAtom);
 
   if (!isWalkthroughActive || currentStep !== "tour" || !activePath) return null;
+
+  const dest = `/bases/${baseId}/guides/${PATHS[activePath].guidanceUrl}`;
 
   return (
     <Box
@@ -31,7 +36,7 @@ function PathIndicator() {
         {PATH_LABELS[activePath] ?? activePath}
       </Text>
       {PATHS[activePath].guidanceUrl && (
-        <Link href={PATHS[activePath].guidanceUrl} isExternal fontSize="xs" color="blue.500">
+        <Link href={dest} fontSize="xs" color="blue.500">
           Get more guidance on this topic &rsaquo;
         </Link>
       )}

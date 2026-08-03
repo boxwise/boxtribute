@@ -112,10 +112,10 @@ class Box(Model):
         decimal_places=18,
         null=True,
     )
-    source_box = UIntForeignKeyField(
+    source_box = UIntForeignKeyField(  # type: ignore
+        model="self",
         column_name="source_box_id",
         field="id",
-        model="self",
         null=True,
         on_update="CASCADE",
         on_delete="SET NULL",
