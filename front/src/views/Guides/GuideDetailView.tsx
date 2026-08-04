@@ -297,6 +297,8 @@ export default function GuideDetailView() {
 
   const [currentStep, setCurrentStep] = useState(0);
 
+  // Reset step tracker when coming from a different guide (might have been at a step number larger
+  // than the total number of steps of the new guide)
   useEffect(() => {
     setCurrentStep(0);
   }, [guideSlug]);
@@ -305,6 +307,7 @@ export default function GuideDetailView() {
     return <Navigate to={`/bases/${baseId}/guides`} replace />;
   }
 
+  // Guard against the above useEffect not having fired yet
   const safeCurrentStep = currentStep < guide.steps.length ? currentStep : 0;
   const step = guide.steps[safeCurrentStep];
   const isLastStep = safeCurrentStep === guide.steps.length - 1;
