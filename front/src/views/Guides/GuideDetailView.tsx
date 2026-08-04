@@ -23,7 +23,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { CheckIcon, ChevronRightIcon, TimeIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdownBase from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
@@ -297,12 +297,17 @@ export default function GuideDetailView() {
 
   const [currentStep, setCurrentStep] = useState(0);
 
+  useEffect(() => {
+    setCurrentStep(0);
+  }, [guideSlug]);
+
   if (!guide) {
     return <Navigate to={`/bases/${baseId}/guides`} replace />;
   }
 
-  const step = guide.steps[currentStep];
-  const isLastStep = currentStep === guide.steps.length - 1;
+  const safeCurrentStep = currentStep < guide.steps.length ? currentStep : 0;
+  const step = guide.steps[safeCurrentStep];
+  const isLastStep = safeCurrentStep === guide.steps.length - 1;
 
   const handleNext = () => {
     if (!isLastStep) {
