@@ -23,7 +23,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { CheckIcon, ChevronRightIcon, TimeIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdownBase from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
@@ -297,12 +297,20 @@ export default function GuideDetailView() {
 
   const [currentStep, setCurrentStep] = useState(0);
 
+  // Reset step tracker when coming from a different guide (might have been at a step number larger
+  // than the total number of steps of the new guide)
+  useEffect(() => {
+    setCurrentStep(0);
+  }, [guideSlug]);
+
   if (!guide) {
     return <Navigate to={`/bases/${baseId}/guides`} replace />;
   }
 
-  const step = guide.steps[currentStep];
-  const isLastStep = currentStep === guide.steps.length - 1;
+  // Guard against the above useEffect not having fired yet
+  const safeCurrentStep = currentStep < guide.steps.length ? currentStep : 0;
+  const step = guide.steps[safeCurrentStep];
+  const isLastStep = safeCurrentStep === guide.steps.length - 1;
 
   const handleNext = () => {
     if (!isLastStep) {

@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useSearchParams } from "react-router-dom";
 import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
