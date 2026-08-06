@@ -20,7 +20,7 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -100,7 +100,6 @@ function CreateShipment({
     handleSubmit,
     control,
     resetField,
-    watch,
     setValue,
     register,
     formState: { errors, isSubmitting },
@@ -148,12 +147,15 @@ function CreateShipment({
   const haveIntraOrganisationOptions = intraOrganisationOptions.length > 0;
 
   // selected Option for organisation field
-  const receivingOrganisation = watch("receivingOrganisation");
+  const receivingOrganisation = useWatch({ control, name: "receivingOrganisation" });
 
   // Display agreement comment, if any.
   const [agreementNote, setAgreementNote] = useState("");
-  // Prepare options for the base field
-  const [basesOptions, setBasesOptions] = useState<IDropdownOption[]>([]);
+  // Derive base options directly from the selected organisation (no state needed)
+  const basesOptions: IDropdownOption[] =
+    organisationBaseData
+      .find((org) => org.id === receivingOrganisation?.value)
+      ?.bases?.map((base) => ({ label: base.name, value: base.id })) ?? [];
 
   useEffect(() => {
     if (receivingOrganisation) {
@@ -161,19 +163,12 @@ function CreateShipment({
         (organisation) => organisation.id === receivingOrganisation.value,
       );
 
-      setBasesOptions(
-        basesForSelectedOrganisation?.bases?.map((base) => ({
-          label: base.name,
-          value: base.id,
-        })) || [],
-      );
-
       resetField("receivingBase");
       // Put a default value for partnerOrganisationSelectedBases when there's only one option.
       if (basesForSelectedOrganisation?.bases.length === 1) {
         setValue("receivingBase", {
-          label: basesForSelectedOrganisation?.bases[0].name,
-          value: basesForSelectedOrganisation?.bases[0].id,
+          label: basesForSelectedOrganisation.bases[0].name,
+          value: basesForSelectedOrganisation.bases[0].id,
         });
       }
     }
@@ -187,16 +182,6 @@ function CreateShipment({
         value: intraOrganisationOptions[0].value,
       });
   }, [intraOrganisationOptions, setValueIntraOrg]);
-
-  const NoAcceptedAgreementsAlert = () => (
-    <Alert status="warning">
-      <AlertIcon />
-      <AlertDescription>
-        You must have an <b>ACCEPTED</b> agreement with a network partner before creating a
-        shipment.
-      </AlertDescription>
-    </Alert>
-  );
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>
@@ -246,7 +231,13 @@ function CreateShipment({
               />
               <Box border="2px" mb={8} borderTop="none" p={2} pb={6}>
                 {noAcceptedAgreements ? (
-                  <NoAcceptedAgreementsAlert />
+                  <Alert status="warning">
+                    <AlertIcon />
+                    <AlertDescription>
+                      You must have an <b>ACCEPTED</b> agreement with a network partner before
+                      creating a shipment.
+                    </AlertDescription>
+                  </Alert>
                 ) : (
                   <>
                     <SelectField

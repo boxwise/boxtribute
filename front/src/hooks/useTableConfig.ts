@@ -1,6 +1,6 @@
 import { useReactiveVar } from "@apollo/client";
 import { tableConfigsVar } from "queries/cache";
-import { useCallback, useMemo, useEffect, useState } from "react";
+import { useCallback, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Filters, SortingRule } from "react-table";
 import { boxStateIds } from "utils/constants";
@@ -147,8 +147,9 @@ export const useTableConfig = ({
 
   const tableConfigsState = useReactiveVar(tableConfigsVar);
 
-  // Use state so changes cause a re-render and callers pick up the updated isNotMounted value
-  const [isInitialMount, setIsInitialMount] = useState(true);
+  // Guards the one-time init effect so it doesn't re-run on subsequent dependency changes.
+  // Only accessed inside the effect, not during render.
+  const hasInitializedRef = useRef(false);
 
   // Update URL when filters change
   const updateUrl = useCallback(
@@ -178,7 +179,7 @@ export const useTableConfig = ({
    *   when the URL requested e.g. "Donated".
    */
   useEffect(() => {
-    if (isInitialMount && syncFiltersAndUrlParams) {
+    if (!hasInitializedRef.current && syncFiltersAndUrlParams) {
       const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
       const existingConfig = tableConfigsState.get(tableConfigKey);
       if (!existingConfig) {
@@ -196,13 +197,13 @@ export const useTableConfig = ({
         updateUrl(existingConfig.columnFilters);
       }
 
-      // mark initial mount complete and trigger a re-render so consumers see the change
-      setIsInitialMount(false);
+      // Mark initialized before the scheduled re-render fires so consumers read
+      // isNotMounted as false on the next render pass.
+      hasInitializedRef.current = true;
     }
     // Intentionally disable exhaustive-deps: this effect is meant to run only once on initial mount.
     // The dependencies intentionally included are: syncFiltersAndUrlParams, searchParams, tableConfigKey, tableConfigsState, updateUrl, defaultTableConfig, urlFilters, initialColumnFilters.
     // These values are stable/memoized by design. Adding all inferred deps would cause unwanted re-runs; update dependencies intentionally if behavior changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     syncFiltersAndUrlParams,
     searchParams,
@@ -238,8 +239,7 @@ export const useTableConfig = ({
 
   function setGlobalFilter(globalFilter: string | undefined) {
     const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.globalFilter = globalFilter;
-    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsState.set(tableConfigKey, { ...tableConfig, globalFilter });
     tableConfigsVar(tableConfigsState);
   }
 
@@ -260,15 +260,13 @@ export const useTableConfig = ({
 
   function setSortBy(sortBy: SortingRule<any>[]) {
     const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.sortBy = sortBy;
-    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsState.set(tableConfigKey, { ...tableConfig, sortBy });
     tableConfigsVar(tableConfigsState);
   }
 
   function setHiddenColumns(hiddenColumns: string[] | undefined) {
     const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.hiddenColumns = hiddenColumns;
-    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsState.set(tableConfigKey, { ...tableConfig, hiddenColumns });
     tableConfigsVar(tableConfigsState);
   }
 
@@ -281,6 +279,10 @@ export const useTableConfig = ({
     setColumnFilters,
     setSortBy,
     setHiddenColumns,
-    isNotMounted: isInitialMount,
+    // isNotMounted is true while the initial URL/config sync is pending (no config saved yet).
+    // Once the effect populates the config, tableConfigsVar re-renders and this becomes false.
+    // When syncFiltersAndUrlParams is false, or an existing config is already present, it is
+    // immediately false so consumers don't block unnecessarily.
+    isNotMounted: syncFiltersAndUrlParams && !tableConfigsState.has(tableConfigKey),
   };
 };
