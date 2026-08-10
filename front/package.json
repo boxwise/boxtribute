@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Boxtribute v2 FE",
   "dependencies": {
-    "@auth0/auth0-react": "^2.22.1",
+    "@auth0/auth0-react": "^2.23.0",
     "@boxtribute/shared-components": "workspace:*",
     "@yudiel/react-qr-scanner": "2.6.0",
     "jotai": "^2.20.2",
