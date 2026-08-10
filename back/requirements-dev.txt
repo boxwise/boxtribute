@@ -8,8 +8,8 @@ pytest-cov==7.1.0
 pytest-clarity==1.0.1
 mypy==2.3.0
 types-Flask-Cors==6.0.3.20260712
-types-setuptools==83.0.0.20260724
-types-PyMySQL==1.2.0.20260724
+types-setuptools==83.0.0.20260807
+types-PyMySQL==1.2.0.20260807
 flake8-bugbear==25.11.29
 Faker==40.36.0
 freezegun==1.5.5
