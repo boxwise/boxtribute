@@ -39,10 +39,12 @@ export default function StockOverviewBarsFilterContainer({
     }
 
     if (products.length > 0) {
+      // Pre-compute keys (same string transformations as in sql.py), then look-up in O(1) per fact
+      const productKeys = new Set(
+        products.map((p) => `${p.name.trim().toLowerCase()}|${p.gender ?? ""}`),
+      );
       facts = facts.filter((f) =>
-        products.some(
-          (p) => p.name.toLowerCase() === (f.productName ?? "") && p.gender === f.gender,
-        ),
+        productKeys.has(`${(f.productName ?? "").trim()}|${f.gender ?? ""}`),
       );
     }
 
