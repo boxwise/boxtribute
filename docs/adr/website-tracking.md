@@ -20,7 +20,7 @@ For assessing popularity and usage it is important for the team to have informat
 - no costs
 - low set-up and maintenance effort
 - integration into existing NextJS website
-- no cookie-banner required (no data storage acc. to GDPR)
+- cookieless operation, with any consent-banner requirement confirmed under applicable GDPR rules
 - tracking of call-to-actions (CTA), downloads, page visits (with source via UTM tags)
 - distinguish human and robot traffic
 
@@ -36,12 +36,13 @@ Note that in the main app, we already use Heap for tracking user interaction.
 
 ### Comparison
 
-All options feature CTA, download, and UTM tracking. All have bot filtering enabled, and come with a dashboard for viewing analytics.
+All options feature CTA, download, and UTM tracking and provide a dashboard.
 
 Tool | Umami | Plausible | PostHog | Heap | Matomo
 :--- | :--- | :--- | :--- | :--- | :---
-Cost | free for 100k events/mo and one website, then $20/mo | 9€/mo | free for 1M events/mo and one project | free for one project (and 5 users), then 375$/mo | 22€/mo for 30 websites
+Cost | free for 100k events/mo and one website, then $20/mo | 9€/mo | free for 1M events/mo and one project | free for up to 10k sessions/mo; paid plans require a quote | $26/mo for 50k hits, 30 websites, and 30 users
 Cookie banner | not required | not required | can be configured off | required | can be configured off
+Bot filtering | always | not in cookieless mode | always | always | has to be enabled
 Open-source | MIT | AGPLv3 | MIT | - | GPLv3
 GitHub stars | 38k | 29k | 38k | - | 22k
 
@@ -82,6 +83,13 @@ GitHub stars | 38k | 29k | 38k | - | 22k
 - https://docs.umami.is/docs/api
 - https://plausible.io/docs/stats-api
 
+#### Bot filtering
+
+- https://plausible.io/docs/bot-traffic-filtering
+- https://posthog.com/tutorials/cookieless-tracking#limitations
+- https://docs.umami.is/docs/environment-variables#disable_bot_check
+- https://matomo.org/faq/how-to/block-spam-and-bot-traffic-with-tracking-spam-prevention/
+
 #### AI-assisted research
 
 - https://github.com/copilot/c/4cc1f57f-47ae-4518-b8ab-c519ff8699d8
@@ -101,9 +109,13 @@ PostHog also provides a cloud-based, free-tier with even 10x more events tracked
 
 - PostHog is suitable for SaaS projects that need thorough product analytics. It's too complex for a SPA
 - the Umami docs are more developer-friendly (easier to navigate and read)
-- PostHog does not have [bot detection enabled](https://posthog.com/tutorials/cookieless-tracking#limitations) in cookieless mode, Umami has it [by default](https://docs.umami.is/docs/environment-variables#disable_bot_check)
+- PostHog does not have bot detection enabled in cookieless mode, Umami has it by default
+
+Heap always requires showing a cookie-banner.
+
+Plausible and Matomo are ruled out because of cost and complexity.
 
 ## Consequences
 
-- no worries about GDPR compliance/cookie banner
-- does not scale beyond 3k/day events. Risk that Umami changes their free tier. Even then we could consider self-hosting it
+- no worries about cookie banner
+- the free tier stops processing events after 100k/month (about 3.3k/day only as a monthly average). There is a risk that Umami changes its free tier; self-hosting remains a fallback
