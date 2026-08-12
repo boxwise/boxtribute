@@ -40,8 +40,11 @@ export default function StockOverviewRingFilterContainer({
     }
 
     if (products.length > 0) {
-      const productNames = new Set(products.map((p) => p.name));
-      facts = facts.filter((f) => productNames.has(f.productName ?? ""));
+      facts = facts.filter((f) =>
+        products.some(
+          (p) => p.name.toLowerCase() === (f.productName ?? "") && p.gender === f.gender,
+        ),
+      );
     }
 
     facts = filterByTags(facts, includedTags, excludedTags);
