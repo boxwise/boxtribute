@@ -733,16 +733,10 @@ class ResourcesForTagLoader(DataLoader):
 
         resources = defaultdict(list)
         for rel in relations:
-            # In peewee >= 4.2.6, a missed outer join returns None instead of
-            # raising DoesNotExist, so check the value rather than attribute
-            # existence.
-            beneficiary = rel.beneficiary
-            if beneficiary is not None:
-                resources[rel.tag_id].append(beneficiary)
-            else:
-                box = rel.box
-                if box is not None:
-                    resources[rel.tag_id].append(box)
+            if rel.beneficiary is not None:
+                resources[rel.tag_id].append(rel.beneficiary)
+            elif rel.box is not None:
+                resources[rel.tag_id].append(rel.box)
 
         # Build result list in same order as input tag_ids (inner lists sorted for
         # reproducibility)
