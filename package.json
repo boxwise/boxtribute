@@ -24,7 +24,7 @@
     "@chakra-ui/react": "2.8.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@hookform/resolvers": "^5.5.7",
+    "@hookform/resolvers": "^5.7.1",
     "@nivo/bar": "0.99.0",
     "@nivo/calendar": "0.99.0",
     "@nivo/colors": "0.99.0",
