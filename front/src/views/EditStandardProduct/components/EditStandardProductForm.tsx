@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -51,14 +51,13 @@ function EditStandardProductForm({
     handleSubmit,
     control,
     register,
-    watch,
     formState: { errors },
   } = useForm<EditStandardProductFormInput>({
     resolver: zodResolver(StandardProductFormSchema),
     ...(defaultValues ? { defaultValues } : {}),
   });
 
-  const selectedStandardProduct = watch("standardProduct");
+  const selectedStandardProduct = useWatch({ control, name: "standardProduct" });
 
   useEffect(() => {
     if (defaultValues && selectedStandardProduct.value !== defaultValues.standardProduct.value) {

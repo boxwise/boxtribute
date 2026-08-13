@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { Box, Flex } from "@chakra-ui/react";
 import { CheckIcon } from "@chakra-ui/icons";
 import { Select, chakraComponents } from "chakra-react-select";
@@ -25,7 +25,8 @@ interface ISelectActionMeta {
 
 // Extended selectProps type for custom data passed through to custom components
 interface ICustomSelectProps {
-  tabIndexRef?: React.MutableRefObject<number>;
+  tabIndex?: number;
+  onTabChange?: (index: number) => void;
   includedTags?: ITagFilterValue[];
   excludedTags?: ITagFilterValue[];
 }
@@ -37,15 +38,10 @@ interface ICustomSelectProps {
 // input and closes the dropdown. Using plain Box elements with onMouseDown preventDefault
 // prevents focus transfer without that side-effect.
 function CustomMenu(menuProps: { selectProps: ICustomSelectProps; children: React.ReactNode }) {
-  const { tabIndexRef } = menuProps.selectProps;
-  // Initialize from the ref so the active tab is remembered across menu open/close cycles.
-  const [tabIndex, setTabIndex] = useState(() => tabIndexRef?.current ?? 0);
+  const { tabIndex = 0, onTabChange } = menuProps.selectProps;
 
   const handleTabChange = (index: number) => {
-    setTabIndex(index);
-    if (tabIndexRef) {
-      tabIndexRef.current = index;
-    }
+    onTabChange?.(index);
   };
 
   const TAB_LABELS = ["Include", "Exclude"] as const;
@@ -121,15 +117,13 @@ export default function TabbedTagDropdown({
   onClearAll,
   placeholder = "Filter by tags",
 }: ITabbedTagDropdownProps) {
-  // Ref to track the currently active tab (0 = Include, 1 = Exclude).
-  // Using a ref instead of state avoids re-rendering the Select on tab change.
-  const tabIndexRef = useRef<number>(0);
+  const [tabIndex, setTabIndex] = useState(0);
 
   const handleChange = useCallback(
     (_newValue: unknown, actionMeta: ISelectActionMeta) => {
       if (actionMeta.action === "select-option" && actionMeta.option) {
         const added = actionMeta.option;
-        if (tabIndexRef.current === 0) {
+        if (tabIndex === 0) {
           // Include tab: add to included list.
           // Only remove from excluded if it was actually there (avoids a second setSearchParams
           // call that would overwrite the first one with a stale URL params snapshot).
@@ -164,13 +158,18 @@ export default function TabbedTagDropdown({
         }
       }
     },
-    [includedTags, excludedTags, onIncludedChange, onExcludedChange, onClearAll],
+    [tabIndex, excludedTags, onIncludedChange, includedTags, onExcludedChange, onClearAll],
   );
 
   const value = useMemo(() => [...includedTags, ...excludedTags], [includedTags, excludedTags]);
 
   // Custom props forwarded to custom components via selectProps
-  const customSelectProps: ICustomSelectProps = { tabIndexRef, includedTags, excludedTags };
+  const customSelectProps: ICustomSelectProps = {
+    tabIndex,
+    onTabChange: setTabIndex,
+    includedTags,
+    excludedTags,
+  };
 
   return (
     <Select

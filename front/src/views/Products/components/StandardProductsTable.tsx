@@ -137,7 +137,7 @@ function StandardProductsTable({
             onClose={filterDisclosure.onClose}
           >
             <ProductsFilter
-              isOpen={filterDisclosure.isOpen}
+              key={String(filterDisclosure.isOpen)}
               onClose={filterDisclosure.onClose}
               columnFilters={filters}
               onApplyFilters={handleApplyFilters}
