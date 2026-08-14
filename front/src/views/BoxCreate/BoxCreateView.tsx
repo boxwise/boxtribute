@@ -105,8 +105,8 @@ function BoxCreateView() {
   // Only use the cache when it belongs to the currently logged-in user and the current base.
   // Validated against loaded options below (after allProducts/allLocations are derived).
   const cacheMatchesContext =
-    boxCreateFormCache.userEmail &&
-    boxCreateFormCache.userEmail === user?.email &&
+    boxCreateFormCache.userSub &&
+    boxCreateFormCache.userSub === user?.sub &&
     boxCreateFormCache.baseId === baseId;
 
   // variables in URL
@@ -187,7 +187,13 @@ function BoxCreateView() {
     )
       return undefined;
     if (locationId && !allLocations.some((l) => l.id === locationId.value)) return undefined;
-    return boxCreateFormCache;
+    const validCachedTags = boxCreateFormCache.tags?.filter((tag) =>
+      allTags?.some((availableTag) => availableTag.value === tag.value),
+    );
+    return {
+      ...boxCreateFormCache,
+      tags: validCachedTags,
+    };
   })();
 
   // check data for form
@@ -269,11 +275,12 @@ function BoxCreateView() {
         } else {
           // Persist the submitted field values so the next box creation is pre-filled.
           setBoxCreateFormCache({
-            userEmail: user?.email,
+            userSub: user?.sub,
             baseId,
             productId: createBoxData.productId,
             sizeId: createBoxData.sizeId,
             locationId: createBoxData.locationId,
+            tags: createBoxData.tags?.filter((tag) => !tag.__isNew__),
             numberOfItems: createBoxData.numberOfItems,
           });
 

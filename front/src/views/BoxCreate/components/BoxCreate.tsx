@@ -94,6 +94,7 @@ export interface IBoxCreateProps {
     productId?: { label: string; value: string };
     sizeId?: { label: string; value: string };
     locationId?: { label: string; value: string };
+    tags?: { label: string; value: string }[];
     numberOfItems?: number;
   };
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
@@ -169,6 +170,7 @@ export function BoxCreate({
       productId: initialValues?.productId,
       sizeId: initialValues?.sizeId,
       locationId: initialValues?.locationId,
+      tags: initialValues?.tags,
       numberOfItems: initialValues?.numberOfItems,
     },
   });

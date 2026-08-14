@@ -48,6 +48,19 @@ const testProduct = {
   gender: "Boy",
 };
 
+const existingTag = {
+  ...tag2,
+  id: "17",
+  value: "17",
+  label: "repeatable tag",
+  name: "repeatable tag",
+};
+
+const staleTag = {
+  label: "stale tag",
+  value: "999",
+};
+
 const initialQuery = {
   request: {
     query: ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY,
@@ -60,7 +73,7 @@ const initialQuery = {
       base: {
         id: "1",
         monetaryCurrencyCode: "EUR",
-        tags: [tag1, tag2],
+        tags: [tag1, existingTag],
         locations: [location1],
         products: [product1, testProduct],
       },
@@ -113,6 +126,22 @@ const successfulCreateBoxMutation = {
       },
     },
   },
+};
+
+const successfulCreateBoxWithCachedExistingTagMutation = {
+  request: {
+    query: CREATE_BOX_MUTATION,
+    variables: {
+      locationId: 1,
+      productId: 2,
+      sizeId: 1,
+      numberOfItems: 5,
+      comment: "",
+      tagIds: [17],
+      newTagNames: ["epic"],
+    },
+  },
+  result: successfulCreateBoxMutation.result,
 };
 
 const checkIfQrExistsQuery = {
@@ -192,7 +221,7 @@ describe("BoxCreateView", () => {
     render(<BoxCreateView />, {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
-      mocks: [initialQuery, successfulCreateBoxMutation],
+      mocks: [initialQuery, successfulCreateBoxMutation, initialQuery],
       addTypename: true,
     });
 
@@ -286,7 +315,7 @@ describe("BoxCreateView", () => {
     render(<BoxCreateView />, {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
-      mocks: [initialQuery, successfulCreateBoxMutation],
+      mocks: [initialQuery, successfulCreateBoxMutation, initialQuery],
       addTypename: true,
     });
 
@@ -424,7 +453,7 @@ describe("BoxCreateView", () => {
     render(<BoxCreateView />, {
       routePath: "/bases/:baseId/boxes/create",
       initialUrl: "/bases/1/boxes/create",
-      mocks: [initialQuery, successfulCreateBoxMutation],
+      mocks: [initialQuery, successfulCreateBoxWithCachedExistingTagMutation, initialQuery],
       addTypename: true,
     });
 
@@ -438,6 +467,8 @@ describe("BoxCreateView", () => {
     const numberOfItemsInput = screen.getByRole("spinbutton");
     await user.clear(numberOfItemsInput);
     await user.type(numberOfItemsInput, "5");
+
+    await selectOptionInSelectField(user, /tags/i, "repeatable tag", "Create New Box", true);
 
     // Added new tag (not cached)
     await user.type(screen.getByLabelText(/Tags/), "epic");
@@ -456,22 +487,24 @@ describe("BoxCreateView", () => {
     expect(rawCache).not.toBeNull();
     const cache = JSON.parse(rawCache!);
     expect(cache).toMatchObject({
-      userEmail: "dev_coordinator@boxaid.org",
+      userSub: "auth0|dev_coordinator@boxaid.org",
       baseId: "1",
       productId: { value: "2", label: "Snow trousers (Boy)" },
       sizeId: { value: "1", label: "S" },
       locationId: { value: "1", label: "Warehouse" },
+      tags: [{ value: "17", label: "repeatable tag" }],
       numberOfItems: 5,
     });
   });
 
   it("pre-populates form fields from the cache on subsequent box creation", async () => {
     const cachedValues = {
-      userEmail: "dev_coordinator@boxaid.org",
+      userSub: "auth0|dev_coordinator@boxaid.org",
       baseId: "1",
       productId: { value: "2", label: "Snow trousers (Boy)" },
       sizeId: { value: "1", label: "S" },
       locationId: { value: "1", label: "Warehouse" },
+      tags: [{ value: "17", label: "repeatable tag" }],
       numberOfItems: 5,
     };
 
@@ -489,9 +522,39 @@ describe("BoxCreateView", () => {
     expect(await screen.findByText("Snow trousers (Boy)")).toBeInTheDocument();
     expect(await screen.findByText("S")).toBeInTheDocument();
     expect(await screen.findByText("Warehouse")).toBeInTheDocument();
+    expect(await screen.findByText("repeatable tag")).toBeInTheDocument();
 
     // The number-of-items field should be pre-filled
     const numberOfItemsInput = screen.getByRole("spinbutton");
     expect(numberOfItemsInput).toHaveValue("5");
+  });
+
+  it("filters stale cached tags without discarding the rest of the cached form values", async () => {
+    const cachedValues = {
+      userSub: "auth0|dev_coordinator@boxaid.org",
+      baseId: "1",
+      productId: { value: "2", label: "Snow trousers (Boy)" },
+      sizeId: { value: "1", label: "S" },
+      locationId: { value: "1", label: "Warehouse" },
+      tags: [{ value: "17", label: "repeatable tag" }, staleTag],
+      numberOfItems: 5,
+    };
+
+    render(<BoxCreateView />, {
+      routePath: "/bases/:baseId/boxes/create",
+      initialUrl: "/bases/1/boxes/create",
+      mocks: [initialQuery],
+      addTypename: true,
+      jotaiAtoms: [...jotaiAtomsInitialValues, [boxCreateFormCacheAtom, cachedValues]],
+    });
+
+    await screen.findByRole("heading", { name: /create new box/i });
+
+    expect(await screen.findByText("Snow trousers (Boy)")).toBeInTheDocument();
+    expect(await screen.findByText("S")).toBeInTheDocument();
+    expect(await screen.findByText("Warehouse")).toBeInTheDocument();
+    expect(await screen.findByText("repeatable tag")).toBeInTheDocument();
+    expect(screen.queryByText("stale tag")).not.toBeInTheDocument();
+    expect(screen.getByRole("spinbutton")).toHaveValue("5");
   });
 });
