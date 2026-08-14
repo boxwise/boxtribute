@@ -457,6 +457,7 @@ describe("BoxCreateView", () => {
     const cache = JSON.parse(rawCache!);
     expect(cache).toMatchObject({
       userEmail: "dev_coordinator@boxaid.org",
+      baseId: "1",
       productId: { value: "2", label: "Snow trousers (Boy)" },
       sizeId: { value: "1", label: "S" },
       locationId: { value: "1", label: "Warehouse" },
@@ -467,6 +468,7 @@ describe("BoxCreateView", () => {
   it("pre-populates form fields from the cache on subsequent box creation", async () => {
     const cachedValues = {
       userEmail: "dev_coordinator@boxaid.org",
+      baseId: "1",
       productId: { value: "2", label: "Snow trousers (Boy)" },
       sizeId: { value: "1", label: "S" },
       locationId: { value: "1", label: "Warehouse" },
