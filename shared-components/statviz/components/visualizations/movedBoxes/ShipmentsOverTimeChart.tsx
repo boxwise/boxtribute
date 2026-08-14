@@ -39,6 +39,12 @@ export default function ShipmentsOverTimeChart({
         .map((target) => [target.id, target.type]),
     );
 
+    const targetNames = new Map(
+      (movedBoxes?.dimensions?.target ?? [])
+        .filter((target): target is NonNullable<typeof target> => target !== null)
+        .map((target) => [target.id, target.name]),
+    );
+
     const groupedFacts = tidy(
       facts,
       map((fact) => ({
@@ -47,38 +53,41 @@ export default function ShipmentsOverTimeChart({
       })),
       filter((fact) =>
         direction === "out"
-          ? fact.targetType === "OutgoingShipment"
+          ? fact.targetType === "OutgoingShipment" || fact.targetType === "OutgoingLocation"
           : fact.targetType === "IncomingShipment",
       ),
       map((fact) => ({
         ...fact,
         month: format(new Date(fact.movedOn), "yyyy-MM"),
-        organisationLabel: fact.organisationName ?? "Unknown",
+        targetLabel:
+          fact.targetType === "OutgoingLocation"
+            ? (targetNames.get(fact.targetId) ?? "Unknown")
+            : (fact.organisationName ?? "Unknown"),
         chartValue: Math.abs(fact[boxesOrItems] ?? 0),
       })),
       filter((fact) => monthSet.has(fact.month)),
-      groupBy(["organisationLabel", "month"], [summarize({ value: sum("chartValue") })]),
-    ) as Array<{ organisationLabel: string; month: string; value: number }>;
+      groupBy(["targetLabel", "month"], [summarize({ value: sum("chartValue") })]),
+    ) as Array<{ targetLabel: string; month: string; value: number }>;
 
-    const organisationNames = Array.from(
-      new Set(groupedFacts.map((fact) => fact.organisationLabel)),
-    ).sort((left, right) => left.localeCompare(right));
-
-    const valueLookup = new Map(
-      groupedFacts.map((fact) => [`${fact.organisationLabel}::${fact.month}`, fact.value]),
+    const targetLabels = Array.from(new Set(groupedFacts.map((fact) => fact.targetLabel))).sort(
+      (left, right) => left.localeCompare(right),
     );
 
-    const data = organisationNames.map((organisationName) => ({
-      id: organisationName,
+    const valueLookup = new Map(
+      groupedFacts.map((fact) => [`${fact.targetLabel}::${fact.month}`, fact.value]),
+    );
+
+    const data = targetLabels.map((targetLabel) => ({
+      id: targetLabel,
       data: months.map((month) => ({
         x: month,
-        y: valueLookup.get(`${organisationName}::${month}`) ?? 0,
+        y: valueLookup.get(`${targetLabel}::${month}`) ?? 0,
       })),
     })) as LineSeries[];
 
     return {
       chartData: data,
-      colors: organisationNames.map(
+      colors: targetLabels.map(
         (_, index) => SHIPMENT_PARTNER_COLORS[index % SHIPMENT_PARTNER_COLORS.length],
       ),
     };
