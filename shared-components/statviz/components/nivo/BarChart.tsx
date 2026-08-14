@@ -45,7 +45,8 @@ export default function BarChart(barChart: IBarChart) {
   const isPercentWidth = String(barChart.width).endsWith("%");
   const width = isPercentWidth ? MIN_WIDTH : parseInt(barChart.width, 10);
 
-  const theme = scaledNivoTheme(width, height, barChart.data.length);
+  // Tune the scaleFactor to avoid labels overlapping the segments if only few bars displayed
+  const theme = scaledNivoTheme(width, height, Math.max(barChart.data.length, 5));
   const marginBottom = percent(height, 30);
 
   const layers: BarLayer<BarDatum>[] = [

@@ -31,6 +31,7 @@ export default function GuidesOverviewView() {
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {GUIDES.map((guide) => (
           <Box
+            id={`guide-card-click-${guide.slug}`}
             key={guide.slug}
             as={RouterLink}
             to={`/bases/${baseId}/guides/${guide.slug}`}
@@ -42,8 +43,6 @@ export default function GuidesOverviewView() {
             transition="box-shadow 0.15s, border-color 0.15s"
             display="flex"
             flexDirection="column"
-            data-heap-event="guide-card-click"
-            data-heap-guide={guide.slug}
           >
             <HStack spacing={2} mb={3} flexWrap="wrap">
               {guide.tags.map((tag) => (

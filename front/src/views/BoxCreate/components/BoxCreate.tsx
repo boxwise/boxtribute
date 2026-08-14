@@ -11,8 +11,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-import { useEffect, useRef, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useEffect, useRef, useState, useMemo } from "react";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 
@@ -161,7 +161,6 @@ export function BoxCreate({
     control,
     register,
     resetField,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -174,47 +173,52 @@ export function BoxCreate({
     },
   });
 
-  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
-    IDropdownOption[]
-  >([]);
-
-  const productId = watch("productId");
+  const productId = useWatch({ control, name: "productId" });
 
   // When there is a cached sizeId, we must not reset it on the very first render
   // (triggered by the default productId).  After the first product change the
   // normal reset behaviour is restored.
   const preserveInitialSizeId = useRef(initialValues?.sizeId != null);
 
-  useEffect(() => {
+  const productAndSizeDataForCurrentProduct = useMemo(() => {
     if (productId != null) {
-      const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === productId.value,
-      );
-      setSizesOptionsForCurrentProduct(
-        () =>
-          productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
-            label: s.label,
-            value: s.id,
-          })) || [],
-      );
-
-      if (preserveInitialSizeId.current) {
-        // Keep the cached sizeId intact on the initial load; from now on
-        // changing the product will trigger a normal reset.
-        preserveInitialSizeId.current = false;
-        return;
-      }
-
-      resetField("sizeId");
-      // Put a default value for sizeId when there's only one option
-      if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
-        setValue("sizeId", {
-          label: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].label,
-          value: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].id,
-        });
-      }
+      return productAndSizesData.find((p) => p.id === productId.value);
+    } else {
+      return;
     }
-  }, [productId, productAndSizesData, resetField, setValue]);
+  }, [productAndSizesData, productId]);
+
+  const sizesOptionsForCurrentProduct = useMemo(() => {
+    return (
+      productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
+        label: s.label,
+        value: s.id,
+      })) || []
+    );
+  }, [productAndSizeDataForCurrentProduct?.sizeRange?.sizes]);
+
+  useEffect(() => {
+    if (preserveInitialSizeId.current) {
+      // Keep the cached sizeId intact on the initial load; from now on
+      // changing the product will trigger a normal reset.
+      preserveInitialSizeId.current = false;
+      return;
+    }
+
+    resetField("sizeId");
+    // Put a default value for sizeId when there's only one option
+    if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
+      setValue("sizeId", {
+        label: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].label,
+        value: productAndSizeDataForCurrentProduct?.sizeRange?.sizes[0].id,
+      });
+    }
+  }, [
+    productAndSizeDataForCurrentProduct?.sizeRange?.sizes,
+    productAndSizesData,
+    resetField,
+    setValue,
+  ]);
 
   return (
     <Box w={["100%", "100%", "60%", "40%"]}>

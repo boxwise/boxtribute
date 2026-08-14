@@ -31,12 +31,14 @@ function buildLegendItems(data: { day: string; value: number }[], colors: string
 
   const step = (max - min) / colors.length;
 
-  return colors.map((color, i) => {
+  const items: LegendItem[] = [];
+  for (let i = 0; i < colors.length; i += 1) {
     const lo = Math.round(min + i * step);
-    const hi = Math.round(min + (i + 1) * step);
-    const label = i === colors.length - 1 ? `${lo}–${max}` : `${lo}–${hi - 1}`;
-    return { color, label };
-  });
+    const hi = i === colors.length - 1 ? max : Math.round(min + (i + 1) * step) - 1;
+    if (hi < lo) continue;
+    items.push({ color: colors[i], label: lo === hi ? `${lo}` : `${lo}–${hi}` });
+  }
+  return items;
 }
 
 export default function CalendarChart(chart: ICalendarChart) {

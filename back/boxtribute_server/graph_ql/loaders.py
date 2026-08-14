@@ -733,9 +733,9 @@ class ResourcesForTagLoader(DataLoader):
 
         resources = defaultdict(list)
         for rel in relations:
-            if hasattr(rel, "beneficiary"):
+            if rel.beneficiary is not None:
                 resources[rel.tag_id].append(rel.beneficiary)
-            else:
+            elif rel.box is not None:
                 resources[rel.tag_id].append(rel.box)
 
         # Build result list in same order as input tag_ids (inner lists sorted for

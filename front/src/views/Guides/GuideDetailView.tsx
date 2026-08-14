@@ -23,7 +23,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { CheckIcon, ChevronRightIcon, TimeIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdownBase from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { Link as RouterLink, Navigate, useParams } from "react-router-dom";
@@ -164,7 +164,15 @@ function ReferenceSection({
       ? reference.mobileContent
       : reference.markdown;
   return (
-    <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6} overflowX="auto">
+    <Box
+      bg="white"
+      boxShadow="md"
+      border="1px solid"
+      borderColor="gray.200"
+      p={6}
+      mb={6}
+      overflowX="auto"
+    >
       <Text
         fontSize="xs"
         fontWeight="bold"
@@ -289,12 +297,20 @@ export default function GuideDetailView() {
 
   const [currentStep, setCurrentStep] = useState(0);
 
+  // Reset step tracker when coming from a different guide (might have been at a step number larger
+  // than the total number of steps of the new guide)
+  useEffect(() => {
+    setCurrentStep(0);
+  }, [guideSlug]);
+
   if (!guide) {
     return <Navigate to={`/bases/${baseId}/guides`} replace />;
   }
 
-  const step = guide.steps[currentStep];
-  const isLastStep = currentStep === guide.steps.length - 1;
+  // Guard against the above useEffect not having fired yet
+  const safeCurrentStep = currentStep < guide.steps.length ? currentStep : 0;
+  const step = guide.steps[safeCurrentStep];
+  const isLastStep = safeCurrentStep === guide.steps.length - 1;
 
   const handleNext = () => {
     if (!isLastStep) {
@@ -309,12 +325,11 @@ export default function GuideDetailView() {
   };
 
   const handleDownloadPDF = () => {
-    const link = document.createElement("a");
-    link.href = "/guides/placeholder-guide.pdf";
-    link.download = `${guide.slug}-guide.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(
+      `https://boxtribute.org/uploads/guide-${guide.slug}.pdf`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const guidesPath = `/bases/${baseId}/guides`;
@@ -335,12 +350,10 @@ export default function GuideDetailView() {
           <Breadcrumb separator={<ChevronRightIcon color="gray.400" />} fontSize="sm">
             <BreadcrumbItem>
               <BreadcrumbLink
+                id={`guide-abandon-${guide.slug}-step${currentStep + 1}`}
                 as={RouterLink}
                 to={guidesPath}
                 color="gray.500"
-                data-heap-event="guide-abandon"
-                data-heap-guide={guide.slug}
-                data-heap-step={currentStep + 1}
               >
                 Guide
               </BreadcrumbLink>
@@ -353,12 +366,11 @@ export default function GuideDetailView() {
           </Breadcrumb>
 
           <Button
+            id={`guide-export-pdf-${guide.slug}-desktop`}
             display={{ base: "none", md: "flex" }}
             size="sm"
             variant="outline"
             onClick={handleDownloadPDF}
-            data-heap-event="guide-export-pdf"
-            data-heap-guide={guide.slug}
             className="no-print"
           >
             Export PDF
@@ -441,7 +453,7 @@ export default function GuideDetailView() {
         )}
 
         {isDesktop ? (
-          <Box bg="white" border="1px solid" borderColor="gray.200" p={6} mb={6}>
+          <Box bg="white" boxShadow="md" border="1px solid" borderColor="gray.200" p={6} mb={6}>
             <Flex justify="space-between" align="center" mb={4}>
               <Text fontWeight="bold" fontSize="md">
                 How you do it in Boxtribute
@@ -456,15 +468,13 @@ export default function GuideDetailView() {
                 {guide.steps.map((s, i) => (
                   <Box key={i} w="full">
                     <HStack
+                      id={`guide-step-click-${guide.slug}-step${i + 1}`}
                       spacing={3}
                       p={3}
                       cursor="pointer"
                       bg={i === currentStep ? "gray.50" : "transparent"}
                       _hover={{ bg: "gray.50" }}
                       onClick={() => setCurrentStep(i)}
-                      data-heap-event="guide-step-click"
-                      data-heap-guide={guide.slug}
-                      data-heap-step={i + 1}
                     >
                       <Circle
                         size={7}
@@ -561,12 +571,11 @@ export default function GuideDetailView() {
         {/* Mobile-only Export PDF button */}
         <Box display={{ base: "block", md: "none" }} mb={4} className="no-print">
           <Button
+            id={`guide-export-pdf-${guide.slug}-mobile`}
             size="sm"
             variant="outline"
             onClick={handleDownloadPDF}
             w="full"
-            data-heap-event="guide-export-pdf"
-            data-heap-guide={guide.slug}
           >
             Export PDF
           </Button>
@@ -574,18 +583,17 @@ export default function GuideDetailView() {
 
         <Flex justify="space-between" align="center" mb={2} className="no-print">
           <Button
+            id={`guide-prev-step-${guide.slug}-step${currentStep + 1}`}
             onClick={handlePrev}
             isDisabled={currentStep === 0}
             variant="outline"
             size="sm"
-            data-heap-event="guide-prev-step"
-            data-heap-guide={guide.slug}
-            data-heap-step={currentStep + 1}
           >
             ← Prev
           </Button>
 
           <Button
+            id={`guide-next-step-${guide.slug}-step${currentStep + 1}`}
             onClick={handleNext}
             isDisabled={isLastStep}
             bg="brandBlue.300"
@@ -593,9 +601,6 @@ export default function GuideDetailView() {
             size="sm"
             _hover={{ bg: "brandBlue.200" }}
             _disabled={{ opacity: 0.5, cursor: "not-allowed" }}
-            data-heap-event="guide-next-step"
-            data-heap-guide={guide.slug}
-            data-heap-step={currentStep + 1}
           >
             Next →
           </Button>
@@ -668,14 +673,13 @@ export default function GuideDetailView() {
             <VStack align="stretch" spacing={3} divider={<Divider />}>
               {otherGuides.map((og) => (
                 <Flex
+                  id={`guide-related-click-${og.slug}`}
                   key={og.slug}
                   as={RouterLink}
                   to={`/bases/${baseId}/guides/${og.slug}`}
                   justify="space-between"
                   align="center"
                   _hover={{ textDecoration: "none" }}
-                  data-heap-event="guide-related-click"
-                  data-heap-guide={og.slug}
                 >
                   <Text fontSize="sm" color="gray.700" flex={1}>
                     {og.title}
