@@ -102,11 +102,12 @@ function BoxCreateView() {
   // Box-creation form cache
   const { user } = useAuth0();
   const [boxCreateFormCache, setBoxCreateFormCache] = useAtom(boxCreateFormCacheAtom);
-  // Only use the cache when it belongs to the currently logged-in user.
-  const validCachedFormData =
-    boxCreateFormCache.userEmail && boxCreateFormCache.userEmail === user?.email
-      ? boxCreateFormCache
-      : undefined;
+  // Only use the cache when it belongs to the currently logged-in user and the current base.
+  // Validated against loaded options below (after allProducts/allLocations are derived).
+  const cacheMatchesContext =
+    boxCreateFormCache.userEmail &&
+    boxCreateFormCache.userEmail === user?.email &&
+    boxCreateFormCache.baseId === baseId;
 
   // variables in URL
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
@@ -171,6 +172,23 @@ function BoxCreateView() {
       name: location.name ?? "",
     }))
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
+
+  // Validate the cached form data against the options loaded for the current base.
+  const validCachedFormData = (() => {
+    if (!cacheMatchesContext || !allProducts || !allLocations) return undefined;
+    const { productId, sizeId, locationId } = boxCreateFormCache;
+    if (productId && !allProducts.some((p) => p.id === productId.value)) return undefined;
+    if (
+      sizeId &&
+      productId &&
+      !allProducts
+        .find((p) => p.id === productId.value)
+        ?.sizeRange?.sizes?.some((s) => s.id === sizeId.value)
+    )
+      return undefined;
+    if (locationId && !allLocations.some((l) => l.id === locationId.value)) return undefined;
+    return boxCreateFormCache;
+  })();
 
   // check data for form
   useEffect(() => {
@@ -252,6 +270,7 @@ function BoxCreateView() {
           // Persist the submitted field values so the next box creation is pre-filled.
           setBoxCreateFormCache({
             userEmail: user?.email,
+            baseId,
             productId: createBoxData.productId,
             sizeId: createBoxData.sizeId,
             locationId: createBoxData.locationId,

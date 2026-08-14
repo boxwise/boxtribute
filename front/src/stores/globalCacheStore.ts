@@ -10,6 +10,8 @@ interface SelectOption {
 export interface BoxCreateFormCache {
   /** Identifies the user who stored this cache, so it can be discarded when a different user logs in. */
   userEmail?: string;
+  /** Identifies the base the cache belongs to, so it can be discarded when the user switches bases. */
+  baseId?: string;
   productId?: SelectOption;
   sizeId?: SelectOption;
   locationId?: SelectOption;
