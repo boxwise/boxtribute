@@ -176,23 +176,32 @@ function BoxCreateView() {
   // Validate the cached form data against the options loaded for the current base.
   const validCachedFormData = (() => {
     if (!cacheMatchesContext || !allProducts || !allLocations) return undefined;
-    const { productId, sizeId, locationId } = boxCreateFormCache;
-    if (productId && !allProducts.some((p) => p.id === productId.value)) return undefined;
-    if (
-      sizeId &&
-      productId &&
-      !allProducts
-        .find((p) => p.id === productId.value)
-        ?.sizeRange?.sizes?.some((s) => s.id === sizeId.value)
-    )
-      return undefined;
-    if (locationId && !allLocations.some((l) => l.id === locationId.value)) return undefined;
-    const validCachedTags = boxCreateFormCache.tags?.filter((tag) =>
-      allTags?.some((availableTag) => availableTag.value === tag.value),
-    );
+    const { productId, sizeId, locationId, tagIds } = boxCreateFormCache;
+
+    const cachedProduct = productId ? allProducts.find((p) => p.id === productId) : undefined;
+    if (productId && !cachedProduct) return undefined;
+
+    const cachedSize =
+      sizeId && cachedProduct
+        ? cachedProduct.sizeRange?.sizes?.find((s) => s.id === sizeId)
+        : undefined;
+    if (sizeId && !cachedSize) return undefined;
+
+    const cachedLocation = locationId ? allLocations.find((l) => l.id === locationId) : undefined;
+    if (locationId && !cachedLocation) return undefined;
+
+    const validCachedTags = tagIds
+      ?.map((id) => allTags?.find((t) => t.value === id))
+      .filter((t): t is NonNullable<typeof t> => t != null);
+
     return {
-      ...boxCreateFormCache,
+      productId: cachedProduct ? { label: cachedProduct.name, value: cachedProduct.id } : undefined,
+      sizeId: cachedSize ? { label: cachedSize.label, value: cachedSize.id } : undefined,
+      locationId: cachedLocation
+        ? { label: cachedLocation.name, value: cachedLocation.id }
+        : undefined,
       tags: validCachedTags,
+      numberOfItems: boxCreateFormCache.numberOfItems,
     };
   })();
 
@@ -277,10 +286,10 @@ function BoxCreateView() {
           setBoxCreateFormCache({
             userSub: user?.sub,
             baseId,
-            productId: createBoxData.productId,
-            sizeId: createBoxData.sizeId,
-            locationId: createBoxData.locationId,
-            tags: createBoxData.tags?.filter((tag) => !tag.__isNew__),
+            productId: createBoxData.productId.value,
+            sizeId: createBoxData.sizeId.value,
+            locationId: createBoxData.locationId.value,
+            tagIds: createBoxData.tags?.filter((t) => !t.__isNew__).map((t) => t.value),
             numberOfItems: createBoxData.numberOfItems,
           });
 

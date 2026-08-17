@@ -56,11 +56,6 @@ const existingTag = {
   name: "repeatable tag",
 };
 
-const staleTag = {
-  label: "stale tag",
-  value: "999",
-};
-
 const initialQuery = {
   request: {
     query: ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY,
@@ -489,10 +484,10 @@ describe("BoxCreateView", () => {
     expect(cache).toMatchObject({
       userSub: "auth0|dev_coordinator@boxaid.org",
       baseId: "1",
-      productId: { value: "2", label: "Snow trousers (Boy)" },
-      sizeId: { value: "1", label: "S" },
-      locationId: { value: "1", label: "Warehouse" },
-      tags: [{ value: "17", label: "repeatable tag" }],
+      productId: "2",
+      sizeId: "1",
+      locationId: "1",
+      tagIds: ["17"],
       numberOfItems: 5,
     });
   });
@@ -501,10 +496,10 @@ describe("BoxCreateView", () => {
     const cachedValues = {
       userSub: "auth0|dev_coordinator@boxaid.org",
       baseId: "1",
-      productId: { value: "2", label: "Snow trousers (Boy)" },
-      sizeId: { value: "1", label: "S" },
-      locationId: { value: "1", label: "Warehouse" },
-      tags: [{ value: "17", label: "repeatable tag" }],
+      productId: "2",
+      sizeId: "1",
+      locationId: "1",
+      tagIds: ["17"],
       numberOfItems: 5,
     };
 
@@ -533,10 +528,10 @@ describe("BoxCreateView", () => {
     const cachedValues = {
       userSub: "auth0|dev_coordinator@boxaid.org",
       baseId: "1",
-      productId: { value: "2", label: "Snow trousers (Boy)" },
-      sizeId: { value: "1", label: "S" },
-      locationId: { value: "1", label: "Warehouse" },
-      tags: [{ value: "17", label: "repeatable tag" }, staleTag],
+      productId: "2",
+      sizeId: "1",
+      locationId: "1",
+      tagIds: ["17", "999"], // stale tag ID
       numberOfItems: 5,
     };
 

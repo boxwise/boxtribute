@@ -2,20 +2,15 @@ import { MatchProductsFormData } from "components/BoxReconciliationOverlay/compo
 import { IReceiveLocationFormData } from "components/BoxReconciliationOverlay/components/ReceiveLocationForm";
 import { atomWithStorage } from "jotai/utils";
 
-interface SelectOption {
-  label: string;
-  value: string;
-}
-
 export interface BoxCreateFormCache {
   /** Identifies the user who stored this cache, so it can be discarded when a different user logs in. */
   userSub?: string;
   /** Identifies the base the cache belongs to, so it can be discarded when the user switches bases. */
   baseId?: string;
-  productId?: SelectOption;
-  sizeId?: SelectOption;
-  locationId?: SelectOption;
-  tags?: SelectOption[];
+  productId?: string;
+  sizeId?: string;
+  locationId?: string;
+  tagIds?: string[];
   numberOfItems?: number;
 }
 
