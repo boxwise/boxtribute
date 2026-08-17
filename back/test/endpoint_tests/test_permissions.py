@@ -318,8 +318,16 @@ def test_invalid_permission_for_qr_code_box(
     default_qr_code,
     another_qr_code_with_box,
     another_base,
+    another_box,
     another_organisation,
 ):
+    # Test case 8.
+    mock_user_for_request(mocker, permissions=["qr:create"])
+    label_identifier = another_box["label_identifier"]
+    mutation = f"""mutation {{
+        createQrCode(boxLabelIdentifier: "{label_identifier}") {{ id }} }}"""
+    assert_forbidden_request(client, mutation)
+
     # Test case 8.1.10
     # Verify missing stock:read permission
     mock_user_for_request(mocker, permissions=["qr:read"])
