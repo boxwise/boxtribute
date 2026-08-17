@@ -195,7 +195,12 @@ function BoxCreateView() {
       .filter((t): t is NonNullable<typeof t> => t != null);
 
     return {
-      productId: cachedProduct ? { label: cachedProduct.name, value: cachedProduct.id } : undefined,
+      productId: cachedProduct
+        ? {
+            label: `${`${cachedProduct.name}`}${cachedProduct.gender !== "none" ? ` (${cachedProduct.gender})` : ""}`,
+            value: cachedProduct.id,
+          }
+        : undefined,
       sizeId: cachedSize ? { label: cachedSize.label, value: cachedSize.id } : undefined,
       locationId: cachedLocation
         ? { label: cachedLocation.name, value: cachedLocation.id }
