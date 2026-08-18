@@ -61,22 +61,20 @@ export function NumberField({
             step={step}
             data-testid={testId}
             value={field.value ?? ""}
-            onChange={(valueAsString) => {
-              // Keep the raw string while the user is mid-typing a decimal (e.g. "1.")
-              // so the trailing dot is not stripped by the controlled value round-trip.
-              if (!valueAsString) {
+            onChange={(valueAsString, valueAsNumber) => {
+              const allowFloat =
+                (typeof precision === "number" && precision > 0) ||
+                (typeof step === "number" && !Number.isInteger(step));
+              if (valueAsString === "") {
                 field.onChange("");
                 return;
               }
-              const parsed = parseFloat(valueAsString);
-              if (Number.isNaN(parsed)) {
-                field.onChange("");
-              } else if (valueAsString.endsWith(".")) {
-                // Mid-float: store the raw string so the dot is preserved
+              // Preserve mid-typing decimals only for float-enabled fields.
+              if (allowFloat && (valueAsString === "." || valueAsString.endsWith("."))) {
                 field.onChange(valueAsString);
-              } else {
-                field.onChange(parsed);
+                return;
               }
+              field.onChange(Number.isNaN(valueAsNumber) ? "" : valueAsNumber);
             }}
           >
             <NumberInputField

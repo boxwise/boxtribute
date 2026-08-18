@@ -61,11 +61,17 @@ const singleSelectOptionSchema = z.object({
   __isNew__: z.boolean().optional(),
 });
 
-const optionalNonNegativeNumber = z.preprocess((value) => {
-  if (value === "" || value == null) return undefined;
-  if (typeof value === "string") return parseFloat(value);
-  return value;
-}, z.number().nonnegative().optional());
+const optionalNonNegativeNumber = z.preprocess(
+  (value) => {
+    if (value === "" || value == null) return undefined;
+    if (typeof value === "string") return Number(value);
+    return value;
+  },
+  z
+    .number({ error: "Please enter a valid number (decimal separator: .)" })
+    .nonnegative()
+    .optional(),
+);
 
 export const BoxEditFormDataSchema = z.object({
   // Single Select Fields are a tough nut to validate. This feels like a hacky solution, but the best I could find.
@@ -81,7 +87,7 @@ export const BoxEditFormDataSchema = z.object({
     .nullable(singleSelectOptionSchema)
     .refine(Boolean, { error: "Please select a size" })
     .transform((selectedOption) => selectedOption || z.NEVER),
-  numberOfItems: z.number().int().nonnegative(),
+  numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, { error: "Please select a location" })
