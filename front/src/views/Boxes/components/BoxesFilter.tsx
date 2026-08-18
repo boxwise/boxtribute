@@ -137,7 +137,7 @@ export function BoxesFilter({
 
   const handleApply = useCallback(() => {
     const filters: Filters<any> = Object.entries(stagedFilters)
-      .filter(([, value]) => value.length > 0)
+      .filter(([id, value]) => id !== "createdOn" && value.length > 0)
       .map(([id, value]) => ({ id, value }));
 
     // Always include createdOn date range when either value is set
