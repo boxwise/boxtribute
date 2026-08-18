@@ -1,11 +1,28 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { VStack, Button, Box, FormControl, FormLabel, SimpleGrid } from "@chakra-ui/react";
+import {
+  VStack,
+  Button,
+  Box,
+  FormControl,
+  FormLabel,
+  SimpleGrid,
+  Input,
+  Text,
+} from "@chakra-ui/react";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import TabbedTagDropdown from "@boxtribute/shared-components/statviz/components/filter/TabbedTagDropdown";
 import type { ITagFilterValue } from "@boxtribute/shared-components/statviz/state/filter";
+
+// Default dates: today for "to", one year ago for "from"
+const getTodayStr = () => new Date().toISOString().slice(0, 10);
+const getOneYearAgoStr = () => {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 1);
+  return d.toISOString().slice(0, 10);
+};
 
 interface BoxesFilterProps {
   isOpen: boolean;
@@ -33,6 +50,8 @@ export function BoxesFilter({
   tagOptions,
 }: BoxesFilterProps) {
   const [stagedFilters, setStagedFilters] = useState<Record<string, string[]>>({});
+  const [createdFrom, setCreatedFrom] = useState(getOneYearAgoStr());
+  const [createdTo, setCreatedTo] = useState(getTodayStr());
 
   // Convert IFilterValue[] to ITagFilterValue[] for TabbedTagDropdown
   const tagFilterValues: ITagFilterValue[] = useMemo(
@@ -92,6 +111,16 @@ export function BoxesFilter({
         }
       });
       setStagedFilters(filtersMap);
+
+      // Sync date range from existing filters
+      const createdOnFilter = columnFilters.find((f) => f.id === "createdOn");
+      if (createdOnFilter && Array.isArray(createdOnFilter.value)) {
+        setCreatedFrom(createdOnFilter.value[0] ?? getOneYearAgoStr());
+        setCreatedTo(createdOnFilter.value[1] ?? getTodayStr());
+      } else {
+        setCreatedFrom(getOneYearAgoStr());
+        setCreatedTo(getTodayStr());
+      }
     }
   }, [isOpen, columnFilters]);
 
@@ -106,12 +135,20 @@ export function BoxesFilter({
     const filters: Filters<any> = Object.entries(stagedFilters)
       .filter(([, value]) => value.length > 0)
       .map(([id, value]) => ({ id, value }));
+
+    // Always include createdOn date range when either value is set
+    if (createdFrom || createdTo) {
+      filters.push({ id: "createdOn", value: [createdFrom, createdTo] });
+    }
+
     onApplyFilters(filters);
     onClose();
-  }, [stagedFilters, onApplyFilters, onClose]);
+  }, [stagedFilters, createdFrom, createdTo, onApplyFilters, onClose]);
 
   const handleClear = useCallback(() => {
     setStagedFilters({});
+    setCreatedFrom(getOneYearAgoStr());
+    setCreatedTo(getTodayStr());
   }, []);
 
   const stateOptions = Object.entries(boxStateIds).map(([name, id]) => ({
@@ -119,6 +156,14 @@ export function BoxesFilter({
     value: id,
     urlId: id,
   }));
+
+  const dateInputStyle = {
+    border: "2px solid",
+    borderColor: "gray.300",
+    borderRadius: "0",
+    _hover: { borderColor: "gray.300" },
+    _focus: { borderColor: "blue.500", boxShadow: "none" },
+  };
 
   return (
     <VStack spacing={4} align="stretch">
@@ -220,6 +265,36 @@ export function BoxesFilter({
             onClearAll={handleClearAllTags}
             placeholder="All"
           />
+        </FormControl>
+
+        <FormControl>
+          <FormLabel>Created</FormLabel>
+          <SimpleGrid columns={2} spacing={2}>
+            <Box>
+              <Text fontSize="xs" mb={1}>
+                From
+              </Text>
+              <Input
+                type="date"
+                value={createdFrom}
+                onChange={(e) => setCreatedFrom(e.target.value)}
+                data-testid="created-from-input"
+                {...dateInputStyle}
+              />
+            </Box>
+            <Box>
+              <Text fontSize="xs" mb={1}>
+                To
+              </Text>
+              <Input
+                type="date"
+                value={createdTo}
+                onChange={(e) => setCreatedTo(e.target.value)}
+                data-testid="created-to-input"
+                {...dateInputStyle}
+              />
+            </Box>
+          </SimpleGrid>
         </FormControl>
       </SimpleGrid>
 

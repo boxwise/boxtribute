@@ -77,6 +77,14 @@ const updateUrlFromFilters = (
     }
   });
 
+  // Handle createdOn date range filter ([fromDate, toDate])
+  const createdOnFilter = filters.find((f) => f.id === "createdOn");
+  if (createdOnFilter && Array.isArray(createdOnFilter.value)) {
+    const [from, to] = createdOnFilter.value as [string, string];
+    if (from) newSearchParams.set("created_from", from);
+    if (to) newSearchParams.set("created_to", to);
+  }
+
   // Only update if something changed
   if (newSearchParams.toString() !== searchParams.toString()) {
     setSearchParams(newSearchParams, { replace: true });
@@ -91,6 +99,13 @@ const parseUrlFilters = (searchParams: URLSearchParams) => {
     const param = searchParams.get(urlParam);
     urlFilters[filterId] = parseIds(param);
   });
+
+  // Handle createdOn date range URL params
+  const createdFrom = searchParams.get("created_from");
+  const createdTo = searchParams.get("created_to");
+  if (createdFrom || createdTo) {
+    urlFilters["createdOn"] = [createdFrom ?? "", createdTo ?? ""];
+  }
 
   return urlFilters;
 };
@@ -112,6 +127,13 @@ const createInitialColumnFilters = (
       initialColumnFilters.push({ id: filterId, value: urlFilterValue });
     }
   });
+
+  // Handle createdOn date range filter
+  const createdOnValue = urlFilters["createdOn"] as [string, string] | undefined;
+  if (createdOnValue && (createdOnValue[0] || createdOnValue[1])) {
+    initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "createdOn");
+    initialColumnFilters.push({ id: "createdOn", value: createdOnValue });
+  }
 
   return initialColumnFilters;
 };
@@ -139,7 +161,10 @@ export const useTableConfig = ({
     if (!syncFiltersAndUrlParams) return defaultTableConfig.columnFilters;
 
     // If URL params exist, merge them into defaults (URL wins)
-    const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
+    const hasUrlParams =
+      URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam)) ||
+      !!searchParams.get("created_from") ||
+      !!searchParams.get("created_to");
     return hasUrlParams
       ? createInitialColumnFilters(defaultTableConfig.columnFilters, urlFilters)
       : defaultTableConfig.columnFilters;
@@ -179,7 +204,10 @@ export const useTableConfig = ({
    */
   useEffect(() => {
     if (isInitialMount && syncFiltersAndUrlParams) {
-      const hasUrlParams = URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam));
+      const hasUrlParams =
+        URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam)) ||
+        !!searchParams.get("created_from") ||
+        !!searchParams.get("created_to");
       const existingConfig = tableConfigsState.get(tableConfigKey);
       if (!existingConfig) {
         const initialFiltersToPersist = hasUrlParams
