@@ -17,11 +17,15 @@ import TabbedTagDropdown from "@boxtribute/shared-components/statviz/components/
 import type { ITagFilterValue } from "@boxtribute/shared-components/statviz/state/filter";
 
 // Default dates: today for "to", one year ago for "from"
-const getTodayStr = () => new Date().toISOString().slice(0, 10);
+const formatLocalDate = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
+    date.getDate(),
+  ).padStart(2, "0")}`;
+const getTodayStr = () => formatLocalDate(new Date());
 const getOneYearAgoStr = () => {
   const d = new Date();
   d.setFullYear(d.getFullYear() - 1);
-  return d.toISOString().slice(0, 10);
+  return formatLocalDate(d);
 };
 
 interface BoxesFilterProps {
@@ -271,11 +275,12 @@ export function BoxesFilter({
           <FormLabel>Created</FormLabel>
           <SimpleGrid columns={2} spacing={2}>
             <Box>
-              <Text fontSize="xs" mb={1}>
+              <Text fontSize="sm" fontWeight="bold" mb={1}>
                 From
               </Text>
               <Input
                 type="date"
+                aria-label="Created from"
                 value={createdFrom}
                 onChange={(e) => setCreatedFrom(e.target.value)}
                 data-testid="created-from-input"
@@ -283,11 +288,12 @@ export function BoxesFilter({
               />
             </Box>
             <Box>
-              <Text fontSize="xs" mb={1}>
+              <Text fontSize="sm" fontWeight="bold" mb={1}>
                 To
               </Text>
               <Input
                 type="date"
+                aria-label="Created to"
                 value={createdTo}
                 onChange={(e) => setCreatedTo(e.target.value)}
                 data-testid="created-to-input"

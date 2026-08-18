@@ -201,8 +201,8 @@ export const dateRangeFilterFn = (rows, ids, filterValue: [string, string]) =>
       if (!rowValue) return false;
       const rowDate = rowValue instanceof Date ? rowValue : new Date(rowValue);
       const [from, to] = filterValue;
-      if (from && rowDate < new Date(from)) return false;
-      if (to && rowDate > new Date(`${to}T23:59:59`)) return false;
+      if (from && rowDate < new Date(`${from}T00:00:00`)) return false;
+      if (to && rowDate > new Date(`${to}T23:59:59.999`)) return false;
       return true;
     }),
   );
