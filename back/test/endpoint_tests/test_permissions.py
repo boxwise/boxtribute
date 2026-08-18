@@ -321,7 +321,8 @@ def test_invalid_permission_for_qr_code_box(
     another_box,
     another_organisation,
 ):
-    # Test case 8.
+    # Test case 8.2.33
+    # Verify missing stock:write permission
     mock_user_for_request(mocker, permissions=["qr:create"])
     label_identifier = another_box["label_identifier"]
     mutation = f"""mutation {{
