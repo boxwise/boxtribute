@@ -250,6 +250,8 @@ export function BoxCreate({
                       fieldLabel="Weight"
                       errors={errors}
                       control={control}
+                      precision={2}
+                      step={0.1}
                     />
                   </Box>
                   <Text mb={2}>kg</Text>

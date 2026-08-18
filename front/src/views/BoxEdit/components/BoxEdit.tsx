@@ -290,6 +290,8 @@ function BoxEdit({
                       fieldLabel="Weight"
                       errors={errors}
                       control={control}
+                      precision={2}
+                      step={0.1}
                     />
                   </Box>
                   <Text mb={2}>{boxData?.weightDisplayUnit?.symbol ?? ""}</Text>
