@@ -60,10 +60,11 @@ const singleSelectOptionShape = {
   __isNew__: z.boolean().optional(),
 };
 
-const optionalNonNegativeNumber = z.preprocess(
-  (value) => (value === "" || value == null ? undefined : value),
-  z.number().nonnegative().optional(),
-);
+const optionalNonNegativeNumber = z.preprocess((value) => {
+  if (value === "" || value == null) return undefined;
+  if (typeof value === "string") return parseFloat(value);
+  return value;
+}, z.number().nonnegative().optional());
 
 export const CreateBoxFormDataSchema = z.object({
   productId: z.object(singleSelectOptionShape, {
