@@ -23,6 +23,7 @@ import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { useHasPermission } from "hooks/hooks";
+import { useAuthorization } from "hooks/useAuthorization";
 import {
   IAssignBoxToShipmentResult,
   IAssignBoxToShipmentResultKind,
@@ -768,6 +769,9 @@ function BTBox() {
     return locationToDropdownOptionTransformer(locations);
   }, [boxData?.location?.base?.locations]);
 
+  const authorize = useAuthorization();
+  const hasEditBoxPermission = authorize({ requiredAbps: ["manage_inventory"] });
+
   if (error) {
     return (
       <Alert status="error" data-testid="ErrorAlert">
@@ -845,7 +849,7 @@ function BTBox() {
             </Box>
           </Alert>
         )}
-      {boxData && !boxData.qrCode && !boxData?.deletedOn && (
+      {boxData && !boxData.qrCode && !boxData?.deletedOn && hasEditBoxPermission && (
         <Alert
           status="warning"
           variant="top-accent"
