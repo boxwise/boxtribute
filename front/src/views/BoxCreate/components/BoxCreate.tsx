@@ -61,8 +61,15 @@ const singleSelectOptionShape = {
 };
 
 const optionalNonNegativeNumber = z.preprocess(
-  (value) => (value === "" || value == null ? undefined : value),
-  z.number().nonnegative().optional(),
+  (value) => {
+    if (value === "" || value == null) return undefined;
+    if (typeof value === "string") return Number(value);
+    return value;
+  },
+  z
+    .number({ error: "Please enter a valid number (decimal separator: .)" })
+    .nonnegative()
+    .optional(),
 );
 
 export const CreateBoxFormDataSchema = z.object({
@@ -277,6 +284,8 @@ export function BoxCreate({
                       fieldLabel="Weight"
                       errors={errors}
                       control={control}
+                      precision={2}
+                      step={0.1}
                     />
                   </Box>
                   <Text mb={2}>kg</Text>
