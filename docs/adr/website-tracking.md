@@ -23,6 +23,7 @@ For assessing popularity and usage it is important for the team to have informat
 - cookieless operation, with any consent-banner requirement confirmed under applicable GDPR rules
 - tracking of call-to-actions (CTA), downloads, page visits (with source via UTM tags)
 - distinguish human and robot traffic
+- data stored in EU
 
 Note that in the main app, we already use Heap for tracking user interaction.
 
@@ -42,7 +43,9 @@ Tool | Umami | Plausible | PostHog | Heap | Matomo
 :--- | :--- | :--- | :--- | :--- | :---
 Cost | free for 100k events/mo and one website, then $20/mo | 9€/mo | free for 1M events/mo and one project | free for up to 10k sessions/mo; paid plans require a quote | $26/mo for 50k hits, 30 websites, and 30 users
 Cookie banner | not required | not required | can be configured off | required | can be configured off
-Bot filtering | always | not in cookieless mode | always | always | has to be enabled
+Bot filtering | always | always | not in cookieless mode | always | has to be enabled
+Server location | EU, US | EU | EU | US? | EU
+Data stored | page views, referrer URLs, browsers, operating systems, device types, and country of origin | same | various | various | various
 Open-source | MIT | AGPLv3 | MIT | - | GPLv3
 GitHub stars | 38k | 29k | 38k | - | 22k
 
@@ -77,6 +80,7 @@ GitHub stars | 38k | 29k | 38k | - | 22k
 
 - https://posthog.com/docs/product-analytics/sharing#sharing-a-dashboard
 - https://docs.umami.is/docs/add-a-board#share-a-board
+- https://plausible.io/docs/shared-links (only for "Growth" tier at 14€/mo)
 
 #### APIs
 
@@ -89,6 +93,20 @@ GitHub stars | 38k | 29k | 38k | - | 22k
 - https://posthog.com/tutorials/cookieless-tracking#limitations
 - https://docs.umami.is/docs/environment-variables#disable_bot_check
 - https://matomo.org/faq/how-to/block-spam-and-bot-traffic-with-tracking-spam-prevention/
+
+#### Server location
+
+- https://docs.umami.is/docs/cloud/faq#where-are-your-servers-located
+- https://plausible.io/docs/compliance#how-plausible-is-typically-classified-in-security-reviews
+- https://posthog.com/docs/privacy/data-storage#data-storage-location
+- https://matomo.org/matomo-cloud-dpa/
+
+#### Data stored
+
+- https://docs.umami.is/docs/faq#5-what-data-does-umami-collect
+- https://plausible.io/data-policy#first-things-first-what-we-collect-and-what-we-use-it-for
+- https://matomo.org/matomo-cloud-privacy-policy/
+- https://matomo.org/100-data-ownership/
 
 #### AI-assisted research
 
