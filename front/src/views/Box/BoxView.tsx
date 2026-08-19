@@ -769,6 +769,9 @@ function BTBox() {
     return locationToDropdownOptionTransformer(locations);
   }, [boxData?.location?.base?.locations]);
 
+  const authorize = useAuthorization();
+  const hasEditBoxPermission = authorize({ requiredAbps: ["manage_inventory"] });
+
   if (error) {
     return (
       <Alert status="error" data-testid="ErrorAlert">
@@ -800,9 +803,6 @@ function BTBox() {
       "__typename" in location &&
       location.__typename === "ClassicLocation" &&
       location?.defaultBoxState === "Scrap");
-
-  const authorize = useAuthorization();
-  const hasEditBoxPermission = authorize({ requiredAbps: ["manage_inventory"] });
 
   return (
     <VStack spacing={4} align="stretch">
