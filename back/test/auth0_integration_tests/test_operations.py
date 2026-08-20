@@ -68,6 +68,16 @@ def test_queries(auth0_client, endpoint):
     response = _assert_successful_request(auth0_client, query)
     assert response["totalCount"] == 162
 
+    query = """query { sizeRanges { id sizes { id name } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    # Check sorting of size ranges (ID 1: XS...XXL, ID 3/8/9: shoe sizes)
+    for size_range in response:
+        size_names = [s["name"] for s in size_range["sizes"]]
+        if size_range["id"] in [3, 8, 9]:
+            assert size_names == sorted(size_names)
+        elif size_range["id"] == 1:
+            assert size_names == ["XS", "S", "M", "L", "XL", "XXL", "Mixed"]
+
 
 @pytest.fixture
 def auth0_client_with_rollback(auth0_client, mocker):
