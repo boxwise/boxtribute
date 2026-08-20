@@ -481,6 +481,36 @@ describe("StockOverview", () => {
   });
 
   // -------------------------------------------------------------------------
+  // Excluded-tag filter AND category filter
+  // -------------------------------------------------------------------------
+
+  describe("category and excluded tag filter", () => {
+    it("filters by category and hides data with the excluded tag", async () => {
+      // snt=1 → exclude tag id 1 (Tag A)
+      // sc=2 → category id 2 (Clothes)
+      renderStockOverview("?snt=1&sc=2");
+
+      // Ring: 1 InStock fact without tag1 – Shirts/Clothes(3)
+      expect(await screen.findByText("Clothes: 3")).toBeInTheDocument();
+      expect(screen.getAllByTestId("pie-slice")).toHaveLength(1);
+
+      // Bar: 2 categories
+      expect(screen.getAllByTestId("bar-category")).toHaveLength(1);
+
+      // Calendar: 1 within-range fact without tag1 and with category 2
+      expect(screen.getAllByTestId("calendar-day")).toHaveLength(1);
+
+      // Filter chip shows "Tag A" with strikethrough styling
+      const chip = screen.getByText("Tag A");
+      expect(chip).toBeInTheDocument();
+      expect(chip).toHaveStyle({ textDecoration: "line-through" });
+
+      // Filter chip for category "Clothes" is shown (identified by its close button testid)
+      expect(screen.getByTestId("stock-filter-chip-close-category-2")).toBeInTheDocument();
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Clear filters
   // -------------------------------------------------------------------------
 
