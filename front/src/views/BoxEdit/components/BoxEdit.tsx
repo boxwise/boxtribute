@@ -212,6 +212,7 @@ function BoxEdit({
         (p) => p.id === productId.value,
       );
       const prepSizesOptionsForCurrentProduct =
+        // The BE returns the sizes appropriately sorted
         productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
           label: s.label,
           value: s.id,
