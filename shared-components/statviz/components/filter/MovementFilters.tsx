@@ -164,7 +164,7 @@ export function MovementFilters({
           placeholder="All"
         />
         <MultiSelectFilter
-          fieldLabel="Partner / Target"
+          fieldLabel="Partner (Outgoing Location)"
           values={targetOptions}
           filterId="mtar-staged"
           filterValue={selectedTargetValues}
