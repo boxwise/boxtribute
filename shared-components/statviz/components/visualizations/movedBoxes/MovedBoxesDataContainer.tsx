@@ -44,6 +44,7 @@ export default function MovedBoxesDataContainer({
         id: t.id as string,
         name: t.name ?? "",
         type: t.type ?? undefined,
+        deletedOn: t.deletedOn ? new Date(String(t.deletedOn)) : undefined,
       }));
     onTargetsAvailable?.(targets);
   }, [data, onTargetsAvailable]);

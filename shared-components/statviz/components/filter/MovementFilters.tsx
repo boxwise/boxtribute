@@ -43,7 +43,18 @@ export function MovementFilters({
 
   const productOptions = toProductFilterValues(products);
   const categoryOptions = toFilterValues(categories);
-  const targetOptions = targets.map((t) => ({ value: t.id, label: t.name, urlId: t.id }));
+  const targetOptions = [
+    // active locations first, alphabetically sorted
+    ...targets
+      .filter((t) => !t.deletedOn)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((t) => ({ value: t.id, label: t.name, urlId: t.id })),
+    // archived locations, sorted by most-recently archived
+    ...targets
+      .filter((t) => t.deletedOn)
+      .sort((a, b) => b.deletedOn!.getTime() - a.deletedOn!.getTime())
+      .map((t) => ({ value: t.id, label: `${t.name} [Archived]`, urlId: t.id })),
+  ];
 
   const handleApply = useCallback(() => {
     onApply(staged);
