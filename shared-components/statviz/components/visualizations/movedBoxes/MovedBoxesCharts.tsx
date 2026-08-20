@@ -20,7 +20,9 @@ export default function MovedBoxesCharts({
 }: IMovedBoxesChartsProps) {
   const { outgoingCount, incomingCount } = useMemo(() => {
     const targets = movedBoxes?.dimensions?.target ?? [];
-    const outgoing = targets.filter((t) => t?.type === "OutgoingShipment").length;
+    const outgoing = targets.filter(
+      (t) => t?.type === "OutgoingShipment" || t?.type === "OutgoingLocation",
+    ).length;
     const incoming = targets.filter((t) => t?.type === "IncomingShipment").length;
     return { outgoingCount: outgoing, incomingCount: incoming };
   }, [movedBoxes?.dimensions?.target]);

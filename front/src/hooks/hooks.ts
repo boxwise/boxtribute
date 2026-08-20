@@ -30,6 +30,8 @@ export const useHandleLogout = () => {
     // Clear reconciliation view form input cache.
     localStorage.removeItem("reconciliationMatchProduct");
     localStorage.removeItem("reconciliationReceiveLocation");
+    // Clear box-creation form input cache.
+    localStorage.removeItem("boxCreateFormCache");
 
     // only redirect in staging and production environments
     if (import.meta.env.FRONT_ENVIRONMENT !== "development") {

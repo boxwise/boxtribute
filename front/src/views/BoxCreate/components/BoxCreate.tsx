@@ -11,7 +11,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -61,8 +61,15 @@ const singleSelectOptionShape = {
 };
 
 const optionalNonNegativeNumber = z.preprocess(
-  (value) => (value === "" || value == null ? undefined : value),
-  z.number().nonnegative().optional(),
+  (value) => {
+    if (value === "" || value == null) return undefined;
+    if (typeof value === "string") return Number(value);
+    return value;
+  },
+  z
+    .number({ error: "Please enter a valid number (decimal separator: .)" })
+    .nonnegative()
+    .optional(),
 );
 
 export const CreateBoxFormDataSchema = z.object({
@@ -90,6 +97,13 @@ export interface IBoxCreateProps {
   allTags: IDropdownOption[] | null | undefined;
   currency?: string | null;
   disableSubmission?: boolean;
+  initialValues?: {
+    productId?: { label: string; value: string };
+    sizeId?: { label: string; value: string };
+    locationId?: { label: string; value: string };
+    tags?: { label: string; value: string }[];
+    numberOfItems?: number;
+  };
   onSubmitBoxCreateForm: (boxFormValues: ICreateBoxFormData) => void;
   onSubmitBoxCreateFormAndCreateAnother?: (boxFormValues: ICreateBoxFormData) => void;
 }
@@ -99,6 +113,7 @@ export function BoxCreate({
   allLocations,
   allTags,
   currency,
+  initialValues,
   onSubmitBoxCreateForm,
   onSubmitBoxCreateFormAndCreateAnother,
   disableSubmission,
@@ -158,9 +173,21 @@ export function BoxCreate({
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(CreateBoxFormDataSchema),
+    defaultValues: {
+      productId: initialValues?.productId,
+      sizeId: initialValues?.sizeId,
+      locationId: initialValues?.locationId,
+      tags: initialValues?.tags,
+      numberOfItems: initialValues?.numberOfItems,
+    },
   });
 
   const productId = useWatch({ control, name: "productId" });
+
+  // When there is a cached sizeId, we must not reset it on the very first render
+  // (triggered by the default productId).  After the first product change the
+  // normal reset behaviour is restored.
+  const preserveInitialSizeId = useRef(initialValues?.sizeId != null);
 
   const productAndSizeDataForCurrentProduct = useMemo(() => {
     if (productId != null) {
@@ -180,6 +207,13 @@ export function BoxCreate({
   }, [productAndSizeDataForCurrentProduct?.sizeRange?.sizes]);
 
   useEffect(() => {
+    if (preserveInitialSizeId.current) {
+      // Keep the cached sizeId intact on the initial load; from now on
+      // changing the product will trigger a normal reset.
+      preserveInitialSizeId.current = false;
+      return;
+    }
+
     resetField("sizeId");
     // Put a default value for sizeId when there's only one option
     if (productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.length === 1) {
@@ -250,6 +284,8 @@ export function BoxCreate({
                       fieldLabel="Weight"
                       errors={errors}
                       control={control}
+                      precision={2}
+                      step={0.1}
                     />
                   </Box>
                   <Text mb={2}>kg</Text>
