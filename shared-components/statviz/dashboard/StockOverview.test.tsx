@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { Accordion } from "@chakra-ui/react";
 import { format, subMonths } from "date-fns";
 import userEvent from "@testing-library/user-event";
@@ -281,11 +281,6 @@ function renderStockOverview(urlSuffix = "") {
 // ---------------------------------------------------------------------------
 
 describe("StockOverview", () => {
-  beforeEach(() => {
-    // Suppress console.error noise from Apollo MockedProvider exhausted mocks
-    vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
   // -------------------------------------------------------------------------
   // No-filter baseline
   // -------------------------------------------------------------------------
@@ -494,7 +489,7 @@ describe("StockOverview", () => {
       expect(await screen.findByText("Clothes: 3")).toBeInTheDocument();
       expect(screen.getAllByTestId("pie-slice")).toHaveLength(1);
 
-      // Bar: 2 categories
+      // Bar: 1 category
       expect(screen.getAllByTestId("bar-category")).toHaveLength(1);
 
       // Calendar: 1 within-range fact without tag1 and with category 2
