@@ -16,18 +16,6 @@ import type { IFilterValue } from "@boxtribute/shared-components/statviz/compone
 import TabbedTagDropdown from "@boxtribute/shared-components/statviz/components/filter/TabbedTagDropdown";
 import type { ITagFilterValue } from "@boxtribute/shared-components/statviz/state/filter";
 
-// Default dates: today for "to", one year ago for "from"
-const formatLocalDate = (date: Date) =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-    date.getDate(),
-  ).padStart(2, "0")}`;
-const getTodayStr = () => formatLocalDate(new Date());
-const getOneYearAgoStr = () => {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() - 1);
-  return formatLocalDate(d);
-};
-
 interface BoxesFilterProps {
   isOpen: boolean;
   onClose: () => void;
@@ -54,8 +42,8 @@ export function BoxesFilter({
   tagOptions,
 }: BoxesFilterProps) {
   const [stagedFilters, setStagedFilters] = useState<Record<string, string[]>>({});
-  const [createdFrom, setCreatedFrom] = useState(getOneYearAgoStr());
-  const [createdTo, setCreatedTo] = useState(getTodayStr());
+  const [createdFrom, setCreatedFrom] = useState("");
+  const [createdTo, setCreatedTo] = useState("");
 
   // Convert IFilterValue[] to ITagFilterValue[] for TabbedTagDropdown
   const tagFilterValues: ITagFilterValue[] = useMemo(
@@ -119,11 +107,11 @@ export function BoxesFilter({
       // Sync date range from existing filters
       const createdOnFilter = columnFilters.find((f) => f.id === "createdOn");
       if (createdOnFilter && Array.isArray(createdOnFilter.value)) {
-        setCreatedFrom(createdOnFilter.value[0] ?? getOneYearAgoStr());
-        setCreatedTo(createdOnFilter.value[1] ?? getTodayStr());
+        setCreatedFrom(createdOnFilter.value[0] ?? "");
+        setCreatedTo(createdOnFilter.value[1] ?? "");
       } else {
-        setCreatedFrom(getOneYearAgoStr());
-        setCreatedTo(getTodayStr());
+        setCreatedFrom("");
+        setCreatedTo("");
       }
     }
   }, [isOpen, columnFilters]);
@@ -151,8 +139,8 @@ export function BoxesFilter({
 
   const handleClear = useCallback(() => {
     setStagedFilters({});
-    setCreatedFrom(getOneYearAgoStr());
-    setCreatedTo(getTodayStr());
+    setCreatedFrom("");
+    setCreatedTo("");
   }, []);
 
   const stateOptions = Object.entries(boxStateIds).map(([name, id]) => ({

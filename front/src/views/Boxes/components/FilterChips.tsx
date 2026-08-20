@@ -112,7 +112,7 @@ export function FilterChips({
                 colorScheme="gray"
                 data-testid="filter-chip-createdOn-from"
               >
-                <TagLabel>{from} -</TagLabel>
+                <TagLabel>From {from}</TagLabel>
                 <TagCloseButton
                   onClick={() => {
                     // If both from and to exist, keep the to chip; otherwise remove entirely
@@ -137,7 +137,7 @@ export function FilterChips({
                 colorScheme="gray"
                 data-testid="filter-chip-createdOn-to"
               >
-                <TagLabel>- {to}</TagLabel>
+                <TagLabel>To {to}</TagLabel>
                 <TagCloseButton
                   onClick={() => {
                     if (from) {
