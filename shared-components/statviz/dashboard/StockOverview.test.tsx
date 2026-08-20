@@ -511,6 +511,29 @@ describe("StockOverview", () => {
   });
 
   // -------------------------------------------------------------------------
+  // Excessive filters
+  // -------------------------------------------------------------------------
+
+  describe("too many filters", () => {
+    it("shows no data information if selected filters don't match any data", async () => {
+      // sc=2 → category id 2 (Clothes)
+      renderStockOverview("?sg=Male&sc=2");
+
+      // "No data" information shown
+      expect(await screen.findByText(/no data/i)).toBeInTheDocument();
+
+      // No ring, bar, or calendar chart shown
+      expect(screen.queryByTestId("pie-slice")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("bar-category")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("calendar-day")).not.toBeInTheDocument();
+
+      // Filter chips
+      expect(screen.getByTestId("stock-filter-chip-close-category-2")).toBeInTheDocument();
+      expect(screen.getByText("Male")).toBeInTheDocument();
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Clear filters
   // -------------------------------------------------------------------------
 
