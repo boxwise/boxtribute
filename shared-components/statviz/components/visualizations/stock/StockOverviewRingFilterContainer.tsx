@@ -54,7 +54,7 @@ export default function StockOverviewRingFilterContainer({
     return { ...stockOverview, facts } as StockOverview;
   }, [stockOverview, genders, categories, locations, products, includedTags, excludedTags]);
 
-  const chartHeight = useBreakpointValue({ base: "300px", md: "400px", lg: "500px" }) ?? "400px";
+  const chartHeight = useBreakpointValue({ base: "300px", md: "350px", lg: "400px" }) ?? "400px";
 
   return (
     <StockOverviewRing

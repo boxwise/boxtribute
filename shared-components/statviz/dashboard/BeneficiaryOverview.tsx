@@ -95,13 +95,13 @@ export default function BeneficiaryOverview({ isActive, tags }: BeneficiaryOverv
 
   return (
     <AccordionItem id="dashboard-section-beneficiaries">
-      <AccordionButton _hover={{ bg: "gray.100" }} padding="15px 10px">
+      <AccordionButton bg="gray.100" _hover={{ bg: "gray.100" }} padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Beneficiary Overview</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel bg="gray.100" mx={-4}>
+      <AccordionPanel bg="gray.100" mx={-4} pb={10}>
         <VStack align="stretch" mx={4} spacing={4}>
           <HStack justify="space-between" align="flex-start">
             <DashboardFilterChips
