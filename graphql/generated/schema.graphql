@@ -369,6 +369,8 @@ type TargetDimensionInfo {
   id: ID
   name: String
   type: TargetType
+  " Only for OutgoingLocation targets "
+  deletedOn: Date
 }
 # GraphQL input types for mutations **only**.
 input BoxCreationInput {
