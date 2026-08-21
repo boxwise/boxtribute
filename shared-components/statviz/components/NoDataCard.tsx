@@ -1,4 +1,4 @@
-import { Card, CardHeader, Heading } from "@chakra-ui/react";
+import { Card, CardBody, CardHeader, Heading } from "@chakra-ui/react";
 
 interface INoDataCardProps {
   header: string;
@@ -14,7 +14,7 @@ export default function NoDataCard({
       <CardHeader>
         <Heading size="md">{header}</Heading>
       </CardHeader>
-      <CardHeader>{message}</CardHeader>
+      <CardBody>{message}</CardBody>
     </Card>
   );
 }

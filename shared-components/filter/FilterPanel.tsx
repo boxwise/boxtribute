@@ -55,7 +55,7 @@ export function FilterPanel({
           size="md"
           bg="blue.500"
           _hover={{ bg: "gray.500" }}
-          data-testid={`${label.replaceAll(" ", "").toLowerCase()}-drawer-button-mobile`}
+          data-testid={`${label.replaceAll(" ", "").toLowerCase()}-drawer-button`}
           onClick={onOpen}
         />
       )}
