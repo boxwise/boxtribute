@@ -175,7 +175,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel bg="gray.100" mx={-4}>
+      <AccordionPanel bg="gray.100" mx={-4} pb={10}>
         <VStack align="stretch" mx={4} spacing={4}>
           <HStack justify="space-between" spacing={2} align="flex-start">
             <DashboardFilterChips

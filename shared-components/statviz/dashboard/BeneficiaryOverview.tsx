@@ -101,7 +101,7 @@ export default function BeneficiaryOverview({ isActive, tags }: BeneficiaryOverv
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel bg="gray.100" mx={-4}>
+      <AccordionPanel bg="gray.100" mx={-4} pb={10}>
         <VStack align="stretch" mx={4} spacing={4}>
           <HStack justify="space-between" align="flex-start">
             <DashboardFilterChips
