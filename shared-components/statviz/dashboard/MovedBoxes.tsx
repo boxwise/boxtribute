@@ -169,13 +169,13 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
 
   return (
     <AccordionItem id="dashboard-section-movement">
-      <AccordionButton _hover={{ bg: "gray.100" }} padding="15px 10px">
+      <AccordionButton bg="gray.100" _hover={{ bg: "gray.100" }} padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Movement History</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel bg="gray.100" mx={-4}>
+      <AccordionPanel bg="gray.100" mx={-4} pb={10}>
         <VStack align="stretch" mx={4} spacing={4}>
           <HStack justify="space-between" spacing={2} align="flex-start">
             <DashboardFilterChips

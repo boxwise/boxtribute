@@ -134,6 +134,7 @@ export const MOVED_BOXES_QUERY = graphql(`
           id
           name
           type
+          deletedOn
         }
       }
     }

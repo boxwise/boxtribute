@@ -199,6 +199,7 @@ export function BoxCreate({
 
   const sizesOptionsForCurrentProduct = useMemo(() => {
     return (
+      // The BE returns the sizes appropriately sorted
       productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
         label: s.label,
         value: s.id,
