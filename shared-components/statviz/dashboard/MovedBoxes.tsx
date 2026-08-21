@@ -169,7 +169,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
 
   return (
     <AccordionItem id="dashboard-section-movement">
-      <AccordionButton _hover={{ bg: "gray.100" }} padding="15px 10px">
+      <AccordionButton bg="gray.100" _hover={{ bg: "gray.100" }} padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Movement History</Heading>
         </Box>
