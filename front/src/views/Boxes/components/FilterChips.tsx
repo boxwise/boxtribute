@@ -69,6 +69,19 @@ export function FilterChips({
     [optionsMap],
   );
 
+  // Count total active filter values (each createdOn range chip counts as 2)
+  const totalFilterCount = useMemo(
+    () =>
+      filters.reduce((acc, f) => {
+        if (f.id === "createdOn") {
+          const [from, to] = Array.isArray(f.value) ? f.value : [];
+          return acc + (from ? 1 : 0) + (to ? 1 : 0);
+        }
+        return acc + (Array.isArray(f.value) ? f.value.length : 1);
+      }, 0),
+    [filters],
+  );
+
   // Don't render if no filters
   if (filters.length === 0) {
     return null;
@@ -85,6 +98,63 @@ export function FilterChips({
       data-testid="filter-chips"
     >
       {filters.map((filter) => {
+        // Special rendering for createdOn date range
+        if (filter.id === "createdOn" && Array.isArray(filter.value)) {
+          const [from, to] = filter.value as [string, string];
+          const chips: React.ReactNode[] = [];
+
+          if (from) {
+            chips.push(
+              <Tag
+                key="createdOn-from"
+                size="lg"
+                variant="solid"
+                colorScheme="gray"
+                data-testid="filter-chip-createdOn-from"
+              >
+                <TagLabel>From {from}</TagLabel>
+                <TagCloseButton
+                  onClick={() => {
+                    // If both from and to exist, keep the to chip; otherwise remove entirely
+                    if (to) {
+                      onRemoveFilter("createdOn", "from");
+                    } else {
+                      onRemoveFilter("createdOn");
+                    }
+                  }}
+                  data-testid="filter-chip-close-createdOn-from"
+                />
+              </Tag>,
+            );
+          }
+
+          if (to) {
+            chips.push(
+              <Tag
+                key="createdOn-to"
+                size="lg"
+                variant="solid"
+                colorScheme="gray"
+                data-testid="filter-chip-createdOn-to"
+              >
+                <TagLabel>To {to}</TagLabel>
+                <TagCloseButton
+                  onClick={() => {
+                    if (from) {
+                      onRemoveFilter("createdOn", "to");
+                    } else {
+                      onRemoveFilter("createdOn");
+                    }
+                  }}
+                  data-testid="filter-chip-close-createdOn-to"
+                />
+              </Tag>,
+            );
+          }
+
+          return chips;
+        }
+
         const filterConfig = FILTER_CONFIG[filter.id as keyof typeof FILTER_CONFIG];
         if (!filterConfig) return null;
 
@@ -120,8 +190,7 @@ export function FilterChips({
         colorScheme="gray"
         data-testid="clear-all-filters-button"
       >
-        Clear filters (
-        {filters.reduce((acc, f) => acc + (Array.isArray(f.value) ? f.value.length : 1), 0)})
+        Clear filters ({totalFilterCount})
       </Button>
     </Flex>
   );

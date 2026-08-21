@@ -285,7 +285,7 @@ SELECT
     t.stock_measure_value AS absolute_measure_value,
     u.dimension_id,
     t.tag_ids,
-    loc.label AS target_id,
+    loc.id AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
     count(t.box_id) AS boxes_count,
@@ -309,7 +309,7 @@ SELECT
     t.stock_measure_value AS absolute_measure_value,
     u.dimension_id,
     t.tag_ids,
-    loc.label AS target_id,
+    loc.id AS target_id,
     NULL AS organisation_name,
     %s AS target_type,
     sum(
