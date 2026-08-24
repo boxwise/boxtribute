@@ -16,7 +16,7 @@ import {
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { MOVED_BOXES_QUERY } from "../../../../shared-components/statviz/queries/queries";
+import { MOVED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/queries/queries";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetailWithAutomatchProduct;

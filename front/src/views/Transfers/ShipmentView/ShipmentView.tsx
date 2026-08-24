@@ -36,7 +36,7 @@ import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPrefere
 import { availableBasesAtom } from "stores/globalPreferenceStore";
 import { User } from "../../../../../graphql/types";
 import { ShipmentDetail, ShipmentDetailWithAutomatchProduct, ShipmentState } from "queries/types";
-import { MOVED_BOXES_QUERY } from "../../../../../shared-components/statviz/queries/queries";
+import { MOVED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/queries/queries";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
