@@ -213,7 +213,9 @@ function ShipmentView() {
     useMutation(REMOVE_BOX_FROM_SHIPMENT);
 
   const [cancelShipment, cancelShipmentStatus] = useMutation(CANCEL_SHIPMENT);
-  const [lostShipment, lostShipmentStatus] = useMutation(LOST_SHIPMENT);
+  const [lostShipment, lostShipmentStatus] = useMutation(LOST_SHIPMENT, {
+    onCompleted: () => refetchMovedBoxes(),
+  });
   const [sendShipment, sendShipmentStatus] = useMutation(SEND_SHIPMENT);
   const [startReceivingShipment, startReceivingShipmentStatus] =
     useMutation(START_RECEIVING_SHIPMENT);
