@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useMutation, useQuery, useReactiveVar } from "@apollo/client";
+import { useMutation, useQuery, useReactiveVar, useApolloClient } from "@apollo/client";
 import { useAtomValue } from "jotai";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/queries";
@@ -16,6 +16,7 @@ import {
   IProductWithSizeRangeData,
 } from "./components/BoxReconciliationView";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { MOVED_BOXES_QUERY } from "../../../../shared-components/statviz/queries/queries";
 
 export interface IBoxReconciliationOverlayData {
   shipmentDetail: ShipmentDetailWithAutomatchProduct;
@@ -30,6 +31,7 @@ export function BoxReconciliationOverlay({
   closeOnEsc?: boolean;
   redirectToShipmentView?: boolean;
 }) {
+  const apolloClient = useApolloClient();
   const { createToast } = useNotification();
   const { triggerError } = useErrorHandling();
   const baseId = useAtomValue(selectedBaseIdAtom);
@@ -96,6 +98,28 @@ export function BoxReconciliationOverlay({
     [data],
   );
 
+  /**
+   * If the shipment reached a terminal receiving state (Completed or Lost),
+   * proactively refresh movedBoxes data in the background so the statistics
+   * view is up-to-date without requiring a manual page reload.
+   */
+  const refetchMovedBoxesIfShipmentCompleted = useCallback(
+    (shipmentState: string | null | undefined) => {
+      if (shipmentState === "Completed" || shipmentState === "Lost") {
+        apolloClient
+          .query({
+            query: MOVED_BOXES_QUERY,
+            variables: { baseId: parseInt(baseId, 10) },
+            fetchPolicy: "network-only",
+          })
+          .catch(() => {
+            // Background refetch failure is non-critical; ignore silently.
+          });
+      }
+    },
+    [apolloClient, baseId],
+  );
+
   const onBoxUndelivered = useCallback(
     (labelIdentifier: string) => {
       if (shipmentId) {
@@ -118,6 +142,9 @@ export function BoxReconciliationOverlay({
                 type: "success",
                 message: "Box marked as undelivered.",
               });
+              refetchMovedBoxesIfShipmentCompleted(
+                mutationResult.data?.updateShipmentWhenReceiving?.state,
+              );
               if (redirectToShipmentView)
                 navigate(`/bases/${baseId}/transfers/shipments/${shipmentId}`);
             }
@@ -135,6 +162,7 @@ export function BoxReconciliationOverlay({
       triggerError,
       onOverlayClose,
       createToast,
+      refetchMovedBoxesIfShipmentCompleted,
       redirectToShipmentView,
       navigate,
       baseId,
@@ -181,6 +209,9 @@ export function BoxReconciliationOverlay({
                 type: "success",
                 message: `Box ${labelIdentifier} was received to ${locationName}`,
               });
+              refetchMovedBoxesIfShipmentCompleted(
+                mutationResult.data?.updateShipmentWhenReceiving?.state,
+              );
             }
           })
           .catch(() => {
@@ -198,6 +229,7 @@ export function BoxReconciliationOverlay({
       shipmentId,
       shipmentDetail,
       updateShipmentWhenReceiving,
+      refetchMovedBoxesIfShipmentCompleted,
     ],
   );
 
