@@ -8,6 +8,7 @@ import type {
   ITagOption,
   ITargetOption,
   MovementAppliedFilters,
+  MovementDirection,
 } from "../../utils/dashboardFilters";
 import { genders } from "./constants";
 import { toFilterValues, toProductFilterValues } from "../../utils/dashboardFilters";
@@ -21,6 +22,7 @@ interface MovementFiltersProps {
   targets: ITargetOption[];
   tags: ITagOption[];
   onApply: (filters: MovementAppliedFilters) => void;
+  direction: MovementDirection;
 }
 
 export function MovementFilters({
@@ -32,6 +34,7 @@ export function MovementFilters({
   targets,
   tags,
   onApply,
+  direction,
 }: MovementFiltersProps) {
   const [staged, setStaged] = useState<MovementAppliedFilters>(appliedFilters);
 
@@ -164,7 +167,7 @@ export function MovementFilters({
           placeholder="All"
         />
         <MultiSelectFilter
-          fieldLabel="Partner (Outgoing Location)"
+          fieldLabel={direction === "out" ? "Partner (Outgoing Location)" : "Partner"}
           values={targetOptions}
           filterId="mtar-staged"
           filterValue={selectedTargetValues}
