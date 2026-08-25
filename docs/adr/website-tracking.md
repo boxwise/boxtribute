@@ -4,11 +4,11 @@ Trello-card: https://trello.com/c/VjUWWEy3
 
 Decision Deadline: 2026-08-12
 
-Author: pylipp
+Discussion participants: [Philipp Metzner](https://github.com/pylipp), [Roanna Kong](https://github.com/aerinsol), [Hans Peter Gürtner](https://github.com/HaGuesto)
 
 ## Status
 
-Proposed.
+Accepted.
 
 ## Context or Problem Statement
 
@@ -17,7 +17,7 @@ For assessing popularity and usage it is important for the team to have informat
 
 ## Decision Drivers
 
-- no costs
+- little costs
 - low set-up and maintenance effort
 - integration into existing NextJS website
 - cookieless operation, with any consent-banner requirement confirmed under applicable GDPR rules
@@ -41,11 +41,12 @@ All options feature CTA, download, and UTM tracking and provide a dashboard.
 
 Tool | Umami | Plausible | PostHog | Heap | Matomo
 :--- | :--- | :--- | :--- | :--- | :---
-Cost | free for 100k events/mo and one website, then $20/mo | 9€/mo | free for 1M events/mo and one project | free for up to 10k sessions/mo; paid plans require a quote | $26/mo for 50k hits, 30 websites, and 30 users
+Cost | free for 100k events/mo and one website, then $20/mo | 9€/mo for 10k pageviews | free for 1M events/mo and one project | free for up to 10k sessions/mo; paid plans require a quote | €22/mo for 50k hits, 30 websites, and 30 users
 Cookie banner | not required | not required | can be configured off | required | can be configured off
 Bot filtering | always | always | not in cookieless mode | always | has to be enabled
 Server location | EU, US | EU | EU | US? | EU
 Data stored | page views, referrer URLs, browsers, operating systems, device types, and country of origin | same | various | various | various
+Data retention | 6mo | 3y | 1y | ? | 2y
 Open-source | MIT | AGPLv3 | MIT | - | GPLv3
 GitHub stars | 38k | 29k | 38k | - | 22k
 
@@ -116,24 +117,29 @@ GitHub stars | 38k | 29k | 38k | - | 22k
 
 - https://github.com/boxwise/boxtribute-landing-nextjs/pull/41
 - https://github.com/boxwise/boxtribute-landing-nextjs/pull/42
+- https://github.com/boxwise/boxtribute-landing-nextjs/pull/44
 
 </details>
 
 ## Decision
 
-**Implement website tracking using Umami.**
+**Implement website tracking using Plausible.**
 
-PostHog also provides a cloud-based, free-tier with even 10x more events tracked per month, however
+PostHog also provides a cloud-based, free-tier with a generous quota of events tracked per month, however
 
 - PostHog is suitable for SaaS projects that need thorough product analytics. It's too complex for a SPA
-- the Umami docs are more developer-friendly (easier to navigate and read)
-- PostHog does not have bot detection enabled in cookieless mode, Umami has it by default
+- PostHog does not have bot detection enabled in cookieless mode, Plausible has it by default
+
+Umami provides a simple product with a free-tier, however
+- they list several US-American AI and tech companies as their [data subprocessors](https://umami.is/subprocessors) which contradicts with Boxtribute's efforts to become more independent on US-American technology, and also raises concern given our AI policy. Plausible is a EU-based company with EU hosting.
+- the data retention period in the free tier (6mo) is quite short. Plausible offers 3y
 
 Heap always requires showing a cookie-banner.
 
-Plausible and Matomo are ruled out because of cost and complexity.
+Matomo is ruled out because of cost and complexity.
 
 ## Consequences
 
 - no worries about cookie banner
-- the free tier stops processing events after 100k/month (about 3.3k/day only as a monthly average). There is a risk that Umami changes its free tier; self-hosting remains a fallback
+- the base tier is capped at 10k monthly pageviews, we might have to extend (though we want to ask for non-profit discount)
+- sharing links for analytics is not included in base tier
