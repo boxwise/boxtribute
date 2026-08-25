@@ -212,6 +212,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
                   targets={availableTargets}
                   tags={tags}
                   onApply={handleApplyFilters}
+                  direction={direction}
                 />
               </FilterPanel>
             </HStack>
