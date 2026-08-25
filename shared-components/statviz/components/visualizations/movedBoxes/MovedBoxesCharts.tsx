@@ -31,21 +31,24 @@ export default function MovedBoxesCharts({
 
     const last6MonthsFacts = allMovedBoxesFacts.filter((f) => new Date(f.movedOn) >= cutoff);
 
-    const outgoingTargetIds = new Set(
+    // A "shipment" is a unique (targetId, movedOn) pair — the backend groups facts by
+    // (targetId, movedOn, product, gender, ...) so the same destination can appear on
+    // multiple send-dates, each representing a distinct shipment.
+    const outgoingShipments = new Set(
       last6MonthsFacts
         .filter((f) => {
           const type = targetTypeMap.get(f.targetId);
           return type === "OutgoingShipment" || type === "OutgoingLocation";
         })
-        .map((f) => f.targetId),
+        .map((f) => `${f.targetId}::${f.movedOn}`),
     );
-    const incomingTargetIds = new Set(
+    const incomingShipments = new Set(
       last6MonthsFacts
         .filter((f) => targetTypeMap.get(f.targetId) === "IncomingShipment")
-        .map((f) => f.targetId),
+        .map((f) => `${f.targetId}::${f.movedOn}`),
     );
 
-    return { outgoingCount: outgoingTargetIds.size, incomingCount: incomingTargetIds.size };
+    return { outgoingCount: outgoingShipments.size, incomingCount: incomingShipments.size };
   }, [allMovedBoxesFacts, movedBoxes?.dimensions?.target]);
 
   return (
