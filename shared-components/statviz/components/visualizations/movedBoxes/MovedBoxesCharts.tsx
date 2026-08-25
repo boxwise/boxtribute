@@ -1,31 +1,55 @@
 import { VStack, Text, SimpleGrid } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { subMonths } from "date-fns";
 import BoxFlowSankey from "./BoxFlowSankey";
 import ShipmentsPieChart from "./ShipmentsPieChart";
 import ShipmentsOverTimeChart from "./ShipmentsOverTimeChart";
 import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
-import { MovedBoxes } from "../../../../../graphql/types";
+import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import type { MovementDirection } from "../../../utils/dashboardFilters";
 
 interface IMovedBoxesChartsProps {
   movedBoxes: Partial<MovedBoxes>;
+  allMovedBoxesFacts: MovedBoxesResult[];
   boxesOrItems: BoxesOrItems;
   direction: MovementDirection;
 }
 
 export default function MovedBoxesCharts({
   movedBoxes,
+  allMovedBoxesFacts,
   boxesOrItems,
   direction,
 }: IMovedBoxesChartsProps) {
   const { outgoingCount, incomingCount } = useMemo(() => {
-    const targets = movedBoxes?.dimensions?.target ?? [];
-    const outgoing = targets.filter(
-      (t) => t?.type === "OutgoingShipment" || t?.type === "OutgoingLocation",
-    ).length;
-    const incoming = targets.filter((t) => t?.type === "IncomingShipment").length;
-    return { outgoingCount: outgoing, incomingCount: incoming };
-  }, [movedBoxes?.dimensions?.target]);
+    const cutoff = subMonths(new Date(), 6);
+    const targetTypeMap = new Map(
+      (movedBoxes?.dimensions?.target ?? [])
+        .filter((t): t is NonNullable<typeof t> => t !== null)
+        .map((t) => [t.id, t.type]),
+    );
+
+    const last6MonthsFacts = allMovedBoxesFacts.filter((f) => new Date(f.movedOn) >= cutoff);
+
+    // A "shipment" is a unique (targetId, movedOn) pair — the backend groups facts by
+    // (targetId, movedOn, product, gender, ...) so the same destination can appear on
+    // multiple send-dates, each representing a distinct shipment.
+    const outgoingShipments = new Set(
+      last6MonthsFacts
+        .filter((f) => {
+          const type = targetTypeMap.get(f.targetId);
+          return type === "OutgoingShipment" || type === "OutgoingLocation";
+        })
+        .map((f) => `${f.targetId}::${f.movedOn}`),
+    );
+    const incomingShipments = new Set(
+      last6MonthsFacts
+        .filter((f) => targetTypeMap.get(f.targetId) === "IncomingShipment")
+        .map((f) => `${f.targetId}::${f.movedOn}`),
+    );
+
+    return { outgoingCount: outgoingShipments.size, incomingCount: incomingShipments.size };
+  }, [allMovedBoxesFacts, movedBoxes?.dimensions?.target]);
 
   return (
     <VStack align="stretch" spacing={6}>
