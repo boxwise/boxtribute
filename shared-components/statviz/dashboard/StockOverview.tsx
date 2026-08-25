@@ -139,14 +139,14 @@ export default function StockOverview({
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
-    <AccordionItem id="dashboard-section-stock">
-      <AccordionButton bg="gray.100" _hover={{ bg: "gray.100" }} padding="15px 10px">
+    <AccordionItem id="dashboard-section-stock" bg="#f4f4f5">
+      <AccordionButton _hover={{ bg: "#f4f4f5" }} padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Stock Overview</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel bg="gray.100" mx={-4} pb={10}>
+      <AccordionPanel mx={-4} pb="80px">
         <VStack mx={4} align="stretch" spacing={4}>
           <HStack justify="space-between" spacing={2} align="flex-start">
             <DashboardFilterChips
