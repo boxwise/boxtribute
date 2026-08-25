@@ -159,6 +159,7 @@ export default function StockOverview({
                 size="md"
                 value={boxesOrItems}
                 onChange={handleBoxesOrItemsChange}
+                bg="white"
                 width="120px"
               >
                 <option value="boxesCount">Boxes</option>

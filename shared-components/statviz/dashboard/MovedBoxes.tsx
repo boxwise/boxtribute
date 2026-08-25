@@ -184,7 +184,13 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
               testIdPrefix="movement"
             />
             <HStack spacing={2} marginLeft="auto">
-              <Select size="md" value={direction} onChange={handleDirectionChange} width="140px">
+              <Select
+                size="md"
+                value={direction}
+                onChange={handleDirectionChange}
+                bg="white"
+                width="140px"
+              >
                 <option value="out">Outgoing</option>
                 <option value="in">Incoming</option>
               </Select>
@@ -192,6 +198,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
                 size="md"
                 value={boxesOrItems}
                 onChange={handleBoxesOrItemsChange}
+                bg="white"
                 width="120px"
               >
                 <option value="boxesCount">Boxes</option>
