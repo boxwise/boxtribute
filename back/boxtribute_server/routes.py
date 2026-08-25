@@ -79,8 +79,10 @@ def public_api_server():
 
 @api_bp.post("/token")
 def api_token():
+    payload = request.get_json()
     success, result = request_jwt(
-        **request.get_json(),  # must contain username and password
+        username=payload["username"],
+        password=payload["password"],
         client_id=os.environ["AUTH0_CLIENT_ID"],
         client_secret=os.environ["AUTH0_CLIENT_SECRET"],
         audience=os.environ["AUTH0_AUDIENCE"],
