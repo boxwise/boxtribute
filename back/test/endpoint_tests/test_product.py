@@ -397,6 +397,13 @@ def test_custom_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response["deletedOn"] == deleted_on
 
+    # Test case 8.2.55b
+    mutation = f"""mutation {{ editCustomProduct(editInput: {{
+                    id: {product_id}, price: 99 }} ) {{
+                        ...on DeletedProductError {{ name }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": name}
+
     # Test case 8.2.59
     product_with_boxes_id = default_product["id"]
     mutation = f"""mutation {{ deleteProduct(id: {product_with_boxes_id}) {{
@@ -598,6 +605,13 @@ def test_standard_product_instantiation_mutations(
     time.sleep(1)
     response = assert_successful_request(client, mutation)
     assert response["deletedOn"] == deleted_on
+
+    # Test case 8.2.80b
+    mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
+                    id: {product_id}, price: 99 }} ) {{
+                        ...on DeletedProductError {{ name }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"name": another_standard_product["name"]}
 
     # Test case 8.2.60: Re-enable previously disabled instantiation
     mutation = _enable_mutation(enable_input)
