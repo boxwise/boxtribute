@@ -28,19 +28,28 @@ export default function MovedBoxesCharts({
         .filter((t): t is NonNullable<typeof t> => t !== null)
         .map((t) => [t.id, t.type]),
     );
+    const targetNameMap = new Map(
+      (movedBoxes?.dimensions?.target ?? [])
+        .filter((t): t is NonNullable<typeof t> => t !== null)
+        .map((t) => [t.id, t.name]),
+    );
 
     const last6MonthsFacts = allMovedBoxesFacts.filter((f) => new Date(f.movedOn) >= cutoff);
 
-    // A "shipment" is a unique (targetId, movedOn) pair — the backend groups facts by
+    // OutgoingShipment: a unique (targetId, movedOn) pair — the backend groups facts by
     // (targetId, movedOn, product, gender, ...) so the same destination can appear on
     // multiple send-dates, each representing a distinct shipment.
-    const outgoingShipments = new Set(
+    // Note: undercounting if multiple shipments are sent on the same day
+    // OutgoingLocation: count unique location names instead.
+    const outgoingShipmentKeys = new Set(
       last6MonthsFacts
-        .filter((f) => {
-          const type = targetTypeMap.get(f.targetId);
-          return type === "OutgoingShipment" || type === "OutgoingLocation";
-        })
+        .filter((f) => targetTypeMap.get(f.targetId) === "OutgoingShipment")
         .map((f) => `${f.targetId}::${f.movedOn}`),
+    );
+    const outgoingLocationNames = new Set(
+      last6MonthsFacts
+        .filter((f) => targetTypeMap.get(f.targetId) === "OutgoingLocation")
+        .map((f) => targetNameMap.get(f.targetId) ?? f.targetId),
     );
     const incomingShipments = new Set(
       last6MonthsFacts
@@ -48,7 +57,10 @@ export default function MovedBoxesCharts({
         .map((f) => `${f.targetId}::${f.movedOn}`),
     );
 
-    return { outgoingCount: outgoingShipments.size, incomingCount: incomingShipments.size };
+    return {
+      outgoingCount: outgoingShipmentKeys.size + outgoingLocationNames.size,
+      incomingCount: incomingShipments.size,
+    };
   }, [allMovedBoxesFacts, movedBoxes?.dimensions?.target]);
 
   return (
