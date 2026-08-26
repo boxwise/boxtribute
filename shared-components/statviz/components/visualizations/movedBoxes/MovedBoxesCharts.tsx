@@ -40,7 +40,7 @@ export default function MovedBoxesCharts({
     // (targetId, movedOn, product, gender, ...) so the same destination can appear on
     // multiple send-dates, each representing a distinct shipment.
     // Note: undercounting if multiple shipments are sent on the same day
-    // OutgoingLocation: count unique location names instead.
+    // OutgoingLocation: count unique location names instead, excluding reverse box flows
     const outgoingShipmentKeys = new Set(
       last6MonthsFacts
         .filter((f) => targetTypeMap.get(f.targetId) === "OutgoingShipment")
@@ -48,7 +48,7 @@ export default function MovedBoxesCharts({
     );
     const outgoingLocationNames = new Set(
       last6MonthsFacts
-        .filter((f) => targetTypeMap.get(f.targetId) === "OutgoingLocation")
+        .filter((f) => targetTypeMap.get(f.targetId) === "OutgoingLocation" && f.boxesCount > 0)
         .map((f) => targetNameMap.get(f.targetId) ?? f.targetId),
     );
     const incomingShipments = new Set(

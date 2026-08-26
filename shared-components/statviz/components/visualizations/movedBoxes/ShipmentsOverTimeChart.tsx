@@ -53,7 +53,8 @@ export default function ShipmentsOverTimeChart({
       })),
       filter((fact) =>
         direction === "out"
-          ? fact.targetType === "OutgoingShipment" || fact.targetType === "OutgoingLocation"
+          ? fact.targetType === "OutgoingShipment" ||
+            (fact.targetType === "OutgoingLocation" && fact.boxesCount > 0)
           : fact.targetType === "IncomingShipment",
       ),
       map((fact) => ({
