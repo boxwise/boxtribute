@@ -1614,6 +1614,9 @@ type DeletedBaseError {
 type DeletedBoxError {
   labelIdentifier: String!
 }
+type DeletedProductError {
+  name: String!
+}
 type InvalidBoxStateError {
   state: BoxState!
 }
@@ -1638,11 +1641,11 @@ union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExist
 union DeleteTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError
 union DeleteTagsResult = TagsResult | InsufficientPermissionError
 union CreateCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError
-union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError
+union EditCustomProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | EmptyNameError | ProductTypeMismatchError | DeletedProductError
 union DeleteProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union EnableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | StandardProductAlreadyEnabledForBaseError | OutdatedStandardProductVersionError
 union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
-union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError
+union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError | DeletedProductError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
 union CreateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ResourceDoesNotExistError
 union CreateBoxesResult = BoxesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ProductLocationBaseMismatchError | InvalidBaseError
