@@ -73,9 +73,10 @@ def test_queries(auth0_client, endpoint):
     # Check sorting of size ranges (ID 1: XS...XXL, ID 3/8/9: shoe sizes)
     for size_range in response:
         size_names = [s["name"] for s in size_range["sizes"]]
-        if size_range["id"] in [3, 8, 9]:
+        size_range_id = int(size_range["id"])
+        if size_range_id in [3, 8, 9]:
             assert size_names == sorted(size_names)
-        elif size_range["id"] == 1:
+        elif size_range_id == 1:
             assert size_names == ["XS", "S", "M", "L", "XL", "XXL", "Mixed"]
 
 
