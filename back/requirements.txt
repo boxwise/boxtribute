@@ -4,8 +4,8 @@ Flask-Cors==6.0.5
 sentry-sdk[flask]==2.68.0
 PyMySQL==1.2.0
 peewee==4.3.0
-python-dotenv==1.2.2
+python-dotenv==1.2.3
 PyJWT[crypto]==2.13.0
 aiodataloader==0.4.3
 gunicorn
-auth0-python==6.2.0
+auth0-python==6.3.0
