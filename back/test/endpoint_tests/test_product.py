@@ -397,7 +397,7 @@ def test_custom_product_mutations(
     response = assert_successful_request(client, mutation)
     assert response["deletedOn"] == deleted_on
 
-    # Test case 8.2.55b
+    # Test case 8.2.48a
     mutation = f"""mutation {{ editCustomProduct(editInput: {{
                     id: {product_id}, price: 99 }} ) {{
                         ...on DeletedProductError {{ name }} }} }}"""
@@ -606,7 +606,7 @@ def test_standard_product_instantiation_mutations(
     response = assert_successful_request(client, mutation)
     assert response["deletedOn"] == deleted_on
 
-    # Test case 8.2.80b
+    # Test case 8.2.72a
     mutation = f"""mutation {{ editStandardProductInstantiation(editInput: {{
                     id: {product_id}, price: 99 }} ) {{
                         ...on DeletedProductError {{ name }} }} }}"""
