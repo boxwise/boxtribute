@@ -1,29 +1,67 @@
 import { VStack, Text, SimpleGrid } from "@chakra-ui/react";
 import { useMemo } from "react";
+import { subMonths } from "date-fns";
 import BoxFlowSankey from "./BoxFlowSankey";
 import ShipmentsPieChart from "./ShipmentsPieChart";
 import ShipmentsOverTimeChart from "./ShipmentsOverTimeChart";
 import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
-import { MovedBoxes } from "../../../../../graphql/types";
+import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 import type { MovementDirection } from "../../../utils/dashboardFilters";
 
 interface IMovedBoxesChartsProps {
   movedBoxes: Partial<MovedBoxes>;
+  allMovedBoxesFacts: MovedBoxesResult[];
   boxesOrItems: BoxesOrItems;
   direction: MovementDirection;
 }
 
 export default function MovedBoxesCharts({
   movedBoxes,
+  allMovedBoxesFacts,
   boxesOrItems,
   direction,
 }: IMovedBoxesChartsProps) {
   const { outgoingCount, incomingCount } = useMemo(() => {
-    const targets = movedBoxes?.dimensions?.target ?? [];
-    const outgoing = targets.filter((t) => t?.type === "OutgoingShipment").length;
-    const incoming = targets.filter((t) => t?.type === "IncomingShipment").length;
-    return { outgoingCount: outgoing, incomingCount: incoming };
-  }, [movedBoxes?.dimensions?.target]);
+    const cutoff = subMonths(new Date(), 6);
+    const targetTypeMap = new Map(
+      (movedBoxes?.dimensions?.target ?? [])
+        .filter((t): t is NonNullable<typeof t> => t !== null)
+        .map((t) => [t.id, t.type]),
+    );
+    const targetNameMap = new Map(
+      (movedBoxes?.dimensions?.target ?? [])
+        .filter((t): t is NonNullable<typeof t> => t !== null)
+        .map((t) => [t.id, t.name]),
+    );
+
+    const last6MonthsFacts = allMovedBoxesFacts.filter((f) => new Date(f.movedOn) >= cutoff);
+
+    // OutgoingShipment: a unique (targetId, movedOn) pair — the backend groups facts by
+    // (targetId, movedOn, product, gender, ...) so the same destination can appear on
+    // multiple send-dates, each representing a distinct shipment.
+    // Note: undercounting if multiple shipments are sent on the same day
+    // OutgoingLocation: count unique location names instead, excluding reverse box flows
+    const outgoingShipmentKeys = new Set(
+      last6MonthsFacts
+        .filter((f) => targetTypeMap.get(f.targetId) === "OutgoingShipment")
+        .map((f) => `${f.targetId}::${f.movedOn}`),
+    );
+    const outgoingLocationNames = new Set(
+      last6MonthsFacts
+        .filter((f) => targetTypeMap.get(f.targetId) === "OutgoingLocation" && f.boxesCount > 0)
+        .map((f) => targetNameMap.get(f.targetId) ?? f.targetId),
+    );
+    const incomingShipments = new Set(
+      last6MonthsFacts
+        .filter((f) => targetTypeMap.get(f.targetId) === "IncomingShipment")
+        .map((f) => `${f.targetId}::${f.movedOn}`),
+    );
+
+    return {
+      outgoingCount: outgoingShipmentKeys.size + outgoingLocationNames.size,
+      incomingCount: incomingShipments.size,
+    };
+  }, [allMovedBoxesFacts, movedBoxes?.dimensions?.target]);
 
   return (
     <VStack align="stretch" spacing={6}>

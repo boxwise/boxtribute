@@ -94,14 +94,14 @@ export default function BeneficiaryOverview({ isActive, tags }: BeneficiaryOverv
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <AccordionItem id="dashboard-section-beneficiaries">
-      <AccordionButton _hover={{ bg: "gray.100" }} padding="15px 10px">
+    <AccordionItem id="dashboard-section-beneficiaries" bg="#f4f4f5">
+      <AccordionButton _hover={{ bg: "#f4f4f5" }} padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Beneficiary Overview</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel bg="gray.100" mx={-4}>
+      <AccordionPanel mx={-4} pb={10}>
         <VStack align="stretch" mx={4} spacing={4}>
           <HStack justify="space-between" align="flex-start">
             <DashboardFilterChips

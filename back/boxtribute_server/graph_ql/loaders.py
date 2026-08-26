@@ -636,7 +636,11 @@ class SizesForSizeRangeLoader(DataLoader):
         authorize(permission="size:read")
         # Mapping of size range ID to list of sizes
         sizes = defaultdict(list)
-        for srs in SizeRangeSize.select(SizeRangeSize, Size).join(Size):
+        for srs in (
+            SizeRangeSize.select(SizeRangeSize, Size)
+            .join(Size)
+            .order_by(SizeRangeSize.size_range, SizeRangeSize.seq)
+        ):
             sizes[srs.size_range_id].append(srs.size)
         # Keys are in fact size range IDs. Return empty list if size range has no sizes
         return [sizes.get(i, []) for i in keys]

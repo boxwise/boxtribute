@@ -21,6 +21,8 @@ export interface INumberFieldProps extends Omit<FormControlProps, "onChange" | "
   showError?: boolean;
   isRequired?: boolean;
   testId?: string;
+  precision?: number;
+  step?: number;
 }
 
 export function NumberField({
@@ -32,6 +34,8 @@ export function NumberField({
   showError = true,
   isRequired = false,
   testId,
+  precision,
+  step,
   ...props
 }: INumberFieldProps) {
   return (
@@ -53,10 +57,23 @@ export function NumberField({
         render={({ field }) => (
           <NumberInput
             min={0}
+            precision={precision}
+            step={step}
             data-testid={testId}
             value={field.value ?? ""}
-            onChange={(_valueAsString, valueAsNumber) => {
-              // Convert empty string to undefined if you prefer
+            onChange={(valueAsString, valueAsNumber) => {
+              const allowFloat =
+                (typeof precision === "number" && precision > 0) ||
+                (typeof step === "number" && !Number.isInteger(step));
+              if (valueAsString === "") {
+                field.onChange("");
+                return;
+              }
+              // Preserve mid-typing decimals only for float-enabled fields.
+              if (allowFloat && (valueAsString === "." || valueAsString.endsWith("."))) {
+                field.onChange(valueAsString);
+                return;
+              }
               field.onChange(Number.isNaN(valueAsNumber) ? "" : valueAsNumber);
             }}
           >

@@ -29,6 +29,7 @@ beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org", [
     "be_user",
     "view_shipments",
+    "manage_inventory",
   ]);
 });
 
@@ -1136,6 +1137,25 @@ it("QR.4 - Failed QR code creation for box with deleted product", async () => {
       }),
     ),
   );
+}, 10000);
+
+// Test case QR.6 - No alert and no create button when user lacks manage_inventory permission
+it("QR.6 - Missing-label alert and create button absent without manage_inventory permission", async () => {
+  mockAuthenticatedUser(mockedUseAuth0, "dev_coordinator@boxaid.org", [
+    "be_user",
+    "view_shipments",
+  ]);
+  render(<BTBox />, {
+    routePath: "/bases/:baseId/boxes/:labelIdentifier",
+    initialUrl: "/bases/1/boxes/noqr123",
+    mocks: [initialQueryForBoxWithoutQrCode],
+    addTypename: true,
+  });
+
+  expect(await screen.findByRole("heading", { name: /box noqr123/i })).toBeInTheDocument();
+
+  expect(screen.queryByTestId("no-qr-code-alert")).not.toBeInTheDocument();
+  expect(screen.queryByTestId("create-label-button")).not.toBeInTheDocument();
 }, 10000);
 
 // Test case QR.5 - Failed QR code creation with GraphQL error

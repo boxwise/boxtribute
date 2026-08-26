@@ -32,7 +32,7 @@ it("MobileWalkthrough - shows welcome screen on first visit", async () => {
 
 it("MobileWalkthrough - does NOT show welcome on subsequent visits", () => {
   localStorage.setItem(
-    "boxtribute_mobile_walkthrough_anonymous",
+    "boxtribute_mobile_walkthrough_auth0|test@example.com",
     JSON.stringify({ hasSeenWelcome: true }),
   );
   renderMobileWalkthrough();
