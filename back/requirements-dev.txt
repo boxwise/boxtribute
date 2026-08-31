@@ -1,6 +1,6 @@
 black==26.5.1
 flake8==7.3.0
-isort==8.0.1
+isort==9.0.1
 pre-commit==4.6.2
 pytest>=9.1.1
 pytest-mock==3.15.1
@@ -11,5 +11,5 @@ types-Flask-Cors==6.0.3.20260712
 types-setuptools==84.0.0.20260812
 types-PyMySQL==1.2.0.20260807
 flake8-bugbear==25.11.29
-Faker==40.36.0
+Faker==40.37.0
 freezegun==1.5.5
