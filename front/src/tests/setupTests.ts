@@ -70,6 +70,32 @@ Object.defineProperty(navigator, "userAgent", {
   // configurable: true
 });
 
+const mockLocalStorage = (() => {
+  let store = {} as Storage;
+
+  return {
+    getItem(key: string) {
+      return store[key];
+    },
+
+    setItem(key: string, value: string) {
+      store[key] = value;
+    },
+
+    removeItem(key: string) {
+      delete store[key];
+    },
+
+    clear() {
+      store = {} as Storage;
+    },
+  };
+})();
+
+Object.defineProperty(window, "localStorage", {
+  value: mockLocalStorage,
+});
+
 beforeEach(() => {
   localStorage.clear();
   // Reset the cache before each test
