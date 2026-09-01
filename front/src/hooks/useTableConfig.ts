@@ -204,7 +204,7 @@ export const useTableConfig = ({
    *   when the URL requested e.g. "Donated".
    */
   useEffect(() => {
-    if (!hasInitializedRef && syncFiltersAndUrlParams) {
+    if (!hasInitializedRef.current && syncFiltersAndUrlParams) {
       const hasUrlParams =
         URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam)) ||
         !!searchParams.get("created_from") ||
