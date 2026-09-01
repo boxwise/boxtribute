@@ -36,10 +36,7 @@ from ....exceptions import (
     NegativeWeight,
 )
 from ....exceptions import ProductLocationBaseMismatch as ProductLocationBaseMismatchExc
-from ....exceptions import (
-    QrCodeAlreadyAssignedToBox,
-    TagBaseMismatch,
-)
+from ....exceptions import QrCodeAlreadyAssignedToBox, TagBaseMismatch
 from ....models.definitions.base import Base
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory

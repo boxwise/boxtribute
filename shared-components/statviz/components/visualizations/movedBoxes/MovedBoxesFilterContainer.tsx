@@ -48,11 +48,12 @@ export default function MovedBoxesFilterContainer({
       );
     }
     if (products.length > 0) {
+      const productKeys = new Set(
+        products.map((p) => `${p.name.trim().toLowerCase()}|${p.gender ?? ""}`),
+      );
       filters.push(
         filter((fact: MovedBoxesResult) =>
-          products.some(
-            (p) => p.name.toLowerCase() === fact.productName! && p.gender === fact.gender,
-          ),
+          productKeys.has(`${(fact.productName ?? "").trim()}|${fact.gender ?? ""}`),
         ),
       );
     }
@@ -84,6 +85,7 @@ export default function MovedBoxesFilterContainer({
   return (
     <MovedBoxesCharts
       movedBoxes={filteredMovedBoxesCube}
+      allMovedBoxesFacts={(movedBoxes?.facts ?? []) as MovedBoxesResult[]}
       boxesOrItems={boxesOrItems}
       direction={direction}
     />

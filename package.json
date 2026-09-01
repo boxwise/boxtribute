@@ -24,7 +24,7 @@
     "@chakra-ui/react": "2.8.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@hookform/resolvers": "^5.5.7",
+    "@hookform/resolvers": "^5.9.1",
     "@nivo/bar": "0.99.0",
     "@nivo/calendar": "0.99.0",
     "@nivo/colors": "0.99.0",
@@ -33,7 +33,7 @@
     "@nivo/pie": "0.99.0",
     "@nivo/sankey": "0.99.0",
     "@nivo/theming": "0.99.0",
-    "@sentry/react": "^10.69.0",
+    "@sentry/react": "^10.70.0",
     "@tidyjs/tidy": "^2.6.1",
     "@visx/axis": "^3.12.0",
     "@visx/event": "^3.12.0",
@@ -54,7 +54,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.62.0",
     "react-icons": "^5.7.0",
-    "react-router-dom": "^6.30.4",
+    "react-router-dom": "^6.30.6",
     "zod": "^4.4.3"
   },
   "devDependencies": {

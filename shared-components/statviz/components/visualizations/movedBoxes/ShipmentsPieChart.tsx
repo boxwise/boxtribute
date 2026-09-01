@@ -120,7 +120,7 @@ export default function ShipmentsPieChart({
   const chartProps = {
     data: chartData,
     width: "100%",
-    height: "500px",
+    height: "400px",
   };
 
   if (chartData.length === 0) {

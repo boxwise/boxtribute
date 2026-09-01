@@ -545,3 +545,17 @@ def test_gcloud_logging(client, mocker):
     assert response == {"__typename": "UnknownLinkError"}
     mocked_loggers[WEBAPP_CONTEXT].log_struct.assert_not_called()
     mocked_loggers[API_CONTEXT].log_struct.assert_not_called()
+
+
+def test_token_endpoint_validation(client):
+    code = 400
+    endpoint = "/token"
+    for data in [None, "invalid"]:
+        response = client.post(endpoint, json=data)
+        assert response.status_code == code
+        assert response.json["error"] == "invalid JSON payload"
+
+    for field in ["username", "password"]:
+        response = client.post(endpoint, json={field: "x"})
+        assert response.status_code == code
+        assert response.json["error"] == "missing username or password"

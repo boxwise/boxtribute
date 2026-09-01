@@ -1,5 +1,14 @@
-import { useCallback, useState, useMemo } from "react";
-import { VStack, Button, Box, FormControl, FormLabel, SimpleGrid } from "@chakra-ui/react";
+import { useCallback, useEffect, useState, useMemo } from "react";
+import {
+  VStack,
+  Button,
+  Box,
+  FormControl,
+  FormLabel,
+  SimpleGrid,
+  Input,
+  Text,
+} from "@chakra-ui/react";
 import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
@@ -33,6 +42,8 @@ export function BoxesFilter({
   tagOptions,
 }: BoxesFilterProps) {
   const [stagedFilters, setStagedFilters] = useState<Record<string, string[]>>({});
+  const [createdFrom, setCreatedFrom] = useState("");
+  const [createdTo, setCreatedTo] = useState("");
 
   // Convert IFilterValue[] to ITagFilterValue[] for TabbedTagDropdown
   const tagFilterValues: ITagFilterValue[] = useMemo(
@@ -78,22 +89,32 @@ export function BoxesFilter({
     }));
   }, []);
 
-  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
-  if (isOpen && !prevIsOpen) {
-    setPrevIsOpen(true);
-    const filtersMap: Record<string, string[]> = {};
-    columnFilters.forEach((filter) => {
-      if (filter.value == null) return;
-      if (Array.isArray(filter.value)) {
-        filtersMap[filter.id] = filter.value.map(String);
+  useEffect(() => {
+    if (isOpen) {
+      const filtersMap: Record<string, string[]> = {};
+      columnFilters.forEach((filter) => {
+        if (filter.value == null) {
+          return;
+        }
+        if (Array.isArray(filter.value)) {
+          filtersMap[filter.id] = filter.value.map(String);
+        } else {
+          filtersMap[filter.id] = [String(filter.value)];
+        }
+      });
+      setStagedFilters(filtersMap);
+
+      // Sync date range from existing filters
+      const createdOnFilter = columnFilters.find((f) => f.id === "createdOn");
+      if (createdOnFilter && Array.isArray(createdOnFilter.value)) {
+        setCreatedFrom(createdOnFilter.value[0] ?? "");
+        setCreatedTo(createdOnFilter.value[1] ?? "");
       } else {
-        filtersMap[filter.id] = [String(filter.value)];
+        setCreatedFrom("");
+        setCreatedTo("");
       }
-    });
-    setStagedFilters(filtersMap);
-  } else if (!isOpen && prevIsOpen) {
-    setPrevIsOpen(false);
-  }
+    }
+  }, [isOpen, columnFilters]);
 
   const handleFilterChange = useCallback((filterId: string, values: string[]) => {
     setStagedFilters((prev) => ({
@@ -104,14 +125,22 @@ export function BoxesFilter({
 
   const handleApply = useCallback(() => {
     const filters: Filters<any> = Object.entries(stagedFilters)
-      .filter(([, value]) => value.length > 0)
+      .filter(([id, value]) => id !== "createdOn" && value.length > 0)
       .map(([id, value]) => ({ id, value }));
+
+    // Always include createdOn date range when either value is set
+    if (createdFrom || createdTo) {
+      filters.push({ id: "createdOn", value: [createdFrom, createdTo] });
+    }
+
     onApplyFilters(filters);
     onClose();
-  }, [stagedFilters, onApplyFilters, onClose]);
+  }, [stagedFilters, createdFrom, createdTo, onApplyFilters, onClose]);
 
   const handleClear = useCallback(() => {
     setStagedFilters({});
+    setCreatedFrom("");
+    setCreatedTo("");
   }, []);
 
   const stateOptions = Object.entries(boxStateIds).map(([name, id]) => ({
@@ -119,6 +148,14 @@ export function BoxesFilter({
     value: id,
     urlId: id,
   }));
+
+  const dateInputStyle = {
+    border: "2px solid",
+    borderColor: "gray.300",
+    borderRadius: "0",
+    _hover: { borderColor: "gray.300" },
+    _focus: { borderColor: "blue.500", boxShadow: "none" },
+  };
 
   return (
     <VStack spacing={4} align="stretch">
@@ -220,6 +257,38 @@ export function BoxesFilter({
             onClearAll={handleClearAllTags}
             placeholder="All"
           />
+        </FormControl>
+
+        <FormControl>
+          <FormLabel>Created</FormLabel>
+          <SimpleGrid columns={2} spacing={2}>
+            <Box>
+              <Text fontSize="sm" fontWeight="bold" mb={1}>
+                From
+              </Text>
+              <Input
+                type="date"
+                aria-label="Created from"
+                value={createdFrom}
+                onChange={(e) => setCreatedFrom(e.target.value)}
+                data-testid="created-from-input"
+                {...dateInputStyle}
+              />
+            </Box>
+            <Box>
+              <Text fontSize="sm" fontWeight="bold" mb={1}>
+                To
+              </Text>
+              <Input
+                type="date"
+                aria-label="Created to"
+                value={createdTo}
+                onChange={(e) => setCreatedTo(e.target.value)}
+                data-testid="created-to-input"
+                {...dateInputStyle}
+              />
+            </Box>
+          </SimpleGrid>
         </FormControl>
       </SimpleGrid>
 

@@ -12,13 +12,13 @@ import {
   Text,
 } from "@chakra-ui/react";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import _ from "lodash";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { ResultOf } from "gql.tada";
 import { BOX_BY_LABEL_IDENTIFIER_AND_ALL_PRODUCTS_WITH_BASEID_QUERY } from "../BoxEditView";
@@ -62,8 +62,15 @@ const singleSelectOptionSchema = z.object({
 });
 
 const optionalNonNegativeNumber = z.preprocess(
-  (value) => (value === "" || value == null ? undefined : value),
-  z.number().nonnegative().optional(),
+  (value) => {
+    if (value === "" || value == null) return undefined;
+    if (typeof value === "string") return Number(value);
+    return value;
+  },
+  z
+    .number({ error: "Please enter a valid number (decimal separator: .)" })
+    .nonnegative()
+    .optional(),
 );
 
 export const BoxEditFormDataSchema = z.object({
@@ -80,7 +87,7 @@ export const BoxEditFormDataSchema = z.object({
     .nullable(singleSelectOptionSchema)
     .refine(Boolean, { error: "Please select a size" })
     .transform((selectedOption) => selectedOption || z.NEVER),
-  numberOfItems: z.number().int().nonnegative(),
+  numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, { error: "Please select a location" })
@@ -183,39 +190,47 @@ function BoxEdit({
     register,
     resetField,
     setError,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<IBoxEditFormDataInput>({
     resolver: zodResolver(BoxEditFormDataSchema),
     defaultValues,
   });
 
+  // sizes reset depending on selected product
+  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
+    IDropdownOption[]
+  >([]);
+
   // needed for updating size select field for new product
-  const productId = useWatch({ control, name: "productId" });
+  const productId = watch("productId");
   const productRef = useRef<string | undefined>(boxData?.product?.id);
 
-  // sizes derived from selected product
-  const sizesOptionsForCurrentProduct: IDropdownOption[] = useMemo(
-    () =>
-      (productId != null
-        ? productAndSizesData
-            .find((p) => p.id === productId.value)
-            ?.sizeRange?.sizes?.map((s) => ({ label: s.label, value: s.id }))
-        : undefined) ?? [],
-    [productId, productAndSizesData],
-  );
-
   useEffect(() => {
-    if (productId != null && productRef.current !== productId.value) {
-      // Reset size if the product reference is different than the currently selected product
-      productRef.current = productId.value;
-      // if there is only one option select it directly
-      if (sizesOptionsForCurrentProduct.length === 1) {
-        resetField("sizeId", { defaultValue: sizesOptionsForCurrentProduct[0] });
-      } else {
-        resetField("sizeId", { defaultValue: null });
+    if (productId != null) {
+      const productAndSizeDataForCurrentProduct = productAndSizesData.find(
+        (p) => p.id === productId.value,
+      );
+      const prepSizesOptionsForCurrentProduct =
+        // The BE returns the sizes appropriately sorted
+        productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
+          label: s.label,
+          value: s.id,
+        })) || [];
+      setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
+
+      // Reset size if the product referenec is different than the currently selected product
+      if (productRef.current !== productId.value) {
+        productRef.current = productId.value;
+        // if there is only one option select it directly
+        if (prepSizesOptionsForCurrentProduct.length === 1) {
+          resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
+        } else {
+          resetField("sizeId", { defaultValue: null });
+        }
       }
     }
-  }, [productId, sizesOptionsForCurrentProduct, resetField]);
+  }, [productId, productAndSizesData, boxData, resetField]);
 
   // If the product is deleted show a custom error message for productId
   useEffect(() => {
@@ -283,6 +298,8 @@ function BoxEdit({
                       fieldLabel="Weight"
                       errors={errors}
                       control={control}
+                      precision={2}
+                      step={0.1}
                     />
                   </Box>
                   <Text mb={2}>{boxData?.weightDisplayUnit?.symbol ?? ""}</Text>

@@ -957,3 +957,140 @@ describe("4.8.3 - URL Parameter Sync for Filters", () => {
     expect(screen.getByText(/8650860/i)).toBeInTheDocument();
   });
 });
+
+describe("4.8.4 - URL Parameter Sync for Created Date Range Filters", () => {
+  const dateRangeMocks = [
+    boxesQuery({ state: "ALL", paginationInput: 50 }),
+    boxesQuery({ state: "ALL" }),
+    boxesQuery({ state: "Scrap", paginationInput: 50 }),
+    boxesQuery({ state: "Donated", paginationInput: 50 }),
+    boxesQuery({ paginationInput: 50 }),
+    actionsQuery,
+  ];
+
+  it("4.8.4.1 - Component should parse both created_from and created_to URL parameters", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?created_from=2021-01-01&created_to=2024-01-01",
+        mocks: dateRangeMocks,
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Both date filter chips should be rendered
+    expect(screen.getByTestId("filter-chip-createdOn-from")).toBeInTheDocument();
+    expect(screen.getByTestId("filter-chip-createdOn-to")).toBeInTheDocument();
+    expect(screen.getByText("From 2021-01-01")).toBeInTheDocument();
+    expect(screen.getByText("To 2024-01-01")).toBeInTheDocument();
+  });
+
+  it("4.8.4.2 - Component should parse only created_from URL parameter", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?created_from=2021-01-01",
+        mocks: dateRangeMocks,
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Only the "from" chip should be rendered
+    expect(screen.getByTestId("filter-chip-createdOn-from")).toBeInTheDocument();
+    expect(screen.getByText("From 2021-01-01")).toBeInTheDocument();
+    expect(screen.queryByTestId("filter-chip-createdOn-to")).not.toBeInTheDocument();
+  });
+
+  it("4.8.4.3 - Component should parse only created_to URL parameter", async () => {
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?created_to=2024-01-01",
+        mocks: dateRangeMocks,
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Only the "to" chip should be rendered
+    expect(screen.queryByTestId("filter-chip-createdOn-from")).not.toBeInTheDocument();
+    expect(screen.getByTestId("filter-chip-createdOn-to")).toBeInTheDocument();
+    expect(screen.getByText("To 2024-01-01")).toBeInTheDocument();
+  });
+
+  it("4.8.4.4 - Removing created_from chip should remove only that URL parameter", async () => {
+    const user = userEvent.setup();
+    render(
+      <ErrorBoundary
+        fallback={
+          <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+        }
+      >
+        <Suspense fallback={<TableSkeleton />}>
+          <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
+        </Suspense>
+      </ErrorBoundary>,
+      {
+        routePath: "/bases/:baseId/boxes",
+        initialUrl: "/bases/2/boxes?created_from=2021-01-01&created_to=2024-01-01",
+        mocks: dateRangeMocks,
+        cache,
+        addTypename: true,
+        jotaiAtoms,
+      },
+    );
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+
+    // Both chips present initially
+    expect(screen.getByTestId("filter-chip-createdOn-from")).toBeInTheDocument();
+    expect(screen.getByTestId("filter-chip-createdOn-to")).toBeInTheDocument();
+
+    // Close the "from" chip
+    await user.click(screen.getByTestId("filter-chip-close-createdOn-from"));
+
+    // Only the "to" chip should remain
+    await waitFor(() => {
+      expect(screen.queryByTestId("filter-chip-createdOn-from")).not.toBeInTheDocument();
+      expect(screen.getByTestId("filter-chip-createdOn-to")).toBeInTheDocument();
+    });
+  });
+});

@@ -417,10 +417,10 @@ def test_query_moved_boxes(
             movedOn targetId categoryId productName gender sizeId tagIds
             absoluteMeasureValue dimensionId organisationName boxesCount itemsCount
         }
-        dimensions { target { id name type } }
+        dimensions { target { id name type deletedOn } }
         } }"""
     data = assert_successful_request(client, query, endpoint="graphql")
-    location_name = default_location["name"]
+    location_id = str(default_location["id"])
     base_name = another_base["name"]
     org_name = another_organisation["name"]
     assert data == {
@@ -434,7 +434,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": location_name,
+                "targetId": location_id,
                 "organisationName": None,
                 "movedOn": "2022-12-05",
                 "tagIds": [],
@@ -448,7 +448,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Boy",
-                "targetId": location_name,
+                "targetId": location_id,
                 "organisationName": None,
                 "movedOn": "2022-12-05",
                 "tagIds": [],
@@ -462,7 +462,7 @@ def test_query_moved_boxes(
                 "absoluteMeasureValue": None,
                 "dimensionId": None,
                 "gender": "Women",
-                "targetId": location_name,
+                "targetId": location_id,
                 "organisationName": None,
                 "movedOn": "2022-12-05",
                 "tagIds": [],
@@ -530,16 +530,19 @@ def test_query_moved_boxes(
                     "id": f"going-to-{base_name}",
                     "name": base_name,
                     "type": TargetType.OutgoingShipment.name,
+                    "deletedOn": None,
                 },
                 {
-                    "id": location_name,
-                    "name": location_name,
+                    "id": location_id,
+                    "name": default_location["name"],
                     "type": TargetType.OutgoingLocation.name,
+                    "deletedOn": None,
                 },
                 {
                     "id": BoxState.Lost.name,
                     "name": BoxState.Lost.name,
                     "type": TargetType.BoxState.name,
+                    "deletedOn": None,
                 },
             ],
         },
@@ -597,6 +600,7 @@ def test_query_moved_boxes(
                     "id": f"sent-from-{base_name}",
                     "name": base_name,
                     "type": TargetType.IncomingShipment.name,
+                    "deletedOn": None,
                 },
             ],
         },
@@ -915,7 +919,6 @@ def test_statistics_after_create_box_from_box(
 
     # use createBoxFromBox with a Donated location to create a new box with 10 items
     donated_location_id = str(non_default_box_state_location["id"])
-    donated_location_name = non_default_box_state_location["name"]
     new_box_items = 10
 
     mutation = f"""mutation {{ createBoxFromBox( creationInput: {{
@@ -982,7 +985,7 @@ def test_statistics_after_create_box_from_box(
         f
         for f in data["facts"]
         if f["movedOn"] == today
-        and f["targetId"] == donated_location_name
+        and f["targetId"] == donated_location_id
         and f["productName"] == product_name
     ]
     assert len(moved_box_facts) == 1

@@ -168,14 +168,14 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <AccordionItem id="dashboard-section-movement">
-      <AccordionButton _hover={{ bg: "gray.100" }} padding="15px 10px">
+    <AccordionItem id="dashboard-section-movement" bg="#f4f4f5">
+      <AccordionButton _hover={{ bg: "#f4f4f5" }} padding="15px 10px">
         <Box as="span" flex="1" textAlign="left">
           <Heading size="md">Movement History</Heading>
         </Box>
         <AccordionIcon />
       </AccordionButton>
-      <AccordionPanel bg="gray.100" mx={-4}>
+      <AccordionPanel mx={-4} pb={20}>
         <VStack align="stretch" mx={4} spacing={4}>
           <HStack justify="space-between" spacing={2} align="flex-start">
             <DashboardFilterChips
@@ -184,7 +184,13 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
               testIdPrefix="movement"
             />
             <HStack spacing={2} marginLeft="auto">
-              <Select size="md" value={direction} onChange={handleDirectionChange} width="140px">
+              <Select
+                size="md"
+                value={direction}
+                onChange={handleDirectionChange}
+                bg="white"
+                width="140px"
+              >
                 <option value="out">Outgoing</option>
                 <option value="in">Incoming</option>
               </Select>
@@ -192,6 +198,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
                 size="md"
                 value={boxesOrItems}
                 onChange={handleBoxesOrItemsChange}
+                bg="white"
                 width="120px"
               >
                 <option value="boxesCount">Boxes</option>
@@ -212,6 +219,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
                   targets={availableTargets}
                   tags={tags}
                   onApply={handleApplyFilters}
+                  direction={direction}
                 />
               </FilterPanel>
             </HStack>

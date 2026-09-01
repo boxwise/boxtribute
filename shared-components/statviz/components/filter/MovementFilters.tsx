@@ -8,6 +8,7 @@ import type {
   ITagOption,
   ITargetOption,
   MovementAppliedFilters,
+  MovementDirection,
 } from "../../utils/dashboardFilters";
 import { genders } from "./constants";
 import { toFilterValues, toProductFilterValues } from "../../utils/dashboardFilters";
@@ -21,6 +22,7 @@ interface MovementFiltersProps {
   targets: ITargetOption[];
   tags: ITagOption[];
   onApply: (filters: MovementAppliedFilters) => void;
+  direction: MovementDirection;
 }
 
 export function MovementFilters({
@@ -32,6 +34,7 @@ export function MovementFilters({
   targets,
   tags,
   onApply,
+  direction,
 }: MovementFiltersProps) {
   const [prevAppliedFilters, setPrevAppliedFilters] = useState(appliedFilters);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
@@ -52,7 +55,18 @@ export function MovementFilters({
 
   const productOptions = toProductFilterValues(products);
   const categoryOptions = toFilterValues(categories);
-  const targetOptions = targets.map((t) => ({ value: t.id, label: t.name, urlId: t.id }));
+  const targetOptions = [
+    // active locations first, alphabetically sorted
+    ...targets
+      .filter((t) => !t.deletedOn)
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((t) => ({ value: t.id, label: t.name, urlId: t.id })),
+    // archived locations, sorted by most-recently archived
+    ...targets
+      .filter((t) => t.deletedOn)
+      .sort((a, b) => b.deletedOn!.getTime() - a.deletedOn!.getTime())
+      .map((t) => ({ value: t.id, label: `${t.name} [Archived]`, urlId: t.id })),
+  ];
 
   const handleApply = useCallback(() => {
     onApply(staged);
@@ -162,7 +176,7 @@ export function MovementFilters({
           placeholder="All"
         />
         <MultiSelectFilter
-          fieldLabel="Partner / Target"
+          fieldLabel={direction === "out" ? "Partner (Outgoing Location)" : "Partner"}
           values={targetOptions}
           filterId="mtar-staged"
           filterValue={selectedTargetValues}

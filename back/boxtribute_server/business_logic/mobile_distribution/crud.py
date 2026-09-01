@@ -88,7 +88,7 @@ def unassign_box_from_distribution_event(box_label_identifier, distribution_even
         return box
 
 
-def assign_box_to_distribution_event(box_label_identifier, distribution_event_id):
+def assign_box_to_distribution_event(box, distribution_event_id):
     """Assigns a box to a distribution event."""
     with db.database.atomic():
         distribution_event = DistributionEvent.get_by_id(distribution_event_id)
@@ -98,9 +98,8 @@ def assign_box_to_distribution_event(box_label_identifier, distribution_event_id
                 desired_operation="assign_box_to_distribution_event",
                 distribution_event_id=distribution_event.id,
             )
-        box = Box.get(Box.label_identifier == box_label_identifier)
         box.distribution_event = distribution_event_id
-        box.save()
+        box.save(only=[Box.distribution_event])
         return box
 
 
