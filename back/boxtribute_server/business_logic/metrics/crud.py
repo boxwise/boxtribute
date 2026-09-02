@@ -348,14 +348,11 @@ def get_data_for_number_of_active_users():
     valid_users = []
     for user in users:
         last_login = user.get("last_login")
-        # Parse ISO 8601 datetime string
-        login_date = datetime.fromisoformat(last_login.replace("Z", "+00:00"))
-
         app_metadata = user.get("app_metadata", {})
         org_id = app_metadata.get("organisation_id")
         if org_id:
             org_ids.add(org_id)
-            valid_users.append({"last_login": login_date, "organisation_id": org_id})
+            valid_users.append({"last_login": last_login, "organisation_id": org_id})
 
     # Load organisation and base data from database
     # For multi-base organisations, it's not possible to determine the base which the
