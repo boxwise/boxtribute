@@ -174,28 +174,30 @@ def test_number_of_active_users_between(
     mock_users = [
         {
             "app_metadata": {"organisation_id": 1},
-            "last_login": datetime(2025, 1, 15, 10),
+            "last_login": datetime(2025, 1, 15, 10, tzinfo=timezone.utc),
         },
         {
             "app_metadata": {"organisation_id": 1},
-            "last_login": datetime(2025, 1, 20, 15, 30),
+            "last_login": datetime(2025, 1, 20, 15, 30, tzinfo=timezone.utc),
         },
         {
             "app_metadata": {"organisation_id": 2},
-            "last_login": datetime(2025, 1, 10, 8),
+            "last_login": datetime(2025, 1, 10, 8, tzinfo=timezone.utc),
         },
         {
             "app_metadata": {"organisation_id": 1},
-            "last_login": datetime(2024, 12, 1, 12),  # Outside range
+            "last_login": datetime(
+                2024, 12, 1, 12, tzinfo=timezone.utc
+            ),  # Outside range
         },
         {
             # no app_metadata
-            "last_login": datetime(2025, 1, 10, 8),
+            "last_login": datetime(2025, 1, 10, 8, tzinfo=timezone.utc),
         },
         {
             # no organisation ID
             "app_metadata": {},
-            "last_login": datetime(2025, 1, 10, 8),
+            "last_login": datetime(2025, 1, 10, 8, tzinfo=timezone.utc),
         },
     ]
     mock_service.get_users.return_value = mock_users
