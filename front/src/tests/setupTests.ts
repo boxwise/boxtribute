@@ -70,6 +70,7 @@ Object.defineProperty(navigator, "userAgent", {
   // configurable: true
 });
 
+// needed to avoid "running clear() on undefined" when executing `pnpm test` outside docker or CI
 const mockLocalStorage = (() => {
   let store = {} as Storage;
 
