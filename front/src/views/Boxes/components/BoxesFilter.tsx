@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 import {
   VStack,
   Button,
@@ -89,32 +89,33 @@ export function BoxesFilter({
     }));
   }, []);
 
-  useEffect(() => {
-    if (isOpen) {
-      const filtersMap: Record<string, string[]> = {};
-      columnFilters.forEach((filter) => {
-        if (filter.value == null) {
-          return;
-        }
-        if (Array.isArray(filter.value)) {
-          filtersMap[filter.id] = filter.value.map(String);
-        } else {
-          filtersMap[filter.id] = [String(filter.value)];
-        }
-      });
-      setStagedFilters(filtersMap);
-
-      // Sync date range from existing filters
-      const createdOnFilter = columnFilters.find((f) => f.id === "createdOn");
-      if (createdOnFilter && Array.isArray(createdOnFilter.value)) {
-        setCreatedFrom(createdOnFilter.value[0] ?? "");
-        setCreatedTo(createdOnFilter.value[1] ?? "");
-      } else {
-        setCreatedFrom("");
-        setCreatedTo("");
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen && !prevIsOpen) {
+    const filtersMap: Record<string, string[]> = {};
+    columnFilters.forEach((filter) => {
+      if (filter.value == null) {
+        return;
       }
+      if (Array.isArray(filter.value)) {
+        filtersMap[filter.id] = filter.value.map(String);
+      } else {
+        filtersMap[filter.id] = [String(filter.value)];
+      }
+    });
+    setStagedFilters(filtersMap);
+
+    // Sync date range from existing filters
+    const createdOnFilter = columnFilters.find((f) => f.id === "createdOn");
+    if (createdOnFilter && Array.isArray(createdOnFilter.value)) {
+      setCreatedFrom(createdOnFilter.value[0] ?? "");
+      setCreatedTo(createdOnFilter.value[1] ?? "");
+    } else {
+      setCreatedFrom("");
+      setCreatedTo("");
     }
-  }, [isOpen, columnFilters]);
+  } else if (!isOpen && prevIsOpen) {
+    setPrevIsOpen(false);
+  }
 
   const handleFilterChange = useCallback((filterId: string, values: string[]) => {
     setStagedFilters((prev) => ({

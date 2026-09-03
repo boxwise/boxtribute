@@ -23,10 +23,7 @@ const categoryErrorText = "Please select a category.";
 const sizeRangeErrorText = "Please select a size range.";
 const genderErrorText = "Please select a gender.";
 
-const SingleSelectOptionSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-});
+type SingleSelectOptionSchema = { label: string; value: string };
 
 const CreateCustomProductFormSchema = z.object({
   name: z
@@ -102,9 +99,9 @@ export type ICreateCustomProductFormOutput = z.output<typeof CreateCustomProduct
 
 export type ICreateCustomProductFormProps = {
   isLoading: boolean;
-  categoryOptions: z.infer<typeof SingleSelectOptionSchema>[];
-  sizeRangeOptions: z.infer<typeof SingleSelectOptionSchema>[];
-  genderOptions: z.infer<typeof SingleSelectOptionSchema>[];
+  categoryOptions: SingleSelectOptionSchema[];
+  sizeRangeOptions: SingleSelectOptionSchema[];
+  genderOptions: SingleSelectOptionSchema[];
   onSubmit: (createCustomProductFormOutput: ICreateCustomProductFormOutput) => void;
 };
 

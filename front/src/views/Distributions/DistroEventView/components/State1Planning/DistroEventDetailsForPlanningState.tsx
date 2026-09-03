@@ -25,7 +25,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { IPackingListEntry } from "views/Distributions/types";
 import { DistroEventDetailsForPlanningStateContext } from "./DistroEventDetailsForPlanningStateContainer";
 
@@ -57,12 +57,14 @@ const PackingListEntryTableRow = ({
     }
   };
 
-  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(entry.numberOfItems);
-
   const { numberOfItems } = entry;
-  useEffect(() => {
+  const [numberOfItemsFormValue, setNumberOfItemsFormValue] = useState(numberOfItems);
+  const [prevNumberOfItems, setPrevNumberOfItems] = useState(numberOfItems);
+
+  if (prevNumberOfItems !== numberOfItems) {
+    setPrevNumberOfItems(numberOfItems);
     setNumberOfItemsFormValue(numberOfItems);
-  }, [numberOfItems]);
+  }
 
   const backgroundColor = entry.numberOfItems > 0 ? "blue.50" : "transparent";
 
