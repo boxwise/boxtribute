@@ -377,7 +377,9 @@ describe("BeneficiaryOverview", () => {
       expect(screen.getByText(`${oneMonthAgo.slice(0, 7)} 0-7: 1`)).toBeInTheDocument();
 
       // Filter chip shows tag label
-      expect(screen.getByTestId("beneficiary-filter-chip-close-included-tag-1")).toBeInTheDocument();
+      expect(
+        screen.getByTestId("beneficiary-filter-chip-close-included-tag-1"),
+      ).toBeInTheDocument();
       expect(screen.getByTestId("beneficiary-clear-all-filters-button")).toBeInTheDocument();
     });
   });
