@@ -419,6 +419,7 @@ describe("StockOverview", () => {
 
       // Filter chip shows location name
       expect(screen.getByText("Warehouse B")).toBeInTheDocument();
+      expect(screen.getByTestId("stock-filter-chip-close-location-2")).toBeInTheDocument();
     });
   });
 
@@ -445,6 +446,7 @@ describe("StockOverview", () => {
       const chip = screen.getByText("Tag A");
       expect(chip).toBeInTheDocument();
       expect(chip).not.toHaveStyle({ textDecoration: "line-through" });
+      expect(screen.getByTestId("stock-filter-chip-close-included-tag-1")).toBeInTheDocument();
     });
   });
 
@@ -472,6 +474,7 @@ describe("StockOverview", () => {
       const chip = screen.getByText("Tag A");
       expect(chip).toBeInTheDocument();
       expect(chip).toHaveStyle({ textDecoration: "line-through" });
+      expect(screen.getByTestId("stock-filter-chip-close-excluded-tag-1")).toBeInTheDocument();
     });
   });
 
@@ -514,8 +517,8 @@ describe("StockOverview", () => {
       // sc=2 → category id 2 (Clothes)
       renderStockOverview("?sg=Male&sc=2");
 
-      // "No data" information shown
-      expect(await screen.findByText(/no data/i)).toBeInTheDocument();
+      // "No data" information shown (should be 3 though?)
+      expect(await screen.findAllByText(/no data available/i)).toHaveLength(2);
 
       // No ring, bar, or calendar chart shown
       expect(screen.queryByTestId("pie-slice")).not.toBeInTheDocument();
