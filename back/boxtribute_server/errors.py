@@ -121,3 +121,8 @@ class ExpiredLink(UserError):
 class UnknownLink(UserError):
     def __init__(self, *, code):
         self.code = code
+
+
+class DeletedProduct(UserError):
+    def __init__(self, *, name):
+        self.name = name

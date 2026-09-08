@@ -13,6 +13,7 @@ import { SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY } from "queries/querie
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
+import { MOVED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/queries/queries";
 
 vi.mock("@auth0/auth0-react");
 window.scrollTo = vi.fn();
@@ -89,6 +90,7 @@ const mockUpdateShipmentWhenReceivingMutation = ({
   graphQlError = false,
   shipmentId = "1",
   lostBoxLabelIdentifiers = ["123"],
+  resultState = "Receiving" as string,
 }) => ({
   request: {
     query: UPDATE_SHIPMENT_WHEN_RECEIVING,
@@ -103,12 +105,29 @@ const mockUpdateShipmentWhenReceivingMutation = ({
         data: graphQlError
           ? null
           : {
-              updateShipmentWhenReceiving: generateMockShipment({ state: "Receiving" }),
+              updateShipmentWhenReceiving: generateMockShipment({ state: resultState }),
             },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
+
+// Mock for the background MOVED_BOXES_QUERY refetch triggered when shipment
+// transitions to "Completed" or "Lost"
+const mockMovedBoxesQuery = {
+  request: {
+    query: MOVED_BOXES_QUERY,
+    variables: { baseId: 1 },
+  },
+  result: {
+    data: {
+      movedBoxes: {
+        facts: [],
+        dimensions: { category: [], size: [], target: [] },
+      },
+    },
+  },
+};
 
 const noDeliveryTests = [
   {
@@ -199,6 +218,136 @@ describe("No Delivery Tests", () => {
       40000,
     );
   });
+});
+
+// ---------------------------------------------------------------------------
+// Background MOVED_BOXES_QUERY refetch tests
+// When UPDATE_SHIPMENT_WHEN_RECEIVING returns a shipment in state "Completed"
+// or "Lost", the component should fire a background MOVED_BOXES_QUERY refetch
+// so that the Dashboard Movement section stays up to date.
+// ---------------------------------------------------------------------------
+describe("MOVED_BOXES_QUERY background refetch after onBoxUndelivered", () => {
+  (["Completed", "Lost"] as const).forEach((terminalState) => {
+    it(`triggers MOVED_BOXES_QUERY refetch when mutation returns shipment state "${terminalState}"`, async () => {
+      const user = userEvent.setup();
+      boxReconciliationOverlayVar({
+        isOpen: true,
+        labelIdentifier: "123",
+        shipmentId: "1",
+      } as IBoxReconciliationOverlayVar);
+
+      // Track whether the MOVED_BOXES_QUERY mock was consumed by recording
+      // when its result function is called.
+      let movedBoxesQueryWasFetched = false;
+      const trackedMovedBoxesQueryMock = {
+        ...mockMovedBoxesQuery,
+        result: () => {
+          movedBoxesQueryWasFetched = true;
+          return mockMovedBoxesQuery.result;
+        },
+      };
+
+      render(<BoxReconciliationOverlay />, {
+        routePath: "/bases/:baseId",
+        initialUrl: "/bases/1",
+        mocks: [
+          queryShipmentDetailForBoxReconciliation,
+          mockUpdateShipmentWhenReceivingMutation({ resultState: terminalState }),
+          trackedMovedBoxesQueryMock,
+        ],
+        cache,
+      });
+
+      // Wait for the overlay to render
+      expect(await screen.findByText(/box 123/i)).toBeInTheDocument();
+
+      // Navigate to the NoDelivery button (same interaction path as 4.7.3.3)
+      const matchProductButton = await screen.findByRole("button", {
+        name: /1\. match products/i,
+      });
+      await user.click(matchProductButton);
+      const noDeliveryButton = screen.getByTestId("NoDeliveryButton");
+      await user.click(noDeliveryButton);
+
+      // Confirm in the AYS dialog
+      expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
+      const yesButton = screen.getByTestId("AYSRightButton");
+      await user.click(yesButton);
+
+      // The success toast must fire first (mutation succeeded)
+      await waitFor(
+        () =>
+          expect(mockedCreateToast).toHaveBeenCalledWith(
+            expect.objectContaining({
+              message: expect.stringMatching(/Box marked as undelivered/i),
+            }),
+          ),
+        { timeout: 5000 },
+      );
+
+      // After the mutation resolves, the component should have fired the
+      // background MOVED_BOXES_QUERY refetch.
+      await waitFor(() => expect(movedBoxesQueryWasFetched).toBe(true), { timeout: 5000 });
+    }, 40000);
+  });
+
+  it('does NOT trigger MOVED_BOXES_QUERY refetch when mutation returns shipment state "Receiving"', async () => {
+    const user = userEvent.setup();
+    boxReconciliationOverlayVar({
+      isOpen: true,
+      labelIdentifier: "123",
+      shipmentId: "1",
+    } as IBoxReconciliationOverlayVar);
+
+    let movedBoxesQueryWasFetched = false;
+    const trackedMovedBoxesQueryMock = {
+      ...mockMovedBoxesQuery,
+      result: () => {
+        movedBoxesQueryWasFetched = true;
+        return mockMovedBoxesQuery.result;
+      },
+    };
+
+    render(<BoxReconciliationOverlay />, {
+      routePath: "/bases/:baseId",
+      initialUrl: "/bases/1",
+      mocks: [
+        queryShipmentDetailForBoxReconciliation,
+        // Returns "Receiving" — should NOT trigger refetch
+        mockUpdateShipmentWhenReceivingMutation({ resultState: "Receiving" }),
+        trackedMovedBoxesQueryMock,
+      ],
+      cache,
+    });
+
+    expect(await screen.findByText(/box 123/i)).toBeInTheDocument();
+
+    const matchProductButton = await screen.findByRole("button", {
+      name: /1\. match products/i,
+    });
+    await user.click(matchProductButton);
+    const noDeliveryButton = screen.getByTestId("NoDeliveryButton");
+    await user.click(noDeliveryButton);
+
+    expect(await screen.findByText(/box not delivered\?/i)).toBeInTheDocument();
+    const yesButton = screen.getByTestId("AYSRightButton");
+    await user.click(yesButton);
+
+    // Wait for the success toast to confirm the mutation completed
+    await waitFor(
+      () =>
+        expect(mockedCreateToast).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: expect.stringMatching(/Box marked as undelivered/i),
+          }),
+        ),
+      { timeout: 5000 },
+    );
+
+    // Give any async side-effects time to settle, then confirm no refetch
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(movedBoxesQueryWasFetched).toBe(false);
+  }, 40000);
 });
 
 // Test case 4.7.1

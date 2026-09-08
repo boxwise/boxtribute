@@ -85,6 +85,7 @@ export default function MovedBoxesFilterContainer({
   return (
     <MovedBoxesCharts
       movedBoxes={filteredMovedBoxesCube}
+      allMovedBoxesFacts={(movedBoxes?.facts ?? []) as MovedBoxesResult[]}
       boxesOrItems={boxesOrItems}
       direction={direction}
     />

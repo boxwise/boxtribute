@@ -48,6 +48,8 @@ def fetch_token(username):
         username=username,
         password=TEST_AUTH0_PASSWORD,
     )
+    if not success:
+        raise RuntimeError(response["error"])
     return response["access_token"]
 
 

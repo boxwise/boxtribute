@@ -79,8 +79,15 @@ def public_api_server():
 
 @api_bp.post("/token")
 def api_token():
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "invalid JSON payload"}), 400
+    if "username" not in payload or "password" not in payload:
+        return jsonify({"error": "missing username or password"}), 400
+
     success, result = request_jwt(
-        **request.get_json(),  # must contain username and password
+        username=payload["username"],
+        password=payload["password"],
         client_id=os.environ["AUTH0_CLIENT_ID"],
         client_secret=os.environ["AUTH0_CLIENT_SECRET"],
         audience=os.environ["AUTH0_AUDIENCE"],

@@ -6,6 +6,7 @@ from ....db import db
 from ....enums import BoxState, ProductType
 from ....errors import (
     BoxesStillAssignedToProduct,
+    DeletedProduct,
     EmptyName,
     InvalidPrice,
     OutdatedStandardProductVersion,
@@ -103,6 +104,9 @@ def edit_custom_product(
     in_shop=None,
     **_,  # swallow now parameter passed by save_update_to_history
 ):
+    if product.deleted_on is not None:
+        return DeletedProduct(name=product.name)
+
     if product.standard_product_id is not None:
         return ProductTypeMismatch(expected_type=ProductType.Custom)
 
@@ -340,6 +344,10 @@ def edit_standard_product_instantiation(
     in_shop=None,
     **_,
 ):
+
+    if product.deleted_on is not None:
+        return DeletedProduct(name=product.name)
+
     if product.standard_product_id is None:
         return ProductTypeMismatch(expected_type=ProductType.StandardInstantiation)
 

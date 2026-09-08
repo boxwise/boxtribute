@@ -1,7 +1,7 @@
 from ariadne import MutationType
 from flask import g
 
-from ...authz import authorize
+from ...authz import authorize, authorize_for_accessing_box
 from ...models.definitions.box import Box
 from ...models.definitions.distribution_event import DistributionEvent
 from ...models.definitions.distribution_events_tracking_group import (
@@ -174,7 +174,14 @@ def resolve_assign_box_to_distribution_event(
     # Also: validate that base IDs of box location and event spot are identical
     event = DistributionEvent.get_by_id(distribution_event_id)
     authorize(permission="stock:write", base_id=event.distribution_spot.base_id)
-    return assign_box_to_distribution_event(box_label_identifier, distribution_event_id)
+    box = (
+        Box.select(Box, Location)
+        .join(Location)
+        .where(Box.label_identifier == box_label_identifier)
+        .get()
+    )
+    authorize_for_accessing_box(box, action="write")
+    return assign_box_to_distribution_event(box, distribution_event_id)
 
 
 @mutation.field("unassignBoxFromDistributionEvent")
