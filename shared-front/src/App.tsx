@@ -10,7 +10,6 @@ import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
 import {
-  boxesOrItemsFilterValues,
   type BoxesOrItems,
 } from "@boxtribute/shared-components/statviz/components/filter/BoxesOrItemsSelect";
 import {

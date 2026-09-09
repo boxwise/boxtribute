@@ -21,7 +21,6 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-    boi,
     expirationDate,
   } = useShareableLink({ view });
 
@@ -41,7 +40,6 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
               <Flex justifyContent="space-between" gap={2}>
                 <ShareableLinkAlert
                   alertType={alertType}
-                  boi={boi}
                   expirationDate={expirationDate}
                 />
                 <Button onClick={handleShareLinkClick}>Create Link</Button>
