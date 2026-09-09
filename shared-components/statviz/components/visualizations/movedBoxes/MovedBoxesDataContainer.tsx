@@ -5,8 +5,8 @@ import { Box, Spinner } from "@chakra-ui/react";
 import MovedBoxesFilterContainer from "./MovedBoxesFilterContainer";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import { MOVED_BOXES_QUERY } from "../../../queries/queries";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import type {
+  BoxesOrItemsCount,
   ITargetOption,
   MovementAppliedFilters,
   MovementDirection,
@@ -15,7 +15,7 @@ import type {
 interface MovedBoxesDataContainerProps {
   isActive: boolean;
   appliedFilters: MovementAppliedFilters;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
   direction: MovementDirection;
   onTargetsAvailable?: (targets: ITargetOption[]) => void;
 }

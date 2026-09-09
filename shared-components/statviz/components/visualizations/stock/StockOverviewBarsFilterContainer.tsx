@@ -1,14 +1,13 @@
 import { useMemo } from "react";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 import { filterByTags } from "../../../utils/filterByTags";
-import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import type { BoxesOrItemsCount, StockAppliedFilters } from "../../../utils/dashboardFilters";
 import StockOverviewBars from "./StockOverviewBars";
 
 interface StockOverviewBarsFilterContainerProps {
   stockOverview: StockOverview;
   appliedFilters: StockAppliedFilters;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
 export default function StockOverviewBarsFilterContainer({

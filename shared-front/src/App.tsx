@@ -10,11 +10,9 @@ import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
 import {
-  type BoxesOrItems,
-} from "@boxtribute/shared-components/statviz/components/filter/BoxesOrItemsSelect";
-import {
   STOCK_URL_PARAMS,
   readStockFiltersFromUrl,
+  type BoxesOrItemsCount,
   type ICategoryOption,
   type ILocationOption,
   type ITagOption,
@@ -100,7 +98,7 @@ function App() {
   const view = searchParams.get("view");
 
   const [routerSearchParams, setSearchParams] = useSearchParams();
-  const boxesOrItems: BoxesOrItems =
+  const boxesOrItems: BoxesOrItemsCount =
     routerSearchParams.get(STOCK_URL_PARAMS.boxesOrItems) === "ic" ? "itemsCount" : "boxesCount";
 
   const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
@@ -208,16 +206,16 @@ function App() {
         justifyContent="left"
         background="white"
       >
-              <Select
-                size="md"
-                value={boxesOrItems}
-                onChange={handleBoxesOrItemsChange}
-                bg="white"
-                width="120px"
-              >
-                <option value="boxesCount">Boxes</option>
-                <option value="itemsCount">Items</option>
-              </Select>
+        <Select
+          size="md"
+          value={boxesOrItems}
+          onChange={handleBoxesOrItemsChange}
+          bg="white"
+          width="120px"
+        >
+          <option value="boxesCount">Boxes</option>
+          <option value="itemsCount">Items</option>
+        </Select>
       </Flex>
       <StockOverviewRingFilterContainer
         stockOverview={data.resolveLink.data[0]}

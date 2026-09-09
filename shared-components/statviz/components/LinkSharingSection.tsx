@@ -38,10 +38,7 @@ export default function LinkSharingSection({ view }: { view?: "StockOverview" })
             {/* TODO: Improve responsiveness for the info box and shareable link button. */}
             <AccordionPanel display="flex" flexDirection="column" gap={8}>
               <Flex justifyContent="space-between" gap={2}>
-                <ShareableLinkAlert
-                  alertType={alertType}
-                  expirationDate={expirationDate}
-                />
+                <ShareableLinkAlert alertType={alertType} expirationDate={expirationDate} />
                 <Button onClick={handleShareLinkClick}>Create Link</Button>
               </Flex>
               {shareableLink && (
