@@ -20,7 +20,6 @@ import {
 
 export const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
-    # TODO: Configure generated gql.tada for the public schema.
     resolveLink(code: $code) {
       ... on ResolvedLink {
         view
@@ -28,7 +27,6 @@ export const RESOLVE_LINK = gql(`
         baseName
         organisationName
         data {
-          # TODO: Refactor query once other views are implemented.
           ... on StockOverviewData {
             facts {
               productName
