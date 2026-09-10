@@ -210,6 +210,7 @@ function App() {
           size="md"
           value={boxesOrItems}
           onChange={handleBoxesOrItemsChange}
+          aria-label="Display inventory as"
           bg="white"
           width="120px"
         >
