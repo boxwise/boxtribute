@@ -1,22 +1,16 @@
 import React from "react";
 import { Alert, AlertIcon, Box } from "@chakra-ui/react";
-import { IBoxesOrItemsFilter } from "./filter/BoxesOrItemsSelect";
-import { IFilterValue } from "./filter/ValueFilter";
 
 interface ShareableLinkAlertProps {
   alertType?: "info" | "warning";
-  boi?: IFilterValue & IBoxesOrItemsFilter;
   expirationDate?: string;
 }
 
 export const ShareableLinkAlert: React.FC<ShareableLinkAlertProps> = ({
   alertType,
-  boi,
   expirationDate,
 }) => {
   if (!alertType) return <Box></Box>;
-
-  const boiText = boi?.label;
 
   const expirationText = expirationDate ? `Link will expire on ${expirationDate}.` : "";
 
@@ -26,8 +20,6 @@ export const ShareableLinkAlert: React.FC<ShareableLinkAlertProps> = ({
       {alertType === "info" ? (
         <p>
           <strong>Shareable Link Created</strong>
-          <br />
-          This link will show your inventory in {boiText}.
           <br />
           {expirationText}
         </p>
