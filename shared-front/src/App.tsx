@@ -18,7 +18,7 @@ import {
   type ITagOption,
 } from "@boxtribute/shared-components/statviz/utils/dashboardFilters";
 
-const RESOLVE_LINK = gql(`
+export const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
     # TODO: Configure generated gql.tada for the public schema.
     resolveLink(code: $code) {
@@ -105,7 +105,7 @@ function App() {
 
   const allCategories = useMemo<ICategoryOption[]>(
     () =>
-      (data?.resolveLink?.data[0]?.dimensions?.category ?? []).map((c) => ({
+      (data?.resolveLink?.data?.[0]?.dimensions?.category ?? []).map((c) => ({
         id: Number(c.id),
         name: c.name ?? "",
       })),
@@ -114,7 +114,7 @@ function App() {
 
   const allLocations = useMemo<ILocationOption[]>(
     () =>
-      (data?.resolveLink?.data[0]?.dimensions?.location ?? []).map((l) => ({
+      (data?.resolveLink?.data?.[0]?.dimensions?.location ?? []).map((l) => ({
         id: Number(l.id),
         name: l.name ?? "",
       })),
@@ -123,7 +123,7 @@ function App() {
 
   const allTags = useMemo<ITagOption[]>(
     () =>
-      (data?.resolveLink?.data[0]?.dimensions?.tag ?? []).map((t) => ({
+      (data?.resolveLink?.data?.[0]?.dimensions?.tag ?? []).map((t) => ({
         id: Number(t.id),
         name: t.name ?? "",
         color: t.color ?? "#999",

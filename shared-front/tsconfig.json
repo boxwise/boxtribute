@@ -2,6 +2,7 @@
   "extends": "../tsconfig.json",
   "include": [
     "src",
+    "vitest.config.ts",
     "../shared-components/Form/NumberField.tsx",
     "../shared-components/Form/RadioGroupField.tsx",
     "../shared-components/Form/SelectField.tsx",
