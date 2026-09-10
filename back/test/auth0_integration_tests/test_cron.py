@@ -64,7 +64,7 @@ def test_reseed_db(monkeypatch, auth0_client, mocker):
 
     query = "query { products { totalCount } }"
     response = assert_successful_request(auth0_client, query)
-    assert response["totalCount"] == 8 + 84 * 4  # minimal seed + generated
+    assert response["totalCount"] == 8 + 84 * NR_BASES  # minimal seed + generated
 
     query = "query { transferAgreements { id } }"
     response = assert_successful_request(auth0_client, query)
@@ -75,7 +75,7 @@ def test_reseed_db(monkeypatch, auth0_client, mocker):
     assert len(response) == 10
 
     nr_of_boxes = 0
-    for base_id in [1, 2, 3, 4]:
+    for base_id in [1, 2, 3, 4, 100000002, 100000003, 100000004, 100000005]:
         query = f"query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"
         response = assert_successful_request(auth0_client, query)
         nr_of_boxes += response["totalCount"]
