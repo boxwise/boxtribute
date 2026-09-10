@@ -162,7 +162,7 @@ function App() {
     return (
       <>
         <BoxtributeLogo w={156} backgroundSize="contain" p={2} />
-        <Skeleton w={"840px"} h={"982px"} />
+        <Skeleton data-testid="loading-skeleton" w={"100%"} h={"400px"} />
       </>
     );
   }
@@ -184,7 +184,7 @@ function App() {
     return (
       <>
         <BoxtributeLogo w={156} backgroundSize="contain" p={2} />
-        <Skeleton w={"840px"} h={"982px"} />
+        <Skeleton w={"100%"} h={"400px"} />
       </>
     );
   }

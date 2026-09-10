@@ -115,7 +115,13 @@ function resolveLinkMock({
   };
 }
 
-describe("App", () => {
+describe("Shared FE", () => {
+  it("shows the loading skeleton", async () => {
+    renderApp("/?code=abc123", []);
+
+    expect(await screen.getByTestId("loading-skeleton")).toBeInTheDocument();
+  });
+
   it("shows an unexpected error message when the request fails with a network error", async () => {
     renderApp("/?code=abc123", [
       resolveLinkMock({
@@ -146,6 +152,17 @@ describe("App", () => {
     ]);
 
     expect(await screen.findByText("The link has expired.")).toBeInTheDocument();
+    expect(screen.queryByTestId("pie-chart")).not.toBeInTheDocument();
+  });
+
+  it("shows an undefined data error message", async () => {
+    renderApp("/?code=abc123", [
+      resolveLinkMock({
+        result: { data: undefined },
+      }),
+    ]);
+
+    expect(await screen.findByText(/Data is undefined/)).toBeInTheDocument();
     expect(screen.queryByTestId("pie-chart")).not.toBeInTheDocument();
   });
 
