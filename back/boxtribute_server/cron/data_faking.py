@@ -70,7 +70,7 @@ from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unit import Unit
 from ..models.utils import convert_ids, utcnow
 
-NR_BASES = 4
+NR_BASES = 8
 NR_OF_CREATED_TAGS_PER_BASE = 20
 NR_OF_DELETED_TAGS_PER_BASE = round(NR_OF_CREATED_TAGS_PER_BASE / 10)
 LOCATION_BOX_STATES = [
@@ -81,7 +81,7 @@ LOCATION_BOX_STATES = [
     BoxState.Donated,
     BoxState.InStock,
 ]
-LOCATION_NAMES = ("Stockroom", "WH", "WH2", "FreeShop", "Donated location", "Unused WH")
+LOCATION_NAMES = ("Stockroom", "WH", "WH2", "FreeShop", "PartnerHelp", "Unused WH")
 NR_OF_CREATED_LOCATIONS_PER_BASE = len(LOCATION_NAMES)
 NR_OF_ADULTS_PER_LARGE_BASE = 300
 NR_OF_CHILDREN_PER_LARGE_BASE = 300
