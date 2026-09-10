@@ -121,7 +121,7 @@ describe("Shared FE", () => {
   it("shows the loading skeleton", async () => {
     renderApp("/?code=abc123", []);
 
-    expect(await screen.getByTestId("loading-skeleton")).toBeInTheDocument();
+    expect(screen.getByTestId("loading-skeleton")).toBeInTheDocument();
   });
 
   it("shows an unexpected error message when the request fails with a network error", async () => {
