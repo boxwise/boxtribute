@@ -12,6 +12,7 @@ export default defineProject({
     },
     coverage: {
       exclude: [
+        "src/main.tsx",
         "build/**",
         "coverage/**",
         "dist/**",
