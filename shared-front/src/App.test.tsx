@@ -86,7 +86,9 @@ const stockOverviewData = {
           { id: 1, name: "Size A" },
           { id: 2, name: "Size B" },
         ],
-        tag: [],
+        tag: [
+          { id: 1, name: "Tag A", color: "#abcdef" },
+        ],
         location: [
           { id: 1, name: "Location A" },
           { id: 2, name: "Location B" },
