@@ -55,7 +55,7 @@ def test_queries(auth0_client, endpoint):
             "shipments",
             "users",
         ],
-        [6, 5, 31, 18, 24, 72, 5, 10, 43],
+        [10, 8, 31, 18, 24, 72, 5, 10, 43],
     ):
         query = f"query {{ {resource} {{ id }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
