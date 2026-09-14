@@ -100,7 +100,7 @@ def get_internal_data():
     # Some computations need data which is expensive to collect. Fetch this data only
     # once and provide it via a look-up
     data_collections = {
-        "Unique active users": get_data_for_number_of_active_users(),
+        "Unique active users": get_data_for_number_of_active_users(now),
     }
 
     # "All time created boxes": two columns (box count and items sum)

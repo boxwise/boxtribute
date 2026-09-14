@@ -203,15 +203,13 @@ def test_number_of_active_users_between(
     mock_service.get_users.return_value = mock_users
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
 
-    users, org_base_info = get_data_for_number_of_active_users()
-
-    # Test the function
     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
     end = datetime(2025, 1, 31, tzinfo=timezone.utc)
+    users, org_base_info = get_data_for_number_of_active_users(end)
     result = number_of_active_users_between(start, end, users, org_base_info)
 
     # Verify service was called with correct parameters
-    two_years_ago = date.today() - timedelta(days=2 * 365)
+    two_years_ago = end - timedelta(days=2 * 365)
     mock_service.get_users.assert_called_once_with(
         query=f"last_login:[{two_years_ago.isoformat()} TO *]",
         fields=["app_metadata", "last_login"],
@@ -255,7 +253,7 @@ def test_number_of_active_users_between(
     mock_service.reset_mock()
     mock_service.get_users.side_effect = ValueError()
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
-    assert get_data_for_number_of_active_users() == ([], [])
+    assert get_data_for_number_of_active_users(end) == ([], [])
 
 
 def test_beneficiary_figures(client, mocker):

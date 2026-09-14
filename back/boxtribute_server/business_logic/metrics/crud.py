@@ -2,7 +2,7 @@
 
 import os
 from collections import Counter
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 from peewee import SQL, NodeList, fn
 from sentry_sdk import capture_message as emit_sentry_message
@@ -314,7 +314,7 @@ def get_time_span(
         raise ValueError("Insufficient arguments")
 
 
-def get_data_for_number_of_active_users():
+def get_data_for_number_of_active_users(end_date):
     """Find users who logged in within the last two years by querying the Auth0
     management API.
     Prepare users data and corresponding organisation data.
@@ -335,7 +335,7 @@ def get_data_for_number_of_active_users():
         domain=domain, client_id=client_id, secret=secret
     )
 
-    two_years_ago = date.today() - timedelta(days=2 * 365)
+    two_years_ago = end_date - timedelta(days=2 * 365)
     query = f"last_login:[{two_years_ago.isoformat()} TO *]"
     fields = ["app_metadata", "last_login"]
     try:
@@ -361,7 +361,7 @@ def get_data_for_number_of_active_users():
     # case we use all bases of the organisation that were active in the last year (the
     # base with smallest ID serves as base_id, and the concatenated base names are
     # base_name)
-    one_year_ago = date.today() - timedelta(days=365)
+    one_year_ago = end_date - timedelta(days=365)
     org_base_info = (
         Organisation.select(
             Organisation.id.alias("organisation_id"),

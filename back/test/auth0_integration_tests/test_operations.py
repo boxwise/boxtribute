@@ -321,7 +321,7 @@ def test_replica_usage(auth0_client, mocker):
 
 
 def test_number_of_active_users_between(dev_app):
-    _, org_base_info = get_data_for_number_of_active_users()
+    _, org_base_info = get_data_for_number_of_active_users(date.today())
     # We assume that at least one of the users of the dev tenant have logged in during
     # the past month
     assert len(org_base_info) > 0
