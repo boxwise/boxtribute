@@ -177,11 +177,11 @@ def test_number_of_active_users_between(
             "last_login": datetime(2025, 1, 15, 10, tzinfo=timezone.utc),
         },
         {
-            "app_metadata": {"organisation_id": 1},
+            "app_metadata": {"organisation_id": "1"},
             "last_login": datetime(2025, 1, 20, 15, 30, tzinfo=timezone.utc),
         },
         {
-            "app_metadata": {"organisation_id": 2},
+            "app_metadata": {"organisation_id": "2"},
             "last_login": datetime(2025, 1, 10, 8, tzinfo=timezone.utc),
         },
         {
