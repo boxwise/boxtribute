@@ -351,7 +351,10 @@ def get_data_for_number_of_active_users(end_date):
         app_metadata = user.get("app_metadata", {})
         org_id = app_metadata.get("organisation_id")
         if org_id:
-            org_id = int(org_id)
+            try:
+                org_id = int(org_id)
+            except (ValueError, TypeError):
+                continue
             org_ids.add(org_id)
             valid_users.append({"last_login": last_login, "organisation_id": org_id})
 

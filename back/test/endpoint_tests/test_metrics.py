@@ -199,6 +199,11 @@ def test_number_of_active_users_between(
             "app_metadata": {},
             "last_login": datetime(2025, 1, 10, 8, tzinfo=timezone.utc),
         },
+        {
+            # malformed organisation ID
+            "app_metadata": {"organisation_id": "unknown"},
+            "last_login": datetime(2025, 1, 10, 8, tzinfo=timezone.utc),
+        },
     ]
     mock_service.get_users.return_value = mock_users
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
