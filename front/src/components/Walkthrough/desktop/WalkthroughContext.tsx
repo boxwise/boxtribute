@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { PathId } from "./paths/types";
 import { useVisiblePaths } from "./useVisiblePaths";
@@ -66,22 +66,36 @@ function saveState(userId: string, state: WalkthroughState) {
 export function WalkthroughProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth0();
   const userId = user?.sub ?? "anonymous";
-
-  const [isWalkthroughActive, setIsWalkthroughActive] = useState(false);
-  const [currentStep, setCurrentStep] = useState<WalkthroughStep>("welcome");
-  const [activePath, setActivePath] = useState<PathId | null>(null);
-  const [completedPaths, setCompletedPaths] = useState<Set<PathId>>(new Set());
   const visiblePaths = useVisiblePaths();
 
-  // Load persisted state and auto-show welcome for new users
-  useEffect(() => {
+  const [prevUserId, setPrevUserId] = useState(userId);
+
+  const [isWalkthroughActive, setIsWalkthroughActive] = useState(() => {
+    const state = loadState(userId);
+    return !state.hasSeenWelcome;
+  });
+
+  const [currentStep, setCurrentStep] = useState<WalkthroughStep>(() => {
+    const state = loadState(userId);
+    return !state.hasSeenWelcome ? "welcome" : "pathSelection";
+  });
+
+  const [completedPaths, setCompletedPaths] = useState<Set<PathId>>(() => {
+    const state = loadState(userId);
+    return new Set(state.completedPaths);
+  });
+
+  const [activePath, setActivePath] = useState<PathId | null>(null);
+
+  if (userId !== prevUserId) {
+    setPrevUserId(userId);
+
     const state = loadState(userId);
     setCompletedPaths(new Set(state.completedPaths));
-    if (!state.hasSeenWelcome) {
-      setIsWalkthroughActive(true);
-      setCurrentStep("welcome");
-    }
-  }, [userId]);
+    setIsWalkthroughActive(!state.hasSeenWelcome);
+    setCurrentStep(!state.hasSeenWelcome ? "welcome" : "pathSelection");
+    setActivePath(null);
+  }
 
   const persistCompletedPaths = useCallback(
     (paths: Set<PathId>) => {
@@ -93,11 +107,9 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
 
   const goToPathSelection = useCallback(() => {
     setIsWalkthroughActive(true);
-    // Mark welcome as seen
     const state = loadState(userId);
     saveState(userId, { ...state, hasSeenWelcome: true });
 
-    // short-cut to only path
     if (visiblePaths.length === 1) {
       setActivePath(visiblePaths[0].id);
       setCurrentStep("tour");
@@ -110,7 +122,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const closeWalkthrough = useCallback(() => {
     setIsWalkthroughActive(false);
     setActivePath(null);
-    // Mark welcome as seen when user skips/closes
     const state = loadState(userId);
     saveState(userId, { ...state, hasSeenWelcome: true });
   }, [userId]);

@@ -5,7 +5,8 @@ import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
 import { render, screen } from "@testing-library/react";
 import { theme } from "@boxtribute/shared-components/utils/theme";
-import App, { RESOLVE_LINK } from "./App";
+import App from "./App";
+import { RESOLVE_LINK } from "./constants";
 
 // ---------------------------------------------------------------------------
 // Mock the nivo pie chart so we can verify data without SVG rendering

@@ -167,9 +167,11 @@ function ColorPickerWidget({ field }: ColorPickerWidgetProps) {
   const currentColor = field.value || "#7973e2";
 
   // Sync trigger input display when the committed color changes (e.g. after Choose)
-  useEffect(() => {
+  const [prevColor, setPrevColor] = useState(currentColor);
+  if (prevColor !== currentColor) {
+    setPrevColor(currentColor);
     setTriggerInput(currentColor.toUpperCase());
-  }, [currentColor]);
+  }
 
   const updateColorFromTemp = (color: string) => {
     const hsv = hexToHSV(color);
