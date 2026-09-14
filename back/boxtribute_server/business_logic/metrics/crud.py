@@ -388,6 +388,11 @@ def number_of_active_users_between(start, end, users, org_base_info):
 
     Returns a list of dicts with organisation ID, organisation name, base ID,
     base name, and number of users logged in.
+
+    IMPORTANT NOTE: although this function takes an `end` parameter (for keeping the
+    same call signature as the other metric functions), it ONLY provides correct output
+    if `end` is the current moment. This is due to lacking historical login information
+    of users (we only have the latest login-date available).
     """
     # Filter users by last_login date range
     filtered_users = [user for user in users if start <= user["last_login"] <= end]
