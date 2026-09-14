@@ -4,17 +4,16 @@ import { filter, groupBy, map, summarize, sum, tidy } from "@tidyjs/tidy";
 import { eachMonthOfInterval, format, subMonths } from "date-fns";
 import { useMemo } from "react";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import LineChart from "../../nivo/LineChart";
 import NoDataCard from "../../NoDataCard";
 import VisHeader from "../../VisHeader";
 import getOnExport from "../../../utils/chartExport";
-import type { MovementDirection } from "../../../utils/dashboardFilters";
+import type { BoxesOrItemsCount, MovementDirection } from "../../../utils/dashboardFilters";
 import { SHIPMENT_PARTNER_COLORS } from "../../../data/colors";
 
 interface ShipmentsOverTimeChartProps {
   movedBoxes: Partial<MovedBoxes>;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
   direction: MovementDirection;
 }
 

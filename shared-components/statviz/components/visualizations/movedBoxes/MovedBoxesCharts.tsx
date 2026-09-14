@@ -4,14 +4,13 @@ import { subMonths } from "date-fns";
 import BoxFlowSankey from "./BoxFlowSankey";
 import ShipmentsPieChart from "./ShipmentsPieChart";
 import ShipmentsOverTimeChart from "./ShipmentsOverTimeChart";
-import { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
-import type { MovementDirection } from "../../../utils/dashboardFilters";
+import type { BoxesOrItemsCount, MovementDirection } from "../../../utils/dashboardFilters";
 
 interface IMovedBoxesChartsProps {
   movedBoxes: Partial<MovedBoxes>;
   allMovedBoxesFacts: MovedBoxesResult[];
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
   direction: MovementDirection;
 }
 

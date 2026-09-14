@@ -4,13 +4,12 @@ import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import BoxCreationCalendarFilterContainer from "./BoxCreationCalendarFilterContainer";
 import { CREATED_BOXES_QUERY } from "../../../queries/queries";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
-import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
+import type { BoxesOrItemsCount, StockAppliedFilters } from "../../../utils/dashboardFilters";
 
 interface BoxCreationCalendarDataContainerProps {
   isActive: boolean;
   appliedFilters: StockAppliedFilters;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
 export default function BoxCreationCalendarDataContainer({

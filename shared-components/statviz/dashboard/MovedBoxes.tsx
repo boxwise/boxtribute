@@ -27,8 +27,8 @@ import {
   type IProductOption,
   type ICategoryOption,
   type ITagOption,
+  type BoxesOrItemsCount,
 } from "../utils/dashboardFilters";
-import type { BoxesOrItems } from "../components/filter/BoxesOrItemsSelect";
 import DashboardFilterChips from "./DashboardFilterChips";
 
 interface MovedBoxesProps {
@@ -47,7 +47,7 @@ export default function MovedBoxes({ isActive, products, categories, tags }: Mov
     [searchParams, products, categories, availableTargets, tags],
   );
 
-  const boxesOrItems: BoxesOrItems =
+  const boxesOrItems: BoxesOrItemsCount =
     searchParams.get(MOVEMENT_URL_PARAMS.boxesOrItems) === "ic" ? "itemsCount" : "boxesCount";
   const direction: MovementDirection =
     searchParams.get(MOVEMENT_URL_PARAMS.direction) === "in" ? "in" : "out";

@@ -2,15 +2,18 @@ import { useMemo } from "react";
 import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import { filterListByInterval } from "../../../../utils/helpers";
 import MovedBoxesCharts from "./MovedBoxesCharts";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
-import type { MovementAppliedFilters, MovementDirection } from "../../../utils/dashboardFilters";
+import type {
+  BoxesOrItemsCount,
+  MovementAppliedFilters,
+  MovementDirection,
+} from "../../../utils/dashboardFilters";
 import { filterByTags } from "../../../utils/filterByTags";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
 
 interface IMovedBoxesFilterContainerProps {
   movedBoxes: MovedBoxes;
   appliedFilters: MovementAppliedFilters;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
   direction: MovementDirection;
 }
 

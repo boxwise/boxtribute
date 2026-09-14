@@ -5,13 +5,6 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { graphql } from "../../../graphql/graphql";
 import { useNotification } from "../../../front/src/hooks/useNotification";
 import { useMutation } from "@apollo/client";
-import useValueFilter from "./useValueFilter";
-import {
-  boxesOrItemsFilterValues,
-  boxesOrItemsUrlId,
-  defaultBoxesOrItems,
-  IBoxesOrItemsFilter,
-} from "../components/filter/BoxesOrItemsSelect";
 
 const BASE_PUBLIC_LINK_SHARING_URL = import.meta.env.FRONT_PUBLIC_URL;
 
@@ -46,11 +39,6 @@ export default function useShareableLink({
   const [searchParams] = useSearchParams();
   const [shareableLink, setShareableLink] = useState("");
   const [submittedGlobalParams, setSubmittedGlobalParams] = useState<string | undefined>();
-  const { filterValue: boi } = useValueFilter<IBoxesOrItemsFilter>(
-    boxesOrItemsFilterValues,
-    defaultBoxesOrItems,
-    boxesOrItemsUrlId,
-  );
   const [expirationDate, setExpirationDate] = useState<string | undefined>();
 
   // Remove the JSX from the hook
@@ -120,7 +108,6 @@ export default function useShareableLink({
     isLinkSharingEnabled,
     copyLinkToClipboard,
     handleShareLinkClick,
-    boi,
     expirationDate,
   };
 }

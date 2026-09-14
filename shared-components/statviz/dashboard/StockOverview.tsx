@@ -27,8 +27,8 @@ import {
   type ICategoryOption,
   type ILocationOption,
   type ITagOption,
+  type BoxesOrItemsCount,
 } from "../utils/dashboardFilters";
-import type { BoxesOrItems } from "../components/filter/BoxesOrItemsSelect";
 import { FilterPanel } from "../../filter/FilterPanel";
 import { StockFilters } from "./../components/filter/StockFilters";
 import DashboardFilterChips from "./DashboardFilterChips";
@@ -55,7 +55,7 @@ export default function StockOverview({
     [searchParams, products, categories, locations, tags],
   );
 
-  const boxesOrItems: BoxesOrItems =
+  const boxesOrItems: BoxesOrItemsCount =
     searchParams.get(STOCK_URL_PARAMS.boxesOrItems) === "ic" ? "itemsCount" : "boxesCount";
 
   const handleApplyFilters = useCallback(
