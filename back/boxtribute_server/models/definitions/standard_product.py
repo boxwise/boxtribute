@@ -45,13 +45,13 @@ class StandardProduct(Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    preceded_by_product = UIntForeignKeyField(  # type: ignore
+    preceded_by_product = UIntForeignKeyField(
         model="self",
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    superceded_by_product = UIntForeignKeyField(  # type: ignore
+    superceded_by_product = UIntForeignKeyField(
         model="self",
         null=True,
         on_delete="SET NULL",

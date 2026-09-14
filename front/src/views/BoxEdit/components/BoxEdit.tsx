@@ -62,8 +62,15 @@ const singleSelectOptionSchema = z.object({
 });
 
 const optionalNonNegativeNumber = z.preprocess(
-  (value) => (value === "" || value == null ? undefined : value),
-  z.number().nonnegative().optional(),
+  (value) => {
+    if (value === "" || value == null) return undefined;
+    if (typeof value === "string") return Number(value);
+    return value;
+  },
+  z
+    .number({ error: "Please enter a valid number (decimal separator: .)" })
+    .nonnegative()
+    .optional(),
 );
 
 export const BoxEditFormDataSchema = z.object({
@@ -80,7 +87,7 @@ export const BoxEditFormDataSchema = z.object({
     .nullable(singleSelectOptionSchema)
     .refine(Boolean, { error: "Please select a size" })
     .transform((selectedOption) => selectedOption || z.NEVER),
-  numberOfItems: z.number().int().nonnegative(),
+  numberOfItems: z.number({ error: "Please enter a number of items" }).int().nonnegative(),
   locationId: singleSelectOptionSchema
     .nullable()
     .refine(Boolean, { error: "Please select a location" })
@@ -205,6 +212,7 @@ function BoxEdit({
         (p) => p.id === productId.value,
       );
       const prepSizesOptionsForCurrentProduct =
+        // The BE returns the sizes appropriately sorted
         productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
           label: s.label,
           value: s.id,
@@ -290,6 +298,8 @@ function BoxEdit({
                       fieldLabel="Weight"
                       errors={errors}
                       control={control}
+                      precision={2}
+                      step={0.1}
                     />
                   </Box>
                   <Text mb={2}>{boxData?.weightDisplayUnit?.symbol ?? ""}</Text>

@@ -2,14 +2,13 @@ import { useMemo } from "react";
 import { useBreakpointValue } from "@chakra-ui/react";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 import { filterByTags } from "../../../utils/filterByTags";
-import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import type { BoxesOrItemsCount, StockAppliedFilters } from "../../../utils/dashboardFilters";
 import StockOverviewRing from "./StockOverviewRing";
 
 interface StockOverviewRingFilterContainerProps {
   stockOverview: StockOverview;
   appliedFilters: StockAppliedFilters;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
 export default function StockOverviewRingFilterContainer({
@@ -40,8 +39,13 @@ export default function StockOverviewRingFilterContainer({
     }
 
     if (products.length > 0) {
-      const productNames = new Set(products.map((p) => p.name));
-      facts = facts.filter((f) => productNames.has(f.productName ?? ""));
+      // Pre-compute keys (same string transformations as in sql.py), then look-up in O(1) per fact
+      const productKeys = new Set(
+        products.map((p) => `${p.name.trim().toLowerCase()}|${p.gender ?? ""}`),
+      );
+      facts = facts.filter((f) =>
+        productKeys.has(`${(f.productName ?? "").trim()}|${f.gender ?? ""}`),
+      );
     }
 
     facts = filterByTags(facts, includedTags, excludedTags);
@@ -49,7 +53,7 @@ export default function StockOverviewRingFilterContainer({
     return { ...stockOverview, facts } as StockOverview;
   }, [stockOverview, genders, categories, locations, products, includedTags, excludedTags]);
 
-  const chartHeight = useBreakpointValue({ base: "300px", md: "400px", lg: "500px" }) ?? "400px";
+  const chartHeight = useBreakpointValue({ base: "300px", md: "350px", lg: "400px" }) ?? "400px";
 
   return (
     <StockOverviewRing

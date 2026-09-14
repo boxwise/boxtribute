@@ -2,10 +2,9 @@ import { Card, CardBody, Wrap, WrapItem } from "@chakra-ui/react";
 import { groupBy, map, summarize, sum, tidy } from "@tidyjs/tidy";
 import { useMemo } from "react";
 import { MovedBoxes, MovedBoxesResult } from "../../../../../graphql/types";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
 import ValueFilter, { IFilterValue } from "../../filter/ValueFilter";
 import useValueFilter from "../../../hooks/useValueFilter";
-import type { MovementDirection } from "../../../utils/dashboardFilters";
+import type { BoxesOrItemsCount, MovementDirection } from "../../../utils/dashboardFilters";
 import getOnExport from "../../../utils/chartExport";
 import PieChart from "../../nivo/PieChart";
 import NoDataCard from "../../NoDataCard";
@@ -25,7 +24,7 @@ const shipmentPieGroupingUrlId = "spg";
 
 interface ShipmentsPieChartProps {
   movedBoxes: Partial<MovedBoxes>;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
   direction: MovementDirection;
 }
 
@@ -120,7 +119,7 @@ export default function ShipmentsPieChart({
   const chartProps = {
     data: chartData,
     width: "100%",
-    height: "500px",
+    height: "400px",
   };
 
   if (chartData.length === 0) {

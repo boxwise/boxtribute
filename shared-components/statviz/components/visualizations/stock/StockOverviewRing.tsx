@@ -5,6 +5,7 @@ import { StockOverview, StockOverviewResult } from "../../../../../graphql/types
 import { BoxesOrItemsCount } from "../../../utils/dashboardFilters";
 import PieChart from "../../nivo/PieChart";
 import VisHeader from "../../VisHeader";
+import NoDataCard from "../../NoDataCard";
 import getOnExport from "../../../utils/chartExport";
 import ValueFilter, { IFilterValue } from "../../filter/ValueFilter";
 import useValueFilter from "../../../hooks/useValueFilter";
@@ -102,6 +103,10 @@ export default function StockOverviewRing({
   const total = useMemo(() => chartData.reduce((acc, d) => acc + d.value, 0), [chartData]);
 
   const heading = boxesOrItems === "boxesCount" ? "Instock Boxes" : "Instock Items";
+
+  if (chartData.length === 0) {
+    return <NoDataCard header={heading} />;
+  }
 
   const centerData = {
     level: total,

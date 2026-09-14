@@ -44,9 +44,9 @@ it("Walkthrough - skipping welcome closes the walkthrough", async () => {
 
 it("Walkthrough - does NOT show welcome on subsequent visits", async () => {
   // Simulate a returning user with hasSeenWelcome = true
-  // mock user has no sub, so storageKey uses "anonymous"
+  // mock user has sub "auth0|test@example.com" (set by mockAuthenticatedUser)
   localStorage.setItem(
-    "boxtribute_walkthrough_anonymous",
+    "boxtribute_walkthrough_auth0|test@example.com",
     JSON.stringify({ completedPaths: [], hasSeenWelcome: true }),
   );
   renderWalkthrough();
@@ -132,9 +132,9 @@ it("Walkthrough - skip button closes the tour", async () => {
 
 it("Walkthrough - completed path shows Completed + Replay buttons", async () => {
   // Pre-populate completed paths in localStorage
-  // mock user has no sub, so storageKey uses "anonymous"
+  // mock user has sub "auth0|test@example.com" (set by mockAuthenticatedUser)
   localStorage.setItem(
-    "boxtribute_walkthrough_anonymous",
+    "boxtribute_walkthrough_auth0|test@example.com",
     JSON.stringify({ completedPaths: ["path1"], hasSeenWelcome: false }),
   );
   renderWalkthrough();

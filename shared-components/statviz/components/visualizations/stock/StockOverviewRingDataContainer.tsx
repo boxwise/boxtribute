@@ -4,13 +4,12 @@ import { useParams } from "react-router-dom";
 import ErrorCard, { predefinedErrors } from "../../ErrorCard";
 import StockOverviewRingFilterContainer from "./StockOverviewRingFilterContainer";
 import { STOCK_QUERY } from "../../../queries/queries";
-import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
+import type { BoxesOrItemsCount, StockAppliedFilters } from "../../../utils/dashboardFilters";
 
 interface StockOverviewRingDataContainerProps {
   isActive: boolean;
   appliedFilters: StockAppliedFilters;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
 export default function StockOverviewRingDataContainer({

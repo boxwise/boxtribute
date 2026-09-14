@@ -93,7 +93,7 @@ class Beneficiary(Model):
     not_registered = IntegerField(
         column_name="notregistered", constraints=[SQL("DEFAULT 0")], default=False
     )
-    family_head = UIntForeignKeyField(  # type: ignore
+    family_head = UIntForeignKeyField(
         model="self",
         column_name="parent_id",
         field="id",

@@ -183,6 +183,7 @@ function Boxes({
       "createdBy",
       "productCategory",
       "no_tags", // Hidden column for excluded tags filter
+      "createdOn", // Always hidden; used only for date range filtering
       ...(showWeightAndValue ? ["weight", "monetaryValue"] : []),
     ];
 
@@ -426,6 +427,15 @@ function Boxes({
         id: "no_tags",
         filter: "excludesSomeTagObject",
         // This column should not be shown in the table or column selector
+        disableSortBy: true,
+        disableFilters: false,
+      },
+      {
+        // Hidden column for creation date range filter
+        Header: "Created On",
+        accessor: "createdOn",
+        id: "createdOn",
+        filter: "dateRange",
         disableSortBy: true,
         disableFilters: false,
       },

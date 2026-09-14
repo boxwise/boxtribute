@@ -124,13 +124,38 @@ def _generate_dimensions(*names, facts):
             target_ids = {
                 f["target_id"] for f in facts if f["target_type"] == target_type.name
             }
-            # Target ID and name are identical for BoxState and OutgoingLocation
+
+            if target_type == TargetType.OutgoingLocation:
+                location_ids = {int(i) for i in target_ids}
+                locations = {
+                    loc.id: loc
+                    for loc in Location.select(
+                        Location.id,
+                        fn.DATE(Location.deleted_on).alias("deleted_on"),
+                        Location.name,
+                    ).where(Location.id << location_ids)
+                }
+                dimensions["target"].extend(
+                    [
+                        {
+                            "id": str(i),
+                            "name": locations[i].name,
+                            "type": TargetType.OutgoingLocation,
+                            "deleted_on": locations[i].deleted_on,
+                        }
+                        for i in location_ids
+                    ]
+                )
+                continue
+
+            # Target ID and name are identical for BoxState
             dimensions["target"].extend(
                 [
                     {
                         "id": i,
                         "name": i.replace("sent-from-", "").replace("going-to-", ""),
                         "type": target_type,
+                        "deleted_on": None,
                     }
                     for i in target_ids
                 ]

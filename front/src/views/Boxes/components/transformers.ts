@@ -35,6 +35,7 @@ export const boxesRawDataToTableDataTransformer = (boxesQueryResult: BoxesForBox
           hasQrCode: !!element.qrCode?.code,
           comment: element.comment,
           age: element.createdOn ? differenceInDays(new Date(), new Date(element.createdOn)) : 0,
+          createdOn: element.createdOn ? new Date(element.createdOn) : null,
           lastModified: element.lastModifiedOn
             ? new Date(element.lastModifiedOn)
             : new Date(element.createdOn || new Date()),

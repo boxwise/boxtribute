@@ -2,6 +2,9 @@ from datetime import date
 
 import pytest
 from auth import get_authorization_header
+from boxtribute_server.business_logic.metrics.crud import (
+    get_data_for_number_of_active_users,
+)
 from boxtribute_server.models.definitions.user import User
 from utils import assert_successful_request
 
@@ -52,7 +55,7 @@ def test_queries(auth0_client, endpoint):
             "shipments",
             "users",
         ],
-        [6, 5, 31, 18, 24, 72, 5, 10, 43],
+        [10, 8, 31, 18, 24, 72, 5, 10, 43],
     ):
         query = f"query {{ {resource} {{ id }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
@@ -67,6 +70,17 @@ def test_queries(auth0_client, endpoint):
                 ...on StandardProductPage { totalCount } } }"""
     response = _assert_successful_request(auth0_client, query)
     assert response["totalCount"] == 162
+
+    query = """query { sizeRanges { id sizes { id name } } }"""
+    response = _assert_successful_request(auth0_client, query)
+    # Check sorting of size ranges (ID 1: XS...XXL, ID 3/8/9: shoe sizes)
+    for size_range in response:
+        size_names = [s["name"] for s in size_range["sizes"]]
+        size_range_id = int(size_range["id"])
+        if size_range_id in [3, 8, 9]:
+            assert size_names == sorted(size_names)
+        elif size_range_id == 1:
+            assert size_names == ["XS", "S", "M", "L", "XL", "XXL", "Mixed"]
 
 
 @pytest.fixture
@@ -304,3 +318,10 @@ def test_replica_usage(auth0_client, mocker):
     db.replica.connect.assert_called_once()  # in DatabaseManager.connect_db
     db.replica.bind_ctx.assert_called_once()  # in use_db_replica()
     db.replica.reset_mock()
+
+
+def test_number_of_active_users_between(dev_app):
+    _, org_base_info = get_data_for_number_of_active_users(date.today())
+    # We assume that at least one of the users of the dev tenant have logged in during
+    # the past month
+    assert len(org_base_info) > 0

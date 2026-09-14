@@ -191,3 +191,20 @@ export const excludesSomeTagObjectFilterFn = (rows, ids, filterValue) =>
   );
 
 excludesSomeTagObjectFilterFn.autoRemove = (val) => !val || !val.length;
+
+// Custom filter function for a date range [fromDateStr, toDateStr].
+// Keeps rows where the date value falls within the [from, to] range (inclusive, end-of-day for "to").
+export const dateRangeFilterFn = (rows, ids, filterValue: [string, string]) =>
+  rows.filter((row) =>
+    ids.some((id) => {
+      const rowValue: Date | null = row.values[id];
+      if (!rowValue) return false;
+      const rowDate = rowValue instanceof Date ? rowValue : new Date(rowValue);
+      const [from, to] = filterValue;
+      if (from && rowDate < new Date(`${from}T00:00:00`)) return false;
+      if (to && rowDate > new Date(`${to}T23:59:59.999`)) return false;
+      return true;
+    }),
+  );
+
+dateRangeFilterFn.autoRemove = (val: [string, string] | undefined) => !val || (!val[0] && !val[1]);

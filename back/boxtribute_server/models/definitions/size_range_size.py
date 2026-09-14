@@ -1,4 +1,4 @@
-from peewee import CompositeKey
+from peewee import CompositeKey, IntegerField
 
 from ..fields import UIntForeignKeyField
 from . import Model
@@ -23,6 +23,7 @@ class SizeRangeSize(Model):
         on_delete="CASCADE",
         on_update="CASCADE",
     )
+    seq = IntegerField(null=True)
 
     class Meta:
         table_name = "sizes_sizegroup"

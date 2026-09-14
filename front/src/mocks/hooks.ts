@@ -23,6 +23,7 @@ export function mockAuthenticatedUser(
   mockedUseAuth0.mockReturnValue({
     isAuthenticated: true,
     user: {
+      sub: `auth0|${email}`,
       email,
       [JWT_ABP]: actions,
       [JWT_BETA]: betaUser,

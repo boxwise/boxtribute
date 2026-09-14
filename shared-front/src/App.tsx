@@ -1,27 +1,25 @@
-import { ReactNode, useMemo, useEffect } from "react";
+import { ReactNode, useMemo, useEffect, useCallback } from "react";
+import type React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { useSearchParams } from "react-router-dom";
-import { Alert, AlertIcon, Flex, Heading, Skeleton, Center, WrapItem } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Heading, Skeleton, Select } from "@chakra-ui/react";
 
 import BoxtributeLogo from "./BoxtributeLogo";
 import StockOverviewRingFilterContainer from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockOverviewRingFilterContainer";
 import ErrorCard, {
   predefinedErrors,
 } from "@boxtribute/shared-components/statviz/components/ErrorCard";
-import BoxesOrItemsSelect, {
-  boxesOrItemsFilterValues,
-  type BoxesOrItems,
-} from "@boxtribute/shared-components/statviz/components/filter/BoxesOrItemsSelect";
 import {
+  STOCK_URL_PARAMS,
   readStockFiltersFromUrl,
+  type BoxesOrItemsCount,
   type ICategoryOption,
   type ILocationOption,
   type ITagOption,
 } from "@boxtribute/shared-components/statviz/utils/dashboardFilters";
 
-const RESOLVE_LINK = gql(`
+export const RESOLVE_LINK = gql(`
   query resolveLink($code: String!) {
-    # TODO: Configure generated gql.tada for the public schema.
     resolveLink(code: $code) {
       ... on ResolvedLink {
         view
@@ -29,7 +27,6 @@ const RESOLVE_LINK = gql(`
         baseName
         organisationName
         data {
-          # TODO: Refactor query once other views are implemented.
           ... on StockOverviewData {
             facts {
               productName
@@ -98,17 +95,15 @@ function App() {
   const code = searchParams.get("code");
   const view = searchParams.get("view");
 
-  const [routerSearchParams] = useSearchParams();
-  const boiUrlId = routerSearchParams.get("sboi");
-  const boxesOrItems: BoxesOrItems = (
-    boxesOrItemsFilterValues.find((f) => f.urlId === boiUrlId) ?? boxesOrItemsFilterValues[0]
-  ).value;
+  const [routerSearchParams, setSearchParams] = useSearchParams();
+  const boxesOrItems: BoxesOrItemsCount =
+    routerSearchParams.get(STOCK_URL_PARAMS.boxesOrItems) === "ic" ? "itemsCount" : "boxesCount";
 
   const { data, loading, error } = useQuery(RESOLVE_LINK, { variables: { code } });
 
   const allCategories = useMemo<ICategoryOption[]>(
     () =>
-      (data?.resolveLink?.data[0]?.dimensions?.category ?? []).map((c) => ({
+      (data?.resolveLink?.data?.[0]?.dimensions?.category ?? []).map((c) => ({
         id: Number(c.id),
         name: c.name ?? "",
       })),
@@ -117,7 +112,7 @@ function App() {
 
   const allLocations = useMemo<ILocationOption[]>(
     () =>
-      (data?.resolveLink?.data[0]?.dimensions?.location ?? []).map((l) => ({
+      (data?.resolveLink?.data?.[0]?.dimensions?.location ?? []).map((l) => ({
         id: Number(l.id),
         name: l.name ?? "",
       })),
@@ -126,7 +121,7 @@ function App() {
 
   const allTags = useMemo<ITagOption[]>(
     () =>
-      (data?.resolveLink?.data[0]?.dimensions?.tag ?? []).map((t) => ({
+      (data?.resolveLink?.data?.[0]?.dimensions?.tag ?? []).map((t) => ({
         id: Number(t.id),
         name: t.name ?? "",
         color: t.color ?? "#999",
@@ -142,13 +137,20 @@ function App() {
     [routerSearchParams, allCategories, allLocations, allTags],
   );
 
+  const handleBoxesOrItemsChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const newParams = new URLSearchParams(routerSearchParams);
+      newParams.set(STOCK_URL_PARAMS.boxesOrItems, e.target.value === "itemsCount" ? "ic" : "bc");
+      setSearchParams(newParams);
+    },
+    [routerSearchParams, setSearchParams],
+  );
+
   // Redirect to full URL with view param once link data has loaded
   useEffect(() => {
     if (data && !view && data?.resolveLink?.view) {
       const urlParams = data?.resolveLink?.urlParameters ?? "nofilters=true";
-      const hasBoiParam = urlParams.includes("boi=");
-      const boiParam = hasBoiParam ? "" : `&boi=${boxesOrItemsFilterValues[0].urlId}`;
-      window.location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${urlParams}${boiParam}&code=${code}`;
+      window.location.search = `view=${data?.resolveLink?.view.toLowerCase()}&${urlParams}&code=${code}`;
     }
   }, [data, view, code]);
 
@@ -160,7 +162,7 @@ function App() {
     return (
       <>
         <BoxtributeLogo w={156} backgroundSize="contain" p={2} />
-        <Skeleton w={"840px"} h={"982px"} />
+        <Skeleton data-testid="loading-skeleton" w={"100%"} h={"400px"} />
       </>
     );
   }
@@ -182,7 +184,7 @@ function App() {
     return (
       <>
         <BoxtributeLogo w={156} backgroundSize="contain" p={2} />
-        <Skeleton w={"840px"} h={"982px"} />
+        <Skeleton w={"100%"} h={"400px"} />
       </>
     );
   }
@@ -202,13 +204,18 @@ function App() {
         justifyContent="left"
         background="white"
       >
-        <WrapItem w="150">
-          <Center>
-            <BoxesOrItemsSelect fieldLabel="show as" inlineLabel={true} />
-          </Center>
-        </WrapItem>
+        <Select
+          size="md"
+          value={boxesOrItems}
+          onChange={handleBoxesOrItemsChange}
+          aria-label="Display inventory as"
+          bg="white"
+          width="120px"
+        >
+          <option value="boxesCount">Boxes</option>
+          <option value="itemsCount">Items</option>
+        </Select>
       </Flex>
-      {/* TODO: Match view with view returned from data once other views are implemented. */}
       <StockOverviewRingFilterContainer
         stockOverview={data.resolveLink.data[0]}
         appliedFilters={appliedFilters}

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, useApolloClient } from "@apollo/client";
 import { graphql } from "../../../../../graphql/graphql";
 import { formatDateKey } from "utils/helpers";
 import {
@@ -36,6 +36,7 @@ import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPrefere
 import { availableBasesAtom } from "stores/globalPreferenceStore";
 import { User } from "../../../../../graphql/types";
 import { ShipmentDetail, ShipmentDetailWithAutomatchProduct, ShipmentState } from "queries/types";
+import { MOVED_BOXES_QUERY } from "@boxtribute/shared-components/statviz/queries/queries";
 
 enum ShipmentActionEvent {
   ShipmentStarted = "Shipment Started",
@@ -167,6 +168,7 @@ function MissingWeightOrMonetaryValueAlert({
 }
 
 function ShipmentView() {
+  const apolloClient = useApolloClient();
   const { triggerError } = useErrorHandling();
   const { createToast } = useNotification();
   const availableBases = useAtomValue(availableBasesAtom);
@@ -211,7 +213,9 @@ function ShipmentView() {
     useMutation(REMOVE_BOX_FROM_SHIPMENT);
 
   const [cancelShipment, cancelShipmentStatus] = useMutation(CANCEL_SHIPMENT);
-  const [lostShipment, lostShipmentStatus] = useMutation(LOST_SHIPMENT);
+  const [lostShipment, lostShipmentStatus] = useMutation(LOST_SHIPMENT, {
+    onCompleted: () => refetchMovedBoxes(),
+  });
   const [sendShipment, sendShipmentStatus] = useMutation(SEND_SHIPMENT);
   const [startReceivingShipment, startReceivingShipmentStatus] =
     useMutation(START_RECEIVING_SHIPMENT);
@@ -289,6 +293,20 @@ function ShipmentView() {
 
   const onMinusClick = () => setShowRemoveIcon(!showRemoveIcon);
 
+  const refetchMovedBoxes = useCallback(() => {
+    const targetBaseId = data?.shipment?.targetBase?.id;
+    if (!targetBaseId) return;
+    apolloClient
+      .query({
+        query: MOVED_BOXES_QUERY,
+        variables: { baseId: parseInt(targetBaseId, 10) },
+        fetchPolicy: "network-only",
+      })
+      .catch(() => {
+        // Background refetch failure is non-critical; ignore silently.
+      });
+  }, [apolloClient, data?.shipment?.targetBase?.id]);
+
   const onRemainingBoxesUndelivered = useCallback(() => {
     const lostBoxLabelIdentifiers = data?.shipment?.details
       .filter((shipmentDetail) => shipmentDetail.box.state === "Receiving")
@@ -312,6 +330,7 @@ function ShipmentView() {
             type: "success",
             message: "Changed the state of remaining boxes to undelivered",
           });
+          refetchMovedBoxes();
         }
       })
       .catch(() => {
@@ -326,6 +345,7 @@ function ShipmentView() {
     data,
     shipmentId,
     onShipmentOverlayClose,
+    refetchMovedBoxes,
   ]);
 
   const onRemoveBox = useCallback(

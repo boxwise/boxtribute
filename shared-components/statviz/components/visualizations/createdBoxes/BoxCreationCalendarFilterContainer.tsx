@@ -4,8 +4,7 @@ import { TidyFn, filter, tidy } from "@tidyjs/tidy";
 import { useSearchParams } from "react-router-dom";
 import BoxCreationCalendar from "./BoxCreationCalendar";
 import { filterListByInterval } from "../../../../utils/helpers";
-import type { BoxesOrItems } from "../../filter/BoxesOrItemsSelect";
-import type { StockAppliedFilters } from "../../../utils/dashboardFilters";
+import type { BoxesOrItemsCount, StockAppliedFilters } from "../../../utils/dashboardFilters";
 import { readCalendarFiltersFromUrl } from "../../../utils/dashboardFilters";
 import { filterByTags } from "../../../utils/filterByTags";
 import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../../../graphql/types";
@@ -13,7 +12,7 @@ import { CreatedBoxes as CreatedBoxesType, CreatedBoxesResult } from "../../../.
 interface BoxCreationCalendarFilterContainerProps {
   createdBoxes: CreatedBoxesType;
   appliedFilters: StockAppliedFilters;
-  boxesOrItems: BoxesOrItems;
+  boxesOrItems: BoxesOrItemsCount;
 }
 
 export default function BoxCreationCalendarFilterContainer({

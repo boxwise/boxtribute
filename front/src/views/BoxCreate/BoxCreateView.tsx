@@ -11,8 +11,10 @@ import { CHECK_IF_QR_EXISTS_IN_DB } from "queries/queries";
 import { BoxCreate, ICreateBoxFormData } from "./components/BoxCreate";
 import { AlertWithoutAction } from "components/Alerts";
 import { selectedBaseAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
+import { boxCreateFormCacheAtom } from "stores/globalCacheStore";
+import { useAuth0 } from "@auth0/auth0-react";
 
 // TODO: Create fragment or query for ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY
 export const ALL_PRODUCTS_AND_LOCATIONS_FOR_BASE_QUERY = graphql(
@@ -97,6 +99,16 @@ function BoxCreateView() {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const baseName = selectedBase?.name;
 
+  // Box-creation form cache
+  const { user } = useAuth0();
+  const [boxCreateFormCache, setBoxCreateFormCache] = useAtom(boxCreateFormCacheAtom);
+  // Only use the cache when it belongs to the currently logged-in user and the current base.
+  // Validated against loaded options below (after allProducts/allLocations are derived).
+  const cacheMatchesContext =
+    boxCreateFormCache.userSub &&
+    boxCreateFormCache.userSub === user?.sub &&
+    boxCreateFormCache.baseId === baseId;
+
   // variables in URL
   const qrCode = useParams<{ qrCode: string }>().qrCode!;
 
@@ -160,6 +172,43 @@ function BoxCreateView() {
       name: location.name ?? "",
     }))
     .sort((a, b) => Number(a?.seq) - Number(b?.seq));
+
+  // Validate the cached form data against the options loaded for the current base.
+  const validCachedFormData = (() => {
+    if (!cacheMatchesContext || !allProducts || !allLocations) return undefined;
+    const { productId, sizeId, locationId, tagIds } = boxCreateFormCache;
+
+    const cachedProduct = productId ? allProducts.find((p) => p.id === productId) : undefined;
+    if (productId && !cachedProduct) return undefined;
+
+    const cachedSize =
+      sizeId && cachedProduct
+        ? cachedProduct.sizeRange?.sizes?.find((s) => s.id === sizeId)
+        : undefined;
+    if (sizeId && !cachedSize) return undefined;
+
+    const cachedLocation = locationId ? allLocations.find((l) => l.id === locationId) : undefined;
+    if (locationId && !cachedLocation) return undefined;
+
+    const validCachedTags = tagIds
+      ?.map((id) => allTags?.find((t) => t.value === id))
+      .filter((t): t is NonNullable<typeof t> => t != null);
+
+    return {
+      productId: cachedProduct
+        ? {
+            label: `${`${cachedProduct.name}`}${cachedProduct.gender !== "none" ? ` (${cachedProduct.gender})` : ""}`,
+            value: cachedProduct.id,
+          }
+        : undefined,
+      sizeId: cachedSize ? { label: cachedSize.label, value: cachedSize.id } : undefined,
+      locationId: cachedLocation
+        ? { label: cachedLocation.name, value: cachedLocation.id }
+        : undefined,
+      tags: validCachedTags,
+      numberOfItems: boxCreateFormCache.numberOfItems,
+    };
+  })();
 
   // check data for form
   useEffect(() => {
@@ -238,6 +287,17 @@ function BoxCreateView() {
             });
           }
         } else {
+          // Persist the submitted field values so the next box creation is pre-filled.
+          setBoxCreateFormCache({
+            userSub: user?.sub,
+            baseId,
+            productId: createBoxData.productId.value,
+            sizeId: createBoxData.sizeId.value,
+            locationId: createBoxData.locationId.value,
+            tagIds: createBoxData.tags?.filter((t) => !t.__isNew__).map((t) => t.value),
+            numberOfItems: createBoxData.numberOfItems,
+          });
+
           createToast({
             title: `Box ${mutationResult.data?.createBox?.labelIdentifier}`,
             type: "success",
@@ -303,6 +363,7 @@ function BoxCreateView() {
           (allLocations !== undefined && allLocations.length < 1) ||
           (allProducts !== undefined && allProducts.length < 1)
         }
+        initialValues={validCachedFormData}
       />
     </Center>
   );

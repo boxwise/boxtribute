@@ -7,14 +7,10 @@ from ....models.definitions.qr_code import QrCode
 from ....models.utils import utcnow
 
 
-def create_qr_code(*, user_id, box_label_identifier=None):
+def create_qr_code(*, user_id, box=None):
     """Insert a new QR code in the database. Generate an MD5 hash based on its primary
-    key. If a `box_label_identifier` is passed, look up the corresponding box (it is
-    expected to exist) and associate the QR code with it.
+    key. If a `box` is passed, associate the QR code with it.
     Return the newly created QR code.
-
-    All operations are run inside an atomic transaction. If e.g. the box look-up fails,
-    the operations are rolled back (i.e. no new QR code is inserted).
     """
     with db.database.atomic():
         now = utcnow()
@@ -24,10 +20,9 @@ def create_qr_code(*, user_id, box_label_identifier=None):
         ).hexdigest()
         new_qr_code.save()
 
-        if box_label_identifier is not None:
-            box = Box.get(Box.label_identifier == box_label_identifier)
+        if box is not None:
             box.qr_code = new_qr_code.id
-            box.save()
+            box.save(only=[Box.qr_code])
             DbChangeHistory.create(
                 changes="New Qr-code assigned by pdf generation.",
                 table_name=box._meta.table_name,

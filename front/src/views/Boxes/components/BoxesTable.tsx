@@ -33,6 +33,7 @@ import {
   includesSomeObjectFilterFn,
   includesSomeTagObjectFilterFn,
   excludesSomeTagObjectFilterFn,
+  dateRangeFilterFn,
 } from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
@@ -96,6 +97,7 @@ function BoxesTable({
       includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
       includesSomeTagObject: includesSomeTagObjectFilterFn,
       excludesSomeTagObject: excludesSomeTagObjectFilterFn,
+      dateRange: dateRangeFilterFn,
     }),
     [],
   );
@@ -294,6 +296,33 @@ function BoxesTable({
 
   const handleRemoveFilter = useCallback(
     (filterId: string, valueToRemove?: string) => {
+      // Special handling for createdOn date range filter
+      if (filterId === "createdOn") {
+        const createdOnFilter = filters.find((f) => f.id === "createdOn");
+        if (!createdOnFilter || !Array.isArray(createdOnFilter.value)) {
+          return;
+        }
+        const [from, to] = createdOnFilter.value as [string, string];
+
+        if (!valueToRemove) {
+          // Remove the entire filter
+          setAllFilters(filters.filter((f) => f.id !== "createdOn"));
+          return;
+        }
+
+        const newFrom = valueToRemove === "from" ? "" : from;
+        const newTo = valueToRemove === "to" ? "" : to;
+
+        if (!newFrom && !newTo) {
+          setAllFilters(filters.filter((f) => f.id !== "createdOn"));
+        } else {
+          setAllFilters(
+            filters.map((f) => (f.id === "createdOn" ? { ...f, value: [newFrom, newTo] } : f)),
+          );
+        }
+        return;
+      }
+
       removeFilter(filterId, valueToRemove, filters, setAllFilters);
     },
     [filters, setAllFilters],
@@ -320,7 +349,10 @@ function BoxesTable({
           <ColumnSelector
             availableColumns={allColumns.filter(
               (column) =>
-                column.id !== "shipment" && column.id !== "selection" && column.id !== "no_tags",
+                column.id !== "shipment" &&
+                column.id !== "selection" &&
+                column.id !== "no_tags" &&
+                column.id !== "createdOn",
             )}
           />
           <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />

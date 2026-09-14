@@ -1,6 +1,7 @@
 import json
 import os
 import urllib.error
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
@@ -78,11 +79,11 @@ def test_internal_stats(client, monkeypatch, mocker):
     mock_users = [
         {
             "app_metadata": {"organisation_id": 1},
-            "last_login": "2025-01-15T10:00:00Z",
+            "last_login": datetime(2025, 1, 15, 10, tzinfo=timezone.utc),
         },
         {
             "app_metadata": {"organisation_id": 2},
-            "last_login": "2025-01-10T08:00:00Z",
+            "last_login": datetime(2025, 1, 10, 8, tzinfo=timezone.utc),
         },
     ]
     mock_service.get_users.return_value = mock_users
