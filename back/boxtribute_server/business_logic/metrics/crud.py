@@ -2,7 +2,7 @@
 
 import os
 from collections import Counter
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 from peewee import SQL, NodeList, fn
 from sentry_sdk import capture_message as emit_sentry_message
@@ -314,7 +314,7 @@ def get_time_span(
         raise ValueError("Insufficient arguments")
 
 
-def get_data_for_number_of_active_users():
+def get_data_for_number_of_active_users(end_date):
     """Find users who logged in within the last two years by querying the Auth0
     management API.
     Prepare users data and corresponding organisation data.
@@ -335,7 +335,7 @@ def get_data_for_number_of_active_users():
         domain=domain, client_id=client_id, secret=secret
     )
 
-    two_years_ago = date.today() - timedelta(days=2 * 365)
+    two_years_ago = end_date - timedelta(days=2 * 365)
     query = f"last_login:[{two_years_ago.isoformat()} TO *]"
     fields = ["app_metadata", "last_login"]
     try:
@@ -351,6 +351,10 @@ def get_data_for_number_of_active_users():
         app_metadata = user.get("app_metadata", {})
         org_id = app_metadata.get("organisation_id")
         if org_id:
+            try:
+                org_id = int(org_id)
+            except (ValueError, TypeError):
+                continue
             org_ids.add(org_id)
             valid_users.append({"last_login": last_login, "organisation_id": org_id})
 
@@ -360,7 +364,7 @@ def get_data_for_number_of_active_users():
     # case we use all bases of the organisation that were active in the last year (the
     # base with smallest ID serves as base_id, and the concatenated base names are
     # base_name)
-    one_year_ago = date.today() - timedelta(days=365)
+    one_year_ago = end_date - timedelta(days=365)
     org_base_info = (
         Organisation.select(
             Organisation.id.alias("organisation_id"),
@@ -387,6 +391,11 @@ def number_of_active_users_between(start, end, users, org_base_info):
 
     Returns a list of dicts with organisation ID, organisation name, base ID,
     base name, and number of users logged in.
+
+    IMPORTANT NOTE: although this function takes an `end` parameter (for keeping the
+    same call signature as the other metric functions), it ONLY provides correct output
+    if `end` is the current moment. This is due to lacking historical login information
+    of users (we only have the latest login-date available).
     """
     # Filter users by last_login date range
     filtered_users = [user for user in users if start <= user["last_login"] <= end]
