@@ -145,6 +145,9 @@ class CurrentUser:
         self._max_beta_level = int(max_beta_level or 0)
         self._timezone = timezone
 
+    def __repr__(self):
+        return f"User ID {self._id}"
+
     @classmethod
     def from_jwt(cls, payload):
         """Extract user information from custom claims in JWT payload. The prefix and
