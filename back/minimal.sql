@@ -248,7 +248,7 @@ CREATE TABLE `camps` (
   CONSTRAINT `camps_ibfk_1` FOREIGN KEY (`organisation_id`) REFERENCES `organisations` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `camps_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `camps_ibfk_3` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=100000002 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=100000006 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2596,7 +2596,7 @@ CREATE TABLE `organisations` (
   KEY `modified_by` (`modified_by`),
   CONSTRAINT `organisations_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `organisations_ibfk_2` FOREIGN KEY (`modified_by`) REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=100000006 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=100000009 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
