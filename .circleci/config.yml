@@ -120,6 +120,10 @@ jobs:
               FRONT_ENVIRONMENT=${ENVIRONMENT}
             " > .env
       - run:
+          name: Run type check
+          command: |
+            pnpm -C front tsc:check && pnpm -C shared-front tsc:check
+      - run:
           name: Run style checks
           command: |
             pnpm lint:all
@@ -154,6 +158,10 @@ jobs:
               SHARED_FRONT_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               SHARED_FRONT_ENVIRONMENT=${ENVIRONMENT}
             " > .env
+      - run:
+          name: Run type check
+          command: |
+            pnpm -C shared-components tsc:check
       - run:
           name: Run style checks
           command: |
