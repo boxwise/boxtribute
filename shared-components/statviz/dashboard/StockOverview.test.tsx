@@ -57,8 +57,8 @@ vi.mock("../components/nivo/CalendarChart", () => ({
 // ---------------------------------------------------------------------------
 
 const products: IProductOption[] = [
-  { id: 1, name: "Shoes", gender: "Male" },
-  { id: 2, name: "Shirts", gender: "Female" },
+  { id: 1, name: "Shoes", gender: "Men" },
+  { id: 2, name: "Shirts", gender: "Women" },
   { id: 3, name: "Pants", gender: null },
 ];
 
@@ -86,7 +86,7 @@ const fiveMonthsAgo = format(subMonths(new Date(), 5), "yyyy-MM-dd");
 const tenMonthsAgo = format(subMonths(new Date(), 10), "yyyy-MM-dd");
 const fifteenMonthsAgo = format(subMonths(new Date(), 15), "yyyy-MM-dd"); // outside 1-year window
 
-// STOCK_QUERY mock: 3 InStock facts (Shoes/Male, Shirts/Female, Pants/null) + Donated + Lost
+// STOCK_QUERY mock: 3 InStock facts (Shoes/Men, Shirts/Female, Pants/null) + Donated + Lost
 // NOTE: dimension ids are Int (not ID string) per the GraphQL schema's BasicDimensionInfo type
 const stockMock = {
   request: {
@@ -101,7 +101,7 @@ const stockMock = {
             // productName is lowercase to match the backend convention (used with p.name.toLowerCase() in the filter)
             productName: "shoes",
             categoryId: 1,
-            gender: "Male",
+            gender: "Men",
             boxesCount: 5,
             itemsCount: 10,
             sizeId: 1,
@@ -135,7 +135,7 @@ const stockMock = {
           {
             productName: "shoes",
             categoryId: 1,
-            gender: "Male",
+            gender: "Men",
             boxesCount: 2,
             itemsCount: 4,
             sizeId: 1,
@@ -197,7 +197,7 @@ const createdBoxesMock = {
             categoryId: 1,
             createdOn: oneMonthAgo,
             tagIds: [1],
-            gender: "Male",
+            gender: "Men",
             itemsCount: 10,
           },
           // 5 months ago – within 1-year window
@@ -217,7 +217,7 @@ const createdBoxesMock = {
             categoryId: 1,
             createdOn: tenMonthsAgo,
             tagIds: [1],
-            gender: "Male",
+            gender: "Men",
             itemsCount: 14,
           },
           // 15 months ago – OUTSIDE the default 1-year window, should be filtered out
@@ -233,8 +233,8 @@ const createdBoxesMock = {
         ],
         dimensions: {
           product: [
-            { id: 1, name: "Shoes", gender: "Male" },
-            { id: 2, name: "Shirts", gender: "Female" },
+            { id: 1, name: "Shoes", gender: "Men" },
+            { id: 2, name: "Shirts", gender: "Women" },
             { id: 3, name: "Pants", gender: null },
           ],
           category: [
@@ -330,7 +330,7 @@ describe("StockOverview", () => {
 
   describe("product filter", () => {
     it("shows only the matching product in ring, bar, and calendar; displays filter chip", async () => {
-      // sp=1 → product id 1 (Shoes, Male)
+      // sp=1 → product id 1 (Shoes, Men)
       renderStockOverview("?sp=1");
 
       // Ring chart: only InStock Shoes fact (cat=Footwear, boxesCount=5)
@@ -344,8 +344,8 @@ describe("StockOverview", () => {
       // Calendar: 2 facts match productId=1 (1 month + 10 months ago)
       expect(screen.getAllByTestId("calendar-day")).toHaveLength(2);
 
-      // Filter chip shows "Shoes (Male)"
-      expect(screen.getByText("Shoes (Male)")).toBeInTheDocument();
+      // Filter chip shows "Shoes (Men)"
+      expect(screen.getByText("Shoes (Men)")).toBeInTheDocument();
       expect(screen.getByTestId("stock-clear-all-filters-button")).toBeInTheDocument();
     });
   });
@@ -356,21 +356,21 @@ describe("StockOverview", () => {
 
   describe("gender filter", () => {
     it("shows only the matching gender in ring, bar, and calendar; displays filter chip", async () => {
-      // sg=Male
-      renderStockOverview("?sg=Male");
+      // sg=Men
+      renderStockOverview("?sg=Men");
 
-      // Ring chart: only Male InStock (Shoes, Footwear, boxesCount=5)
+      // Ring chart: only Men InStock (Shoes, Footwear, boxesCount=5)
       expect(await screen.findByText("Footwear: 5")).toBeInTheDocument();
       expect(screen.getAllByTestId("pie-slice")).toHaveLength(1);
 
       // Bar chart: only Footwear
       expect(screen.getAllByTestId("bar-category")).toHaveLength(1);
 
-      // Calendar: 2 facts have gender=Male (1 month + 10 months ago)
+      // Calendar: 2 facts have gender=Men (1 month + 10 months ago)
       expect(screen.getAllByTestId("calendar-day")).toHaveLength(2);
 
       // Filter chip
-      expect(screen.getByText("Male")).toBeInTheDocument();
+      expect(screen.getByText("Men")).toBeInTheDocument();
     });
   });
 
@@ -515,7 +515,7 @@ describe("StockOverview", () => {
   describe("too many filters", () => {
     it("shows no data information if selected filters don't match any data", async () => {
       // sc=2 → category id 2 (Clothes)
-      renderStockOverview("?sg=Male&sc=2");
+      renderStockOverview("?sg=Men&sc=2");
 
       // "No data" information shown (should be 3 though?)
       expect(await screen.findAllByText(/no data available/i)).toHaveLength(2);
@@ -527,7 +527,7 @@ describe("StockOverview", () => {
 
       // Filter chips
       expect(screen.getByTestId("stock-filter-chip-close-category-2")).toBeInTheDocument();
-      expect(screen.getByText("Male")).toBeInTheDocument();
+      expect(screen.getByText("Men")).toBeInTheDocument();
     });
   });
 
@@ -544,7 +544,7 @@ describe("StockOverview", () => {
       await screen.findByText("Footwear: 5");
       expect(screen.getAllByTestId("pie-slice")).toHaveLength(1);
 
-      // Click the close button on the "Shoes (Male)" chip
+      // Click the close button on the "Shoes (Men)" chip
       const closeBtn = screen.getByTestId("stock-filter-chip-close-product-1");
       await user.click(closeBtn);
 
