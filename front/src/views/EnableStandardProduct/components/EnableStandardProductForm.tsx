@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAtomValue } from "jotai";
 import {
   HStack,
@@ -52,14 +52,13 @@ function EnableStandardProductForm({
     handleSubmit,
     control,
     register,
-    watch,
     formState: { errors },
   } = useForm<EnableStandardProductFormInput>({
     resolver: zodResolver(StandardProductFormSchema),
     ...(defaultValues ? { defaultValues } : {}),
   });
 
-  const selectedStandardProduct = watch("standardProduct");
+  const selectedStandardProduct = useWatch({ control, name: "standardProduct" });
 
   useEffect(() => {
     if (defaultValues && selectedStandardProduct.value !== defaultValues.standardProduct.value) {
