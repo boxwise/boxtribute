@@ -55,13 +55,13 @@ def test_queries(auth0_client, endpoint):
             "shipments",
             "users",
         ],
-        [10, 8, 31, 18, 24, 72, 5, 10, 43],
+        [10, 8, 55, 18, 24, 144, 5, 10, 43],
     ):
         query = f"query {{ {resource} {{ id }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert len(response) == count
 
-    for resource, count in zip(["beneficiaries", "products"], [769, 344]):
+    for resource, count in zip(["beneficiaries", "products"], [1089, 680]):
         query = f"query {{ {resource} {{ totalCount }} }}"
         response = _assert_successful_request(auth0_client, query, field=resource)
         assert response["totalCount"] == count
