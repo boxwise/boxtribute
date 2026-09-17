@@ -122,7 +122,7 @@ jobs:
       - run:
           name: Run type check
           command: |
-            pnpm -C front tsc:check && pnpm -C shared-front tsc:check
+            pnpm tsc:check
       - run:
           name: Run style checks
           command: |
@@ -161,7 +161,7 @@ jobs:
       - run:
           name: Run type check
           command: |
-            pnpm -C shared-components tsc:check
+            pnpm tsc:check && pnpm -C ../shared-components tsc:check
       - run:
           name: Run style checks
           command: |
