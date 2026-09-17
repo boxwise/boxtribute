@@ -1,7 +1,7 @@
 import { Box, Center, Heading } from "@chakra-ui/react";
 import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
-import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import { MobileBreadcrumbButton } from "components/MobileBreadcrumbButton";
 import { FormSkeleton } from "components/Skeletons";
 import { Suspense, useCallback } from "react";
 import CreateCustomProductForm, {

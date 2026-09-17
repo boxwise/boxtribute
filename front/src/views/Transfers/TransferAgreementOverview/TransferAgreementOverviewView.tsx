@@ -1,18 +1,27 @@
 import { useCallback, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
-import { Alert, AlertIcon, Button, Heading, Stack, useDisclosure } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Button,
+  Heading,
+  Stack,
+  useDisclosure,
+} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { useAtomValue } from "jotai";
 import { TRANSFER_AGREEMENT_FIELDS_FRAGMENT } from "queries/fragments";
 import { graphql, ResultOf } from "../../../../../graphql/graphql";
-import { AddIcon } from "@chakra-ui/icons";
-import { TableSkeleton } from "components/Skeletons";
+import { AddIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { BreadcrumbNavigationSkeleton, TableSkeleton } from "components/Skeletons";
 import { Row } from "react-table";
 import { useErrorHandling } from "hooks/useErrorHandling";
 import { useNotification } from "hooks/useNotification";
 import { FilteringSortingTable } from "components/Table/Table";
 import { SelectColumnFilter } from "components/Table/Filter";
-import { BreadcrumbNavigation } from "components/BreadcrumbNavigation";
 import {
   CanAcceptTransferAgreementState,
   DirectionCell,
@@ -26,6 +35,7 @@ import {
   organisationAtom,
   availableBasesAtom,
   selectedBaseIdAtom,
+  selectedBaseAtom,
 } from "stores/globalPreferenceStore";
 import { TransferAgreements } from "queries/types";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
@@ -92,6 +102,9 @@ function TransferAgreementOverviewView() {
   const baseId = useAtomValue(selectedBaseIdAtom);
   const organisation = useAtomValue(organisationAtom);
   const availableBases = useAtomValue(availableBasesAtom);
+  const selectedBase = useAtomValue(selectedBaseAtom);
+  const orgName = organisation?.name;
+  const baseName = selectedBase?.name;
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   // State to pass Data from a row to the Overlay
@@ -389,7 +402,25 @@ function TransferAgreementOverviewView() {
 
   return (
     <>
-      <BreadcrumbNavigation items={[{ label: "Aid Transfers" }, { label: "My Network" }]} />
+      {isGlobalStateLoading ? (
+        <BreadcrumbNavigationSkeleton />
+      ) : (
+        <Breadcrumb separator={<ChevronRightIcon />} fontSize="md" mb={4}>
+          <BreadcrumbItem>
+            <BreadcrumbLink as={Link} to="#">
+              {orgName}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <BreadcrumbLink as={Link} to="#">
+              {baseName}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          {[{ label: "Aid Transfers" }, { label: "My Network" }].map((item) => (
+            <BreadcrumbItem key={`breadcrumb${item.label}`}>{item.label}</BreadcrumbItem>
+          ))}
+        </Breadcrumb>
+      )}
       <Heading fontWeight="bold" mb={4} as="h2">
         My Transfer Network
       </Heading>

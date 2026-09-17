@@ -6,7 +6,7 @@ import { ErrorBoundary } from "@sentry/react";
 import { Box, Center, Heading } from "@chakra-ui/react";
 
 import { graphql } from "../../../../graphql/graphql";
-import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import { MobileBreadcrumbButton } from "components/MobileBreadcrumbButton";
 import EnableStandardProductForm, {
   EnableStandardProductFormOutput,
 } from "./components/EnableStandardProductForm";

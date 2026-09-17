@@ -1,6 +1,6 @@
 import { Heading, Text } from "@chakra-ui/react";
 import StandardProductsContainer from "./components/StandardProductsContainer";
-import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import { MobileBreadcrumbButton } from "components/MobileBreadcrumbButton";
 import { ErrorBoundary } from "@sentry/react";
 import { AlertWithoutAction } from "components/Alerts";
 

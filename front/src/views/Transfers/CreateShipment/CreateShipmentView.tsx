@@ -12,7 +12,7 @@ import {
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
 } from "queries/fragments";
-import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import { MobileBreadcrumbButton } from "components/MobileBreadcrumbButton";
 import CreateShipment, {
   IOrganisationBaseData,
   ICreateShipmentFormData,

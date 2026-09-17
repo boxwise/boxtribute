@@ -24,7 +24,7 @@ import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/S
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
 import { boxReconciliationOverlayVar } from "queries/cache";
-import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import { MobileBreadcrumbButton } from "components/MobileBreadcrumbButton";
 import { ITimelineEntry } from "components/Timeline/Timeline";
 import ShipmentCard from "./components/ShipmentCard";
 import ShipmentTabs from "./components/ShipmentTabs";

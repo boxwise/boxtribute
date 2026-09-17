@@ -5,7 +5,7 @@ import { useAtomValue } from "jotai";
 import { ErrorBoundary } from "@sentry/react";
 import { Box, Center, Heading } from "@chakra-ui/react";
 
-import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
+import { MobileBreadcrumbButton } from "components/MobileBreadcrumbButton";
 import { graphql } from "../../../../graphql/graphql";
 import { AlertWithoutAction } from "components/Alerts";
 import { FormSkeleton } from "components/Skeletons";
