@@ -70,7 +70,7 @@ from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.unit import Unit
 from ..models.utils import convert_ids, utcnow
 
-NR_BASES = 4
+NR_BASES = 8
 NR_OF_CREATED_TAGS_PER_BASE = 20
 NR_OF_DELETED_TAGS_PER_BASE = round(NR_OF_CREATED_TAGS_PER_BASE / 10)
 LOCATION_BOX_STATES = [
@@ -81,7 +81,7 @@ LOCATION_BOX_STATES = [
     BoxState.Donated,
     BoxState.InStock,
 ]
-LOCATION_NAMES = ("Stockroom", "WH", "WH2", "FreeShop", "Donated location", "Unused WH")
+LOCATION_NAMES = ("Stockroom", "WH", "WH2", "FreeShop", "PartnerHelp", "Unused WH")
 NR_OF_CREATED_LOCATIONS_PER_BASE = len(LOCATION_NAMES)
 NR_OF_ADULTS_PER_LARGE_BASE = 300
 NR_OF_CHILDREN_PER_LARGE_BASE = 300
@@ -227,7 +227,7 @@ class Generator:
         """Obtain relevant test bases (exclude the ones used for Cypress tests), as well
         as test users.
         """
-        bases = list(Base.select().where(Base.id < 100))
+        bases = list(Base.select().orwhere(Base.id < 100, Base.id > 100000001))
         self.base_ids = [b.id for b in bases]
         self.products = {b: [] for b in self.base_ids}
         self.tags = {b: [] for b in self.base_ids}
@@ -240,16 +240,23 @@ class Generator:
         result = execute_sql(
             self.base_ids,
             query="""\
-    SELECT cuc.camp_id, group_concat(u.id ORDER BY u.id) AS user_ids
-    FROM cms_users u
-    INNER JOIN cms_usergroups_camps cuc
+    SELECT c.id AS camp_id, group_concat(u.id ORDER BY u.id) AS user_ids
+    FROM camps c
+    LEFT JOIN cms_usergroups_camps cuc
+    ON cuc.camp_id = c.id
+    LEFT JOIN cms_users u
     ON u.cms_usergroups_id = cuc.cms_usergroups_id
-    AND cuc.camp_id in %s
-    GROUP BY cuc.camp_id
+    WHERE c.id in %s
+    GROUP BY c.id
     ;""",
         )
+        god_user = CurrentUser(id=1, is_god=True, organisation_id=None)
         for row in result:
             base_id = row["camp_id"]
+            if row["user_ids"] is None:
+                # Base has no users
+                self.users[base_id] = [god_user]
+                continue
             self.users[base_id] = [
                 CurrentUser(
                     id=int(i),
