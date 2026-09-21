@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, call
 import peewee
 import pytest
 from auth0.management.errors.unauthorized_error import UnauthorizedError
+from boxtribute_server.cli.clean_up_roles import clean_up_roles
 from boxtribute_server.cli.main import _create_db_interface
 from boxtribute_server.cli.remove_base_access import remove_base_access
 from boxtribute_server.cli.service import Auth0Service, _user_data_without_base_id
@@ -447,3 +448,31 @@ def test_remove_base_access_without_force(usergroup_tables):
     deleted_users = User.select().where(User.deleted.is_null(False)).count()
     remove_base_access(base_id=base_id, service=service, force=False)
     assert deleted_users == User.select().where(User.deleted.is_null(False)).count()
+
+
+def test_clean_up_roles(usergroup_data):
+    service = Service()
+    interface = service._interface
+    interface.roles.list.return_value = MockPager(
+        [
+            {"id": "rol_c", "name": "base_1_coordinator"},
+            {"id": "rol_d", "name": "base_1_volunteer"},
+            {"id": "rol_b", "name": "base_1_library_volunteer"},
+            {"id": "rol_s", "name": "base_1000_volunteer"},
+        ],
+    )
+
+    clean_up_roles(service=service, force=False)
+    assert not interface.roles.delete.called
+
+    clean_up_roles(service=service, force=True)
+    assert interface.roles.delete.call_args_list == [call("rol_s")]
+
+    # Verify functionality without invalid roles
+    interface.roles.list.reset_mock(return_value=True)
+    interface.roles.delete.reset_mock()
+    interface.roles.list.return_value = MockPager(
+        [{"id": "rol_a", "name": "administrator"}]
+    )
+    clean_up_roles(service=service, force=False)
+    assert not interface.roles.delete.called

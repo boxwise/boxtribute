@@ -11,6 +11,7 @@
    1. [Linting and Formatting in VSCode](#linting-and-formatting-in-vscode)
    1. [Working with MySQL](#working-with-mysql)
    1. [Debugging](#debugging)
+   1. [Utilities](#utilities)
 1. [Testing](#testing)
 1. [Architecture](#architecture)
 1. [GraphQL API](#graphql-api)
@@ -202,6 +203,20 @@ activate_logging()
 ```
 
 Note that in production mode, logging is also subject to the configuration of the WSGI server.
+
+### Utilities
+
+The `boxtribute_server` package provides a couple of utilities for administrative dev tasks. These can be invoked via the `bwiz` command-line tool. For quick help, consult `bwiz --help`.
+
+Since both commands execute destructive actions, one must specify the `--force` option to make them effective.
+
+#### Remove base access
+
+This runs against the production database and Auth0 tenant. Given a base ID, it marks all members of the base as inactive and updates the respective `cms_*` tables.
+
+#### Clean up Auth0 user roles
+
+This only runs against the Auth0 dev tenant. It removes all roles that are not part of the database seed.
 
 ## Testing
 
