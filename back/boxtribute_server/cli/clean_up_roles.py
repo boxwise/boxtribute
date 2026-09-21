@@ -19,7 +19,7 @@ def clean_up_roles(*, service, force):
 
     invalid_role_ids = auth0_role_ids - valid_role_ids
     if invalid_role_ids:
-        LOGGER.info(f"{len(invalid_role_ids)} marked for deletion")
+        LOGGER.info(f"{len(invalid_role_ids)} role(s) marked for deletion")
     if not force:
         LOGGER.warning(
             "The command did not make any effective changes. Use the "
