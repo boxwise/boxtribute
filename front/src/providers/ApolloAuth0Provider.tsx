@@ -21,7 +21,7 @@ function ApolloAuth0Provider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const getAuth0Token = async () => {
-      const token = isAuthenticated ? (await getAccessTokenSilently()) ?? "" : "";
+      const token = isAuthenticated ? ((await getAccessTokenSilently()) ?? "") : "";
       setAuth0Token(token);
     };
     getAuth0Token();
