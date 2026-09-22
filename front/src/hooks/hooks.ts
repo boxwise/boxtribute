@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import { useAtomValue } from "jotai";
+import { resetHeapIdentity } from "@boxtribute/shared-components/statviz/utils/analytics/heap";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { JWT_ABP, JWT_ROLE } from "utils/constants";
 
@@ -32,6 +33,7 @@ export const useHandleLogout = () => {
     localStorage.removeItem("reconciliationReceiveLocation");
     // Clear box-creation form input cache.
     localStorage.removeItem("boxCreateFormCache");
+    resetHeapIdentity();
 
     // only redirect in staging and production environments
     if (import.meta.env.FRONT_ENVIRONMENT !== "development") {
