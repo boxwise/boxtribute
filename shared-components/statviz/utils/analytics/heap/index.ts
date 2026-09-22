@@ -18,6 +18,9 @@ export const getHeap = (): IHeap => {
     addUserProperties: (properties) => {
       console.log(`Added user properties: ${JSON.stringify(properties)}`);
     },
+    resetIdentity: () => {
+      console.log("Resetting user identify");
+    },
   };
 };
 
@@ -29,6 +32,10 @@ export const identifyHeapUser = (userId: string) => {
 
 export const addHeapUserProperties = (properties: HeapUserProperties) => {
   getHeap().addUserProperties(properties);
+};
+
+export const resetHeapIdentity = () => {
+  getHeap().resetIdentity();
 };
 
 // Filter related utility functions

@@ -6,6 +6,7 @@ interface IHeap {
   track: (name: string, event: HeapEvent) => void;
   identify: (id: string) => void;
   addUserProperties: (properties: HeapUserProperties) => void;
+  resetIdentity: () => void;
 }
 
 interface IDownloadByGraphEvent extends HeapEvent {

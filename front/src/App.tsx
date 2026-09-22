@@ -40,6 +40,7 @@ import { JWT_ROLE } from "utils/constants";
 import {
   identifyHeapUser,
   addHeapUserProperties,
+  resetHeapIdentity,
 } from "@boxtribute/shared-components/statviz/utils/analytics/heap";
 
 type ProtectedRouteProps = {
@@ -120,7 +121,12 @@ function App() {
     const isGod: boolean = user?.[JWT_ROLE]?.includes("boxtribute_god") || false;
     const organisationName = organisation?.name;
 
-    if (userId) identifyHeapUser(userId);
+    if (!userId) {
+      resetHeapIdentity();
+      return;
+    }
+
+    identifyHeapUser(userId);
     if (organisationName)
       addHeapUserProperties({ organisation: organisationName, is_admin: isGod });
   }, [user, organisation?.name]);
