@@ -19,7 +19,7 @@ export const getHeap = (): IHeap => {
       console.log(`Added user properties: ${JSON.stringify(properties)}`);
     },
     resetIdentity: () => {
-      console.log("Resetting user identify");
+      console.log("Resetting user identity");
     },
   };
 };
