@@ -26,7 +26,7 @@ import { ErrorBoundary } from "@sentry/react";
 import Dashboard from "@boxtribute/shared-components/statviz/dashboard/Dashboard";
 import ErrorView from "views/ErrorView/ErrorView";
 import { useAtomValue } from "jotai";
-import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
+import { organisationAtom, selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import CreateCustomProductView from "views/CreateCustomProduct/CreateCustomProductView";
 import EditCustomProductView from "views/EditCustomProduct/EditCustomProductView";
 import EditStandardProductView from "views/EditStandardProduct/EditStandardProductView";
@@ -37,6 +37,10 @@ import GuidesOverviewView from "views/Guides/GuidesOverviewView";
 import GuideDetailView from "views/Guides/GuideDetailView";
 import { useAuth0 } from "@auth0/auth0-react";
 import { JWT_ROLE } from "utils/constants";
+import {
+  identifyHeapUser,
+  addHeapUserProperties,
+} from "@boxtribute/shared-components/statviz/utils/analytics/heap";
 
 type ProtectedRouteProps = {
   component: ReactElement;
@@ -104,11 +108,22 @@ function DropappRedirect({ path }: DropappRedirectProps) {
 function App() {
   const { error, isInitialized } = useLoadAndSetGlobalPreferences();
   const { user } = useAuth0();
+  const organisation = useAtomValue(organisationAtom);
   const roles: string[] = user?.[JWT_ROLE] ?? [];
   const location = useLocation();
   // For BoxesView to reduce number of expensive Boxes queries
   // when navigating between boxes and other views.
   const hasExecutedInitialFetchOfBoxes = useRef(false);
+
+  useEffect(() => {
+    const userId = user?.sub?.replace(/^auth0\|/, ""); // strip prefix
+    const isGod: boolean = user?.[JWT_ROLE]?.includes("boxtribute_god") || false;
+    const organisationName = organisation?.name;
+
+    if (userId) identifyHeapUser(userId);
+    if (organisationName)
+      addHeapUserProperties({ organisation: organisationName, is_admin: isGod });
+  }, [user, organisation?.name]);
 
   // store previous location to return to if you are not authorized
   // only store previous location if a base is selected

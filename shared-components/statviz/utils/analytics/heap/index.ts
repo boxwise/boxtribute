@@ -1,4 +1,4 @@
-import { IDownloadByGraphEvent, IHeap } from "./types";
+import { HeapUserProperties, IDownloadByGraphEvent, IHeap } from "./types";
 
 declare let heap: IHeap;
 
@@ -12,7 +12,23 @@ export const getHeap = (): IHeap => {
     track: (name, event) => {
       console.log(`Tracked ${name}, event: ${JSON.stringify(event)}`);
     },
+    identify: (id) => {
+      console.log(`Identified user: ${id}`);
+    },
+    addUserProperties: (properties) => {
+      console.log(`Added user properties: ${JSON.stringify(properties)}`);
+    },
   };
+};
+
+// User identification related utility functions
+
+export const identifyHeapUser = (userId: string) => {
+  getHeap().identify(userId);
+};
+
+export const addHeapUserProperties = (properties: HeapUserProperties) => {
+  getHeap().addUserProperties(properties);
 };
 
 // Filter related utility functions
