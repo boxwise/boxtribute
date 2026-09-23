@@ -23,7 +23,7 @@ export const useHasPermission = (permission: string): boolean => {
   }, [user, permission]);
 };
 
-// logout handler that redirect the v2 to dropapp related trello: https://trello.com/c/sbIJYHFF
+// Logout handler that redirects v2 to dropapp in order to logout the session there, too
 export const useHandleLogout = () => {
   const { user, logout } = useAuth0();
 
