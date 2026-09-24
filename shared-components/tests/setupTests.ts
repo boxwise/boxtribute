@@ -19,3 +19,30 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// needed to avoid "running clear() on undefined" when executing `pnpm test` outside docker or CI
+const mockLocalStorage = (() => {
+  let store = {} as Storage;
+
+  return {
+    getItem(key: string) {
+      return store[key];
+    },
+
+    setItem(key: string, value: string) {
+      store[key] = value;
+    },
+
+    removeItem(key: string) {
+      delete store[key];
+    },
+
+    clear() {
+      store = {} as Storage;
+    },
+  };
+})();
+
+Object.defineProperty(window, "localStorage", {
+  value: mockLocalStorage,
+});
