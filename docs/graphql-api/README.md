@@ -25,7 +25,7 @@ First of all change the current directory to `docs/graphql-api/`.
 
 ### Result
 
-Open `public/index.html` in the web browser. (Alternatively you can add the `-D` flag to the previous `spectaqle` command to start an HTTP server with file watcher and live reloading on port 4400)
+Open `public/index.html` in the web browser. (Alternatively you can add the `-D` flag to the previous `spectaql` command to start an HTTP server with file watcher and live reloading on port 4400)
 
 See more options with the `--help` flag, or by inspecting the config files.
 

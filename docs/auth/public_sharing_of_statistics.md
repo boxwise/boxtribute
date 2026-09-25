@@ -121,7 +121,7 @@ The following serves as a concept for a first implementation of the "link-sharin
 - the shared data will be live (as opposed to "freezing" the data to the time of link creation)
 - link format is `.../<code> (can't use `.../bases/X/statviz`: insecure because it's easy to navigate to other bases and view their data; also not unique (can't expire))
 - the expiration time of the link is one week. Later we can make is customizable, and/or add an action to invalidate a created link
-- we expose the public app in the new `shared` GAE service. Hence it won't interfer with the main `app` service
+- we expose the public app in the new `shared` GAE service. Hence it won't interfere with the main `app` service
 
 ### Effects on full-stack
 
@@ -139,7 +139,7 @@ The following serves as a concept for a first implementation of the "link-sharin
 #### UI considerations
 
 - public FE: there won't be any authentication (login) in the FE when the external person opens the link
-- public FE: no menues or navigation options are available
+- public FE: no menus or navigation options are available
 - v2: action button for creating link on statviz view (only viewable for users with resp. permission)
 - v2: copy created link directly to clipboard, or display it for copying?
 
