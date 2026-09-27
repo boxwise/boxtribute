@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useEffect, useCallback } from "react";
 import type React from "react";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { useSearchParams } from "react-router-dom";
 import { Alert, AlertIcon, Flex, Heading, Skeleton, Select } from "@chakra-ui/react";
 
@@ -17,53 +17,7 @@ import {
   type ILocationOption,
   type ITagOption,
 } from "@boxtribute/shared-components/statviz/utils/dashboardFilters";
-
-export const RESOLVE_LINK = gql(`
-  query resolveLink($code: String!) {
-    resolveLink(code: $code) {
-      ... on ResolvedLink {
-        view
-        urlParameters
-        baseName
-        organisationName
-        data {
-          ... on StockOverviewData {
-            facts {
-              productName
-              categoryId
-              gender
-              boxesCount
-              itemsCount
-              sizeId
-              tagIds
-              boxState
-              locationId
-            }
-            dimensions {
-              category {
-                id
-                name
-              }
-              size {
-                id
-                name
-              }
-              tag {
-                id
-                name
-                color
-              }
-              location {
-                id
-                name
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`);
+import { RESOLVE_LINK } from "./constants";
 
 function ErrorPage({ children }: { children: ReactNode }) {
   return (

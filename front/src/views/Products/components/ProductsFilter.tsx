@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { VStack, Button, Box, SimpleGrid } from "@chakra-ui/react";
 import { Filters } from "react-table";
 import MultiSelectFilter from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 
 interface ProductsFilterProps {
-  isOpen: boolean;
   onClose: () => void;
   columnFilters: Filters<any>;
   onApplyFilters: (filters: Filters<any>) => void;
@@ -15,7 +14,6 @@ interface ProductsFilterProps {
 }
 
 export function ProductsFilter({
-  isOpen,
   onClose,
   columnFilters,
   onApplyFilters,
@@ -23,24 +21,20 @@ export function ProductsFilter({
   genderOptions,
   sizeRangeOptions,
 }: ProductsFilterProps) {
-  const [stagedFilters, setStagedFilters] = useState<Record<string, string[]>>({});
-
-  useEffect(() => {
-    if (isOpen) {
-      const filtersMap: Record<string, string[]> = {};
-      columnFilters.forEach((filter) => {
-        if (filter.value == null) {
-          return;
-        }
-        if (Array.isArray(filter.value)) {
-          filtersMap[filter.id] = filter.value.map(String);
-        } else {
-          filtersMap[filter.id] = [String(filter.value)];
-        }
-      });
-      setStagedFilters(filtersMap);
-    }
-  }, [isOpen, columnFilters]);
+  const [stagedFilters, setStagedFilters] = useState<Record<string, string[]>>(() => {
+    const filtersMap: Record<string, string[]> = {};
+    columnFilters.forEach((filter) => {
+      if (filter.value == null) {
+        return;
+      }
+      if (Array.isArray(filter.value)) {
+        filtersMap[filter.id] = filter.value.map(String);
+      } else {
+        filtersMap[filter.id] = [String(filter.value)];
+      }
+    });
+    return filtersMap;
+  });
 
   const handleFilterChange = useCallback((filterId: string, values: string[]) => {
     setStagedFilters((prev) => ({
