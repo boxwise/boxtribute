@@ -21,6 +21,7 @@ from ..db import create_db_interface
 from ..models import MODELS
 from ..models.definitions.base import Base
 from ..models.definitions.organisation import Organisation
+from .clean_up_roles import clean_up_roles
 from .remove_base_access import LOGGER as RBA_LOGGER
 from .remove_base_access import remove_base_access
 from .service import LOGGER as SERVICE_LOGGER
@@ -68,6 +69,23 @@ def _parse_options(args=None):
         "-i", "--auth0-management-api-client-id", dest="client_id", required=True
     )
     remove_base_access_parser.add_argument(
+        "-S",
+        "--auth0-management-api-client-secret",
+        dest="secret",
+    )
+    clean_up_roles_parser = subparsers.add_parser(
+        "clean-up-roles", help="Remove invalid roles from Auth0 dev tenant"
+    )
+    clean_up_roles_parser.add_argument(
+        "--force", action="store_true", help="actually execute the operations"
+    )
+    clean_up_roles_parser.add_argument(
+        "-D", "--auth0-management-api-domain", dest="domain", required=True
+    )
+    clean_up_roles_parser.add_argument(
+        "-i", "--auth0-management-api-client-id", dest="client_id", required=True
+    )
+    clean_up_roles_parser.add_argument(
         "-S",
         "--auth0-management-api-client-secret",
         dest="secret",
@@ -156,6 +174,17 @@ def main(args=None):
                 **{n: options.pop(n) for n in ["domain", "client_id", "secret"]}
             )
             remove_base_access(**options, service=service)
+
+        elif command == "clean-up-roles":  # pragma: no cover
+            if (
+                database.database != "dropapp_dev"
+                or "boxtribute-dev" not in options["domain"]
+            ):
+                raise RuntimeError("Can only clean up dev tenant.")
+            service = _connect_to_auth0(
+                **{n: options.pop(n) for n in ["domain", "client_id", "secret"]}
+            )
+            clean_up_roles(**options, service=service)
     except Exception as e:
         LOGGER.exception(e) if verbose else LOGGER.error(e)
         raise SystemExit("Exiting due to above error.")
