@@ -1,3 +1,5 @@
+import time
+
 from auth0.management import ManagementClient
 from auth0.management.core.api_error import ApiError
 
@@ -38,6 +40,14 @@ class ServiceBase:
         except ApiError as e:
             raise ServiceError(code=e.status_code, message=e.body)
         return users
+
+    def get_roles(self, **kwargs):
+        """Returns user roles, forwarding any kwargs."""
+        try:
+            return [role for role in self._interface.roles.list(per_page=100, **kwargs)]
+        except ApiError as e:
+            LOGGER.error(e)
+            raise RuntimeError("Error while getting user roles")
 
     @classmethod
     def connect(cls, *, domain, client_id, secret):
@@ -83,24 +93,17 @@ class Auth0Service(ServiceBase):
         return result
 
     def get_single_base_user_role_ids(self, base_id):
-        try:
-            prefix = f"base_{base_id}_"
-            roles = [
-                role
-                for role in self._interface.roles.list(per_page=100, name_filter=prefix)
-            ]
+        prefix = f"base_{base_id}_"
+        roles = self.get_roles(name_filter=prefix)
 
-            # For a prefix like 'base_1_', the API also returns roles with prefixes
-            # 'base_10_', 'base_11_', etc. which need to be filtered out
-            role_ids = sorted(r.id for r in roles if r.name.startswith(prefix))
+        # For a prefix like 'base_1_', the API also returns roles with prefixes
+        # 'base_10_', 'base_11_', etc. which need to be filtered out
+        role_ids = sorted(r.id for r in roles if r.name.startswith(prefix))
 
-            LOGGER.info(
-                f"Extracted {len(role_ids)} from total of {len(roles)} roles "
-                f"matching the base prefix '{prefix}'."
-            )
-        except ApiError as e:
-            LOGGER.error(e)
-            raise RuntimeError("Error while getting single base user role IDs")
+        LOGGER.info(
+            f"Extracted {len(role_ids)} from total of {len(roles)} roles "
+            f"matching the base prefix '{prefix}'."
+        )
         return sorted(role_ids)
 
     def remove_base_id_from_multi_base_users_metadata(self, *, base_id, users):
@@ -138,6 +141,7 @@ class Auth0Service(ServiceBase):
             try:
                 # https://auth0.com/docs/api/management/v2/roles/delete-roles-by-id
                 self._interface.roles.delete(role_id)
+                time.sleep(0.1)
             except ApiError as e:
                 # Ignore missing or deleted role
                 if e.status_code != 404:
