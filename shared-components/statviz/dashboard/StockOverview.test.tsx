@@ -86,7 +86,7 @@ const fiveMonthsAgo = format(subMonths(new Date(), 5), "yyyy-MM-dd");
 const tenMonthsAgo = format(subMonths(new Date(), 10), "yyyy-MM-dd");
 const fifteenMonthsAgo = format(subMonths(new Date(), 15), "yyyy-MM-dd"); // outside 1-year window
 
-// STOCK_QUERY mock: 3 InStock facts (Shoes/Men, Shirts/Female, Pants/null) + Donated + Lost
+// STOCK_QUERY mock: 3 InStock facts (Shoes/Men, Shirts/Women, Pants/null) + Donated + Lost
 // NOTE: dimension ids are Int (not ID string) per the GraphQL schema's BasicDimensionInfo type
 const stockMock = {
   request: {
@@ -112,7 +112,7 @@ const stockMock = {
           {
             productName: "shirts",
             categoryId: 2,
-            gender: "Female",
+            gender: "Women",
             boxesCount: 3,
             itemsCount: 6,
             sizeId: 1,
@@ -147,7 +147,7 @@ const stockMock = {
           {
             productName: "shirts",
             categoryId: 2,
-            gender: "Female",
+            gender: "Women",
             boxesCount: 1,
             itemsCount: 2,
             sizeId: 1,
@@ -207,7 +207,7 @@ const createdBoxesMock = {
             categoryId: 2,
             createdOn: fiveMonthsAgo,
             tagIds: [2],
-            gender: "Female",
+            gender: "Women",
             itemsCount: 6,
           },
           // 10 months ago – within 1-year window
