@@ -314,7 +314,7 @@ def get_time_span(
         raise ValueError("Insufficient arguments")
 
 
-def get_data_for_number_of_active_users(end_date):
+def get_data_for_number_of_logged_in_users(end_date):
     """Find users who logged in within the last two years by querying the Auth0
     management API.
     Prepare users data and corresponding organisation data.
@@ -386,8 +386,8 @@ def get_data_for_number_of_active_users(end_date):
     return valid_users, list(org_base_info)
 
 
-def number_of_active_users_between(start, end, users, org_base_info):
-    """Compute number of active users per organisation between start and end dates.
+def number_of_logged_in_users_between(start, end, users, org_base_info):
+    """Compute number of logged-in users per organisation between start and end dates.
 
     Returns a list of dicts with organisation ID, organisation name, base ID,
     base name, and number of users logged in.
