@@ -3,6 +3,7 @@ from peewee import SQL, CharField, DateTimeField, IntegerField
 from ..fields import UIntForeignKeyField, ZeroDateField
 from . import Model
 from .language import Language
+from .usergroup import Usergroup
 
 
 class User(Model):
@@ -40,7 +41,13 @@ class User(Model):
     valid_first_day = ZeroDateField(column_name="valid_firstday", null=True)
     valid_last_day = ZeroDateField(column_name="valid_lastday", null=True)
     # legacy fields from dropapp user-management
-    _usergroup = IntegerField(column_name="cms_usergroups_id", null=True)
+    _usergroup = UIntForeignKeyField(
+        model=Usergroup,
+        column_name="cms_usergroups_id",
+        field="id",
+        null=True,
+        on_update="CASCADE",
+    )
     _password = CharField(column_name="pass", constraints=[SQL("DEFAULT ''")])
     _reset_password = CharField(column_name="resetpassword", null=True)
 

@@ -13,6 +13,7 @@ from boxtribute_server.models.definitions.standard_product import StandardProduc
 from boxtribute_server.models.definitions.transaction import Transaction
 from boxtribute_server.models.definitions.transfer_agreement import TransferAgreement
 from boxtribute_server.models.definitions.user import User
+from boxtribute_server.models.definitions.usergroup import Usergroup
 
 
 def model_instance_dict(model, id):
@@ -95,3 +96,8 @@ def test_subclasses():
         pass
 
     assert len(MODELS) == len(Model.__subclasses__()) - 1
+
+
+def test_uint_foreign_key_fields():
+    assert Usergroup.organisation.field_type == "INTEGER UNSIGNED"
+    assert Base.organisation.field_type == "INTEGER UNSIGNED"
