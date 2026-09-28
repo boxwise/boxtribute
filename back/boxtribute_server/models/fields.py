@@ -2,7 +2,14 @@
 
 import enum
 
-from peewee import SQL, CharField, DateField, DateTimeField, ForeignKeyField
+from peewee import (
+    SQL,
+    CharField,
+    DateField,
+    DateTimeField,
+    DeferredForeignKey,
+    ForeignKeyField,
+)
 
 
 class EnumCharField(CharField):
@@ -74,6 +81,17 @@ class UIntForeignKeyField(ForeignKeyField):
     """
 
     field_type = "INTEGER UNSIGNED"
+
+
+class DeferredUIntForeignKeyField(DeferredForeignKey):
+    """Equivalent to UIntForeignKeyField with deferred initialization, see comment
+    there.
+    """
+
+    def set_model(self, rel_model):
+        field = UIntForeignKeyField(rel_model, _deferred=True, **self.field_kwargs)
+        field.name = self.name
+        self.model._meta.add_field(self.name, field)
 
 
 class ZeroDateTimeField(DateTimeField):
