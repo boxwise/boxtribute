@@ -35,6 +35,7 @@ from .definitions.transfer_agreement_detail import TransferAgreementDetail
 from .definitions.unboxed_items_collection import UnboxedItemsCollection
 from .definitions.unit import Unit
 from .definitions.user import User
+from .definitions.usergroup import Usergroup
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
 
 # All Model subclasses MUST be added to this list
@@ -82,5 +83,6 @@ MODELS = (
     UnboxedItemsCollection,
     Unit,
     User,
+    Usergroup,
     XBeneficiaryLanguage,
 )
