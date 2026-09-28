@@ -57,7 +57,7 @@ const stockOverviewData = {
         {
           productName: "shoes",
           categoryId: 1,
-          gender: "Male",
+          gender: "Men",
           boxesCount: 5,
           itemsCount: 10,
           sizeId: 1,
@@ -68,7 +68,7 @@ const stockOverviewData = {
         {
           productName: "shirts",
           categoryId: 2,
-          gender: "Female",
+          gender: "Women",
           boxesCount: 3,
           itemsCount: 6,
           sizeId: 2,
@@ -203,8 +203,8 @@ describe("Shared FE", () => {
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
     expect(screen.getByTestId("pie-center")).toHaveTextContent("8 boxes");
-    expect(screen.getByText("Male: 5")).toBeInTheDocument();
-    expect(screen.getByText("Female: 3")).toBeInTheDocument();
+    expect(screen.getByText("Men: 5")).toBeInTheDocument();
+    expect(screen.getByText("Women: 3")).toBeInTheDocument();
   });
 
   it("groups by category when srg=cn", async () => {
