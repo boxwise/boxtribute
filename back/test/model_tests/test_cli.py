@@ -58,31 +58,9 @@ def test_create_db_interface():
 @pytest.fixture
 def usergroup_tables():
     # Set up three usergroups for base 1 (run by org 1 which also runs base 2)
-    execute_sql(query="""\
-DROP TABLE IF EXISTS `cms_usergroups`;
-""")
-    execute_sql(query="""\
-CREATE TABLE `cms_usergroups` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `label` varchar(255) NOT NULL,
-  `created` datetime DEFAULT NULL,
-  `created_by` int(11) unsigned DEFAULT NULL,
-  `modified` datetime DEFAULT NULL,
-  `modified_by` int(11) unsigned DEFAULT NULL,
-  `organisation_id` int(11) unsigned NOT NULL,
-  `deleted` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `organisation_id` (`organisation_id`),
-  KEY `created_by` (`created_by`),
-  KEY `modified_by` (`modified_by`),
-  CONSTRAINT `cms_usergroups_ibfk_1` FOREIGN KEY (`organisation_id`)
-  REFERENCES `organisations` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `cms_usergroups_ibfk_3` FOREIGN KEY (`created_by`)
-  REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `cms_usergroups_ibfk_4` FOREIGN KEY (`modified_by`)
-  REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-""")
+    execute_sql(query="SET foreign_key_checks = 0;")
+    execute_sql(query="DELETE FROM `cms_usergroups`;")
+    execute_sql(query="SET foreign_key_checks = 1;")
 
     execute_sql(query="""\
 DROP TABLE IF EXISTS `cms_usergroups_camps`;
@@ -153,7 +131,6 @@ CREATE TABLE `cms_usergroups_functions` (
         "cms_usergroups_functions",
         "cms_usergroups_camps",
         "cms_functions_camps",
-        "cms_usergroups",
     ]:
         execute_sql(query=f"DROP TABLE {table};")
 
