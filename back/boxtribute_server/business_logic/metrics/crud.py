@@ -8,6 +8,7 @@ from peewee import SQL, NodeList, fn
 from sentry_sdk import capture_message as emit_sentry_message
 
 from ...cli.service import ServiceBase
+from ...db import execute_sql
 from ...enums import HumanGender, TaggableObjectType
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
@@ -410,6 +411,33 @@ def number_of_logged_in_users_between(start, end, users, org_base_info):
         org_id = row["organisation_id"]
         result.append(row | {"number": user_counts[org_id]})
     return result
+
+
+def number_of_active_users_between(start, end):
+    return execute_sql(
+        start,
+        end,
+        query="""\
+SELECT
+    o.id AS organisation_id,
+    o.label AS organisation_name,
+    0 AS base_id,
+    "-" AS base_name,
+    COUNT(h.user_id) AS number
+FROM (
+    SELECT user_id FROM history
+    WHERE user_id IS NOT NULL
+    AND changedate >= %s
+    AND changedate <= %s
+    GROUP BY user_id
+) h
+JOIN cms_users u ON u.id = h.user_id
+LEFT OUTER JOIN cms_usergroups ug ON ug.id = u.cms_usergroups_id
+LEFT OUTER JOIN organisations o ON o.id = ug.organisation_id
+GROUP BY o.id
+ORDER BY o.name
+""",
+    )
 
 
 def beneficiary_figures(base_id):

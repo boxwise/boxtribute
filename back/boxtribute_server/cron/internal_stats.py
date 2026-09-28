@@ -9,6 +9,7 @@ from ..business_logic.metrics.crud import (
     compute_total,
     get_data_for_number_of_logged_in_users,
     get_time_span,
+    number_of_active_users_between,
     number_of_beneficiaries_reached_between,
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
@@ -79,6 +80,7 @@ TITLES = [
     "Reached beneficiaries",
     # "Moved boxes",
     "Unique logged-in users",
+    "Unique active users",
 ]
 
 # About the earliest date that data was first created in Boxtribute
@@ -96,6 +98,7 @@ def get_internal_data():
         number_of_beneficiaries_reached_between,
         # number_of_boxes_moved_between,
         number_of_logged_in_users_between,
+        number_of_active_users_between,
     ]
     # Some computations need data which is expensive to collect. Fetch this data only
     # once and provide it via a look-up
