@@ -5,6 +5,7 @@ import pytest
 from auth import mock_user_for_request
 from boxtribute_server.business_logic.metrics.crud import (
     get_data_for_number_of_logged_in_users,
+    number_of_active_users_between,
     number_of_logged_in_users_between,
 )
 from boxtribute_server.cli.service import ServiceBase
@@ -155,6 +156,25 @@ def test_exclude_test_organisation_in_production(client, monkeypatch, stat, coun
     query = f"""query {{ {stat}(start: "2020-01-01") }}"""
     response = assert_successful_request(client, query, endpoint="public")
     assert response == count
+
+
+def test_number_of_active_users_between(
+    client,
+    default_organisation,
+    default_bases,
+):
+    start = datetime(2021, 1, 1, tzinfo=timezone.utc)
+    end = datetime(2025, 1, 31, tzinfo=timezone.utc)
+    result = number_of_active_users_between(start, end)
+    assert result == [
+        {
+            "organisation_id": default_organisation["id"],
+            "organisation_name": default_organisation["name"],
+            "base_id": default_bases[0]["id"],
+            "base_name": ",".join([b["name"] for b in default_bases[:2]]),
+            "number": 1,
+        },
+    ]
 
 
 def test_number_of_logged_in_users_between(

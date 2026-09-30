@@ -437,27 +437,29 @@ def number_of_active_users_between(start, end):
     )
 
     one_year_ago = end - timedelta(days=365)
-    return (
-        DbChangeHistory.select(
-            Organisation.id.alias("organisation_id"),
-            Organisation.name.alias("organisation_name"),
-            fn.MIN(Base.id).alias("base_id"),
-            fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
-                "base_name"
-            ),
-            fn.COUNT(ActiveUsers.c.user_id).alias("number"),
-        )
-        .from_(ActiveUsers)
-        .left_outer_join(User, on=(User.id == ActiveUsers.c.user_id))
-        .left_outer_join(Usergroup)
-        .left_outer_join(Organisation)
-        .left_outer_join(Base)
-        .where(
-            Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
-            exclude_test_organisation(),
-        )
-        .group_by(Organisation.id)
-    ).dicts()
+    return list(
+        (
+            DbChangeHistory.select(
+                Organisation.id.alias("organisation_id"),
+                Organisation.name.alias("organisation_name"),
+                fn.MIN(Base.id).alias("base_id"),
+                fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
+                    "base_name"
+                ),
+                fn.COUNT(ActiveUsers.c.user_id.distinct()).alias("number"),
+            )
+            .from_(ActiveUsers)
+            .left_outer_join(User, on=(User.id == ActiveUsers.c.user_id))
+            .left_outer_join(Usergroup)
+            .left_outer_join(Organisation)
+            .left_outer_join(Base)
+            .where(
+                Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
+                exclude_test_organisation(),
+            )
+            .group_by(Organisation.id)
+        ).dicts()
+    )
 
 
 def beneficiary_figures(base_id):
