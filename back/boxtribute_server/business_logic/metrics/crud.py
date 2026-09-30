@@ -415,6 +415,17 @@ def number_of_logged_in_users_between(start, end, users, org_base_info):
 
 
 def number_of_active_users_between(start, end):
+    """Compute number of active users per organisation between start and end dates.
+    "Active" means creating or modifying boxes, beneficiaries, products, and other
+    entities, as logged in the history table.
+
+    Returns a list of dicts with organisation ID, organisation name, base ID,
+    base name, and number of users being active.
+
+    For multi-base organisations, it's not possible to determine the base which the
+    user was active in (see also comment in get_data_for_number_of_logged_in_users
+    above).
+    """
     ActiveUsers = (
         DbChangeHistory.select(DbChangeHistory.user.alias("user_id"))
         .where(
@@ -425,19 +436,26 @@ def number_of_active_users_between(start, end):
         .group_by(DbChangeHistory.user)
     )
 
+    one_year_ago = end - timedelta(days=365)
     return (
         DbChangeHistory.select(
             Organisation.id.alias("organisation_id"),
             Organisation.name.alias("organisation_name"),
-            SQL("0").alias("base_id"),
-            SQL("'-'").alias("base_name"),
+            fn.MIN(Base.id).alias("base_id"),
+            fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
+                "base_name"
+            ),
             fn.COUNT(ActiveUsers.c.user_id).alias("number"),
         )
         .from_(ActiveUsers)
         .left_outer_join(User, on=(User.id == ActiveUsers.c.user_id))
         .left_outer_join(Usergroup)
         .left_outer_join(Organisation)
-        .where(exclude_test_organisation())
+        .left_outer_join(Base)
+        .where(
+            Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
+            exclude_test_organisation(),
+        )
         .group_by(Organisation.id)
     ).dicts()
 
