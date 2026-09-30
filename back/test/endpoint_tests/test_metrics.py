@@ -230,8 +230,8 @@ def test_number_of_logged_in_users_between(
 
     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
     end = datetime(2025, 1, 31, tzinfo=timezone.utc)
-    users, org_base_info = get_data_for_number_of_logged_in_users(end)
-    result = number_of_logged_in_users_between(start, end, users, org_base_info)
+    users = get_data_for_number_of_logged_in_users(end)[0]
+    result = number_of_logged_in_users_between(start, end, users)
 
     # Verify service was called with correct parameters
     two_years_ago = end - timedelta(days=2 * 365)
@@ -256,7 +256,7 @@ def test_number_of_logged_in_users_between(
     # Test the function a 2nd time to verify cache hit
     start = datetime(2023, 1, 1, tzinfo=timezone.utc)
     end = datetime(2023, 1, 31, tzinfo=timezone.utc)
-    result = number_of_logged_in_users_between(start, end, users, org_base_info)
+    result = number_of_logged_in_users_between(start, end, users)
     assert result == [
         {
             "organisation_id": default_organisation["id"],
@@ -278,7 +278,7 @@ def test_number_of_logged_in_users_between(
     mock_service.reset_mock()
     mock_service.get_users.side_effect = ValueError()
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
-    assert get_data_for_number_of_logged_in_users(end) == ([], [])
+    assert get_data_for_number_of_logged_in_users(end) == [[]]
 
 
 def test_beneficiary_figures(client, mocker):
