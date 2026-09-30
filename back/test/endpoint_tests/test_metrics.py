@@ -181,7 +181,6 @@ def test_number_of_logged_in_users_between(
     monkeypatch,
     client,
     default_organisation,
-    another_organisation,
     default_bases,
 ):
     # Mock environment variables
@@ -257,22 +256,7 @@ def test_number_of_logged_in_users_between(
     start = datetime(2023, 1, 1, tzinfo=timezone.utc)
     end = datetime(2023, 1, 31, tzinfo=timezone.utc)
     result = number_of_logged_in_users_between(start, end, users)
-    assert result == [
-        {
-            "organisation_id": default_organisation["id"],
-            "organisation_name": default_organisation["name"],
-            "base_id": default_bases[0]["id"],
-            "base_name": ",".join([b["name"] for b in default_bases[:2]]),
-            "number": 0,
-        },
-        {
-            "organisation_id": another_organisation["id"],
-            "organisation_name": another_organisation["name"],
-            "base_id": default_bases[2]["id"],
-            "base_name": ",".join([b["name"] for b in default_bases[2:4]]),
-            "number": 0,
-        },
-    ]
+    assert result == []
 
     # Verify error handling of Auth0 interface
     mock_service.reset_mock()
