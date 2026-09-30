@@ -51,6 +51,7 @@ const waitForTableSkeletonToBeRemoved = async () => {
 
 const mockTagsData = {
   base: {
+    id: "1",
     tags: [
       {
         id: "1",
@@ -120,6 +121,7 @@ const emptyTagsQuery = {
   result: {
     data: {
       base: {
+        id: "1",
         tags: [],
       },
     },
@@ -441,6 +443,7 @@ describe("TagsView", () => {
       result: {
         data: {
           base: {
+            id: "1",
             tags: [
               ...mockTagsData.base.tags,
               {
