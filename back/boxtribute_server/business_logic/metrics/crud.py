@@ -343,7 +343,6 @@ def get_data_for_number_of_logged_in_users(end_date):
         emit_sentry_message(f"Error querying Auth0 user data: {e}", level="warning")
         return [[]]
 
-    org_ids = set()
     valid_users = []
     for user in users:
         last_login = user.get("last_login")
@@ -354,13 +353,12 @@ def get_data_for_number_of_logged_in_users(end_date):
                 org_id = int(org_id)
             except (ValueError, TypeError):
                 continue
-            org_ids.add(org_id)
             valid_users.append({"last_login": last_login, "organisation_id": org_id})
 
     return [valid_users]
 
 
-def _get_organisation_base_info(earliest_deleted_on):
+def _get_organisation_base_info(earliest_deleted_on, org_ids):
     """Fetch organisation and base data from database.
 
     For multi-base organisations, the base with smallest ID serves as base_id, and
@@ -380,6 +378,7 @@ def _get_organisation_base_info(earliest_deleted_on):
             )
             .left_outer_join(Base)
             .where(
+                Organisation.id << org_ids,
                 Base.deleted_on.is_null() | (Base.deleted_on >= earliest_deleted_on),
                 exclude_test_organisation(),
             )
@@ -404,17 +403,18 @@ def number_of_logged_in_users_between(start, end, users):
 
     # Count users by organisation ID
     user_counts = Counter(user["organisation_id"] for user in filtered_users)
+    org_ids = list(user_counts.keys())
 
     # Note: For multi-base organisations, it's not directly possible to determine the
     # base that the user was logged in to.
     one_year_ago = end - timedelta(days=365)
-    org_base_info = _get_organisation_base_info(one_year_ago)
+    org_base_info = _get_organisation_base_info(one_year_ago, org_ids)
 
-    # Build result with user counts
+    # Build result with user counts (default to 0 for organisations not present among
+    # filtered users)
     result = []
-    for org_id, count in user_counts.items():
-        row = org_base_info.get(org_id, {})
-        result.append(row | {"number": count})
+    for org_id, row in org_base_info.items():
+        result.append(row | {"number": user_counts[org_id]})
     return result
 
 
@@ -457,23 +457,23 @@ def number_of_active_users_between(start, end):
             .group_by(Organisation.id)
         ).dicts()
     }
+    org_ids = list(user_counts.keys())
 
     # Step 2: fetch base info per organisation independently (no join to users), so
     # the one-to-many Organisation -> Base relationship can't multiply user rows.
     one_year_ago = end - timedelta(days=365)
-    org_base_info = _get_organisation_base_info(one_year_ago)
+    org_base_info = _get_organisation_base_info(one_year_ago, org_ids)
 
     # Step 3: merge the two results by organisation_id.
     result = []
-    for org_id, number in user_counts.items():
-        row = org_base_info.get(org_id, {})
+    for org_id, row in org_base_info.items():
         result.append(
             {
                 "organisation_id": org_id,
                 "organisation_name": row.get("organisation_name"),
                 "base_id": row.get("base_id"),
                 "base_name": row.get("base_name"),
-                "number": number,
+                "number": user_counts.get(org_id, 0),
             }
         )
     return result
