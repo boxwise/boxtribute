@@ -179,6 +179,7 @@ export const DASHBOARD_INFO_QUERY = graphql(`
 export const DASHBOARD_FILTER_DATA_QUERY = graphql(`
   query DashboardFilterData($baseId: ID!) {
     base(id: $baseId) {
+      id
       products {
         id
         name
