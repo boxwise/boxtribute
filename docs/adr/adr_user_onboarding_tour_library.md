@@ -1,14 +1,14 @@
 # ADR: User Onboarding / Guide Tour Library
 
-Trello-card: N/A
+[Trello-card](https://trello.com/c/rLso2e3Z)
 
-Decision Deadline: N/A
+Decision Deadline: 2026-05-30
 
 Author: @pylipp
 
 ## Status
 
-Proposed
+Accepted. Implemention done in v2.9.5
 
 ## Context or Problem Statement
 
