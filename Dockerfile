@@ -1,5 +1,5 @@
 # Node version should match that of your production environment.
-FROM node:20.9.0 AS base
+FROM node:20.19.0 AS base
 
 # pnpm version is set in the packageManager attribute
 # of the package.json file
