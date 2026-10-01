@@ -5,7 +5,7 @@ sentry-sdk[flask]==2.69.2
 PyMySQL==1.2.3
 peewee==4.4.0
 python-dotenv==1.2.3
-PyJWT[crypto]==2.14.0
+PyJWT[crypto]==2.15.0
 aiodataloader==0.4.3
 gunicorn
 auth0-python==6.6.0
