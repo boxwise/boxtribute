@@ -124,9 +124,6 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
     devDependencies:
-      '@sentry/types':
-        specifier: ^10.59.0
-        version: 10.59.0
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -1721,10 +1718,6 @@ packages:
     resolution: {integrity: sha512-+Euyo7CNVecoOusgUnq27oV97oshifgceKfnGnuKfXrPUVWA/cisvii3E1rlvy2yBrKvl9K1gCEo1Jqog5zjEQ==}
     engines: {node: '>=14'}
 
-  '@sentry/core@10.59.0':
-    resolution: {integrity: sha512-QeG7XZL5j6CkToYCE7OwCerb/r742Tjj9p1BBohBKcypYTPRuqfD+A3FeUj7pk5CGO6Vj1/gOAmdbuuNbR51dQ==}
-    engines: {node: '>=18'}
-
   '@sentry/core@11.0.0':
     resolution: {integrity: sha512-Sdmg21POKmNwZDz8pH/2FtilWeryh3yxhRxbfA1ph8SnX2DkXoqX6G+uXyjCSYagW2pefVklmSNeWHmUlSqioA==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
@@ -1750,10 +1743,6 @@ packages:
   '@sentry/replay@11.0.0':
     resolution: {integrity: sha512-4/36Iw288SaWEwLjhpLRjCjL2UmSNEyU0TvLrAlzRAoYdksneEe7iQTSe7WD257buSgop0m+lauGRHQf7fD9qg==}
     engines: {node: '>=20.19.0 <22.0.0 || >=22.12.0 <23.0.0 || >=23.2.0'}
-
-  '@sentry/types@10.59.0':
-    resolution: {integrity: sha512-d+z8hTeRjLYYRmuy9SDc4sS6nNfZaBI4Hjg2ACpf3AVgME7syC4ioQaktIWv2s5ygQLK27Y+EEag3u6goyDu2w==}
-    engines: {node: '>=18'}
 
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
@@ -7124,8 +7113,6 @@ snapshots:
 
   '@sentry/conventions@0.23.0': {}
 
-  '@sentry/core@10.59.0': {}
-
   '@sentry/core@11.0.0':
     dependencies:
       '@sentry/conventions': 0.23.0
@@ -7152,10 +7139,6 @@ snapshots:
     dependencies:
       '@sentry/browser-utils': 11.0.0
       '@sentry/core': 11.0.0
-
-  '@sentry/types@10.59.0':
-    dependencies:
-      '@sentry/core': 10.59.0
 
   '@standard-schema/utils@0.3.0': {}
 
