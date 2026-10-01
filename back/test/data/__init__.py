@@ -251,6 +251,7 @@ _NAMES = [
     "language",
     "qr_code",
     # Models that have dependencies, and are dependency of others
+    "usergroup",
     "user",
     "organisation",
     "base",

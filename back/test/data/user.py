@@ -54,7 +54,7 @@ def base2_coordinator_data():
     data["id"] = 4
     data["name"] = "coordinator"
     data["email"] = "coordinator@basetwo.org"
-    data["_usergroup"] = 6
+    data["_usergroup"] = 5
     return data
 
 
@@ -63,7 +63,7 @@ def base2_volunteer_data():
     data["id"] = 5
     data["name"] = "volunteer"
     data["email"] = "volunteer@basetwo.org"
-    data["_usergroup"] = 7
+    data["_usergroup"] = 6
     return data
 
 

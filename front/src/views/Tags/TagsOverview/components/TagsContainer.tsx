@@ -19,6 +19,7 @@ export const TAGS_QUERY = graphql(
   `
     query TagsForTagsView($baseId: ID!) {
       base(id: $baseId) {
+        id
         tags {
           taggedResources {
             ... on Beneficiary {

@@ -13,6 +13,7 @@ from boxtribute_server.exceptions import ServiceError
 from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.organisation import Organisation
 from boxtribute_server.models.definitions.user import User
+from boxtribute_server.models.definitions.usergroup import Usergroup
 
 
 class MockItem:
@@ -58,31 +59,9 @@ def test_create_db_interface():
 @pytest.fixture
 def usergroup_tables():
     # Set up three usergroups for base 1 (run by org 1 which also runs base 2)
-    execute_sql(query="""\
-DROP TABLE IF EXISTS `cms_usergroups`;
-""")
-    execute_sql(query="""\
-CREATE TABLE `cms_usergroups` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `label` varchar(255) NOT NULL,
-  `created` datetime DEFAULT NULL,
-  `created_by` int(11) unsigned DEFAULT NULL,
-  `modified` datetime DEFAULT NULL,
-  `modified_by` int(11) unsigned DEFAULT NULL,
-  `organisation_id` int(11) unsigned NOT NULL,
-  `deleted` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `organisation_id` (`organisation_id`),
-  KEY `created_by` (`created_by`),
-  KEY `modified_by` (`modified_by`),
-  CONSTRAINT `cms_usergroups_ibfk_1` FOREIGN KEY (`organisation_id`)
-  REFERENCES `organisations` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `cms_usergroups_ibfk_3` FOREIGN KEY (`created_by`)
-  REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `cms_usergroups_ibfk_4` FOREIGN KEY (`modified_by`)
-  REFERENCES `cms_users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
-""")
+    execute_sql(query="SET foreign_key_checks = 0;")  # because User has FK to Usergroup
+    Usergroup.delete().execute()
+    execute_sql(query="SET foreign_key_checks = 1;")
 
     execute_sql(query="""\
 DROP TABLE IF EXISTS `cms_usergroups_camps`;
@@ -153,23 +132,23 @@ CREATE TABLE `cms_usergroups_functions` (
         "cms_usergroups_functions",
         "cms_usergroups_camps",
         "cms_functions_camps",
-        "cms_usergroups",
     ]:
         execute_sql(query=f"DROP TABLE {table};")
 
 
 @pytest.fixture
 def usergroup_data(usergroup_tables):
-    execute_sql(query="""\
-INSERT INTO `cms_usergroups` VALUES
-    (1,'Head of Operations',NULL,NULL,NULL,NULL,1,NULL),
-    (2,'Base 1 - Coordinator',NULL,NULL,NULL,NULL,1,NULL),
-    (3,'Base 1 - Warehouse Volunteer',NULL,NULL,NULL,NULL,1,NULL),
-    (4,'Base 1 - Freeshop Volunteer',NULL,NULL,NULL,NULL,1,NULL),
-    (5,'Base 1 - Library Volunteer',NULL,NULL,NULL,NULL,1,NULL),
-    (6,'Coordinator',NULL,NULL,NULL,NULL,1,NULL),
-    (7,'Volunteer',NULL,NULL,NULL,NULL,1,NULL);
-""")
+    Usergroup.insert_many(
+        [
+            {"id": 1, "organisation": 1, "name": "Head of Operations"},
+            {"id": 2, "organisation": 1, "name": "Base 1 - Coordinator"},
+            {"id": 3, "organisation": 1, "name": "Base 1 - Warehouse Volunteer"},
+            {"id": 4, "organisation": 1, "name": "Base 1 - Freeshop Volunteer"},
+            {"id": 5, "organisation": 1, "name": "Base 1 - Library Volunteer"},
+            {"id": 6, "organisation": 1, "name": "Coordinator"},
+            {"id": 7, "organisation": 1, "name": "Volunteer"},
+        ]
+    ).execute()
 
     execute_sql(query="""\
 INSERT INTO `cms_usergroups_camps` VALUES
@@ -322,24 +301,24 @@ def test_remove_base_access(usergroup_data):
         {"id": 8, "_usergroup": None, "name": "Deleted user", "email": None},
     ]
 
-    # Verify that cms_usergroups.deleted is set
-    usergroups = execute_sql(query="SELECT id,deleted FROM cms_usergroups;")
+    # Verify that Usergroup.deleted_on is set
+    usergroups = Usergroup.select(Usergroup.id, Usergroup.deleted_on).dicts()
     today = date.today().isoformat()
-    assert usergroups[1]["deleted"].isoformat().startswith(today)
-    assert usergroups[2]["deleted"].isoformat().startswith(today)
-    assert usergroups[3]["deleted"].isoformat().startswith(today)
-    assert usergroups[4]["deleted"].isoformat().startswith(today)
-    # Remove deleted field for comparison with expected values
+    assert usergroups[1]["deleted_on"].isoformat().startswith(today)
+    assert usergroups[2]["deleted_on"].isoformat().startswith(today)
+    assert usergroups[3]["deleted_on"].isoformat().startswith(today)
+    assert usergroups[4]["deleted_on"].isoformat().startswith(today)
+    # Remove deleted_on field for comparison with expected values
     for i in [1, 2, 3, 4]:
-        usergroups[i].pop("deleted")
+        usergroups[i].pop("deleted_on")
     assert usergroups == [
-        {"id": 1, "deleted": None},
+        {"id": 1, "deleted_on": None},
         {"id": 2},
         {"id": 3},
         {"id": 4},
         {"id": 5},
-        {"id": 6, "deleted": None},
-        {"id": 7, "deleted": None},
+        {"id": 6, "deleted_on": None},
+        {"id": 7, "deleted_on": None},
     ]
 
     # Verify that all entries related to base 1 are removed from cms_usergroups_camps

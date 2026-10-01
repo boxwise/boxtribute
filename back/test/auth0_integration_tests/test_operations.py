@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 from auth import get_authorization_header
 from boxtribute_server.business_logic.metrics.crud import (
-    get_data_for_number_of_active_users,
+    get_data_for_number_of_logged_in_users,
 )
 from boxtribute_server.models.definitions.user import User
 from utils import assert_successful_request
@@ -320,8 +320,8 @@ def test_replica_usage(auth0_client, mocker):
     db.replica.reset_mock()
 
 
-def test_number_of_active_users_between(dev_app):
-    _, org_base_info = get_data_for_number_of_active_users(date.today())
+def test_number_of_logged_in_users_between(dev_app):
+    users = get_data_for_number_of_logged_in_users(date.today())[0]
     # We assume that at least one of the users of the dev tenant have logged in during
     # the past month
-    assert len(org_base_info) > 0
+    assert len(users) > 0
