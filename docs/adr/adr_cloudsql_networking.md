@@ -22,7 +22,7 @@ b. Continue to use a Public IP.
 
 If the CloudSQL instances had a public IP and then was exposed openly to the world - that would be a big downside. But in GCP, even if it has a public IP it’s still only accessible via their proxy (essentially a VPN) unless there are explicit authorized IPs added (which there are not). Documentation here: https://cloud.google.com/sql/docs/mysql/connect-overview#public_and_private_ip
 
-If we were running more extensive cloud infrastructure, the cost implications (< $20/mo) would be neglible and using the private IP would probably make sense for a slightly 'tighter' network setup. However, given cost sensitivity, there appear to be limited downsides to keeping the public IP.
+If we were running more extensive cloud infrastructure, the cost implications (< $20/mo) would be negligible and using the private IP would probably make sense for a slightly 'tighter' network setup. However, given cost sensitivity, there appear to be limited downsides to keeping the public IP.
 
 ## Decision
 

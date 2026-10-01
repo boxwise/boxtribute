@@ -43,7 +43,7 @@ Currently, we are planning to build these visualizations in a React FE with Nivo
 
 #### comments
 
-Atm the filtering and grouping is happening on the FE side. The BE just returns all available data in the smallest granularity. There is the posibility to move filtering and grouping to the BE by making filters and grouping part of the graphQL query. This might make sense if we only allow the csv export.
+Atm the filtering and grouping is happening on the FE side. The BE just returns all available data in the smallest granularity. There is the possibility to move filtering and grouping to the BE by making filters and grouping part of the graphQL query. This might make sense if we only allow the csv export.
 
 ### B. SVG download
 
@@ -84,7 +84,7 @@ Atm the filtering and grouping is happening on the FE side. The BE just returns 
 #### What (minimal) work needs to be done on the FE side?
 
 1. same steps as for SVG.
-2. There needs to be a function transforming the data from the graphQL query into the iframe embed. The embed itself is probably just an html file, which holds some static data needed for the visualzation, some js to generate the svg based on the data and maybe even some filters and grouping selection.
+2. There needs to be a function transforming the data from the graphQL query into the iframe embed. The embed itself is probably just an html file, which holds some static data needed for the visualization, some js to generate the svg based on the data and maybe even some filters and grouping selection.
 
 #### What (minimal) work needs to be done on the BE side?
 
@@ -132,8 +132,8 @@ Most likely the embed will get large since data and js (maybe even React code) m
 #### What (minimal) work needs to be done on the BE side?
 
 1. same steps as for CSV
-2. adding a db table that is tracking which visualization is publically available for which base.
-3. a mutation/query that updates/reads which visualization is publically available for which base.
+2. adding a db table that is tracking which visualization is publicly available for which base.
+3. a mutation/query that updates/reads which visualization is publicly available for which base.
 4. creation of a public graphQL endpoint. (done)
 5. The public graphQL endpoint should query the data from a read-only replica so that it does not interfere with the Boxtribute v2 app. (done)
 6. We need to make the queries for the visualizations available through the public endpoint, too. (tiny)

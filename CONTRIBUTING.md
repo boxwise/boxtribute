@@ -13,7 +13,7 @@ Quick summary:
 - We follow [Agile methods](https://medium.com/@svharivinod/rolling-out-features-for-zomato-using-agile-8f24bba1ddd8) ([short video](https://www.youtube.com/watch?v=QCif_-r8eK4)) to roll out new features.
 - We use slack as our main communication tool and do asynchronous [stand-ups](https://en.wikipedia.org/wiki/Stand-up_meeting) there once a week.
 - We have both actively funded projects, as well as standalone tasks for volunteers and community developers. In the past, we have frequently drawn from the pool of volunteer/community developers for funded projects. 
-- Every two weeks on Fridays, we offer a troubleshooting space for community developers if you are stuck and need to dicuss something about what you're working on.
+- Every two weeks on Fridays, we offer a troubleshooting space for community developers if you are stuck and need to discuss something about what you're working on.
 
 ### How do I get my tasks? Where do I find information about them?
 
@@ -35,7 +35,7 @@ If you schedule a pair-programming session and you both use VSCode as your IDE, 
 
 ### I'm finished with my task. What now?
 
-We are using git as versioning control and are using the methology of [Trunk Based Development](https://trunkbaseddevelopment.com/) for our [Software Development Life Cycle](https://en.wikipedia.org/wiki/Software_development_process).
+We are using git as versioning control and are using the methodology of [Trunk Based Development](https://trunkbaseddevelopment.com/) for our [Software Development Life Cycle](https://en.wikipedia.org/wiki/Software_development_process).
 If you haven't used GitHub before, [this is a tutorial](http://makeapullrequest.com/) that will help. Don't be afraid to ask for help, if you need it. (Everyone is a beginner at some point!)
 
 - Commit all your progress on a branch which you started from master. [Here, guidelines how to write good commit messages](https://github.com/erlang/otp/wiki/writing-good-commit-messages).
@@ -66,7 +66,7 @@ Be constructive and do not forget to appreciate the effort.
 
 ### I want to suggest a task and create a ticket. How should I do that?
 
-If you want to create a ticket, add it on the bottom of the "Feature Requests" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizeing for time estimation).You can also bring it up with our product owner directly in one of the dev meetings.
+If you want to create a ticket, add it on the bottom of the "Feature Requests" list in our trello. In the best case, write a user story to explain your reasoning. If you can add a to-do list with the proposed development steps and maybe even a rough estimation how much time you guess it would take (See the T-Shirt sizing for time estimation).You can also bring it up with our product owner directly in one of the dev meetings.
 If you discovered a bug, there is a [template in trello](https://trello.com/c/YToLMBuq) to create a bug ticket. Please use it.
 After creating the ticket, tag our product managers to review and prioritize your ticket.
 
@@ -99,7 +99,7 @@ When writing tests, try to follow these guidelines if possible:
 - Tests should be as readable as possible and not complex at all. You should understand them by looking at them just once.
 - Local helper functions defined in test files should have functional and easy-to-understand rather than technical names. Meaning, `clickNewUserButton()` is better than `clickElementByTypeAndTestId('button','new-user-button')`.
 - More general use helpers like 'clickElementByTypeAndTestId' can be used within the local helper functions if preferred. The reason for functional naming preference lies in increased readability of tests.
-- Avoid any duplication of helper functions across several files! If using the same functions in several tests (files), there's a tendency to copy-paste the whole file and then rewrite tests. This leads to code duplication of helper functions. Instead, helper functions needed in several locations should be defined in one place should be available globally. Find the matching one by name or create a new one. Avoid creating miscellaneuos file names as it tends to lead to chaos.
+- Avoid any duplication of helper functions across several files! If using the same functions in several tests (files), there's a tendency to copy-paste the whole file and then rewrite tests. This leads to code duplication of helper functions. Instead, helper functions needed in several locations should be defined in one place should be available globally. Find the matching one by name or create a new one. Avoid creating miscellaneous file names as it tends to lead to chaos.
 - Current codebase doesn't 100% follow everything stated above but it'd definitely help organising the test helpers accordingly from now on.
 
 ![Selection_599](https://user-images.githubusercontent.com/8964422/77221481-6a190d00-6b4a-11ea-88d7-9fc70ce1c982.png)

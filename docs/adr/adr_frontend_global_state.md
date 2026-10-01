@@ -6,7 +6,7 @@ Author: HaGuesto
 
 ## Status
 
-succeded by the following ADR: [Use Jotai for Global State Management](./adr-global-state-management.md)
+succeeded by the following ADR: [Use Jotai for Global State Management](./adr-global-state-management.md)
 
 ## Context or Problem Statement
 
@@ -14,7 +14,7 @@ There are a few mutable global variables/shared states in the frontend that we w
 
 In olden times you would use something like Redux.
 
-In React there is a concept called Context. By wrapping a branch of the DOM with a context all children of the branch can access the state of the context. At the moment we use a context for the Global Preference Provider which makes information of the bases you have access to accesible to all the DOM. We also use the `useReducer` hook there.
+In React there is a concept called Context. By wrapping a branch of the DOM with a context all children of the branch can access the state of the context. At the moment we use a context for the Global Preference Provider which makes information of the bases you have access to accessible to all the DOM. We also use the `useReducer` hook there.
 
 Since we are using Apollo for graphQL queries we can also use the Apollo Reactive Variables and the Apollo cache to manage part of the state. Configured correctly we might have not needed to write our own Global Preference Context. Since Apollo is querying all the information of bases from the backend it probably would have been easier to just store this information in the Apollo cache which you then can access anywhere in the DOM.
 
@@ -73,7 +73,7 @@ React Context and Apollo can both and should both be used for global state manag
 
 In general, a mix out of both considered options is most likely needed to handle mutable shared states. In some cases the Apollo has more advantages (especially for remote states), sometimes the React Context is better to use.
 We should try out Apollo when the next mutable shared state comes around like for the QrReader when scanning multiple Boxes.
-There is no need to refactor the Global Preference Provider at the moment. Removing the React Context of the Global Preference Provider and creatingthe same structure in Apollo for it, is just unnecassary work. The Global Preference Provider works and the code is clean.
+There is no need to refactor the Global Preference Provider at the moment. Removing the React Context of the Global Preference Provider and creatingthe same structure in Apollo for it, is just unnecessary work. The Global Preference Provider works and the code is clean.
 
 ## Reference
 
