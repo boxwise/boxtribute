@@ -8,7 +8,6 @@ import {
   STATUS,
   Step,
   TooltipRenderProps,
-  TourData,
 } from "react-joyride";
 import { Box, Button, Flex, IconButton, Progress, Text } from "@chakra-ui/react";
 import { BiChevronLeft } from "react-icons/bi";
@@ -34,8 +33,7 @@ export const PATHS: Record<string, WalkthroughPath> = {
 // Chakra v2 generates the AccordionButton's id as `accordion-button-{AccordionItem id}`,
 // so we target it directly rather than querying inside the AccordionItem element.
 function makeExpandGroupHook(groupName: string): BeforeHook {
-  // eslint-disable-next-line no-unused-vars
-  return async (_data: TourData) => {
+  return async () => {
     const groupId = nameToNavId(groupName);
     const btn = document.getElementById(`accordion-button-${groupId}`) as HTMLButtonElement | null;
     if (!btn || btn.getAttribute("aria-expanded") === "true") return;
@@ -161,14 +159,13 @@ function TourOverlay() {
     backToPathSelection,
   } = useWalkthrough();
   const visiblePaths = useVisiblePaths();
+
   const [stepIndex, setStepIndex] = useState(0);
   const [run, setRun] = useState(false);
 
   const isActive = isWalkthroughActive && currentStep === "tour" && activePath != null;
   const pathDef = activePath ? PATHS[activePath] : null;
-  // Compute the step list once when the path changes so Joyride never receives a
-  // new array reference on every render (which would reset its internal state).
-  // buildJoyrideSteps also filters out steps whose targets are absent from the DOM.
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [activePath]);
   const totalSteps = steps.length;
@@ -180,24 +177,29 @@ function TourOverlay() {
     [activePath, visiblePaths, completedPaths],
   );
 
-  // Reset step index whenever the active path changes
   useEffect(() => {
-    if (!isActive) {
-      setRun(false);
-      return;
-    }
-    setStepIndex(0);
+    if (!isActive) return;
+
     // Small delay to allow DOM to settle before joyride starts
     const t = setTimeout(() => setRun(true), 100);
-    return () => clearTimeout(t);
-  }, [isActive, activePath]);
+    return () => {
+      clearTimeout(t);
+      setRun(false); // Clean up state when component unmounts or path changes
+    };
+  }, [isActive]); // Only depend on isActive starting/stopping
 
   const handleEvent = useCallback(
     (data: EventData) => {
       const { status, action, index, type } = data;
 
-      if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+      // Helper to reset the tour state completely
+      const resetTourState = () => {
         setRun(false);
+        setStepIndex(0);
+      };
+
+      if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+        resetTourState();
         if (activePath) completePath(activePath);
         return;
       }
@@ -206,11 +208,9 @@ function TourOverlay() {
       if (type === EVENTS.TARGET_NOT_FOUND) {
         const nextIndex = index + 1;
         if (nextIndex < steps.length) {
-          // Skip to next step if available
           setStepIndex(nextIndex);
         } else {
-          // No more steps, go back to path selection
-          setRun(false);
+          resetTourState();
           backToPathSelection();
         }
         return;
@@ -222,7 +222,7 @@ function TourOverlay() {
         } else if (action === ACTIONS.PREV) {
           setStepIndex(Math.max(0, index - 1));
         } else if (action === ACTIONS.CLOSE || action === ACTIONS.SKIP) {
-          setRun(false);
+          resetTourState();
           backToPathSelection();
         }
       }

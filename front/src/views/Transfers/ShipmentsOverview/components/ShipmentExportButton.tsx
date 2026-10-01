@@ -239,6 +239,7 @@ const ShipmentExportButton: React.FC<ShipmentExportButtonProps> = ({ filteredRow
         }
       }
     } catch (err) {
+      console.error(err);
       createToast({
         type: "error",
         message: "An error occurred while exporting shipments. Please try again.",
