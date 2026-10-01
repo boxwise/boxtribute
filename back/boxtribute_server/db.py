@@ -111,7 +111,10 @@ def create_db_interface(**mysql_kwargs) -> MySQLDatabase:
             )
 
     return MySQLDatabase(
-        **mysql_kwargs, field_types={"AUTO": "INTEGER UNSIGNED AUTO_INCREMENT"}
+        **mysql_kwargs,
+        field_types={"AUTO": "INTEGER UNSIGNED AUTO_INCREMENT"},
+        # Set same sql_mode as in dropapp (database.php)
+        sql_mode="NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION",
     )
 
 
