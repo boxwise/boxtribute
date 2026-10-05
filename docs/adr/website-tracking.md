@@ -136,7 +136,7 @@ Umami provides a simple product with a free-tier, however
 
 Heap always requires showing a cookie-banner.
 
-Matomo is ruled out because of cost and complexity.
+Matomo is ruled out because of cost and complexity (one extra set-up step to disable cookies which becomes simple using [a third-party package](https://github.com/JonasKenke/matomo-tracker-for-react). To enable tracking, the tracking script needs to [placed in all pages](https://matomo.org/resource-hub/get-started-with-matomo-in-6-steps/set-up-matomo-tracking-in-15-minutes/), or needs to be hooked with client-side route changes. For analytics, [various charts have to be explored](https://matomo.org/resource-hub/get-started-with-matomo-in-6-steps/read-your-first-reports/) instead of being presented "at-a-glance" dashboard, like Plausible does).
 
 ## Consequences
 
