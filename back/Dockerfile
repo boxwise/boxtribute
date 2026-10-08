@@ -29,8 +29,8 @@ FROM base AS production
 CMD gunicorn --config back/gunicorn.conf.py boxtribute_server.dev_main:app
 
 FROM base AS development
-# Path of module containing Flask app, relative to WORKDIR
-CMD flask --debug --app back/boxtribute_server/dev_main.py run -h 0.0.0 -p 5005 --exclude-patterns '*/test/*'
+# Path of module containing Quart app, relative to WORKDIR
+CMD quart --debug --app back/boxtribute_server/dev_main.py run -h 0.0.0 -p 5005
 
 # Select final stage depending on env argument
 FROM ${env} AS final

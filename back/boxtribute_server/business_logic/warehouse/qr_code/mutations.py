@@ -1,5 +1,5 @@
 from ariadne import MutationType
-from flask import g
+from quart import g
 
 from ....authz import authorize, authorize_for_accessing_box
 from ....models.definitions.box import Box

@@ -192,7 +192,7 @@ If you want to break on any other code lines (not endpoints), then you can only 
 
 To log to the console while running the `webapp` service, do
 
-    from flask import current_app
+    from quart import current_app
     current_app.logger.warn(<whatever you want to log>)
 
 You might want to inspect the SQL queries issued by peewee while running the app. In `routes.py` add the following lines at the beginning of the `graphql_server` function body:

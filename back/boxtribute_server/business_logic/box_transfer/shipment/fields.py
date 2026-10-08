@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from ariadne import ObjectType
-from flask import g
+from quart import g
 
 from ....authz import authorize
 from ....enums import ShipmentDirection

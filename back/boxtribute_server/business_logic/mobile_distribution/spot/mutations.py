@@ -1,5 +1,5 @@
 from ariadne import MutationType
-from flask import g
+from quart import g
 
 from ....authz import authorize
 from ..crud import create_distribution_spot

@@ -3,7 +3,7 @@
 import contextlib
 import time
 
-from flask import request
+from quart import request
 
 from .utils import in_ci_environment, in_development_environment
 

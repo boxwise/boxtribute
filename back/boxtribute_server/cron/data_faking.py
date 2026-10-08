@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 
 from faker import Faker
-from flask import g
 from freezegun import freeze_time
 from peewee import fn
+from quart import g
 
 from ..auth import CurrentUser
 from ..business_logic.beneficiary.crud import (

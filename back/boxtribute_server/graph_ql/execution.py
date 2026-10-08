@@ -1,9 +1,8 @@
-import asyncio
 from typing import Any
 
 import ariadne
 import graphql
-from flask import current_app, g, jsonify, request
+from quart import current_app, g, jsonify, request
 
 from ..authz import check_user_beta_level
 from ..exceptions import format_database_errors
@@ -53,63 +52,60 @@ def parse_with_beta_level_check(_, data: dict[str, Any]) -> graphql.DocumentNode
     return graphql_document
 
 
-def execute_async(*, schema, introspection=None, data=None, check_beta_level=False):
+async def execute_async(
+    *, schema, introspection=None, data=None, check_beta_level=False
+):
     """Create coroutine and execute it with high-level `asyncio.run` which takes care of
     managing the asyncio event loop, finalizing asynchronous generators, and closing
     the threadpool.
     """
+    # Create DataLoaders and persist them for the time of processing the request.
+    # DataLoaders require an event loop which is set up by asyncio.run
+    context = {
+        # fmt: off
+        "base_loader": BaseLoader(),
+        "box_loader": BoxLoader(),
+        "history_for_box_loader": HistoryForBoxLoader(),
+        "instock_boxes_count_for_base_loader": InstockCountForBaseLoader(),
+        "instock_items_count_for_base_loader": InstockCountForBaseLoader(count_boxes=False),  # noqa
+        "instock_items_count_for_product_loader": InstockItemsCountForProductLoader(),  # noqa
+        "transfer_items_count_for_product_loader": TransferItemsCountForProductLoader(),  # noqa
+        "location_loader": LocationLoader(),
+        "organisation_loader": OrganisationLoader(),
+        "product_category_loader": ProductCategoryLoader(),
+        "product_loader": ProductLoader(),
+        "qr_code_loader": QrCodeLoader(),
+        "resources_for_tag_loader": ResourcesForTagLoader(),
+        "shipment_detail_auto_matching_loader": ShipmentDetailAutoMatchingLoader(),
+        "shipment_detail_for_box_loader": ShipmentDetailForBoxLoader(),
+        "shipment_details_for_shipment_loader": ShipmentDetailsForShipmentLoader(),
+        "shipment_loader": ShipmentLoader(),
+        "shipments_for_agreement_loader": ShipmentsForAgreementLoader(),
+        "size_loader": SizeLoader(),
+        "size_range_loader": SizeRangeLoader(),
+        "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
+        "source_bases_for_agreement_loader": SourceBasesForAgreementLoader(),
+        "standard_product_loader": StandardProductLoader(),
+        "tag_last_used_on_loader": TagLastUsedOnLoader(),
+        "tags_for_box_loader": TagsForBoxLoader(),
+        "target_bases_for_agreement_loader": TargetBasesForAgreementLoader(),
+        "transfer_agreement_loader": TransferAgreementLoader(),
+        "units_for_dimension_loader": UnitsForDimensionLoader(),
+        "unit_loader": UnitLoader(),
+        "user_loader": UserLoader(),
+        # fmt: on
+    }
 
-    async def run():
-        # Create DataLoaders and persist them for the time of processing the request.
-        # DataLoaders require an event loop which is set up by asyncio.run
-        context = {
-            # fmt: off
-            "base_loader": BaseLoader(),
-            "box_loader": BoxLoader(),
-            "history_for_box_loader": HistoryForBoxLoader(),
-            "instock_boxes_count_for_base_loader": InstockCountForBaseLoader(),
-            "instock_items_count_for_base_loader": InstockCountForBaseLoader(count_boxes=False),  # noqa
-            "instock_items_count_for_product_loader": InstockItemsCountForProductLoader(),  # noqa
-            "transfer_items_count_for_product_loader": TransferItemsCountForProductLoader(),  # noqa
-            "location_loader": LocationLoader(),
-            "organisation_loader": OrganisationLoader(),
-            "product_category_loader": ProductCategoryLoader(),
-            "product_loader": ProductLoader(),
-            "qr_code_loader": QrCodeLoader(),
-            "resources_for_tag_loader": ResourcesForTagLoader(),
-            "shipment_detail_auto_matching_loader": ShipmentDetailAutoMatchingLoader(),
-            "shipment_detail_for_box_loader": ShipmentDetailForBoxLoader(),
-            "shipment_details_for_shipment_loader": ShipmentDetailsForShipmentLoader(),
-            "shipment_loader": ShipmentLoader(),
-            "shipments_for_agreement_loader": ShipmentsForAgreementLoader(),
-            "size_loader": SizeLoader(),
-            "size_range_loader": SizeRangeLoader(),
-            "sizes_for_size_range_loader": SizesForSizeRangeLoader(),
-            "source_bases_for_agreement_loader": SourceBasesForAgreementLoader(),
-            "standard_product_loader": StandardProductLoader(),
-            "tag_last_used_on_loader": TagLastUsedOnLoader(),
-            "tags_for_box_loader": TagsForBoxLoader(),
-            "target_bases_for_agreement_loader": TargetBasesForAgreementLoader(),
-            "transfer_agreement_loader": TransferAgreementLoader(),
-            "units_for_dimension_loader": UnitsForDimensionLoader(),
-            "unit_loader": UnitLoader(),
-            "user_loader": UserLoader(),
-            # fmt: on
-        }
-
-        # Execute the GraphQL request against schema, passing in context
-        results = await ariadne.graphql(
-            schema,
-            data=data or request.get_json(),
-            query_parser=parse_with_beta_level_check if check_beta_level else None,
-            context_value=context,
-            debug=current_app.debug,
-            introspection=current_app.debug if introspection is None else introspection,
-            error_formatter=format_database_errors,
-        )
-        return results
-
-    success, result = asyncio.run(run())
+    # Execute the GraphQL request against schema, passing in context
+    success, result = await ariadne.graphql(
+        schema,
+        data=data or await request.get_json(),
+        query_parser=parse_with_beta_level_check if check_beta_level else None,
+        context_value=context,
+        debug=current_app.debug,
+        introspection=current_app.debug if introspection is None else introspection,
+        error_formatter=format_database_errors,
+    )
 
     status_code = 200 if success or "data" in result else 400
     return jsonify(result), status_code

@@ -49,6 +49,6 @@ def activate_logging():  # pragma: no cover
     else:
         # Code is being run as permanent Flask app (e.g. started as docker-compose
         # service)
-        from flask import current_app
+        from quart import current_app
 
         logger.parent = current_app.logger

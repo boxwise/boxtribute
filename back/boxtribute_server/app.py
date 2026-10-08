@@ -3,17 +3,16 @@
 import os
 
 import sentry_sdk
-from flask import Flask
 from graphql.error import GraphQLError
+from quart import Quart
 from sentry_sdk.integrations.ariadne import AriadneIntegration
-from sentry_sdk.integrations.flask import FlaskIntegration
 
 from .db import create_db_interface, db
 from .models import MODELS
 
 
 def create_app():
-    return Flask(__name__, static_folder=None)
+    return Quart(__name__, static_folder=None)
 
 
 def register_blueprints(app, *blueprints):
@@ -54,7 +53,7 @@ def main(*blueprints):
     # environment variables `SENTRY_*`. Since in local or CI testing environments these
     # variables don't exist, the SDK is not effective which is desired.
     sentry_sdk.init(
-        integrations=[FlaskIntegration(), AriadneIntegration()],
+        integrations=[AriadneIntegration()],
         traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", 0.0)),
         before_send=before_sentry_send,
         profiles_sample_rate=float(os.getenv("SENTRY_PROFILES_SAMPLE_RATE", 0)),

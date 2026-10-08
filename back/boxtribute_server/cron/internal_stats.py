@@ -3,7 +3,7 @@ import os
 import urllib.request
 from datetime import datetime, timedelta
 
-from flask import current_app
+from quart import current_app
 
 from ..business_logic.metrics.crud import (
     compute_total,

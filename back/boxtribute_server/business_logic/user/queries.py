@@ -1,5 +1,5 @@
 from ariadne import QueryType
-from flask import g
+from quart import g
 
 from ...authz import authorize
 from ...models.definitions.user import User

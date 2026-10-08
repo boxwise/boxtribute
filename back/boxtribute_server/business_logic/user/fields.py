@@ -1,5 +1,5 @@
 from ariadne import ObjectType
-from flask import g
+from quart import g
 
 from ...authz import authorize, authorized_bases_filter
 from ...models.definitions.base import Base

@@ -4,8 +4,8 @@ from datetime import date, datetime, timezone
 from functools import wraps
 
 import peewee
-from flask import g
 from peewee import SQL, DateField, ForeignKeyField, IntegerField, fn
+from quart import g
 
 from ..errors import ResourceDoesNotExist
 from .definitions import Model

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ariadne import MutationType
-from flask import g
+from quart import g
 from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import (

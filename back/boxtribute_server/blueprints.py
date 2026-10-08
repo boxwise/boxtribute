@@ -1,4 +1,4 @@
-from flask import Blueprint
+from quart import Blueprint
 
 # Blueprint for query-only API. Deployed on the 'api*' subdomains
 api_bp = Blueprint("api_bp", __name__)

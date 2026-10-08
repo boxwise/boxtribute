@@ -4,8 +4,8 @@ from functools import wraps
 from typing import Any, Dict, List, Optional, Tuple, Type
 
 import graphql
-from flask import g
 from peewee import Model
+from quart import g
 
 from .auth import CurrentUser
 from .enums import BoxState, TransferAgreementState

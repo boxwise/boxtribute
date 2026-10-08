@@ -9,7 +9,7 @@ from functools import wraps
 from typing import Dict, Tuple
 
 import jwt
-from flask import g, request
+from quart import g, request
 from sentry_sdk import set_user as set_sentry_user
 
 from .exceptions import AuthenticationFailed
@@ -255,7 +255,7 @@ def requires_auth(f):
     """
 
     @wraps(f)
-    def decorated(*args, **kwargs):
+    async def decorated(*args, **kwargs):
         token = get_token_from_auth_header(get_auth_string_from_header())
         domain = os.environ["AUTH0_DOMAIN"]
         payload = decode_jwt(
@@ -267,7 +267,7 @@ def requires_auth(f):
         g.user = CurrentUser.from_jwt(payload)
         set_sentry_user({"id": g.user.id, "jwt_payload": payload})
 
-        return f(*args, **kwargs)
+        return await f(*args, **kwargs)
 
     return decorated
 

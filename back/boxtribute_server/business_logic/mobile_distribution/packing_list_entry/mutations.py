@@ -1,5 +1,5 @@
 from ariadne import MutationType
-from flask import g
+from quart import g
 
 from ....authz import authorize
 from ....models.definitions.packing_list_entry import PackingListEntry

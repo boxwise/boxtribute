@@ -3,8 +3,7 @@
 import os
 
 from ariadne.explorer import ExplorerGraphiQL
-from flask import jsonify, request
-from flask_cors import cross_origin
+from quart import Response, current_app, jsonify, request
 
 from .auth import request_jwt, requires_auth
 from .blueprints import (
@@ -27,7 +26,6 @@ from .logging import (
     log_profiled_request_to_gcloud,
     log_request_to_gcloud,
 )
-from .utils import in_development_environment
 
 # Allowed headers for CORS
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
@@ -51,30 +49,19 @@ def query_api_explorer():
 
 @api_bp.post(API_GRAPHQL_PATH)
 @requires_auth
-def query_api_server():
+async def query_api_server():
     with log_profiled_request_to_gcloud(context=API_CONTEXT):
-        return execute_async(schema=query_api_schema, introspection=True)
+        result, status = await execute_async(
+            schema=query_api_schema, introspection=True
+        )
+        current_app.logger.warning(result)
+        return Response(result, status)
 
 
 @shared_bp.post(SHARED_GRAPHQL_PATH)
-@cross_origin(
-    origins=[
-        "http://localhost:5005",
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://shared-staging.boxtribute.org",
-        "https://shared-demo.boxtribute.org",
-        "https://shared.boxtribute.org",
-        "https://shared-staging-dot-dropapp-242214.ew.r.appspot.com",
-        "https://shared-demo-dot-dropapp-242214.ew.r.appspot.com",
-        "https://shared-production-dot-dropapp-242214.ew.r.appspot.com",
-    ],
-    methods=["POST"],
-    allow_headers="*" if in_development_environment() else CORS_HEADERS,
-)
-def public_api_server():
+async def public_api_server():
     log_request_to_gcloud(context=SHARED_CONTEXT)
-    return execute_async(schema=public_api_schema, introspection=True)
+    return await execute_async(schema=public_api_schema, introspection=True)
 
 
 @api_bp.post("/token")
@@ -101,29 +88,17 @@ def api_token():
 # be listed before any other function that has the same route
 # see https://github.com/corydolphin/flask-cors/issues/280
 @app_bp.post(APP_GRAPHQL_PATH)
-@cross_origin(
-    # Allow dev localhost ports, and boxtribute subdomains as origins
-    origins=[
-        "http://localhost:5005",
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "https://v2-staging.boxtribute.org",
-        "https://v2-demo.boxtribute.org",
-        "https://v2.boxtribute.org",
-        "https://v2-staging-dot-dropapp-242214.ew.r.appspot.com",
-        "https://v2-demo-dot-dropapp-242214.ew.r.appspot.com",
-        "https://v2-production-dot-dropapp-242214.ew.r.appspot.com",
-    ],
-    methods=["POST"],
-    allow_headers="*" if in_development_environment() else CORS_HEADERS,
-)
 @requires_auth
-def graphql_server():
+async def graphql_server():
     with log_profiled_request_to_gcloud(context=WEBAPP_CONTEXT):
         # Schema introspection is enabled for local development via current_app.debug.
         # If the beta-level check fails, a bad-request (400) response with an "errors"
         # field is returned
-        return execute_async(schema=full_api_schema, check_beta_level=True)
+        result, status = await execute_async(
+            schema=full_api_schema, check_beta_level=True
+        )
+        current_app.logger.warning(result)
+        return result, status
 
 
 @app_bp.get(APP_GRAPHQL_PATH)

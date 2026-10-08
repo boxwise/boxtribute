@@ -62,7 +62,7 @@ def test_locations_query(client, base1_classic_locations):
 
 
 def test_crud(client, default_base):
-    from flask import g
+    from quart import g
 
     g.user = CurrentUser(id=8, organisation_id=1)
     name = "test location"

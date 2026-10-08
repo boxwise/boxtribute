@@ -1,8 +1,8 @@
 from functools import wraps
 from typing import Any
 
-from flask import request
 from peewee import MySQLDatabase
+from quart import request
 
 from .blueprints import (
     API_GRAPHQL_PATH,
@@ -38,7 +38,7 @@ class DatabaseManager:
         app.before_request(self.connect_db)
         app.teardown_request(self.close_db)
 
-    def connect_db(self) -> None:
+    async def connect_db(self) -> None:
         # GraphQL queries are sent as POST requests. Don't open database connection on
         # other requests (e.g. CORS pre-flight OPTIONS request)
         if request.method.upper() != "POST":
@@ -58,14 +58,14 @@ class DatabaseManager:
             return
 
         # Provide fallback for non-JSON and non-GraphQL requests
-        payload = request.get_json(silent=True) or {}
+        payload = await request.get_json(silent=True) or {}
         if "query" not in payload or payload["query"] is None:
             return
 
         if not self.database:
             raise RuntimeError("DatabaseManager.database not set")
 
-        self.database.connect()
+        self.database.connect(reuse_if_open=True)
 
         if self.replica and (
             any([q in payload["query"] for q in statistics_queries()])

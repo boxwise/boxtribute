@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from ariadne import MutationType
-from flask import g
+from quart import g
 
 from ...authz import authorize, authorized_bases_filter, handle_unauthorized
 from ...errors import ResourceDoesNotExist

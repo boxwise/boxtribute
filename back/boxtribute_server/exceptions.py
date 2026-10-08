@@ -26,7 +26,7 @@ def format_database_errors(error, debug=False):
     if in_development_environment() and debug:  # pragma: no cover
         if not error.extensions:
             error.extensions = {}
-        from flask import g
+        from quart import g
 
         error.extensions["user"] = g.user.__dict__ if hasattr(g, "user") else {}
 
