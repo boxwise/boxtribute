@@ -40,8 +40,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
       - run:
           name: Install pnpm package manager
           command: |
