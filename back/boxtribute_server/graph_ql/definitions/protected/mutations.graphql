@@ -36,10 +36,6 @@ type Mutation {
   updateTag(updateInput: TagUpdateInput): UpdateTagResult
   " Soft-delete tag with specified ID. "
   deleteTag(id: ID!): DeleteTagResult
-  " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
-  assignTag(assignmentInput: TagOperationInput): TaggableResource
-  " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
-  unassignTag(unassignmentInput: TagOperationInput): TaggableResource
   " Any tags that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `TagsResult.invalidTagIds` list. "
   deleteTags(ids: [Int!]!): DeleteTagsResult
 

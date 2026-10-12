@@ -403,8 +403,6 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[7] + (
     "createBeneficiary",
     "updateBeneficiary",
     "deactivateBeneficiary",
-    "assignTag",
-    "unassignTag",
 )
 
 # ### BETA-LEVEL 99 ###

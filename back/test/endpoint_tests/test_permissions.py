@@ -183,20 +183,6 @@ def test_invalid_permission_for_given_resource_id(client, query):
         "markShipmentAsLost( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
         "startReceivingShipment( id : 1 ) { id }",
-        # Test case 4.2.19, 4.2.20
-        """assignTag(
-            assignmentInput: {
-                id: 1
-                resourceId: 1
-                resourceType: Box
-            }) { ...on Box { id } }""",
-        # Test case 4.2.33, 4.2.34
-        """unassignTag(
-            unassignmentInput: {
-                id: 1
-                resourceId: 1
-                resourceType: Box
-            }) { ...on Box { id } }""",
     ],
     ids=operation_name,
 )
