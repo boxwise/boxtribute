@@ -108,6 +108,15 @@ class Language(enum.IntEnum):
     de = enum.auto()
     ar = enum.auto()
     ckb = enum.auto()
+    ur = 8
+    ku = enum.auto()
+    fa = enum.auto()
+    ps = enum.auto()
+    ti = enum.auto()
+    am = enum.auto()
+    ln = enum.auto()
+    so = enum.auto()
+    prs = enum.auto()
 
 
 class HumanGender(enum.Enum):

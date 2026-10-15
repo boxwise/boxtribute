@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.enums import HumanGender
+from boxtribute_server.enums import HumanGender, Language
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.utils import (
@@ -73,7 +73,7 @@ def test_beneficiary_query(
         "base": {"id": str(default_beneficiary["base"])},
         "groupIdentifier": default_beneficiary["group_identifier"],
         "gender": HumanGender(default_beneficiary["gender"]).name,
-        "languages": [],
+        "languages": [Language.en.name, Language.ar.name],
         "familyHead": None,
         "isVolunteer": False,
         "signed": False,
@@ -107,11 +107,17 @@ def test_beneficiary_query(
 
     beneficiary_id = relative_beneficiary["id"]
     query = f"""query {{ beneficiary(id: {beneficiary_id}) {{
+                id
+                familyHead {{ id }}
+                languages
                 gender
                 age
                 dateOfBirth }} }}"""
     beneficiary = assert_successful_request(client, query)
     assert beneficiary == {
+        "id": str(beneficiary_id),
+        "familyHead": {"id": str(default_beneficiary["id"])},
+        "languages": [],
         "gender": HumanGender.Diverse.name,
         "age": None,
         "dateOfBirth": None,

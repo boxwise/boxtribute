@@ -77,6 +77,15 @@ enum Language {
   de
   ar
   ckb
+  ur
+  ku
+  fa
+  ps
+  ti
+  am
+  ln
+  so
+  prs
 }
 
 enum TransferAgreementState {

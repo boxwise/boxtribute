@@ -15,6 +15,7 @@ class Transaction(Model):
         null=True,
         on_delete="SET NULL",
         on_update="CASCADE",
+        object_id_name="beneficiary_id",
     )
     count = IntegerField()
     description = CharField()

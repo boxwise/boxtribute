@@ -19,6 +19,7 @@ class XBeneficiaryLanguage(Model):
         null=True,
         on_update="CASCADE",
         on_delete="CASCADE",
+        object_id_name="beneficiary_id",
     )
 
     class Meta:
