@@ -33,6 +33,7 @@ from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.unit import Unit
 from ..models.definitions.user import User
+from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.utils import convert_ids
 from ..utils import convert_pascal_to_snake_case
 
@@ -816,3 +817,22 @@ class FamilyHeadForBeneficiaryLoader(DataLoader):
             .iterator()
         }
         return [family_heads.get(i) for i in family_head_ids]
+
+
+class LanguagesForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        languages = {}
+        for row in (
+            XBeneficiaryLanguage.select(
+                XBeneficiaryLanguage.beneficiary,
+                fn.GROUP_CONCAT(XBeneficiaryLanguage.language).alias("language_ids"),
+            )
+            .where(XBeneficiaryLanguage.beneficiary << beneficiary_ids)
+            .group_by(XBeneficiaryLanguage.beneficiary)
+            .objects()
+            .iterator()
+        ):
+            languages[row.beneficiary_id] = [
+                int(language_id) for language_id in row.language_ids.split(",")
+            ]
+        return [languages.get(i, []) for i in beneficiary_ids]

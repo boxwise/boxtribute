@@ -1,7 +1,6 @@
 from ariadne import ObjectType
 
 from ...authz import authorize
-from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import compute_age
 
 beneficiary = ObjectType("Beneficiary")
@@ -36,13 +35,8 @@ def resolve_beneficiary_registered(beneficiary_obj, _):
 
 
 @beneficiary.field("languages")
-def resolve_beneficiary_languages(beneficiary_obj, _):
-    return [
-        x.language_id
-        for x in XBeneficiaryLanguage.select()
-        .where(XBeneficiaryLanguage.beneficiary == beneficiary_obj.id)
-        .order_by(XBeneficiaryLanguage.language)
-    ]
+def resolve_beneficiary_languages(beneficiary_obj, info):
+    return info.context["languages_for_beneficiary_loader"].load(beneficiary_obj.id)
 
 
 @beneficiary.field("age")
