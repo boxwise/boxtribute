@@ -38,10 +38,10 @@ def resolve_beneficiary_registered(beneficiary_obj, _):
 @beneficiary.field("languages")
 def resolve_beneficiary_languages(beneficiary_obj, _):
     return [
-        x.language.id
-        for x in XBeneficiaryLanguage.select().where(
-            XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
-        )
+        x.language_id
+        for x in XBeneficiaryLanguage.select()
+        .where(XBeneficiaryLanguage.beneficiary == beneficiary_obj.id)
+        .order_by(XBeneficiaryLanguage.language)
     ]
 
 
