@@ -825,14 +825,14 @@ class LanguagesForBeneficiaryLoader(DataLoader):
         for row in (
             XBeneficiaryLanguage.select(
                 XBeneficiaryLanguage.beneficiary,
-                fn.GROUP_CONCAT(XBeneficiaryLanguage.language).alias("language_ids"),
+                fn.GROUP_CONCAT(XBeneficiaryLanguage.language)
+                .python_value(convert_ids)
+                .alias("language_ids"),
             )
             .where(XBeneficiaryLanguage.beneficiary << beneficiary_ids)
             .group_by(XBeneficiaryLanguage.beneficiary)
             .objects()
             .iterator()
         ):
-            languages[row.beneficiary_id] = [
-                int(language_id) for language_id in row.language_ids.split(",")
-            ]
+            languages[row.beneficiary_id] = row.language_ids
         return [languages.get(i, []) for i in beneficiary_ids]
