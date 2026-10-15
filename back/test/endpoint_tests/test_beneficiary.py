@@ -107,11 +107,15 @@ def test_beneficiary_query(
 
     beneficiary_id = relative_beneficiary["id"]
     query = f"""query {{ beneficiary(id: {beneficiary_id}) {{
+                id
+                familyHead {{ id }}
                 gender
                 age
                 dateOfBirth }} }}"""
     beneficiary = assert_successful_request(client, query)
     assert beneficiary == {
+        "id": str(beneficiary_id),
+        "familyHead": {"id": str(default_beneficiary["id"])},
         "gender": HumanGender.Diverse.name,
         "age": None,
         "dateOfBirth": None,

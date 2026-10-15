@@ -10,6 +10,7 @@ from ..exceptions import format_database_errors
 from .loaders import (
     BaseLoader,
     BoxLoader,
+    FamilyHeadForBeneficiaryLoader,
     HistoryForBoxLoader,
     InstockCountForBaseLoader,
     InstockItemsCountForProductLoader,
@@ -30,8 +31,11 @@ from .loaders import (
     SourceBasesForAgreementLoader,
     StandardProductLoader,
     TagLastUsedOnLoader,
+    TagsForBeneficiaryLoader,
     TagsForBoxLoader,
     TargetBasesForAgreementLoader,
+    TokensForBeneficiaryLoader,
+    TransactionsForBeneficiaryLoader,
     TransferAgreementLoader,
     TransferItemsCountForProductLoader,
     UnitLoader,
@@ -66,6 +70,7 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             # fmt: off
             "base_loader": BaseLoader(),
             "box_loader": BoxLoader(),
+            "family_heads_for_beneficiary_loader": FamilyHeadForBeneficiaryLoader(),
             "history_for_box_loader": HistoryForBoxLoader(),
             "instock_boxes_count_for_base_loader": InstockCountForBaseLoader(),
             "instock_items_count_for_base_loader": InstockCountForBaseLoader(count_boxes=False),  # noqa
@@ -89,7 +94,10 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             "standard_product_loader": StandardProductLoader(),
             "tag_last_used_on_loader": TagLastUsedOnLoader(),
             "tags_for_box_loader": TagsForBoxLoader(),
+            "tags_for_beneficiary_loader": TagsForBeneficiaryLoader(),
             "target_bases_for_agreement_loader": TargetBasesForAgreementLoader(),
+            "tokens_for_beneficiary_loader": TokensForBeneficiaryLoader(),
+            "transactions_for_beneficiary_loader": TransactionsForBeneficiaryLoader(),
             "transfer_agreement_loader": TransferAgreementLoader(),
             "units_for_dimension_loader": UnitsForDimensionLoader(),
             "unit_loader": UnitLoader(),
