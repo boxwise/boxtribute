@@ -80,12 +80,12 @@ enum Language {
   ur
   ku
   fa
-  pa
+  ps
   ti
   am
-  li
+  ln
   so
-  da
+  prs
 }
 
 enum TransferAgreementState {
