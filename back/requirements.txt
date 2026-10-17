@@ -10,4 +10,4 @@ aiodataloader==0.4.3
 gunicorn
 auth0-python==6.7.0
 # Cap version because ariadne is not compatible with new API
-graphql-core<3.3.0
+graphql-core<3.4.0
