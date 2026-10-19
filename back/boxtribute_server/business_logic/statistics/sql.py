@@ -188,7 +188,7 @@ DeletedBoxes AS (
         GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
     FROM HistoryReconstruction h
     LEFT OUTER JOIN tags_relations tr ON tr.object_id = h.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-    WHERE h.changes = 'Record deleted'
+    WHERE h.changes = 'Record deleted' AND h.box_state_id != 5
     GROUP BY h.box_id, date(h.changedate), h.product_id, h.size_id, h.stock_measure_value, h.stock_display_unit_id, h.location_id, h.items
 ),
 UndeletedBoxes AS (
@@ -204,7 +204,7 @@ UndeletedBoxes AS (
         GROUP_CONCAT(DISTINCT tr.tag_id) AS tag_ids
     FROM HistoryReconstruction h
     LEFT OUTER JOIN tags_relations tr ON tr.object_id = h.box_id AND tr.object_type = "Stock" AND tr.deleted_on IS NULL
-    WHERE h.changes = 'Box was undeleted.'
+    WHERE h.changes = 'Box was undeleted.' AND h.box_state_id != 5
     GROUP BY h.box_id, date(h.changedate), h.product_id, h.size_id, h.stock_measure_value, h.stock_display_unit_id, h.location_id, h.items
 ),
 CreatedDonatedBoxes AS (
