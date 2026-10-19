@@ -44,6 +44,7 @@ Option 1 as the default, with Option 2 added only when real failures justify it.
 
 - When are Third-party scraping APIs a valid option?
 - When do we need really a headless browser for scraping?
+- How to handle potential prompt injection?
 
 - legal implications if we do not adhere to robots.txt
 - legal implications if we store funding opportunities centrally and publicize/license
