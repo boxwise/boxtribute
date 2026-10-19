@@ -42,11 +42,11 @@ export default function BeneficiaryFiguresCards({ figures }: BeneficiaryFiguresC
       value: figures.averageFamilySize.toFixed(1),
     },
     {
-      label: "Avg. items per visit per beneficiary",
+      label: "Avg. items per Free Shop visit per beneficiary",
       value: figures.averageItemsPerVisitPerBeneficiary.toFixed(1),
     },
     {
-      label: "Avg. total items per beneficiary",
+      label: "Avg. total Free Shop items checked out per beneficiary",
       value: figures.averageTotalItemsPerBeneficiary.toFixed(1),
     },
     {
@@ -54,7 +54,7 @@ export default function BeneficiaryFiguresCards({ figures }: BeneficiaryFiguresC
       value: String(figures.newRegistrationsLast30Days),
     },
     {
-      label: "Without Freeshop Visit (last 90 days)",
+      label: "Without Free Shop visit (last 90 days)",
       value: `${(figures.percentageWithoutFreeshopVisitLast90Days * 100).toFixed(1)}%`,
     },
   ];
