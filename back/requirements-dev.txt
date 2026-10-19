@@ -11,5 +11,5 @@ types-Flask-Cors==6.0.3.20260712
 types-setuptools==84.0.0.20261006
 types-PyMySQL==1.2.0.20260923
 flake8-bugbear==26.9.30
-Faker==40.43.0
+Faker==40.40.0
 freezegun==1.5.5
