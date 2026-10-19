@@ -138,7 +138,8 @@ def test_boxes_query(client, default_location_boxes):
     base_id = 1
     query = f"""query {{ boxes(baseId: {base_id}) {{ totalCount }} }}"""
     boxes = assert_successful_request(client, query)
-    assert boxes == {"totalCount": len(default_location_boxes)}
+    # One deleted box in default_location is excluded
+    assert boxes == {"totalCount": len(default_location_boxes) - 1}
 
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{productGender: Men}})
                         {{ totalCount }} }}"""
@@ -148,12 +149,12 @@ def test_boxes_query(client, default_location_boxes):
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{locationIds: []}})
                         {{ totalCount }} }}"""
     boxes = assert_successful_request(client, query)
-    assert boxes == {"totalCount": 14}
+    assert boxes == {"totalCount": 13}
 
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{locationIds: [1]}})
                         {{ totalCount }} }}"""
     boxes = assert_successful_request(client, query)
-    assert boxes == {"totalCount": 14}
+    assert boxes == {"totalCount": 13}
 
     query = f"""query {{ boxes(baseId: {base_id}, filterInput: {{tagIds: [2]}})
                         {{ totalCount }} }}"""
@@ -1108,7 +1109,7 @@ def test_box_mutations(
         .dicts()
     )
     box_id = int(updated_box["id"])
-    assert history[29:] == [
+    assert history[30:] == [
         {
             "changes": HISTORY_CREATION_MESSAGE,
             "from_int": None,

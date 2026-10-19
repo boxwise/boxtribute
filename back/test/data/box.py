@@ -129,6 +129,7 @@ def another_donated_box_data():
     data["state"] = BoxState.Donated
     data["number_of_items"] = 12
     data["product"] = product_data()[4]["id"]
+    data["deleted_on"] = datetime(2023, 1, 30)
     return data
 
 
