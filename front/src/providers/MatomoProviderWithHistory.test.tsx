@@ -60,6 +60,10 @@ it("tracks pathname-only page views on navigation with link tracking disabled", 
     ]),
   );
   expect(matomoWindow._paq).not.toContainEqual(["enableLinkTracking"]);
+  expect(matomoWindow._paq).toContainEqual(["setReferrerUrl", ""]);
+  expect(matomoWindow._paq?.findIndex(([command]) => command === "setReferrerUrl")).toBeLessThan(
+    matomoWindow._paq!.findIndex(([command]) => command === "trackPageView"),
+  );
   expect(matomoWindow._paq?.filter(([command]) => command === "trackPageView")).toHaveLength(1);
 
   fireEvent.click(screen.getByRole("link", { name: "Change query and hash" }));
