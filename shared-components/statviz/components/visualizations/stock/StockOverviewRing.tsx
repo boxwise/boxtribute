@@ -20,6 +20,7 @@ const ringGroupingOptions: IFilterValue[] = [
   { value: "gender", label: "Gender", urlId: "g" },
   { value: "sizeName", label: "Size", urlId: "s" },
   { value: "locationName", label: "Location", urlId: "l" },
+  { value: "productName", label: "Product", urlId: "p" },
 ];
 
 const defaultRingGrouping = ringGroupingOptions[0];
@@ -86,6 +87,17 @@ export default function StockOverviewRing({
         innerJoin(locationDim, { by: "locationId" }),
         groupBy("locationName", summarize({ value: sum(boxesOrItems) })),
         map((row) => ({ id: row.locationName as string, value: row.value as number })),
+      ) as PieData[];
+    }
+
+    if (groupKey === "productName") {
+      return tidy(
+        facts,
+        groupBy("productName", summarize({ value: sum(boxesOrItems) })),
+        map((row) => ({
+          id: row.productName as string,
+          value: row.value as number,
+        })),
       ) as PieData[];
     }
 
