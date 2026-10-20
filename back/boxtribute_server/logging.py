@@ -3,7 +3,7 @@
 import contextlib
 import time
 
-from flask import request
+from flask import current_app, request
 
 from .utils import in_ci_environment, in_development_environment
 
@@ -38,6 +38,7 @@ def log_request_to_gcloud(*, context, **extra_info):
     Optionally add extra info fields to the log entry.
     """
     if request_loggers is None:
+        current_app.logger.info(extra_info.get("execution_time"))
         # Render function ineffective if loggers not defined
         return
 
