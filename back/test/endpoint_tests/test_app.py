@@ -7,6 +7,7 @@ from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
     assert_successful_request,
+    assert_unauthorized,
 )
 
 
@@ -511,3 +512,13 @@ def test_token_endpoint_validation(client):
         response = client.post(endpoint, json={field: "x"})
         assert response.status_code == code
         assert response.json["error"] == "missing username or password"
+
+
+def test_request_as_non_existing_user(client, mocker):
+    mock_user_for_request(mocker, user_id=666)
+    query = "base(id: 1) { name }"
+    response = assert_unauthorized(client, query)
+    assert response.json == {
+        "code": "unknown_user",
+        "description": "User (ID 666) does not exist in database.",
+    }
