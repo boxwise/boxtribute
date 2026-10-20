@@ -9,6 +9,7 @@
     "@boxtribute/shared-components": "workspace:*",
     "@yudiel/react-qr-scanner": "2.6.0",
     "jotai": "^3.0.0",
+    "matomo-tracker-for-react": "^2.2.0",
     "react-big-calendar": "^1.20.0",
     "react-csv": "^2.2.2",
     "react-joyride": "^3.2.0",
