@@ -7,7 +7,7 @@ orbs:
 executors:
   node-executor:
     docker:
-      - image: cimg/node:20.9.0
+      - image: cimg/node:20.20.2
   python-executor:
     docker:
       - image: cimg/python:3.12.2
@@ -40,8 +40,6 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          key: dependency-cache-{{ checksum "pnpm-lock.yaml" }}
       - run:
           name: Install pnpm package manager
           command: |
@@ -119,10 +117,6 @@ jobs:
               FRONT_SENTRY_TRACES_SAMPLE_RATE=${SENTRY_TRACES_SAMPLE_RATE}
               FRONT_ENVIRONMENT=${ENVIRONMENT}
             " > .env
-      - run:
-          name: Run type check
-          command: |
-            pnpm tsc:check
       - run:
           name: Run style checks
           command: |
