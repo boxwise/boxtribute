@@ -226,6 +226,9 @@ importers:
       jotai:
         specifier: ^3.0.0
         version: 3.0.1(@types/react@19.2.16)(react@18.3.1)
+      matomo-tracker-for-react:
+        specifier: ^2.2.0
+        version: 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-big-calendar:
         specifier: ^1.20.0
         version: 1.20.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3898,6 +3901,12 @@ packages:
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
+
+  matomo-tracker-for-react@2.2.0:
+    resolution: {integrity: sha512-jZOJk7pR7pWtSQpLSARwnKg9wzjaViKnxjvajP9bNpvG+BY4v419paMXc3/73UMN2nRI1+mlBQ1sP0Q1AmbWTw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   mdast-util-from-markdown@2.0.3:
     resolution: {integrity: sha512-W4mAWTvSlKvf8L6J+VN9yLSqQ9AOAAvHuoDAmPkz4dHf553m5gVj2ejadHJhoJmcmxEnOv6Pa8XJhpxE93kb8Q==}
@@ -9775,6 +9784,11 @@ snapshots:
   math-expression-evaluator@1.4.0: {}
 
   math-intrinsics@1.1.0: {}
+
+  matomo-tracker-for-react@2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   mdast-util-from-markdown@2.0.3:
     dependencies:
