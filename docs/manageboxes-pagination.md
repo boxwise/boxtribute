@@ -1,63 +1,10 @@
-# BE performance evaluation
+## Background/Details on BE pagination
 
-## Current state
-
-- large bases hold up to 12k non-deleted boxes (up to 7k Donated, 5k Instock, 6k Scrap)
-- requesting large numbers of boxes for ManageBoxes at once leads to large loading times of around 20s
-- we currently circumvent this by fetching 50 most-recently modified boxes of each Instock/Donated/Lost at initial page load, and fetching all remaining Instock boxes in the background
-- the average response size is about 1.3kB per box which results in a 6.5MB response for 5k boxes
-- the memory load on the server for constructing the GraphQL response with peewee and ariadne leads to occasional shutdowns
-- no user has complained about any negative impacts on UX
-- we want to port ManageBeneficiaries to v2 which features a table view, too. The largest base holds 12k beneficiaries.
-
-## Decision drivers
-
-1. **UX**
-    - the current ManageBoxes FE has fast sorting, filtering, and searching capabilities using react-table once all boxes have been loaded
-    - excessive server loading times delay readiness of FE for interactions
-1. **Download size**. In areas with bad reception, loading the full ManageBoxes content with thousands of boxes must still provide an acceptable UX
-1. **Scalability**. Bases can contain unlimited number of boxes, realistically 20k or 50k, that we have to handle properly
-
-## Options
-
-### A: Optimize response structure and size
-
-- the GraphQL response contains duplicated data (e.g. names of products, categories, locations, sizes, tags that are shared by many boxes)
-- due to GraphQL's nature the response is nested but needs to be flattened for tabular display anyways
-- **Option A.0**: extend API to provide flat list of boxes. The database query can be run with raw SQL instead of going through peewee
-- **Option A.1**: in addition to A.0, return only IDs for box attributes and look up names via a second query (similar to Dashboard queries)
-- **Option A.2**: in addition to A.0 or A.1, load only the data for the default table columns. Add a FE action to load all columns
-- experiments show that A.1 decreases BE load by 3x, and response size by 3x
-
-### B: BE pagination
-
-#### Problem
-
-The ManageBoxes FE currently fetches a possibly large number of (non-deleted) boxes from the BE (default: 100,000; in `prepareBoxesForBoxesViewQueryVariables`). While the querying of the raw data from MySQL is not expensive, building the GraphQL response in the ariadne resolvers is due to the large, nested structure of the request.
-As a consequence we've been observing large loading times for bases with lots of boxes.
-E.g. in the last 90d:
-- base 3 (6.2k boxes): 18s (168 queries)
-- base 49 (5k InStock + 5k Donated + 2.3k Scrap boxes): 20s (39 queries)
-
-Pure SQL query for comparison (base 3): 2s
-
-#### Proposed solution
-
-Utilize server-side pagination to load a page of only 100 records at once to meet an ideal loading time of 2s or less.
-
-##### Consequences
-
-- more responsive ManageBoxes for bases with thousands of boxes
-- unchanged: filtering and bulk-actions
-- sorting: only single-field sorting (react-table allows for filtering by multiple fields)
-- text search: disable/restrict to client-side data/re-implement on BE (**decision needed**)
-- for v2 ManageBeneficiaries, bulk-mutations and FE pagination can be designed and implemented with the more performant concept in mind
-
-#### Details
+Follow-up for this [ADR](./adr/adr_backend_list_data_retrieval_pagination.md).
 
 This summarizes the current features and functionality.
 
-##### FE functionality and GraphQL API usage
+### FE functionality and GraphQL API usage
 
 - data display
     - 50 boxes per page
@@ -75,7 +22,7 @@ This summarizes the current features and functionality.
     - move to location (`moveBoxesToLocation` bulk-mutation)
     - add to shipment (`updateShipmentWhenPreparing` bulk-mutation)
 
-##### BE pagination
+### BE pagination
 
 - cursor-based pagination for `boxes` query
 - ordering by `Box.last_modified_on.desc` (hard-coded)
@@ -122,13 +69,14 @@ type BoxPage {
 
 </details>
 
-#### Implementation plan
+## Implementation plan
 
-##### Back-end / API
+### Back-end / API
 
 Estimate: 6-8h
 
 1. fix cursor-based pagination to handle different sorting fields and sort order
+1. introduce flat response type for box rows
 1. extend sorting API (14 sort fields)
 1. extend filter API to also handle size and excluded tags
 1. extend all box-related bulk-mutations to handle filter options instead of label identifiers (to enable actions with select-all active)
@@ -136,18 +84,18 @@ Estimate: 6-8h
 1. extend BoxPage type to include summary info
 1. bonus: limit page size that can be requested through the API (e.g. 500)
 
-##### Front-end
+### Front-end
 
 Estimate: 6-8h
 
-1. drop background-loading of InStock/Donated/Lost boxes
-1. adjust page size (100) to require less server round-trips
+1. drop background-loading of InStock/Donated/Scrap boxes
+1. fetch 2 pages on initial load. When navigating to next page, pre-load the page after
 1. run BE request when new filters applied
 1. run BE request when sorting changed
 1. run BE request when navigating to next page
 1. if select-all active and bulk-action requested, send applied filters along with bulk-mutation, instead of label identifiers
 
-#### Resources
+## Resources
 
 <details>
   <summary>GraphQL request for ManageBoxes</summary>
