@@ -56,13 +56,7 @@ def resolve_box_rows(*_, base_id, options=None):
         "descending": False,
     }
     # TODO: add authorize(permission="stock:read", base_id=base_id)
-    from time import perf_counter
-
-    from flask import current_app
-
-    start = perf_counter()
     result = get_boxes_page(base_id, **options)
-    current_app.logger.info(perf_counter() - start)
     return result
 
 

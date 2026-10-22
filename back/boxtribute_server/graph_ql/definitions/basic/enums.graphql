@@ -173,5 +173,14 @@ enum PackingListEntryState {
 }
 
 enum BoxSortField {
+  LabelIdentifier
   ProductName
+  CategoryName
+  ProductGender
+  SizeName
+  NumberOfItems
+  Weight
+  MonetaryValue
+  LocationName
+  Comment
 }

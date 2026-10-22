@@ -1021,7 +1021,7 @@ def get_boxes_page(
     Creator = User.alias("u")
     Modifier = User.alias("um")
 
-    return (
+    rows = (
         B.select(
             B.id,
             B.label_identifier.alias("label_identifier"),
@@ -1068,3 +1068,4 @@ def get_boxes_page(
         .dicts()
         .execute()
     )
+    return {"page": rows}

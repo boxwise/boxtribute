@@ -135,6 +135,7 @@ def test_box_query_by_qr_code(client, default_box, default_qr_code):
 
 def test_box_rows_query(client):
     query = """query { boxRows(baseId: 1) {
+            page {
                 id
                 labelIdentifier
                 numberOfItems
@@ -163,9 +164,9 @@ def test_box_rows_query(client):
                 shipmentId
                 hasQrCode
                 tagIds
-            } }"""
-    boxRows = assert_successful_request(client, query)
-    assert len(boxRows) == 0
+                } } }"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 12
 
 
 def test_boxes_query(client, default_location_boxes):
