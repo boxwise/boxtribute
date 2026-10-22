@@ -561,6 +561,14 @@ input FilterBeneficiaryInput {
   pattern: String
 }
 
+input BoxRowOptions {
+  page: Int
+  pageSize: Int
+  filters: FilterBoxInput
+  sortBy: BoxSortField
+  descending: Boolean
+}
+
 """
 Optional filter values when retrieving [`Boxes`]({{Types.Box}}).
 If several fields are defined (not null/empty), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).

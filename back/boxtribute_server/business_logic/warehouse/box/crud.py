@@ -8,7 +8,7 @@ from peewee import JOIN, IntegrityError, fn
 
 from ....authz import authorize
 from ....db import db
-from ....enums import BoxState, TaggableObjectType, TagType
+from ....enums import BoxSortField, BoxState, TaggableObjectType, TagType
 from ....errors import (
     DeletedBase,
     DeletedBox,
@@ -973,11 +973,24 @@ def create_boxes(*, user_id, data):
     )
 
 
-def get_boxes_page(base_id, page, page_size=50):
+def get_boxes_page(
+    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=False
+):
+    page_size = max(min(page_size or 50, 100), 1)
     # Aliases for the inner (sorting/paging) query
     InnerLocation = Location.alias()
     InnerProduct = Product.alias()
     InnerSize = Size.alias()
+
+    sort_by_field = Box.last_modified_on
+    if sort_by == BoxSortField.ProductName:
+        sort_by_field = InnerProduct.name
+    sort_by_field = sort_by_field.desc() if descending else sort_by_field.asc()
+
+    filter_conditions = []
+    if filters:
+        if (states := filters.get("states")) is not None:
+            filter_conditions.append((Box.state << states))
 
     # Inner query: sort and page on IDs only
     page_ids = (
@@ -985,8 +998,10 @@ def get_boxes_page(base_id, page, page_size=50):
         .join(InnerLocation, on=(InnerLocation.id == Box.location))
         .join(InnerProduct, on=(InnerProduct.id == Box.product))
         .join(InnerSize, on=(InnerSize.id == Box.size))
-        .where(Box.deleted_on.is_null(), InnerLocation.base == base_id)
-        .order_by(InnerProduct.name.asc(), Box.id.desc())
+        .where(
+            Box.deleted_on.is_null(), InnerLocation.base == base_id, *filter_conditions
+        )
+        .order_by(sort_by_field, Box.id.asc())
         .paginate(page, page_size)
         .alias("s")
     )

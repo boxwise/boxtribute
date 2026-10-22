@@ -171,3 +171,7 @@ enum PackingListEntryState {
   PackingInProgress
   Packed
 }
+
+enum BoxSortField {
+  ProductName
+}
