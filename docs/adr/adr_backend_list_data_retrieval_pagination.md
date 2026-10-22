@@ -25,8 +25,9 @@ Proposed.
 1. **UX**
     - the current ManageBoxes FE has fast sorting, filtering, and searching capabilities using react-table once all boxes have been loaded
     - excessive server loading times delay readiness of FE for interactions
+    - User first principle: do not want to make any changes that will materially deviate from how users use the platform or impede aid distribution workflows
 1. **Download size**. In areas with bad reception, loading the full ManageBoxes content with thousands of boxes must still provide an acceptable UX
-1. **Scalability**. Bases can contain unlimited number of boxes, realistically 20k or 50k, that we have to handle properly
+1. **Scalability**. Boxtribute is looking for ONE solution that can address both Boxes and Beneficiary records going forward; we do not want to have to do a re-write in one year. Bases can contain an unlimited number of boxes, realistically 20k or 50k, that we have to handle properly; beneficiary counts can be 2-10x larger than box counts and often have nested content in the form of families
 1. **Complexity**. Currently the FE functionality is almost independent of the BE, once all boxes have been loaded.
 
 ## Considered Options
@@ -38,7 +39,7 @@ Proposed.
 - **Option A.0**: extend API to provide flat list of boxes. The database query can be run with raw SQL instead of going through peewee
 - **Option A.1**: in addition to A.0, return only IDs for box attributes and look up names via a second query (similar to Dashboard queries)
 - **Option A.2**: in addition to A.0 or A.1, load only the data for the default table columns. Add a FE action to load all columns
-- experiments show that A.1 decreases BE load by 3x, and response size by 3x
+- experiments show that A.1 decreases BE load by 3x, and response size by 3x, but that response time grows linearly (N) with # of records.
 
 ### B: BE pagination
 
@@ -63,7 +64,7 @@ Albeit the large effort to extend existing mutations, and to implement filtering
 
 - well-scalable ManageBoxes/ManageBeneficiaries. Regardless of bases holding 10k, 100k, or 1M boxes/beneficiaries, loading and displaying data is quick
 - unchanged UX: filtering and bulk-actions
-- sorting UX: only single-field sorting (react-table allows for filtering by multiple fields)
+- sorting UX: only single-field sorting (react-table allows for filtering by multiple fields) - acceptable because there is no evidence that multi-field sorting is currently in use nor can be applied to solve an important use case.
 - text search: disable client-side data text search
 - complexity: FE and BE are more tightly coupled. Every page navigation, every filter changed, every sorting dimension changed needs to be communicated to the BE to execute the matching database query and return the matching records
 - for v2 ManageBeneficiaries, bulk-mutations and FE pagination can be designed and implemented with the more performant concept in mind
