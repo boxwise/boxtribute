@@ -998,7 +998,7 @@ def get_boxes_page(
             Box.deleted_on.is_null(), Location.base == base_id, filter_condition
         )
         .order_by(sort_by_field, Box.id.asc())
-        .paginate(page, page_size)
+        .paginate(page or 1, page_size)
         .alias("s")
     )
 
