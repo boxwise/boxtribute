@@ -52,68 +52,126 @@ class PageInfo:
         self.end_cursor = ""
 
 
-def pagination_parameters(pagination_input):
+def pagination_parameters(pagination_input, **cursor_kwargs):
     """Retrieve cursor and limit (default: Cursor() and 50, resp.) from the given
     pagination input dictionary.
     The values of `after`/`first` take precedence over `before`/`last`.
     """
     limit = 50
     if pagination_input is None:
-        return Cursor(), limit
+        return Cursor(**cursor_kwargs), limit
 
     after_value = pagination_input.get("after")
     first = pagination_input.get("first")
     if after_value is not None or first is not None:
-        return Cursor(after_value), first or limit
+        return Cursor(value=after_value, **cursor_kwargs), first or limit
 
-    return Cursor(pagination_input.get("before"), forwards=False), pagination_input.get(
-        "last", limit
-    )
+    return Cursor(
+        value=pagination_input.get("before"), forwards=False, **cursor_kwargs
+    ), pagination_input.get("last", limit)
 
 
 class Cursor:
-    """Representation of pagination cursor, translating from GraphQL to data layer."""
+    """Representation of pagination cursor, translating from GraphQL to data layer.
 
-    def __init__(self, value=None, forwards=True):
-        """Decode and store value (a base64-encoded string).
-        The value serves as point to start a select query after/before (default: 0 for
-        forward pagination; not supported for backward pagination).
-        Assume forward pagination by default.
-        """
+    The cursor now encodes a composite key: the value of the field results are
+    ordered by (default: `id`), plus `id` itself as a stable tiebreaker. This is
+    required because `order_by_field` may differ from `id` (e.g.
+    `Box.last_modified_on.desc()`), in which case `id` alone cannot be used to
+    determine pagination conditions or previous/next page existence.
+    """
+
+    def __init__(self, *, value=None, forwards=True, order_by_field, descending):
         if value is None and not forwards:
             raise InvalidPaginationInput()
-        self.value = 0 if value is None else int(base64.b64decode(value))
+
+        self.order_by_field = order_by_field
+        self.is_descending = descending
+
+        if value is None:
+            self.sort_value = None
+            self.id_value = 0
+        else:
+            decoded = base64.b64decode(value).decode()
+            # format: "<id>" (legacy / default id-ordering) or "<id>|<sort_value>"
+            parts = decoded.split("|", 1)
+            self.id_value = int(parts[0])
+            self.sort_value = parts[1] if len(parts) > 1 else None
+
         self.forwards = forwards
 
     def pagination_condition(self, model):
-        """Convert internal value into a condition that can be plugged into a
-        ModelSelect.where() clause for the given model.
+        """Build the WHERE condition selecting elements after/before this cursor,
+        consistent with the field(s) results are ordered by.
         """
-        if self.forwards:
-            return model.id > self.value
-        return model.id < self.value
+        if self.order_by_field is None or self.sort_value is None:
+            # Default ordering by id only (covers the common case and the first
+            # page where no sort_value has been established yet).
+            if self.forwards:
+                return model.id > self.id_value
+            return model.id < self.id_value
+
+        field = self.order_by_field
+        sort_value = self.sort_value
+
+        # "greater" means: move towards elements that come LATER in the result
+        # order. For ascending fields, forward pagination wants field > value;
+        # for descending fields, forward pagination wants field < value (and
+        # vice versa for backward pagination).
+        want_greater = self.forwards != self.is_descending
+
+        if want_greater:
+            return (field > sort_value) | (
+                (field == sort_value) & (model.id > self.id_value)
+            )
+        return (field < sort_value) | (
+            (field == sort_value) & (model.id < self.id_value)
+        )
 
     def has_next_previous_page(self, *conditions, elements, selection):
-        """For forward/backward pagination, determine whether a previous/next page
-        exists (i.e. if the model holds elements before the first / after the last one).
-        To this end, the given model selection is used (might contain joins required by
-        conditions).
-        Additional conditions, e.g. for filtering, are taken into account.
+        """Determine whether a previous/next page exists by checking, relative to
+        the first/last element of the current page, whether any row comes before/
+        after it in the established sort order (not just by `id`).
         """
         model = selection.model
-        if self.forwards:
-            base_condition = model.id < elements[0].id
+        edge = elements[0] if self.forwards else elements[-1]
+
+        if self.order_by_field is None:
+            if self.forwards:
+                base_condition = model.id < edge.id
+            else:
+                base_condition = model.id > edge.id
         else:
-            base_condition = model.id > elements[-1].id
+            field = self.order_by_field
+            edge_value = getattr(edge, field.name)
+
+            # For forward pagination we ask: does anything sort BEFORE `edge`
+            # (i.e. would belong on a previous page)? For backward pagination,
+            # the inverse.
+            want_before = self.forwards != self.is_descending
+            # "before" in result order means the opposite direction of "greater"
+            # used in pagination_condition.
+            if want_before:
+                base_condition = (field < edge_value) | (
+                    (field == edge_value) & (model.id < edge.id)
+                )
+            else:
+                base_condition = (field > edge_value) | (
+                    (field == edge_value) & (model.id > edge.id)
+                )
 
         return selection.where(base_condition, *conditions).get_or_none() is not None
 
-
-def _encode_id(element):
-    """Zero-pad the element's ID to a byte-string of length 8, and base64-encode it.
-    Return encoded result as unicode string.
-    """
-    return base64.b64encode(f"{element.id:08}".encode()).decode()
+    def _encode_cursor(self, element):
+        """Encode the element's id (and, if given, the value of the field results are
+        sorted by) into a cursor string.
+        """
+        if self.order_by_field is None:
+            payload = f"{element.id:08}"
+        else:
+            value = getattr(element, self.order_by_field.name)
+            payload = f"{element.id:08}|{value}"
+        return base64.b64encode(payload.encode()).decode()
 
 
 def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
@@ -136,21 +194,21 @@ def _generate_page_info(*conditions, elements, cursor, limit, **kwargs):
     )
     if cursor.forwards:
         info.has_previous_page = has_next_previous_page
-        info.start_cursor = _encode_id(elements[0])
+        info.start_cursor = cursor.encode(elements[0])
         if len(elements) > limit:
             info.has_next_page = True
-            info.end_cursor = _encode_id(elements[-2])
+            info.end_cursor = cursor.encode(elements[-2])
         else:
-            info.end_cursor = _encode_id(elements[-1])
+            info.end_cursor = cursor.encode(elements[-1])
 
     else:
         info.has_next_page = has_next_previous_page
-        info.end_cursor = _encode_id(elements[-1])
+        info.end_cursor = cursor.encode(elements[-1])
         if len(elements) > limit:
             info.has_previous_page = True
-            info.start_cursor = _encode_id(elements[1])
+            info.start_cursor = cursor.encode(elements[1])
         else:
-            info.start_cursor = _encode_id(elements[0])
+            info.start_cursor = cursor.encode(elements[0])
 
     return info
 
@@ -187,7 +245,12 @@ def generate_page(*conditions, elements, cursor, selection, **page_info_kwargs):
 
 
 def load_into_page(
-    model, *conditions, selection=None, order_by_field=None, pagination_input
+    model,
+    *conditions,
+    selection=None,
+    order_by_field=None,
+    descending=False,
+    pagination_input,
 ):
     """High-level convenience function to load result query of given model into a
     GraphQL page type.
@@ -195,14 +258,16 @@ def load_into_page(
     optional conditions. The query results are ordered by the given field (default:
     model ID).
     """
-    cursor, limit = pagination_parameters(pagination_input)
+    cursor, limit = pagination_parameters(pagination_input, order_by_field)
     pagination_condition = cursor.pagination_condition(model)
 
     if selection is None:
         selection = model.select()
+    if order_by_field:
+        order_by_field = order_by_field.desc() if descending else order_by_field.asc()
     query_result = (
         selection.where(pagination_condition, *conditions)
-        .order_by(order_by_field or model.id)
+        .order_by(order_by_field or model.id, model.id)
         .limit(limit + 1)
     )
     return generate_page(
