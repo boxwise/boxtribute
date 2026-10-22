@@ -27,8 +27,9 @@ Proposed.
     - excessive server loading times delay readiness of FE for interactions
     - User first principle: do not want to make any changes that will materially deviate from how users use the platform or impede aid distribution workflows
 1. **Download size**. In areas with bad reception, loading the full ManageBoxes content with thousands of boxes must still provide an acceptable UX
-1. **Scalability**. Boxtribute is looking for ONE solution that can address both Boxes and Beneficiary records going forward; we do not want to have to do a re-write in one year. Bases can contain an unlimited number of boxes, realistically 20k or 50k, that we have to handle properly; beneficiary counts can be 2-10x larger than box counts and often have nested content in the form of families
-1. **Complexity**. Currently the FE functionality is almost independent of the BE, once all boxes have been loaded.
+1. **Scalability**. With the planned growth of the managed service to mid-and-larger sized NGOs and logistics clusters, bases can contain an unlimited number of boxes, realistically 20k or 50k, that we have to handle properly; beneficiary counts can be 2-10x larger than box counts and often have nested content in the form of families. 
+1. **Maintainability**. Boxtribute is looking for ONE solution that can address both Boxes and Beneficiary records; we do not want to have to do a re-write in one year. Solution must also be reasonably robust and extensible to data transformation and data decoration features (tagging, custom fields, bulk updates, advanced filtering, etc.)
+1. **Complexity**. Currently the FE functionality is almost independent of the BE, once all boxes have been loaded. Pagination rew
 
 ## Considered Options
 
