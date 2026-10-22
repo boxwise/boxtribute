@@ -4,11 +4,11 @@ from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
 
-import peewee
+from peewee import JOIN, IntegrityError, fn
 
 from ....authz import authorize
 from ....db import db
-from ....enums import BoxState, TaggableObjectType, TagType
+from ....enums import BoxSortField, BoxState, TaggableObjectType, TagType
 from ....errors import (
     DeletedBase,
     DeletedBox,
@@ -37,16 +37,21 @@ from ....exceptions import (
 )
 from ....exceptions import ProductLocationBaseMismatch as ProductLocationBaseMismatchExc
 from ....exceptions import QrCodeAlreadyAssignedToBox, TagBaseMismatch
+from ....graph_ql.filtering import derive_box_filter
 from ....models.definitions.base import Base
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
+from ....models.definitions.product_category import ProductCategory
 from ....models.definitions.qr_code import QrCode
+from ....models.definitions.shipment import Shipment
+from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.size import Size
 from ....models.definitions.size_range_size import SizeRangeSize
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
+from ....models.definitions.user import User
 from ....models.utils import (
     BATCH_SIZE,
     HISTORY_CREATION_MESSAGE,
@@ -213,7 +218,7 @@ def create_box(
                     TagsRelation.insert_many(tags_relations).execute()
                 return new_box
 
-        except peewee.IntegrityError as e:
+        except IntegrityError as e:
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
             prefix = "Duplicate entry"
@@ -967,3 +972,161 @@ def create_boxes(*, user_id, data):
         updated_boxes=result_boxes,
         invalid_box_label_identifiers=invalid_box_label_identifiers,
     )
+
+
+def _derive_sorting(selection, sort_by):
+    """Join the tables required for sorting the given Box selection by the specified
+    field. Return the extended selection and the field to sort by.
+    The joined tables are aliased in order to avoid clashes with joins that are added
+    when filters are derived.
+    """
+    sort_field = Box.last_modified_on
+    if sort_by == BoxSortField.LabelIdentifier:
+        sort_field = Box.label_identifier
+    elif sort_by == BoxSortField.NumberOfItems:
+        sort_field = Box.number_of_items
+    elif sort_by == BoxSortField.Weight:
+        sort_field = Box.weight
+    elif sort_by == BoxSortField.MonetaryValue:
+        sort_field = Box.monetary_value
+    elif sort_by == BoxSortField.Comment:
+        sort_field = Box.comment
+    elif sort_by == BoxSortField.LocationName:
+        sort_field = Location.name  # Location is joined in any case
+    elif sort_by == BoxSortField.SizeName:
+        sort_size = Size.alias("sort_size")
+        selection = selection.join(
+            sort_size, JOIN.LEFT_OUTER, on=(sort_size.id == Box.size), src=Box
+        )
+        sort_field = sort_size.label
+    elif sort_by in (
+        BoxSortField.ProductName,
+        BoxSortField.ProductGender,
+        BoxSortField.CategoryName,
+    ):
+        sort_product = Product.alias("sort_product")
+        selection = selection.join(
+            sort_product, on=(sort_product.id == Box.product), src=Box
+        )
+        # The gender is sorted by ID, i.e. in the order of the ProductGender enum
+        sort_field = sort_product.gender
+        if sort_by == BoxSortField.ProductName:
+            sort_field = sort_product.name
+        elif sort_by == BoxSortField.CategoryName:
+            sort_category = ProductCategory.alias("sort_category")
+            selection = selection.join(
+                sort_category,
+                on=(sort_category.id == sort_product.category),
+                src=sort_product,
+            )
+            sort_field = sort_category.name
+    return selection, sort_field
+
+
+def get_boxes_page(
+    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=False
+):
+    page_size = max(min(page_size or 50, 100), 1)
+
+    box_selection = Box.select(Box.id).join(Location)
+    filter_condition, selection = derive_box_filter(filters, box_selection)
+    selection = selection.where(
+        (Box.deleted_on.is_null() | (Box.deleted_on == 0)),
+        Location.base == base_id,
+        filter_condition,
+    )
+
+    # Totals are computed for all boxes matching the filters, independent of the page
+    totals = (
+        Box.select(
+            fn.COUNT(Box.id).alias("total_number_of_boxes"),
+            fn.COALESCE(fn.SUM(Box.number_of_items), 0).alias("total_number_of_items"),
+            fn.COALESCE(fn.SUM(Box.weight), 0).alias("total_weight"),
+            fn.COALESCE(fn.SUM(Box.monetary_value), 0).alias("total_monetary_value"),
+        )
+        .where(Box.id << selection)
+        .dicts()
+        .get()
+    )
+
+    def order(field):
+        return field.desc() if descending else field.asc()
+
+    # Inner query: sort and page on IDs only. The sort key is selected as well in order
+    # to sort the page rows of the outer query (and to be compatible with DISTINCT)
+    selection, sort_field = _derive_sorting(selection, sort_by)
+    page_ids = (
+        selection.columns(Box.id, sort_field.alias("sort_key"))
+        .order_by(order(sort_field), Box.id.asc())
+        .paginate(page or 1, page_size)
+        .alias("s")
+    )
+
+    # Correlated subquery for tag IDs (evaluated for the 50 rows only)
+    tag_ids = (
+        TagsRelation.select(fn.GROUP_CONCAT(TagsRelation.tag))
+        .where(
+            TagsRelation.object_id == page_ids.c.id,
+            TagsRelation.object_type == TaggableObjectType.Box,
+            TagsRelation.deleted_on.is_null(),
+        )
+        .alias("tag_ids")
+    )
+
+    # Aliases for the outer query
+    B = Box.alias("b")
+    L = Location.alias("l")
+    P = Product.alias("p")
+    Sz = Size.alias("sz")
+    Creator = User.alias("u")
+    Modifier = User.alias("um")
+
+    rows = (
+        B.select(
+            B.id,
+            B.label_identifier.alias("label_identifier"),
+            B.number_of_items.alias("number_of_items"),
+            B.comment.alias("comment"),
+            B.weight,
+            B.monetary_value,
+            B.created_on,
+            B.last_modified_on,
+            Creator.id.alias("created_by_id"),
+            Creator.name.alias("created_by_name"),
+            Modifier.id.alias("last_modified_by_id"),
+            Modifier.name.alias("last_modified_by_name"),
+            B.state.alias("state"),
+            P.id.alias("product_id"),
+            P.name.alias("product_name"),
+            P.gender.alias("product_gender"),
+            P.standard_product.is_null(False).alias("contains_standard_product"),
+            ProductCategory.id.alias("product_category_id"),
+            ProductCategory.name.alias("product_category_name"),
+            Sz.id.alias("size_id"),
+            Sz.label.alias("size_name"),
+            L.id.alias("location_id"),
+            L.name.alias("location_name"),
+            ShipmentDetail.id.alias("shipment_detail_id"),
+            Shipment.id.alias("shipment_id"),
+            B.qr_code.is_null(False).alias("has_qr_code"),
+            tag_ids,
+        )
+        .from_(page_ids)
+        .join(B, on=(B.id == page_ids.c.id))
+        .join(L, on=(L.id == B.location))
+        .join(P, on=(P.id == B.product))
+        .join(Sz, JOIN.LEFT_OUTER, on=(Sz.id == B.size))
+        .join(ProductCategory, on=(ProductCategory.id == P.category))
+        .join(Creator, JOIN.LEFT_OUTER, on=(Creator.id == B.created_by))
+        .join(Modifier, JOIN.LEFT_OUTER, on=(Modifier.id == B.last_modified_by))
+        .join(
+            ShipmentDetail,
+            JOIN.LEFT_OUTER,
+            on=((ShipmentDetail.box == B.id) & ShipmentDetail.removed_on.is_null()),
+        )
+        .join(Shipment, JOIN.LEFT_OUTER, on=(Shipment.id == ShipmentDetail.shipment))
+        .order_by(order(page_ids.c.sort_key), B.id.asc())
+        .dicts()
+        .execute()
+    )
+    return {"page": rows, **totals}

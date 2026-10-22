@@ -171,6 +171,19 @@ enum PackingListEntryState {
   PackingInProgress
   Packed
 }
+
+enum BoxSortField {
+  LabelIdentifier
+  ProductName
+  CategoryName
+  ProductGender
+  SizeName
+  NumberOfItems
+  Weight
+  MonetaryValue
+  LocationName
+  Comment
+}
 scalar Datetime
 scalar Date
 interface DataCube {
@@ -798,6 +811,7 @@ type Query {
   box(labelIdentifier: String!): Box
   " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
+  boxRows(baseId: Int!, options: BoxRowOptions): BoxRowsResult!
   " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource. "
   qrCode(code: String!): QrCodeResult!
   qrExists(code: String): Boolean
@@ -879,6 +893,47 @@ type UnboxedItemsCollection implements ItemsCollection {
   label: String
   location: Location
   distributionEvent: DistributionEvent
+}
+
+type BoxRow {
+  id: ID!
+  labelIdentifier: String!
+  numberOfItems: Int
+  comment: String
+  weight: Float
+  monetaryValue: Float
+  weightUnitSymbol: String
+  createdOn: Datetime
+  lastModifiedOn: Datetime
+  createdById: ID
+  createdByName: String
+  lastModifiedById: ID
+  lastModifiedByName: String
+  state: BoxState
+  productId: ID
+  productName: String
+  productGender: ProductGender
+  containsStandardProduct: Boolean
+  productCategoryId: ID
+  productCategoryName: String
+  sizeId: ID
+  sizeName: String
+  locationId: ID
+  locationName: String
+  shipmentDetailId: ID
+  shipmentId: ID
+  hasQrCode: Boolean
+  tagIds: [ID!]!
+}
+
+type BoxRowsResult {
+  " The page containing BoxRow data "
+  page: [BoxRow!]!
+  " All totals are computed based on the filters specified in the query input "
+  totalNumberOfBoxes: Int
+  totalNumberOfItems: Int
+  totalWeight: Float
+  totalMonetaryValue: Float
 }
 
 """
@@ -1390,6 +1445,14 @@ input FilterBeneficiaryInput {
   Filter for all beneficiaries where pattern is (case-insensitive) part of first name, last name, or comment, or where pattern matches the group identifier
   """
   pattern: String
+}
+
+input BoxRowOptions {
+  page: Int
+  pageSize: Int
+  filters: FilterBoxInput
+  sortBy: BoxSortField
+  descending: Boolean
 }
 
 """
