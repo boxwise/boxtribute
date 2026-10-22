@@ -1,12 +1,11 @@
 from ariadne import ObjectType, QueryType
 
 from ....authz import authorize, authorize_for_accessing_box
-from ....db import execute_sql
 from ....graph_ql.filtering import derive_box_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
-from .sql import BOX_ROWS_QUERY
+from .crud import get_boxes_page
 
 box_row = ObjectType("BoxRow")
 query = QueryType()
@@ -50,14 +49,12 @@ def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
 @query.field("boxRows")
 def resolve_box_rows(*_, base_id):
     # TODO: add authorize(permission="stock:read", base_id=base_id)
-    # Raise the default of 1024 chars so GROUP_CONCAT of tag IDs isn't truncated
-    # execute_sql(query="SET SESSION group_concat_max_len = 10000;")
     from time import perf_counter
 
     from flask import current_app
 
     start = perf_counter()
-    result = execute_sql(base_id, query=BOX_ROWS_QUERY)
+    result = get_boxes_page(base_id, 160)
     current_app.logger.info(perf_counter() - start)
     return result
 
