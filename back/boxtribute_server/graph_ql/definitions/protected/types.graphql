@@ -27,29 +27,27 @@ type BoxRow {
   weight: Float
   monetaryValue: Float
   weightUnitSymbol: String
-  monetaryCurrencyCode: String
   createdOn: Datetime
   lastModifiedOn: Datetime
   createdById: ID
   createdByName: String
   lastModifiedById: ID
   lastModifiedByName: String
-  state: String
+  state: BoxState
   productId: ID
   productName: String
   productGender: ProductGender
-  productStandardProductId: ID
-  productDeletedOn: Datetime
+  containsStandardProduct: Boolean
   productCategoryId: ID
   productCategoryName: String
   sizeId: ID
   sizeName: String
   locationId: ID
   locationName: String
-  tagIds: [ID!]!
   shipmentDetailId: ID
   shipmentId: ID
-  qrCode: String
+  hasQrCode: Boolean
+  tagIds: [ID!]!
 }
 
 """

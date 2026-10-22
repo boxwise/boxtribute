@@ -133,6 +133,41 @@ def test_box_query_by_qr_code(client, default_box, default_qr_code):
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
 
 
+def test_box_rows_query(client):
+    query = """query { boxRows(baseId: 1) {
+                id
+                labelIdentifier
+                numberOfItems
+                comment
+                weight
+                monetaryValue
+                weightUnitSymbol
+                createdOn
+                lastModifiedOn
+                createdById
+                createdByName
+                lastModifiedById
+                lastModifiedByName
+                state
+                productId
+                productName
+                productGender
+                containsStandardProduct
+                productCategoryId
+                productCategoryName
+                sizeId
+                sizeName
+                locationId
+                locationName
+                shipmentDetailId
+                shipmentId
+                hasQrCode
+                tagIds
+            } }"""
+    boxRows = assert_successful_request(client, query)
+    assert len(boxRows) == 0
+
+
 def test_boxes_query(client, default_location_boxes):
     # Test case 8.1.6a
     base_id = 1
