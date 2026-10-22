@@ -48,16 +48,8 @@ def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
 
 @query.field("boxRows")
 def resolve_box_rows(*_, base_id, options=None):
-    options = options or {
-        "page": None,
-        "page_size": None,
-        "filters": None,
-        "sort_by": None,
-        "descending": False,
-    }
-    # TODO: add authorize(permission="stock:read", base_id=base_id)
-    result = get_boxes_page(base_id, **options)
-    return result
+    authorize(permission="stock:read", base_id=base_id)
+    return get_boxes_page(base_id, **(options or {}))
 
 
 @box_row.field("tagIds")

@@ -974,30 +974,90 @@ def create_boxes(*, user_id, data):
     )
 
 
+def _derive_sorting(selection, sort_by):
+    """Join the tables required for sorting the given Box selection by the specified
+    field. Return the extended selection and the field to sort by.
+    The joined tables are aliased in order to avoid clashes with joins that are added
+    when filters are derived.
+    """
+    sort_field = Box.last_modified_on
+    if sort_by == BoxSortField.LabelIdentifier:
+        sort_field = Box.label_identifier
+    elif sort_by == BoxSortField.NumberOfItems:
+        sort_field = Box.number_of_items
+    elif sort_by == BoxSortField.Weight:
+        sort_field = Box.weight
+    elif sort_by == BoxSortField.MonetaryValue:
+        sort_field = Box.monetary_value
+    elif sort_by == BoxSortField.Comment:
+        sort_field = Box.comment
+    elif sort_by == BoxSortField.LocationName:
+        sort_field = Location.name  # Location is joined in any case
+    elif sort_by == BoxSortField.SizeName:
+        sort_size = Size.alias("sort_size")
+        selection = selection.join(
+            sort_size, JOIN.LEFT_OUTER, on=(sort_size.id == Box.size), src=Box
+        )
+        sort_field = sort_size.label
+    elif sort_by in (
+        BoxSortField.ProductName,
+        BoxSortField.ProductGender,
+        BoxSortField.CategoryName,
+    ):
+        sort_product = Product.alias("sort_product")
+        selection = selection.join(
+            sort_product, on=(sort_product.id == Box.product), src=Box
+        )
+        # The gender is sorted by ID, i.e. in the order of the ProductGender enum
+        sort_field = sort_product.gender
+        if sort_by == BoxSortField.ProductName:
+            sort_field = sort_product.name
+        elif sort_by == BoxSortField.CategoryName:
+            sort_category = ProductCategory.alias("sort_category")
+            selection = selection.join(
+                sort_category,
+                on=(sort_category.id == sort_product.category),
+                src=sort_product,
+            )
+            sort_field = sort_category.name
+    return selection, sort_field
+
+
 def get_boxes_page(
     base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=False
 ):
     page_size = max(min(page_size or 50, 100), 1)
 
-    sort_by_field = Box.last_modified_on
-    join_field = None
-    if sort_by == BoxSortField.ProductName:
-        join_field = Product
-        sort_by_field = join_field.name
-    # ...handle other sort fields
-    sort_by_field = sort_by_field.desc() if descending else sort_by_field.asc()
-
     box_selection = Box.select(Box.id).join(Location)
-    if join_field:
-        box_selection = box_selection.join(join_field, src=Box)
     filter_condition, selection = derive_box_filter(filters, box_selection)
+    selection = selection.where(
+        (Box.deleted_on.is_null() | (Box.deleted_on == 0)),
+        Location.base == base_id,
+        filter_condition,
+    )
 
-    # Inner query: sort and page on IDs only
-    page_ids = (
-        selection.where(
-            Box.deleted_on.is_null(), Location.base == base_id, filter_condition
+    # Totals are computed for all boxes matching the filters, independent of the page
+    totals = (
+        Box.select(
+            fn.COUNT(Box.id).alias("total_number_of_boxes"),
+            fn.COALESCE(fn.SUM(Box.number_of_items), 0).alias("total_number_of_items"),
+            fn.COALESCE(fn.SUM(Box.weight), 0).alias("total_weight"),
+            fn.COALESCE(fn.SUM(Box.monetary_value), 0).alias("total_monetary_value"),
         )
-        .order_by(sort_by_field, Box.id.asc())
+        .where(Box.id << selection)
+        .dicts()
+        .get()
+    )
+
+    def order(field):
+        return field.desc() if descending else field.asc()
+
+    # Inner query: sort and page on IDs only. The sort key is selected as well in order
+    # to sort the page rows of the outer query (and to be compatible with DISTINCT)
+    selection, sort_field = _derive_sorting(selection, sort_by)
+    page_ids = (
+        selection.columns(Box.id, sort_field.alias("sort_key"))
+        .order_by(order(sort_field), Box.id.asc())
         .paginate(page or 1, page_size)
         .alias("s")
     )
@@ -1039,7 +1099,7 @@ def get_boxes_page(
             P.id.alias("product_id"),
             P.name.alias("product_name"),
             P.gender.alias("product_gender"),
-            P.standard_product.is_null(False).alias("holds_standard_product"),
+            P.standard_product.is_null(False).alias("contains_standard_product"),
             ProductCategory.id.alias("product_category_id"),
             ProductCategory.name.alias("product_category_name"),
             Sz.id.alias("size_id"),
@@ -1055,7 +1115,7 @@ def get_boxes_page(
         .join(B, on=(B.id == page_ids.c.id))
         .join(L, on=(L.id == B.location))
         .join(P, on=(P.id == B.product))
-        .join(Sz, on=(Sz.id == B.size))
+        .join(Sz, JOIN.LEFT_OUTER, on=(Sz.id == B.size))
         .join(ProductCategory, on=(ProductCategory.id == P.category))
         .join(Creator, JOIN.LEFT_OUTER, on=(Creator.id == B.created_by))
         .join(Modifier, JOIN.LEFT_OUTER, on=(Modifier.id == B.last_modified_by))
@@ -1065,7 +1125,8 @@ def get_boxes_page(
             on=((ShipmentDetail.box == B.id) & ShipmentDetail.removed_on.is_null()),
         )
         .join(Shipment, JOIN.LEFT_OUTER, on=(Shipment.id == ShipmentDetail.shipment))
+        .order_by(order(page_ids.c.sort_key), B.id.asc())
         .dicts()
         .execute()
     )
-    return {"page": rows}
+    return {"page": rows, **totals}
