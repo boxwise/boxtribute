@@ -19,6 +19,39 @@ type UnboxedItemsCollection implements ItemsCollection {
   distributionEvent: DistributionEvent
 }
 
+type BoxRow {
+  id: ID!
+  labelIdentifier: String!
+  numberOfItems: Int
+  comment: String
+  weight: Float
+  monetaryValue: Float
+  weightUnitSymbol: String
+  monetaryCurrencyCode: String
+  createdOn: Datetime
+  lastModifiedOn: Datetime
+  createdById: ID
+  createdByName: String
+  lastModifiedById: ID
+  lastModifiedByName: String
+  state: String
+  productId: ID
+  productName: String
+  productGender: ProductGender
+  productStandardProductId: ID
+  productDeletedOn: Datetime
+  productCategoryId: ID
+  productCategoryName: String
+  sizeId: ID
+  sizeName: String
+  locationId: ID
+  locationName: String
+  tagIds: [ID!]!
+  shipmentDetailId: ID
+  shipmentId: ID
+  qrCode: String
+}
+
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """

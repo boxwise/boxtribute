@@ -15,6 +15,7 @@ type Query {
   box(labelIdentifier: String!): Box
   " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
+  boxRows(baseId: Int!): [BoxRow!]!
   " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource. "
   qrCode(code: String!): QrCodeResult!
   qrExists(code: String): Boolean
