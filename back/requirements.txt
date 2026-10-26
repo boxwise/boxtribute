@@ -11,4 +11,5 @@ gunicorn
 auth0-python==6.7.0
 # Cap version because ariadne is not compatible with new API
 graphql-core<3.3.0
-pydantic<2.13
+# Dependency of auth0-python. Newer versions are not compatible with freezegun
+pydantic<2.14
