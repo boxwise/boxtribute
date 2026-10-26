@@ -572,7 +572,9 @@ input FilterBeneficiaryInput {
 }
 
 input BoxRowOptions {
+  " Index of the page requested, starting at 1 "
   page: Int
+  " Size of the requested page. Default: 50. Clamped between 1 and 100. "
   pageSize: Int
   filters: FilterBoxInput
   sortBy: BoxSortField
@@ -586,9 +588,13 @@ If several fields are defined (not null/empty), they are combined into a filter 
 input FilterBoxInput {
   " Filter for all boxes that have *one* of the specified states. "
   states: [BoxState!]
-  " Filter for all boxes that who were last modified on this date (incl.), or later. "
+  " Filter for all boxes that were created on this date (incl.), or later. "
+  createdFrom: Date
+  " Filter for all boxes that were created on this date (incl.), or earlier. "
+  createdUntil: Date
+  " Filter for all boxes that were last modified on this date (incl.), or later. "
   lastModifiedFrom: Date
-  " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
+  " Filter for all boxes that were last modified on this date (incl.), or earlier. "
   lastModifiedUntil: Date
   productGender: ProductGender
   " Filter for all boxes that have *one* of the specified product genders. "
@@ -600,8 +606,12 @@ input FilterBoxInput {
   " Filter for all boxes that have *one* of the specified products. "
   productIds: [Int!]
   sizeId: Int
+  " Filter for all boxes that have *one* of the specified sizes. "
+  sizeIds: [Int!]
   " Filter for all boxes that have *at least one* of the specified tags. "
   tagIds: [Int!]
+  " Filter for all boxes that have *none* of the specified tags. "
+  excludedTagIds: [Int!]
   " Filter for all boxes that are in *one* of the specified locations. "
   locationIds: [Int!]
 }
