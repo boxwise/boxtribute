@@ -178,6 +178,44 @@ def test_box_rows_query(client):
     assert result["totalWeight"] == pytest.approx(202.8)
     assert result["totalMonetaryValue"] == pytest.approx(1298.7)
 
+    for page in [-1, 0]:
+        query = f"""query {{ boxRows(baseId: 1, options: {{ page: {page} }} ) {{
+                totalNumberOfBoxes
+                page {{ id }}
+                }} }}"""
+        result = assert_successful_request(client, query)
+        assert len(result["page"]) == 13
+        assert result["totalNumberOfBoxes"] == 13
+
+
+def test_box_rows_filtering(client):
+    sort_by = "LabelIdentifier"
+    tag_filter = "tagIds: [2, 3]"
+    query = f"""query {{ boxRows(baseId: 1, options: {{
+                            sortBy: {sort_by}, filters: {{ {tag_filter} }} }} ) {{
+                        totalNumberOfBoxes
+                        page {{ labelIdentifier tagIds }}
+                    }} }}"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 3
+    assert result["totalNumberOfBoxes"] == 3
+    label_identifiers = [box["labelIdentifier"] for box in result["page"]]
+    assert label_identifiers == sorted(label_identifiers)
+    for box in result["page"]:
+        for tag_id in box["tagIds"]:
+            assert int(tag_id) in [2, 3]
+
+    # Empty result because no boxes match the specified filter
+    state_filter = "states: [Scrap]"
+    query = f"""query {{ boxRows(baseId: 1, options: {{
+                            filters: {{ {state_filter} }} }} ) {{
+                        totalNumberOfBoxes
+                        page {{ labelIdentifier }}
+                    }} }}"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 0
+    assert result["totalNumberOfBoxes"] == 0
+
 
 @pytest.mark.parametrize("descending", [False, True])
 @pytest.mark.parametrize(
