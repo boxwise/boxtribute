@@ -1029,11 +1029,11 @@ def get_boxes_page(
     page_size = max(min(page_size or 50, 100), 1)
 
     box_selection = Box.select(Box.id).join(Location)
-    filter_condition, selection = derive_box_filter(filters, box_selection)
+    conditions, selection = derive_box_filter(filters, box_selection)
     selection = selection.where(
         (Box.deleted_on.is_null() | (Box.deleted_on == 0)),
         Location.base == base_id,
-        filter_condition,
+        *conditions,
     )
 
     # Totals are computed for all boxes matching the filters, independent of the page

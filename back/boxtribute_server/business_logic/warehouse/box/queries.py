@@ -35,11 +35,11 @@ def resolve_boxes(*_, base_id, pagination_input=None, filter_input=None):
             & ((Box.deleted_on == 0) | (Box.deleted_on.is_null()))
         ),
     )
-    filter_condition, selection = derive_box_filter(filter_input, selection=selection)
+    conditions, selection = derive_box_filter(filter_input, selection=selection)
 
     return load_into_page(
         Box,
-        filter_condition,
+        *conditions,
         selection=selection,
         order_by_field=Box.last_modified_on.desc(),
         pagination_input=pagination_input,
