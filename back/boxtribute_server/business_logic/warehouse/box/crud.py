@@ -1089,6 +1089,7 @@ def get_boxes_page(
             B.comment.alias("comment"),
             B.weight,
             B.monetary_value,
+            Unit.symbol.alias("weight_unit_symbol"),
             B.created_on,
             B.last_modified_on,
             Creator.id.alias("created_by_id"),
@@ -1125,6 +1126,7 @@ def get_boxes_page(
             on=((ShipmentDetail.box == B.id) & ShipmentDetail.removed_on.is_null()),
         )
         .join(Shipment, JOIN.LEFT_OUTER, on=(Shipment.id == ShipmentDetail.shipment))
+        .join(Unit, JOIN.LEFT_OUTER, on=(Unit.id == B.weight_display_unit))
         .order_by(order(page_ids.c.sort_key), B.id.asc())
         .dicts()
         .execute()
