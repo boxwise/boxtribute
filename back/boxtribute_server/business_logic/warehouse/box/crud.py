@@ -1026,7 +1026,7 @@ def _derive_sorting(selection, sort_by):
 def get_boxes_page(
     base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=False
 ):
-    page_size = max(min(page_size or 50, 100), 1)
+    page_size = max(min(50 if page_size is None else page_size, 100), 1)
 
     box_selection = Box.select(Box.id).join(Location)
     conditions, selection = derive_box_filter(filters, box_selection)
@@ -1123,7 +1123,12 @@ def get_boxes_page(
         .join(
             ShipmentDetail,
             JOIN.LEFT_OUTER,
-            on=((ShipmentDetail.box == B.id) & ShipmentDetail.removed_on.is_null()),
+            on=(
+                (ShipmentDetail.box == B.id)
+                & ShipmentDetail.removed_on.is_null()
+                & ShipmentDetail.lost_on.is_null()
+                & ShipmentDetail.received_on.is_null()
+            ),
         )
         .join(Shipment, JOIN.LEFT_OUTER, on=(Shipment.id == ShipmentDetail.shipment))
         .join(Unit, JOIN.LEFT_OUTER, on=(Unit.id == B.weight_display_unit))
