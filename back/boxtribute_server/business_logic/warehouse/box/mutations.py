@@ -16,10 +16,12 @@ from ....enums import TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
     DeletedTag,
+    MissingFilters,
     ResourceDoesNotExist,
     TagBaseMismatch,
     TagTypeMismatch,
 )
+from ....graph_ql.filtering import derive_box_filter
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
@@ -161,6 +163,7 @@ def resolve_update_marked_for_shipment_box(*_, update_input):
 #   - are not in a "warehouse" state (MarkedForShipment, InTransit, Receiving,
 #     NotDelivered) and/or
 #   - (depending on the context) would not be affected by the action anyways
+#   - don't match the specified filters, if any
 # - perform the requested action on all valid boxes
 # - create list of invalid boxes (difference of the set of input label identifiers and
 #   the set of valid label identifiers)
@@ -168,19 +171,24 @@ def resolve_update_marked_for_shipment_box(*_, update_input):
 #   structure for GraphQL API
 @mutation.field("deleteBoxes")
 @handle_unauthorized
-def resolve_delete_boxes(*_, label_identifiers):
-    label_identifiers = set(label_identifiers)
-    boxes = (
-        Box.select(Box, Location)
-        .join(Location)
-        .where(
-            Box.label_identifier << label_identifiers,
-            authorized_bases_filter(Location, permission="stock:write"),
-            Box.state << WAREHOUSE_BOX_STATES,
-            (~Box.deleted_on | Box.deleted_on.is_null()),
+def resolve_delete_boxes(*_, label_identifiers=None, filters=None):
+    if label_identifiers is None and filters is None:
+        return MissingFilters()
+
+    label_identifiers = set(label_identifiers or [])
+    box_selection = Box.select(Box, Location).join(Location)
+    conditions, selection = derive_box_filter(filters, box_selection)
+    if conditions:
+        # add all boxes that match the given filters
+        label_identifiers.update(
+            {b.label_identifier for b in selection.where(*conditions)}
         )
-        .order_by(Box.id)
-    )
+    boxes = selection.where(
+        Box.label_identifier << label_identifiers,
+        authorized_bases_filter(Location, permission="stock:write"),
+        Box.state << WAREHOUSE_BOX_STATES,
+        (~Box.deleted_on | Box.deleted_on.is_null()),
+    ).order_by(Box.id)
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
     return BoxesResult(

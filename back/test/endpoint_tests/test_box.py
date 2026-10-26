@@ -2854,3 +2854,49 @@ def test_create_boxes(
     """
     response = assert_successful_request(client, mutation)
     assert response == {"name": deleted_base["name"]}
+
+
+def test_box_mutations_filter(
+    client,
+    default_box,
+    donated_box,
+    box_without_qr_code,
+    marked_for_shipment_box,
+    lost_box,
+    in_transit_box,
+    another_in_transit_box,
+    not_delivered_box,
+    another_not_delivered_box,
+    created_in_donated_location_box,
+):
+    filters = "{ productIds: [1] }"
+    mutation = f"""mutation {{ deleteBoxes( filters: {filters} ) {{
+            ...on BoxesResult {{
+                updatedBoxes {{
+                    labelIdentifier
+                    deletedOn
+                    history {{ changes }}
+                }}
+                invalidBoxLabelIdentifiers
+            }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    for box in response["updatedBoxes"]:
+        assert box["labelIdentifier"] in [
+            lost_box["label_identifier"],
+            default_box["label_identifier"],
+            donated_box["label_identifier"],
+            created_in_donated_location_box["label_identifier"],
+        ]
+        assert box["deletedOn"].startswith(today)
+        assert box["history"][0]["changes"] == "deleted box"
+    assert len(response["updatedBoxes"]) == 4
+    assert sorted(response["invalidBoxLabelIdentifiers"]) == sorted(
+        [
+            box_without_qr_code["label_identifier"],
+            marked_for_shipment_box["label_identifier"],
+            in_transit_box["label_identifier"],
+            another_in_transit_box["label_identifier"],
+            not_delivered_box["label_identifier"],
+            another_not_delivered_box["label_identifier"],
+        ]
+    )

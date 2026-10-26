@@ -282,6 +282,11 @@ def another_not_delivered_box():
 
 
 @pytest.fixture
+def created_in_donated_location_box():
+    return created_in_donated_location_box_data()
+
+
+@pytest.fixture
 def measure_product_box():
     return measure_product_box_data()
 

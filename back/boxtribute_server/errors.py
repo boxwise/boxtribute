@@ -126,3 +126,7 @@ class UnknownLink(UserError):
 class DeletedProduct(UserError):
     def __init__(self, *, name):
         self.name = name
+
+
+class MissingFilters(UserError):
+    _ = None
