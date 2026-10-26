@@ -19,6 +19,47 @@ type UnboxedItemsCollection implements ItemsCollection {
   distributionEvent: DistributionEvent
 }
 
+type BoxRow {
+  id: ID!
+  labelIdentifier: String!
+  numberOfItems: Int
+  comment: String
+  weight: Float
+  monetaryValue: Float
+  weightUnitSymbol: String
+  createdOn: Datetime
+  lastModifiedOn: Datetime
+  createdById: ID
+  createdByName: String
+  lastModifiedById: ID
+  lastModifiedByName: String
+  state: BoxState
+  productId: ID
+  productName: String
+  productGender: ProductGender
+  containsStandardProduct: Boolean
+  productCategoryId: ID
+  productCategoryName: String
+  sizeId: ID
+  sizeName: String
+  locationId: ID
+  locationName: String
+  shipmentDetailId: ID
+  shipmentId: ID
+  hasQrCode: Boolean
+  tagIds: [ID!]!
+}
+
+type BoxRowsResult {
+  " The page containing BoxRow data "
+  page: [BoxRow!]!
+  " All totals are computed based on the filters specified in the query input "
+  totalNumberOfBoxes: Int
+  totalNumberOfItems: Int
+  totalWeight: Float
+  totalMonetaryValue: Float
+}
+
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
@@ -530,6 +571,16 @@ input FilterBeneficiaryInput {
   pattern: String
 }
 
+input BoxRowOptions {
+  " Index of the page requested, starting at 1 "
+  page: Int
+  " Size of the requested page. Default: 50. Clamped between 1 and 100. "
+  pageSize: Int
+  filters: FilterBoxInput
+  sortBy: BoxSortField
+  descending: Boolean
+}
+
 """
 Optional filter values when retrieving [`Boxes`]({{Types.Box}}).
 If several fields are defined (not null/empty), they are combined into a filter expression using logical AND (i.e. the filter returns only elements for which *all* fields are true).
@@ -537,9 +588,13 @@ If several fields are defined (not null/empty), they are combined into a filter 
 input FilterBoxInput {
   " Filter for all boxes that have *one* of the specified states. "
   states: [BoxState!]
-  " Filter for all boxes that who were last modified on this date (incl.), or later. "
+  " Filter for all boxes that were created on this date (incl.), or later. "
+  createdFrom: Date
+  " Filter for all boxes that were created on this date (incl.), or earlier. "
+  createdUntil: Date
+  " Filter for all boxes that were last modified on this date (incl.), or later. "
   lastModifiedFrom: Date
-  " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
+  " Filter for all boxes that were last modified on this date (incl.), or earlier. "
   lastModifiedUntil: Date
   productGender: ProductGender
   " Filter for all boxes that have *one* of the specified product genders. "
@@ -551,8 +606,12 @@ input FilterBoxInput {
   " Filter for all boxes that have *one* of the specified products. "
   productIds: [Int!]
   sizeId: Int
+  " Filter for all boxes that have *one* of the specified sizes. "
+  sizeIds: [Int!]
   " Filter for all boxes that have *at least one* of the specified tags. "
   tagIds: [Int!]
+  " Filter for all boxes that have *none* of the specified tags. "
+  excludedTagIds: [Int!]
   " Filter for all boxes that are in *one* of the specified locations. "
   locationIds: [Int!]
 }

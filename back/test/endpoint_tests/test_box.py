@@ -3,8 +3,10 @@ from datetime import date
 
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.enums import BoxState, TagType
+from boxtribute_server.enums import BoxState, ProductGender, TagType
+from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.models.definitions.location import Location
 from boxtribute_server.models.utils import (
     HISTORY_CREATION_MESSAGE,
     HISTORY_DELETION_MESSAGE,
@@ -131,6 +133,169 @@ def test_box_query_by_qr_code(client, default_box, default_qr_code):
             }}"""
     queried_box = assert_successful_request(client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
+
+
+def test_box_rows_query(client):
+    query = """query { boxRows(baseId: 1) {
+            totalNumberOfBoxes
+            totalNumberOfItems
+            totalWeight
+            totalMonetaryValue
+            page {
+                id
+                labelIdentifier
+                numberOfItems
+                comment
+                weight
+                monetaryValue
+                weightUnitSymbol
+                createdOn
+                lastModifiedOn
+                createdById
+                createdByName
+                lastModifiedById
+                lastModifiedByName
+                state
+                productId
+                productName
+                productGender
+                containsStandardProduct
+                productCategoryId
+                productCategoryName
+                sizeId
+                sizeName
+                locationId
+                locationName
+                shipmentDetailId
+                shipmentId
+                hasQrCode
+                tagIds
+                } } }"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 13
+    assert result["totalNumberOfBoxes"] == 13
+    assert result["totalNumberOfItems"] == 127
+    assert result["totalWeight"] == pytest.approx(202.8)
+    assert result["totalMonetaryValue"] == pytest.approx(1298.7)
+
+    for page in [-1, 0]:
+        query = f"""query {{ boxRows(baseId: 1, options: {{ page: {page} }} ) {{
+                totalNumberOfBoxes
+                page {{ id }}
+                }} }}"""
+        result = assert_successful_request(client, query)
+        assert len(result["page"]) == 13
+        assert result["totalNumberOfBoxes"] == 13
+
+
+def test_box_rows_filtering(client):
+    sort_by = "LabelIdentifier"
+    tag_filter = "tagIds: [2, 3]"
+    query = f"""query {{ boxRows(baseId: 1, options: {{
+                            sortBy: {sort_by}, filters: {{ {tag_filter} }} }} ) {{
+                        totalNumberOfBoxes
+                        page {{ labelIdentifier tagIds }}
+                    }} }}"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 3
+    assert result["totalNumberOfBoxes"] == 3
+    label_identifiers = [box["labelIdentifier"] for box in result["page"]]
+    assert label_identifiers == sorted(label_identifiers)
+    for box in result["page"]:
+        for tag_id in box["tagIds"]:
+            assert int(tag_id) in [2, 3]
+
+    # Empty result because no boxes match the specified filter
+    state_filter = "states: [Scrap]"
+    query = f"""query {{ boxRows(baseId: 1, options: {{
+                            filters: {{ {state_filter} }} }} ) {{
+                        totalNumberOfBoxes
+                        page {{ labelIdentifier }}
+                    }} }}"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 0
+    assert result["totalNumberOfBoxes"] == 0
+
+
+@pytest.mark.parametrize("descending", [False, True])
+@pytest.mark.parametrize(
+    ["sort_by", "field"],
+    [
+        ("LabelIdentifier", "labelIdentifier"),
+        ("ProductName", "productName"),
+        ("CategoryName", "productCategoryName"),
+        ("ProductGender", "productGender"),
+        ("SizeName", "sizeName"),
+        ("NumberOfItems", "numberOfItems"),
+        ("Weight", "weight"),
+        ("MonetaryValue", "monetaryValue"),
+        ("LocationName", "locationName"),
+        ("Comment", "comment"),
+    ],
+)
+def test_box_rows_sorting(client, sort_by, field, descending):
+    # The test data of base 1 is rather homogeneous. Diversify it (the changes are
+    # rolled back at the end of the test)
+    Location.update(name="Another location").where(Location.id == 3).execute()
+    Location.update(name="Zzz location").where(Location.id == 4).execute()
+    for box in Box.select(Box.id).where(Box.location == 1):
+        Box.update(
+            location=[1, 3, 4][box.id % 3],
+            comment=None if box.id % 4 == 0 else f"comment {box.id % 3}",
+            weight=None if box.id % 5 == 0 else box.id % 3,
+            monetary_value=None if box.id % 6 == 0 else box.id % 4,
+        ).where(Box.id == box.id).execute()
+
+    query = f"""query {{ boxRows(
+            baseId: 1,
+            options: {{ sortBy: {sort_by}, descending: {str(descending).lower()} }}
+        ) {{ page {{ id {field} }} }} }}"""
+    page = assert_successful_request(client, query, field="boxRows")["page"]
+    assert len(page) == 13
+
+    def key(row):
+        value = row[field]
+        if field == "productGender":
+            value = ProductGender[value].value
+        elif isinstance(value, str):
+            value = value.lower()
+        # NULL values are sorted first in ascending order
+        return (value is not None, value)
+
+    # Ties are always resolved by ascending box ID, independent of the direction
+    by_id = sorted(page, key=lambda row: int(row["id"]))
+    expected = sorted(by_id, key=key, reverse=descending)
+    assert len({key(row) for row in page}) > 1  # test data is diverse
+    assert [row["id"] for row in page] == [row["id"] for row in expected]
+
+
+@pytest.mark.parametrize(
+    ["page_size", "number_of_pages"], [(50, 1), (10, 2), (6, 3), (4, 4), (1, 13)]
+)
+def test_box_rows_paging(client, page_size, number_of_pages):
+    def query_page(page, page_size):
+        query = f"""query {{ boxRows(
+                baseId: 1, options: {{ page: {page}, pageSize: {page_size} }}
+            ) {{ totalNumberOfBoxes page {{ id }} }} }}"""
+        return assert_successful_request(client, query, field="boxRows")
+
+    all_ids = [row["id"] for row in query_page(1, 100)["page"]]
+    assert len(all_ids) == 13
+
+    paged_ids = []
+    for page in range(1, number_of_pages + 1):
+        result = query_page(page, page_size)
+        # Totals do not depend on the page
+        assert result["totalNumberOfBoxes"] == 13
+        ids = [row["id"] for row in result["page"]]
+        assert len(ids) == min(page_size, 13 - len(paged_ids))
+        paged_ids.extend(ids)
+    assert paged_ids == all_ids
+
+    # Going past the last page returns an empty list
+    result = query_page(number_of_pages + 1, page_size)
+    assert result["page"] == []
+    assert result["totalNumberOfBoxes"] == 13
 
 
 def test_boxes_query(client, default_location_boxes):
@@ -1653,6 +1818,10 @@ def _format(parameter):
         [[{"states": "[NotDelivered]"}], 2],
         [[{"states": "[InStock,Lost]"}], 3],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
+        [[{"createdFrom": '"2020-11-27"'}], 14],
+        [[{"createdFrom": '"2020-11-28"'}], 0],
+        [[{"createdUntil": '"2020-11-27"'}], 14],
+        [[{"createdUntil": '"2020-11-26"'}], 0],
         [[{"lastModifiedFrom": '"2020-01-01"'}], 14],
         [[{"lastModifiedFrom": '"2021-02-02"'}], 2],
         [[{"lastModifiedFrom": '"2022-01-01"'}], 0],
@@ -1670,10 +1839,17 @@ def _format(parameter):
         [[{"productIds": "[1, 3]"}], 11],
         [[{"sizeId": "1"}], 12],
         [[{"sizeId": "2"}], 1],
+        [[{"sizeIds": "[2]"}], 1],
+        [[{"sizeIds": "[1, 2]"}], 13],
         [[{"productCategoryId": "1"}], 12],
         [[{"productCategoryId": "2"}], 0],
         [[{"productCategoryIds": "[1]"}], 12],
         [[{"productCategoryIds": "[12]"}], 2],
+        [[{"tagIds": "[2]"}], 1],
+        [[{"tagIds": "[3]"}], 3],
+        [[{"excludedTagIds": "[2]"}], 13],
+        [[{"excludedTagIds": "[2, 3]"}], 11],
+        [[{"tagIds": "[2, 3]"}, {"excludedTagIds": "[2]"}], 2],
         [[{"locationIds": "[1]"}], 14],
         [[{"locationIds": "[2]"}], 0],
         [[{"productGenders": "[Women]"}, {"productIds": "[1]"}], 10],

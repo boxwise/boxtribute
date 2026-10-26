@@ -164,3 +164,16 @@ class ProductType(enum.IntEnum):
 class ShareableView(enum.IntEnum):
     StatvizDashboard = 1
     StockOverview = enum.auto()
+
+
+class BoxSortField(enum.IntEnum):
+    LabelIdentifier = 1
+    ProductName = enum.auto()
+    CategoryName = enum.auto()
+    ProductGender = enum.auto()
+    SizeName = enum.auto()
+    NumberOfItems = enum.auto()
+    Weight = enum.auto()
+    MonetaryValue = enum.auto()
+    LocationName = enum.auto()
+    Comment = enum.auto()

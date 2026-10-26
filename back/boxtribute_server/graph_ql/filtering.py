@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from ..enums import ProductTypeFilter, TaggableObjectType
 from ..models.definitions.base import Base
 from ..models.definitions.beneficiary import Beneficiary
@@ -55,60 +57,73 @@ def derive_beneficiary_filter(filter_input):
 
 
 def derive_box_filter(filter_input, selection=None):
-    """Derive filter condition for select-query from given filter parameters, along with
-    corresponding model selection. If no parameters given, return True (i.e. no
-    filtering applied) and `Box.select()`.
+    """Derive filter conditions for select-query from given filter parameters, along
+    with corresponding model selection. If no parameters given, return empty conditions
+    (i.e. no filtering applied) and `Box.select()`.
     """
     if selection is None:
         selection = Box.select()
     if not filter_input:
-        return True, selection
+        return [], selection
 
     join_with_product_required = False
-    condition = True
+    conditions = []
     states = filter_input.get("states")
     if states:
-        condition &= Box.state << states
+        conditions.append(Box.state << states)
+
+    created_from = filter_input.get("created_from")
+    if created_from is not None:
+        conditions.append(Box.created_on >= created_from)
+
+    created_until = filter_input.get("created_until")
+    if created_until is not None:
+        # The date is inclusive, hence compare to the start of the following day
+        conditions.append(Box.created_on < created_until + timedelta(days=1))
 
     last_modified_from = filter_input.get("last_modified_from")
     if last_modified_from is not None:
-        condition &= Box.last_modified_on >= last_modified_from
+        conditions.append(Box.last_modified_on >= last_modified_from)
 
     last_modified_until = filter_input.get("last_modified_until")
     if last_modified_until is not None:
-        condition &= Box.last_modified_on <= last_modified_until
+        conditions.append(Box.last_modified_on <= last_modified_until)
 
     product_gender = filter_input.get("product_gender")
     if product_gender is not None:
-        condition &= Box.product.gender == product_gender
+        conditions.append(Box.product.gender == product_gender)
         join_with_product_required = True
 
     product_genders = filter_input.get("product_genders")
     if product_genders:
-        condition &= Box.product.gender << product_genders
+        conditions.append(Box.product.gender << product_genders)
         join_with_product_required = True
 
     product_category_id = filter_input.get("product_category_id")
     if product_category_id is not None:
-        condition &= Box.product.category == product_category_id
+        conditions.append(Box.product.category == product_category_id)
         join_with_product_required = True
 
     product_category_ids = filter_input.get("product_category_ids")
     if product_category_ids:
-        condition &= Box.product.category << product_category_ids
+        conditions.append(Box.product.category << product_category_ids)
         join_with_product_required = True
 
     product_id = filter_input.get("product_id")
     if product_id is not None:
-        condition &= Box.product == product_id
+        conditions.append(Box.product == product_id)
 
     product_ids = filter_input.get("product_ids")
     if product_ids:
-        condition &= Box.product << product_ids
+        conditions.append(Box.product << product_ids)
 
     size_id = filter_input.get("size_id")
     if size_id is not None:
-        condition &= Box.size == size_id
+        conditions.append(Box.size == size_id)
+
+    size_ids = filter_input.get("size_ids")
+    if size_ids:
+        conditions.append(Box.size << size_ids)
 
     tag_ids = filter_input.get("tag_ids")
     if tag_ids is not None:
@@ -123,14 +138,26 @@ def derive_box_filter(filter_input, selection=None):
             ),
         ).distinct()
 
+    excluded_tag_ids = filter_input.get("excluded_tag_ids")
+    if excluded_tag_ids:
+        conditions.append(
+            Box.id.not_in(
+                TagsRelation.select(TagsRelation.object_id).where(
+                    TagsRelation.object_type == TaggableObjectType.Box,
+                    TagsRelation.tag << excluded_tag_ids,
+                    TagsRelation.deleted_on.is_null(),
+                )
+            )
+        )
+
     location_ids = filter_input.get("location_ids")
     if location_ids:
-        condition &= Box.location << location_ids
+        conditions.append(Box.location << location_ids)
 
     if join_with_product_required:
         selection = selection.join(Product, src=Box)
 
-    return condition, selection
+    return conditions, selection
 
 
 def derive_product_filter(filter_input):
