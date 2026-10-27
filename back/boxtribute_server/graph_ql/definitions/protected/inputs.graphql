@@ -46,12 +46,16 @@ input BoxFromBoxCreationInput {
 }
 
 input BoxMoveInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to move "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   locationId: Int!
 }
 
 input BoxesTagsOperationInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to (un)assign tags to/from "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   tagIds: [Int!]!
 }
 

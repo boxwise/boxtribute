@@ -442,12 +442,16 @@ input BoxFromBoxCreationInput {
 }
 
 input BoxMoveInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to move "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   locationId: Int!
 }
 
 input BoxesTagsOperationInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to (un)assign tags to/from "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   tagIds: [Int!]!
 }
 
@@ -660,14 +664,14 @@ type Mutation {
   " Update one or more properties of a box with specified label identifier. "
   updateBox(updateInput: BoxUpdateInput): Box
   updateMarkedForShipmentBox(updateInput: MarkedForShipmentBoxUpdateInput): Box
-  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
-  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. Specify either label identifiers OR additional filters to find boxes for deletion. "
+  deleteBoxes(labelIdentifiers: [String!], filters: FilterBoxInput): DeleteBoxesResult
+  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. Specify either label identifiers OR additional filters to find boxes to move. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
-  assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
-  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
-  unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
+  assignTagsToBoxes(updateInput: BoxesTagsOperationInput): AssignTagsToBoxesResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
+  unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): UnassignTagsFromBoxesResult
   " Create boxes by importing raw data. Prototypical! "
   createBoxes(creationInput: [BoxBulkCreationInput!]): CreateBoxesResult
   " Create box in a location by taking out items from an existing box "
@@ -1704,9 +1708,14 @@ type InvalidNumberOfItemsError {
 type InvalidBaseError {
   ids: [Int!]!
 }
+type InvalidFilterInputError {
+  _: Boolean
+}
 
-union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | InvalidFilterInputError
+union AssignTagsToBoxesResult = BoxesTagsOperationResult | InvalidFilterInputError
+union UnassignTagsFromBoxesResult = BoxesTagsOperationResult | InvalidFilterInputError
+union DeleteBoxesResult = BoxesResult | InsufficientPermissionError | InvalidFilterInputError
 union CreateBoxFromBoxResult = Box | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | DeletedBoxError | InvalidBoxStateError | InvalidNumberOfItemsError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
 union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError

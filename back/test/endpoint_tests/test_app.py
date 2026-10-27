@@ -293,14 +293,14 @@ def test_update_non_existent_resource(client, operation, mutation_input, field):
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [0] }',
-            "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
         # Test case 8.2.24g
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [0] }',
-            "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
         # Test case 12.2.6

@@ -172,15 +172,17 @@ def resolve_update_marked_for_shipment_box(*_, update_input):
 #   counted as "invalid" if excluded.)
 # - return valid, updated boxes and invalid box label identifiers as BoxesResult data
 #   structure for GraphQL API
+def _is_valid_selection(label_identifiers, filters):
+    """Boxes must be selected by either label identifiers OR filters"""
+    return (label_identifiers is None) != (filters is None)
+
+
 @mutation.field("deleteBoxes")
 @handle_unauthorized
 def resolve_delete_boxes(*_, label_identifiers=None, filters=None):
-    if (label_identifiers is None and filters is None) or (
-        label_identifiers is not None and filters is not None
-    ):
+    if not _is_valid_selection(label_identifiers, filters):
         return InvalidFilterInput()
 
-    label_identifiers = set(label_identifiers or [])
     box_selection = Box.select(Box, Location).join(Location)
     filter_conditions, selection = derive_box_filter(filters, box_selection)
 
@@ -191,7 +193,9 @@ def resolve_delete_boxes(*_, label_identifiers=None, filters=None):
         *filter_conditions,
     ]
 
-    if label_identifiers:
+    # Invalid box label identifiers are derived solely from the label identifiers input
+    label_identifiers = set(label_identifiers or [])
+    if filters is None:
         conditions.append(Box.label_identifier << label_identifiers)
 
     boxes = selection.where(*conditions).order_by(Box.id)
@@ -212,6 +216,11 @@ def resolve_delete_boxes(*_, label_identifiers=None, filters=None):
 @mutation.field("moveBoxesToLocation")
 @handle_unauthorized
 def resolve_move_boxes_to_location(*_, update_input):
+    label_identifiers = update_input.get("label_identifiers")
+    filters = update_input.get("filters")
+    if not _is_valid_selection(label_identifiers, filters):
+        return InvalidFilterInput()
+
     location_id = update_input["location_id"]
     if (location := Location.get_or_none(location_id)) is None:
         return ResourceDoesNotExist(name="Location", id=location_id)
@@ -219,22 +228,24 @@ def resolve_move_boxes_to_location(*_, update_input):
     if location.deleted_on is not None:
         return DeletedLocation(name=location.name)
 
-    label_identifiers = set(update_input["label_identifiers"])
-    boxes = (
-        Box.select(Box, Location)
-        .join(Location)
-        .where(
-            Box.label_identifier << label_identifiers,
-            # Any boxes already in the new location are silently ignored
-            Box.location != location_id,
-            # Any boxes in a base other than the one of the requested location are
-            # ignored. No need for authz filter because already applied above
-            Location.base == location.base_id,
-            Box.state << WAREHOUSE_BOX_STATES,
-            (~Box.deleted_on | Box.deleted_on.is_null()),
-        )
-        .order_by(Box.id)
-    )
+    box_selection = Box.select(Box, Location).join(Location)
+    filter_conditions, selection = derive_box_filter(filters, box_selection)
+    conditions = [
+        # Any boxes already in the new location are silently ignored
+        Box.location != location_id,
+        # Any boxes in a base other than the one of the requested location are
+        # ignored. No need for authz filter because already applied above
+        Location.base == location.base_id,
+        Box.state << WAREHOUSE_BOX_STATES,
+        (~Box.deleted_on | Box.deleted_on.is_null()),
+        *filter_conditions,
+    ]
+    # Invalid box label identifiers are derived solely from the label identifiers input
+    label_identifiers = set(label_identifiers or [])
+    if filters is None:
+        conditions.append(Box.label_identifier << label_identifiers)
+
+    boxes = selection.where(*conditions).order_by(Box.id)
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
     return BoxesResult(
@@ -335,6 +346,11 @@ def _validate_tags(tag_ids, for_unassigning=False):
 
 @mutation.field("assignTagsToBoxes")
 def resolve_assign_tags_to_boxes(*_, update_input):
+    label_identifiers = update_input.get("label_identifiers")
+    filters = update_input.get("filters")
+    if not _is_valid_selection(label_identifiers, filters):
+        return InvalidFilterInput()
+
     tag_ids = set(update_input["tag_ids"])
     valid_tag_ids, tag_errors, tags_base_id = _validate_tags(tag_ids)
 
@@ -345,14 +361,35 @@ def resolve_assign_tags_to_boxes(*_, update_input):
             tag_error_info=tag_errors,
         )
 
-    label_identifiers = set(update_input["label_identifiers"])
-    valid_boxes = execute_sql(
-        label_identifiers,
-        tags_base_id,
-        WAREHOUSE_BOX_STATES,
-        valid_tag_ids,
-        query=BOXES_WITH_MISSING_TAGS_QUERY,
+    # Invalid box label identifiers are derived solely from the label identifiers input
+    input_label_identifiers = set(label_identifiers or [])
+    if filters is None:
+        selected_label_identifiers = input_label_identifiers
+    else:
+        box_selection = Box.select(Box, Location).join(Location)
+        filter_conditions, selection = derive_box_filter(filters, box_selection)
+        selected_label_identifiers = {
+            box.label_identifier
+            for box in selection.where(
+                Location.base == tags_base_id,
+                Box.state << WAREHOUSE_BOX_STATES,
+                (~Box.deleted_on | Box.deleted_on.is_null()),
+                *filter_conditions,
+            )
+        }
+
+    valid_boxes = (
+        execute_sql(
+            selected_label_identifiers,
+            tags_base_id,
+            WAREHOUSE_BOX_STATES,
+            valid_tag_ids,
+            query=BOXES_WITH_MISSING_TAGS_QUERY,
+        )
+        if selected_label_identifiers
+        else []
     )
+    label_identifiers = input_label_identifiers
     valid_box_label_identifiers = {box["label_identifier"] for box in valid_boxes}
 
     return BoxesTagsOperationResult(
@@ -369,6 +406,11 @@ def resolve_assign_tags_to_boxes(*_, update_input):
 @mutation.field("unassignTagsFromBoxes")
 @handle_unauthorized
 def resolve_unassign_tags_from_boxes(*_, update_input):
+    label_identifiers = update_input.get("label_identifiers")
+    filters = update_input.get("filters")
+    if not _is_valid_selection(label_identifiers, filters):
+        return InvalidFilterInput()
+
     tag_ids = set(update_input["tag_ids"])
     valid_tag_ids, tag_errors, tags_base_id = _validate_tags(
         tag_ids, for_unassigning=True
@@ -381,29 +423,28 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
             tag_error_info=tag_errors,
         )
 
-    label_identifiers = set(update_input["label_identifiers"])
-    boxes = (
-        Box.select(Box, Location)
-        .join(Location)
-        .join(
-            TagsRelation,
-            on=(
-                (TagsRelation.object_id == Box.id)
-                & (TagsRelation.object_type == TaggableObjectType.Box)
-                # Boxes without any of the requested tags assigned are silently ignored
-                & (TagsRelation.tag << valid_tag_ids)
-                & (TagsRelation.deleted_on.is_null())
-            ),
-        )
-        .where(
-            Box.label_identifier << label_identifiers,
-            # Boxes in bases different from the tags' common base are filtered out
-            Location.base == tags_base_id,
-            Box.state << WAREHOUSE_BOX_STATES,
-            (~Box.deleted_on | Box.deleted_on.is_null()),
-        )
-        .order_by(Box.id)
-    )
+    box_selection = Box.select(Box, Location).join(Location)
+    filter_conditions, selection = derive_box_filter(filters, box_selection)
+    conditions = [
+        # Boxes without any of the requested tags assigned are silently ignored
+        Box.id
+        << TagsRelation.select(TagsRelation.object_id).where(
+            TagsRelation.object_type == TaggableObjectType.Box,
+            TagsRelation.tag << valid_tag_ids,
+            TagsRelation.deleted_on.is_null(),
+        ),
+        # Boxes in bases different from the tags' common base are filtered out
+        Location.base == tags_base_id,
+        Box.state << WAREHOUSE_BOX_STATES,
+        (~Box.deleted_on | Box.deleted_on.is_null()),
+        *filter_conditions,
+    ]
+    # Invalid box label identifiers are derived solely from the label identifiers input
+    label_identifiers = set(label_identifiers or [])
+    if filters is None:
+        conditions.append(Box.label_identifier << label_identifiers)
+
+    boxes = selection.where(*conditions).order_by(Box.id)
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
     return BoxesTagsOperationResult(

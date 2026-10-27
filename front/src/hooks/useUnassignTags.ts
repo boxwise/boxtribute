@@ -7,22 +7,24 @@ import { useNotification } from "./useNotification";
 export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
   mutation UnassignTagsFromBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
     unassignTagsFromBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
-      updatedBoxes {
-        labelIdentifier
-        tags {
-          id
+      ... on BoxesTagsOperationResult {
+        updatedBoxes {
+          labelIdentifier
+          tags {
+            id
+          }
+          lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
         }
-        lastModifiedOn
-        lastModifiedBy {
+        invalidBoxLabelIdentifiers
+        tagErrorInfo {
           id
-          name
-        }
-      }
-      invalidBoxLabelIdentifiers
-      tagErrorInfo {
-        id
-        error {
-          __typename
+          error {
+            __typename
+          }
         }
       }
     }
@@ -46,8 +48,10 @@ export const useUnassignTags = () => {
         },
       })
         .then(({ data, errors }) => {
-          const successfulBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
-          const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
+          const result = data?.unassignTagsFromBoxes;
+          const boxesResult = result && "updatedBoxes" in result ? result : undefined;
+          const successfulBoxes = boxesResult?.updatedBoxes;
+          const tagErrorInfoArray = boxesResult?.tagErrorInfo;
 
           setIsLoading(false);
 
