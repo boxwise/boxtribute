@@ -228,7 +228,32 @@ def test_shipment_mutations_on_source_side(
         "details": [],
     }
 
+    box_label_identifier = measure_product_box["label_identifier"]
+    update_input = f"""{{ id: {shipment_id},
+                labelIdentifiers: ["{box_label_identifier}"] }}"""
+    mutation = f"""mutation {{ addBoxesToShipment(
+                updateInput: {update_input}) {{
+                    details {{
+                        sourceSize {{ id }}
+                        box {{ id measureValue }}
+                        autoMatchingTargetProduct {{ id }}
+                    }} }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment == {
+        "details": [
+            {
+                "sourceSize": None,
+                "box": {
+                    "id": str(measure_product_box["id"]),
+                    "measureValue": 500.0,
+                },
+                "autoMatchingTargetProduct": None,
+            }
+        ]
+    }
+
     # Test case 3.2.26
+    shipment_id = str(default_shipment["id"])
     box_label_identifier = default_box["label_identifier"]
     update_input = f"""{{ id: {shipment_id},
                 labelIdentifiers: ["{box_label_identifier}"] }}"""
@@ -360,35 +385,51 @@ def test_shipment_mutations_on_source_side(
     box_label_identifiers = ",".join(f'"{b["label_identifier"]}"' for b in boxes)
     mutation = f"""mutation {{ removeBoxesFromShipments(
                     labelIdentifiers: [{box_label_identifiers}] ) {{
-                            state
-                            lastModifiedOn
-                            lastModifiedBy {{ id }}
-                            shipmentDetail {{
-                                id
-                                removedOn
-                                removedBy {{ id }}
-                            }}
-                            history {{ changes }}
-                        }}
-                    }}"""
+                        id
+                        state
+                        lastModifiedOn
+                        lastModifiedBy {{ id }}
+                        shipmentDetail {{ id }}
+                        history {{ changes }}
+                    }} }}"""
     response = assert_successful_request(client, mutation)
-    assert response[0]["shipmentDetail"].pop("removedOn").startswith(today)
-    assert response[1]["shipmentDetail"].pop("removedOn").startswith(today)
     assert response[0].pop("lastModifiedOn").startswith(today)
     assert response[1].pop("lastModifiedOn").startswith(today)
-    assert len(response[0].pop("history")) == 3
-    assert len(response[1].pop("history")) == 6
+    assert len(response[0].pop("history")) == 6
+    assert len(response[1].pop("history")) == 3
     assert response == [
         {
+            "id": str(box["id"]),
             "state": BoxState.InStock.name,
             "lastModifiedBy": {"id": source_base_user_id},
-            "shipmentDetail": {
+            "shipmentDetail": None,
+        }
+        for box in [default_box, another_marked_for_shipment_box]
+    ]
+    query = f"""query {{ shipment(id: {shipment_id}) {{
+                    id
+                    state
+                    details {{
+                        id
+                        removedOn
+                        removedBy {{ id }}
+                        box {{ state }}
+                    }} }} }}"""
+    shipment = assert_successful_request(client, query)
+    assert shipment["details"][0].pop("removedOn").startswith(today)
+    assert shipment["details"][1].pop("removedOn").startswith(today)
+    assert shipment == {
+        "id": shipment_id,
+        "state": ShipmentState.Preparing.name,
+        "details": [
+            {
                 "id": i,
                 "removedBy": {"id": source_base_user_id},
-            },
-        }
-        for i in [prepared_shipment_detail_id, shipment_detail_id]
-    ]
+                "box": {"state": BoxState.InStock.name},
+            }
+            for i in [prepared_shipment_detail_id, shipment_detail_id]
+        ],
+    }
     for box in boxes:
         box_label_identifier = box["label_identifier"]
         query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{
@@ -407,19 +448,9 @@ def test_shipment_mutations_on_source_side(
         box_label_identifier = box["label_identifier"]
         mutation = f"""mutation {{ removeBoxesFromShipments(
                         labelIdentifiers: ["{box_label_identifier}"] ) {{
-                        {{
                             state
-                            shipmentDetail {{ id }}
-                        }}
-                    }} }}"""
-        result = assert_successful_request(client, mutation)
-        assert result == [
-            {
-                "state": BoxState.InStock.name,
-                "shipmentDetail": {"id": i},
-            }
-            for i in [prepared_shipment_detail_id, shipment_detail_id]
-        ]
+                        }} }}"""
+        assert assert_successful_request(client, mutation) == []
     for box in boxes:
         box_label_identifier = box["label_identifier"]
         query = f"""query {{ box(labelIdentifier: "{box_label_identifier}") {{

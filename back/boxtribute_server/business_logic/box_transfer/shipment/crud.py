@@ -282,7 +282,6 @@ def _update_shipment_with_prepared_boxes(*, shipment, label_identifiers, user_id
     if not label_identifiers:
         return
 
-    label_identifiers = set(label_identifiers or [])
     boxes = (
         Box.select(Box, Location)
         .join(Location)
@@ -499,7 +498,6 @@ def add_boxes_to_shipment(
     shipment,
     user,
     label_identifiers,
-    # filters=None,
 ):
     """Update shipment detail information during preparation (on shipment source side).
     - raise InvalidShipmentState exception if shipment state is different from
@@ -516,7 +514,6 @@ def add_boxes_to_shipment(
             shipment=shipment,
             user_id=user.id,
             label_identifiers=label_identifiers,
-            # filters=filters,
             now=now,
         )
 
@@ -524,35 +521,51 @@ def add_boxes_to_shipment(
 
 
 def remove_boxes_from_shipments(*, label_identifiers, user):
+    """Move MarkedForShipment boxes back to stock, and soft-delete their shipment
+    details. Only boxes in shipments in 'Preparing' state with a source base that the
+    user is permitted to edit are considered; all other boxes are silently discarded.
+    Return the boxes that were removed from their shipments.
+    """
     if not label_identifiers:
-        return
+        return []
 
-    label_identifiers = set(label_identifiers or [])
-    boxes = (
-        Box.select(Box, Shipment.id.alias("shipment_id"))
+    label_identifiers = set(label_identifiers)
+    rows = (
+        Box.select(Box.label_identifier, Shipment.id)
         .join(ShipmentDetail)
         .join(Shipment)
         .where(
             Box.label_identifier << label_identifiers,
             Box.state == BoxState.MarkedForShipment,
-            authorized_bases_filter(Shipment, base_fk_field_name="source_base"),
+            ShipmentDetail.removed_on.is_null(),
             Shipment.state == ShipmentState.Preparing,
+            authorized_bases_filter(
+                Shipment,
+                base_fk_field_name="source_base",
+                permission="shipment:edit",
+            ),
         )
+        .tuples()
     )
     grouped_label_identifiers = defaultdict(list)
-    for row in boxes:
-        grouped_label_identifiers[row.shipment_id].append(row.label_identifier)
+    for label_identifier, shipment_id in rows:
+        grouped_label_identifiers[shipment_id].append(label_identifier)
 
     now = utcnow()
-    for shipment_id, removed_label_identifiers in grouped_label_identifiers.items():
-        _remove_boxes_from_shipment(
-            shipment_id=shipment_id,
-            user_id=user.id,
-            box_label_identifiers=removed_label_identifiers,
-            box_state=BoxState.InStock,
-            now=now,
-        )
-    return boxes
+    with db.database.atomic():
+        for shipment_id, removed_label_identifiers in grouped_label_identifiers.items():
+            _remove_boxes_from_shipment(
+                shipment_id=shipment_id,
+                user_id=user.id,
+                box_label_identifiers=removed_label_identifiers,
+                box_state=BoxState.InStock,
+                now=now,
+            )
+
+    removed = [i for ids in grouped_label_identifiers.values() for i in ids]
+    if not removed:
+        return []
+    return list(Box.select().where(Box.label_identifier << removed).order_by(Box.id))
 
 
 def update_shipment_when_receiving(

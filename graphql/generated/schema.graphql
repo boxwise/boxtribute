@@ -597,11 +597,7 @@ input DistributionEventCreationInput {
 
 input ShipmentWhenPreparingUpdateInput {
   id: ID!
-  targetBaseId: Int
-  # label identifiers of boxes prepared for shipment
-  preparedBoxLabelIdentifiers: [String!]
-  # label identifiers of prepared boxes to be moved back to stock
-  removedBoxLabelIdentifiers: [String!]
+  labelIdentifiers: [String!]
 }
 
 input ShipmentWhenReceivingUpdateInput {
@@ -702,8 +698,10 @@ type Mutation {
 
   " Create a new shipment between two bases. The specified transfer agreement must be in `Accepted` state. The client must be member of the specified source base. "
   createShipment(creationInput: ShipmentCreationInput): Shipment
-  " Add boxes to or remove boxes from the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. "
-  updateShipmentWhenPreparing(updateInput: ShipmentWhenPreparingUpdateInput): Shipment
+  " Add boxes to the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. "
+  addBoxesToShipment(updateInput: ShipmentWhenPreparingUpdateInput): Shipment
+  " Remove boxes from shipment(s) during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. "
+  removeBoxesFromShipments(labelIdentifiers: [String!]!): [Box!]
   " Reconcile boxes or mark them as lost during shipment receival on the target side. Only valid if shipment is in `Receiving` state. If all boxes are reconciled, the state automatically updates to `Completed`. The client must be member of the shipment target base. "
   updateShipmentWhenReceiving(updateInput: ShipmentWhenReceivingUpdateInput): Shipment
   " Change state of specified shipment to `Canceled`. Only valid for shipments in `Preparing` state. Any boxes marked for shipment are moved back into stock. The client must be member of either source or target base of the shipment. "
