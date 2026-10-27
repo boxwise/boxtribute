@@ -8,7 +8,7 @@ Discussion Participants: [Philipp](https://github.com/pylipp), [Roanna](https://
 
 ## Status
 
-Proposed.
+Accepted.
 
 ## Context
 

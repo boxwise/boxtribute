@@ -79,6 +79,7 @@ Estimate: 6-8h
 1. introduce flat response type for box rows
 1. extend sorting API (14 sort fields)
 1. extend filter API to also handle size and excluded tags
+1. refactor mutations to add boxes to shipment/refactor boxes from shipment
 1. extend all box-related bulk-mutations to handle filter options instead of label identifiers (to enable actions with select-all active)
 1. new CSV export-all query
 1. extend BoxPage type to include summary info
@@ -92,7 +93,8 @@ Estimate: 6-8h
 1. fetch 2 pages on initial load. When navigating to next page, pre-load the page after
 1. run BE request when new filters applied
 1. run BE request when sorting changed
-1. run BE request when navigating to next page
+1. run BE request when navigating to next page (disable nav while loading)
+1. filters, sorting, page nr should be tracked via URL params
 1. if select-all active and bulk-action requested, send applied filters along with bulk-mutation, instead of label identifiers
 
 ## Resources
