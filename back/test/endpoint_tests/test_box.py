@@ -2913,7 +2913,7 @@ def test_box_mutations_filter(
     # Only boxes in stock are added; the others (donated, lost) are silently ignored
     shipment_id = default_shipment["id"]
     mutation = f"""mutation {{ addBoxesToShipment( updateInput: {{
-            id: {shipment_id}, filters: {{ productIds: [1], states: [InStock] }} }} ) {{
+            id: {shipment_id}, filters: {filters} }} ) {{
             details {{ removedOn box {{ labelIdentifier state }} }} }} }}"""
     response = assert_successful_request(client, mutation)
     added = [d["box"] for d in response["details"] if d["removedOn"] is None]
@@ -2921,9 +2921,9 @@ def test_box_mutations_filter(
         assert box["state"] == BoxState.MarkedForShipment.name
     assert default_box["label_identifier"] in {b["labelIdentifier"] for b in added}
 
-    mutation = """mutation { removeBoxesFromShipments(
-            filters: { productIds: [1], states: [MarkedForShipment] } ) {
-            labelIdentifier state } }"""
+    mutation = f"""mutation {{ removeBoxesFromShipments(
+            filters: {filters} ) {{
+            labelIdentifier state }} }}"""
     response = assert_successful_request(client, mutation)
     assert default_box["label_identifier"] in {b["labelIdentifier"] for b in response}
     for box in response:
