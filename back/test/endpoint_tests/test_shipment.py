@@ -4,6 +4,8 @@ from datetime import date, datetime
 import pytest
 from auth import mock_user_for_request
 from boxtribute_server.enums import BoxState, ShipmentDirection, ShipmentState
+from boxtribute_server.models.definitions.box import Box
+from boxtribute_server.models.definitions.shipment import Shipment
 from utils import (
     assert_bad_user_input,
     assert_forbidden_request,
@@ -1391,6 +1393,136 @@ def test_shipment_mutations_cancel_as_member_of_neither_org(
     mock_user_for_request(mocker, organisation_id=3, user_id=2, base_ids=[5])
     mutation = f"mutation {{ cancelShipment(id: {default_shipment['id']}) {{ id }} }}"
     assert_forbidden_request(client, mutation)
+
+
+def _add_boxes_mutation(shipment, label_identifiers):
+    identifiers = ",".join(f'"{i}"' for i in label_identifiers)
+    return f"""mutation {{ addBoxesToShipment(updateInput: {{
+                id: {shipment["id"]}, labelIdentifiers: [{identifiers}] }}) {{
+                    id
+                    details {{ id removedOn box {{ labelIdentifier state }} }}
+                }} }}"""
+
+
+def _remove_boxes_mutation(label_identifiers):
+    identifiers = ",".join(f'"{i}"' for i in label_identifiers)
+    return f"""mutation {{ removeBoxesFromShipments(
+                labelIdentifiers: [{identifiers}]) {{ labelIdentifier state }} }}"""
+
+
+def _box_state(client, box):
+    query = f"""query {{ box(labelIdentifier: "{box["label_identifier"]}") {{
+                    state }} }}"""
+    return assert_successful_request(client, query)["state"]
+
+
+def test_shipment_mutations_remove_boxes_from_several_shipments(
+    client, default_box, another_marked_for_shipment_box
+):
+    # default_box is added to the intra-org shipment (ID 8), the other box is already
+    # part of shipment 1. Both shipments are in Preparing state and have source base 1
+    intra_org_shipment = {"id": 8}
+    mutation = _add_boxes_mutation(
+        intra_org_shipment, [default_box["label_identifier"]]
+    )
+    assert_successful_request(client, mutation)
+
+    boxes = [default_box, another_marked_for_shipment_box]
+    mutation = _remove_boxes_mutation([b["label_identifier"] for b in boxes])
+    removed_boxes = assert_successful_request(client, mutation)
+    assert removed_boxes == [
+        {"labelIdentifier": b["label_identifier"], "state": BoxState.InStock.name}
+        for b in boxes
+    ]
+    for box in boxes:
+        assert _box_state(client, box) == BoxState.InStock.name
+
+    query = (
+        """query { shipments { id details { removedOn box { labelIdentifier } } } }"""
+    )
+    shipments = {s["id"]: s for s in assert_successful_request(client, query)}
+    for shipment_id in ["1", "8"]:
+        details = shipments[shipment_id]["details"]
+        assert len(details) == 1
+        assert details[0]["removedOn"].startswith(today)
+
+
+def test_shipment_mutations_add_boxes_in_non_preparing_state(
+    client, canceled_shipment, default_box
+):
+    # Test case 3.2.23
+    mutation = _add_boxes_mutation(canceled_shipment, [default_box["label_identifier"]])
+    assert_bad_user_input(client, mutation)
+    assert _box_state(client, default_box) == BoxState.InStock.name
+
+
+def test_shipment_mutations_remove_boxes_in_non_preparing_state(
+    client, default_shipment, default_box
+):
+    mutation = _add_boxes_mutation(default_shipment, [default_box["label_identifier"]])
+    assert_successful_request(client, mutation)
+    Shipment.update(state=ShipmentState.Sent).where(
+        Shipment.id == default_shipment["id"]
+    ).execute()
+
+    mutation = _remove_boxes_mutation([default_box["label_identifier"]])
+    assert assert_successful_request(client, mutation) == []
+    assert _box_state(client, default_box) == BoxState.MarkedForShipment.name
+
+
+def test_shipment_mutations_add_boxes_as_member_of_non_creating_org(
+    client, another_shipment, default_box
+):
+    # Test case 3.2.25
+    # The default user (see auth_service fixture) is member of organisation 1 but
+    # organisation 2 is the one that created another_shipment
+    mutation = _add_boxes_mutation(another_shipment, [default_box["label_identifier"]])
+    assert_forbidden_request(client, mutation)
+    assert _box_state(client, default_box) == BoxState.InStock.name
+
+
+def test_shipment_mutations_remove_boxes_from_shipment_of_non_creating_org(
+    client, another_shipment, another_box
+):
+    # another_box is part of another_shipment (source base 3, organisation 2)
+    Box.update(state=BoxState.MarkedForShipment).where(
+        Box.id == another_box["id"]
+    ).execute()
+
+    mutation = _remove_boxes_mutation([another_box["label_identifier"]])
+    assert assert_successful_request(client, mutation) == []
+    assert Box.get_by_id(another_box["id"]).state_id == BoxState.MarkedForShipment
+
+
+def test_shipment_mutations_add_and_remove_boxes_without_label_identifiers(
+    client, default_shipment, another_marked_for_shipment_box
+):
+    expected_details = [
+        {
+            "id": "3",
+            "removedOn": None,
+            "box": {
+                "labelIdentifier": another_marked_for_shipment_box["label_identifier"],
+                "state": BoxState.MarkedForShipment.name,
+            },
+        }
+    ]
+    mutation = _add_boxes_mutation(default_shipment, [])
+    shipment = assert_successful_request(client, mutation)
+    assert shipment["details"] == expected_details
+
+    mutation = f"""mutation {{ addBoxesToShipment(
+                updateInput: {{ id: {default_shipment["id"]} }}) {{
+                    details {{ id removedOn box {{ labelIdentifier state }} }}
+                }} }}"""
+    shipment = assert_successful_request(client, mutation)
+    assert shipment["details"] == expected_details
+
+    assert assert_successful_request(client, _remove_boxes_mutation([])) == []
+    assert (
+        _box_state(client, another_marked_for_shipment_box)
+        == BoxState.MarkedForShipment.name
+    )
 
 
 def test_shipment_mutations_update_checked_in_boxes_as_member_of_creating_org(

@@ -497,7 +497,7 @@ def add_boxes_to_shipment(
     *,
     shipment,
     user,
-    label_identifiers,
+    label_identifiers=None,
 ):
     """Update shipment detail information during preparation (on shipment source side).
     - raise InvalidShipmentState exception if shipment state is different from
