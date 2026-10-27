@@ -118,6 +118,10 @@ jobs:
               FRONT_ENVIRONMENT=${ENVIRONMENT}
             " > .env
       - run:
+          name: Run type check
+          command: |
+            pnpm tsc:check
+      - run:
           name: Run style checks
           command: |
             pnpm lint:all
