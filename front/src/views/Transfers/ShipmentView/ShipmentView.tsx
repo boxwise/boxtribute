@@ -23,6 +23,7 @@ import { AUTOMATCH_TARGET_PRODUCT_FRAGMENT, SHIPMENT_FIELDS_FRAGMENT } from "que
 import { ButtonSkeleton, ShipmentCardSkeleton, TabsSkeleton } from "components/Skeletons";
 import { BoxReconciliationOverlay } from "components/BoxReconciliationOverlay/BoxReconciliationOverlay";
 import { UPDATE_SHIPMENT_WHEN_RECEIVING } from "queries/mutations";
+import { UNASSIGN_BOXES_FROM_SHIPMENTS } from "hooks/useAssignBoxesToShipment";
 import { boxReconciliationOverlayVar } from "queries/cache";
 import { MobileBreadcrumbButton } from "components/BreadcrumbNavigation";
 import { ITimelineEntry } from "components/Timeline/Timeline";
@@ -63,23 +64,6 @@ export const SHIPMENT_BY_ID_QUERY = graphql(
     }
   `,
   [SHIPMENT_FIELDS_FRAGMENT, AUTOMATCH_TARGET_PRODUCT_FRAGMENT],
-);
-
-export const REMOVE_BOX_FROM_SHIPMENT = graphql(
-  `
-    mutation RemoveBoxFromShipment($id: ID!, $removedBoxLabelIdentifiers: [String!]) {
-      updateShipmentWhenPreparing(
-        updateInput: {
-          id: $id
-          preparedBoxLabelIdentifiers: []
-          removedBoxLabelIdentifiers: $removedBoxLabelIdentifiers
-        }
-      ) {
-        ...ShipmentFields
-      }
-    }
-  `,
-  [SHIPMENT_FIELDS_FRAGMENT],
 );
 
 export const SEND_SHIPMENT = graphql(
@@ -209,8 +193,13 @@ function ShipmentView() {
   }, [data]);
 
   // Mutations for shipment actions
-  const [updateShipmentWhenPreparing, updateShipmentWhenPreparingStatus] =
-    useMutation(REMOVE_BOX_FROM_SHIPMENT);
+  const [removeBoxesFromShipments, removeBoxesFromShipmentsStatus] = useMutation(
+    UNASSIGN_BOXES_FROM_SHIPMENTS,
+    {
+      refetchQueries: [{ query: SHIPMENT_BY_ID_QUERY, variables: { id: shipmentId } }],
+      awaitRefetchQueries: true,
+    },
+  );
 
   const [cancelShipment, cancelShipmentStatus] = useMutation(CANCEL_SHIPMENT);
   const [lostShipment, lostShipmentStatus] = useMutation(LOST_SHIPMENT, {
@@ -350,10 +339,9 @@ function ShipmentView() {
 
   const onRemoveBox = useCallback(
     (boxLabelIdentifier: string) => {
-      updateShipmentWhenPreparing({
+      removeBoxesFromShipments({
         variables: {
-          id: shipmentId,
-          removedBoxLabelIdentifiers: [boxLabelIdentifier],
+          labelIdentifiers: [boxLabelIdentifier],
         },
       })
         .then((mutationResult) => {
@@ -375,16 +363,15 @@ function ShipmentView() {
           });
         });
     },
-    [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
+    [triggerError, createToast, removeBoxesFromShipments],
   );
 
   const onBulkRemoveBox = useCallback(
     (boxLabelIdentifiers: string[]) => {
       setShowRemoveIcon(false);
-      updateShipmentWhenPreparing({
+      removeBoxesFromShipments({
         variables: {
-          id: shipmentId,
-          removedBoxLabelIdentifiers: boxLabelIdentifiers,
+          labelIdentifiers: boxLabelIdentifiers,
         },
       })
         .then((mutationResult) => {
@@ -406,7 +393,7 @@ function ShipmentView() {
           });
         });
     },
-    [triggerError, createToast, updateShipmentWhenPreparing, shipmentId],
+    [triggerError, createToast, removeBoxesFromShipments],
   );
 
   const onUpdateBox = useCallback(
@@ -441,7 +428,7 @@ function ShipmentView() {
   );
 
   const isLoadingFromMutation =
-    updateShipmentWhenPreparingStatus.loading ||
+    removeBoxesFromShipmentsStatus.loading ||
     cancelShipmentStatus.loading ||
     sendShipmentStatus.loading ||
     startReceivingShipmentStatus.loading ||

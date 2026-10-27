@@ -168,7 +168,7 @@ def test_mutation_non_existent_resource(client, operation):
         # Test case 9.2.14
         ["updateBeneficiary", "updateInput: { id: 0 }", "id"],
         # Test case 3.2.21
-        ["updateShipmentWhenPreparing", "updateInput: { id: 0 }", "id"],
+        ["addBoxesToShipment", "updateInput: { id: 0 }", "id"],
         ["updateShipmentWhenReceiving", "updateInput: { id: 0 }", "id"],
     ],
 )

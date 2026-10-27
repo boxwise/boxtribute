@@ -181,7 +181,7 @@ def test_invalid_permission_for_given_resource_id(client, query):
                 targetBaseId: 3,
                 transferAgreementId: 1
             }) { id }""",
-        "updateShipmentWhenPreparing( updateInput : { id: 1 }) { id }",
+        "addBoxesToShipment( updateInput : { id: 1 }) { id }",
         "updateShipmentWhenReceiving( updateInput : { id: 1 }) { id }",
         "cancelShipment( id : 1 ) { id }",
         "markShipmentAsLost( id : 1 ) { id }",

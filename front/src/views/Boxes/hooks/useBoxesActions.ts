@@ -1,7 +1,7 @@
 import { IMoveBoxesResultKind, useMoveBoxes } from "hooks/useMoveBoxes";
 import { useNotification } from "hooks/useNotification";
 import { useAtomValue } from "jotai";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Row } from "react-table";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
@@ -11,7 +11,6 @@ import { IBoxBasicFields } from "types/graphql-local-only";
 import { useAssignTags } from "hooks/useAssignTags";
 import { useUnassignTags } from "hooks/useUnassignTags";
 import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
-import { useUnassignBoxesFromShipments } from "hooks/useUnassignBoxesFromShipments";
 import { BoxState } from "queries/types";
 
 function useBoxesActions(
@@ -115,8 +114,11 @@ function useBoxesActions(
   );
 
   // Assign to Shipment
-  const { assignBoxesToShipment, isLoading: isAssignBoxesToShipmentLoading } =
-    useAssignBoxesToShipment();
+  const {
+    assignBoxesToShipment,
+    unassignBoxesFromShipments,
+    isLoading: isAssignBoxesToShipmentLoading,
+  } = useAssignBoxesToShipment();
 
   const onAssignBoxesToShipment = useCallback(
     (shipmentId: string) => {
@@ -171,14 +173,7 @@ function useBoxesActions(
     [createToast, assignBoxesToShipment, selectedBoxes],
   );
 
-  // Unassign to Shipment
-  const {
-    unassignBoxesFromShipments,
-    unassignBoxesFromShipmentsResult,
-    flushResult,
-    isLoading: isUnassignBoxesFromShipmentsLoading,
-  } = useUnassignBoxesFromShipments();
-
+  // Unassign from Shipment
   const onUnassignBoxesToShipment = useCallback(() => {
     if (selectedBoxes.length === 0) {
       createToast({
@@ -188,25 +183,14 @@ function useBoxesActions(
     }
     unassignBoxesFromShipments(
       selectedBoxes.map((box) => {
-        const { labelIdentifier, state, shipment } = box.original;
+        const { labelIdentifier, state } = box.original;
         return {
           labelIdentifier,
           state: state.name as BoxState,
-          shipmentDetail: shipment
-            ? {
-                shipment,
-              }
-            : null,
         } as IBoxBasicFields;
       }),
-    );
-  }, [unassignBoxesFromShipments, selectedBoxes, createToast]);
-
-  useEffect(() => {
-    if (unassignBoxesFromShipmentsResult) {
-      const { notMarkedForShipmentBoxes, failedBoxes } = unassignBoxesFromShipmentsResult;
-
-      if (notMarkedForShipmentBoxes.length > 0) {
+    ).then(({ notMarkedForShipmentBoxes, failedBoxes }) => {
+      if (notMarkedForShipmentBoxes && notMarkedForShipmentBoxes.length > 0) {
         createToast({
           type: "info",
           message: `Cannot remove ${
@@ -226,17 +210,15 @@ function useBoxesActions(
           } from shipment. Try again?`,
         });
       }
-      flushResult();
-    }
-  }, [createToast, flushResult, unassignBoxesFromShipmentsResult]);
+    });
+  }, [unassignBoxesFromShipments, selectedBoxes, createToast]);
 
   const actionsAreLoading =
     moveBoxesAction.isLoading ||
     isDeleteBoxesLoading ||
     isAssignTagsLoading ||
     isUnassignTagsLoading ||
-    isAssignBoxesToShipmentLoading ||
-    isUnassignBoxesFromShipmentsLoading;
+    isAssignBoxesToShipmentLoading;
 
   return {
     onBoxRowClick,
