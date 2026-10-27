@@ -4,13 +4,14 @@ from flask import g
 from ....authz import authorize
 from ....models.definitions.shipment import Shipment
 from .crud import (
+    add_boxes_to_shipment,
     cancel_shipment,
     create_shipment,
     mark_shipment_as_lost,
     move_not_delivered_boxes_in_stock,
+    remove_boxes_from_shipments,
     send_shipment,
     start_receiving_shipment,
-    update_shipment_when_preparing,
     update_shipment_when_receiving,
 )
 
@@ -23,14 +24,19 @@ def resolve_create_shipment(*_, creation_input):
     return create_shipment(**creation_input, user=g.user)
 
 
-@mutation.field("updateShipmentWhenPreparing")
-def resolve_update_shipment_when_preparing(*_, update_input):
+@mutation.field("addBoxesToShipment")
+def resolve_add_boxes_to_shipment(*_, update_input):
     shipment = Shipment.get_by_id(update_input.pop("id"))
     authorize(permission="shipment:edit", base_id=shipment.source_base_id)
     authorize(permission="shipment_detail:write")
-    return update_shipment_when_preparing(
-        **update_input, shipment=shipment, user=g.user
-    )
+    return add_boxes_to_shipment(**update_input, shipment=shipment, user=g.user)
+
+
+@mutation.field("removeBoxesFromShipments")
+def resolve_remove_boxes_from_shipments(*_, label_identifiers):
+    authorize(permission="shipment_detail:write")
+    # Shipment-level authz is more complex and hence enforced in the CRUD function
+    return remove_boxes_from_shipments(label_identifiers=label_identifiers, user=g.user)
 
 
 @mutation.field("updateShipmentWhenReceiving")

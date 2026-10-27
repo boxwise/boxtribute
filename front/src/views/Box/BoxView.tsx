@@ -215,7 +215,7 @@ function BTBox() {
   const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure();
   const {
     assignBoxesToShipment,
-    unassignBoxesFromShipment,
+    unassignBoxesFromShipments,
     isLoading: isAssignBoxesToShipmentLoading,
   } = useAssignBoxesToShipment();
   const hasShipmentPermission = useHasPermission("view_shipments");
@@ -729,8 +729,7 @@ function BTBox() {
     async (shipmentId: string) => {
       const currentShipmentId = boxData?.shipmentDetail?.shipment.id;
 
-      const unassigmentResult = (await unassignBoxesFromShipment(
-        shipmentId,
+      const unassigmentResult = (await unassignBoxesFromShipments(
         [boxData as IBoxBasicFields],
         false,
       )) as IAssignBoxToShipmentResult;
@@ -748,7 +747,7 @@ function BTBox() {
         allData.refetch();
       }
     },
-    [allData, unassignBoxesFromShipment, boxData, createToast, handleAssignBoxToShipmentError],
+    [allData, unassignBoxesFromShipments, boxData, createToast, handleAssignBoxToShipmentError],
   );
 
   const shipmentOptions: IDropdownOption[] = useMemo(() => {
