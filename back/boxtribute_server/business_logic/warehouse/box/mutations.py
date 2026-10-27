@@ -16,7 +16,7 @@ from ....enums import TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
     DeletedTag,
-    MissingFilters,
+    InvalidFilterInput,
     ResourceDoesNotExist,
     TagBaseMismatch,
     TagTypeMismatch,
@@ -155,6 +155,8 @@ def resolve_update_marked_for_shipment_box(*_, update_input):
 
 
 # Common logic for bulk-action resolvers:
+# - act either on concrete label identifiers OR on specified filters to find boxes to
+# apply the action to
 # - remove possible duplicates from input label identifiers
 # - filter out all boxes that
 #   - don't exist and/or
@@ -166,30 +168,38 @@ def resolve_update_marked_for_shipment_box(*_, update_input):
 #   - don't match the specified filters, if any
 # - perform the requested action on all valid boxes
 # - create list of invalid boxes (difference of the set of input label identifiers and
-#   the set of valid label identifiers)
+#   the set of valid label identifiers. Boxes surfaced solely via `filters` are not
+#   counted as "invalid" if excluded.)
 # - return valid, updated boxes and invalid box label identifiers as BoxesResult data
 #   structure for GraphQL API
 @mutation.field("deleteBoxes")
 @handle_unauthorized
 def resolve_delete_boxes(*_, label_identifiers=None, filters=None):
-    if label_identifiers is None and filters is None:
-        return MissingFilters()
+    if (label_identifiers is None and filters is None) or (
+        label_identifiers is not None and filters is not None
+    ):
+        return InvalidFilterInput()
 
     label_identifiers = set(label_identifiers or [])
     box_selection = Box.select(Box, Location).join(Location)
-    conditions, selection = derive_box_filter(filters, box_selection)
-    if conditions:
-        # add all boxes that match the given filters
-        label_identifiers.update(
-            {b.label_identifier for b in selection.where(*conditions)}
-        )
-    boxes = selection.where(
-        Box.label_identifier << label_identifiers,
+    filter_conditions, selection = derive_box_filter(filters, box_selection)
+
+    conditions = [
         authorized_bases_filter(Location, permission="stock:write"),
         Box.state << WAREHOUSE_BOX_STATES,
         (~Box.deleted_on | Box.deleted_on.is_null()),
-    ).order_by(Box.id)
-    valid_box_label_identifiers = {box.label_identifier for box in boxes}
+        *filter_conditions,
+    ]
+
+    if label_identifiers:
+        conditions.append(Box.label_identifier << label_identifiers)
+
+    boxes = selection.where(*conditions).order_by(Box.id)
+    valid_box_label_identifiers = {
+        box.label_identifier
+        for box in boxes
+        if box.label_identifier in label_identifiers
+    }
 
     return BoxesResult(
         updated_boxes=delete_boxes(user_id=g.user.id, boxes=boxes),

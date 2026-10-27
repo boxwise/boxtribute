@@ -2860,13 +2860,7 @@ def test_box_mutations_filter(
     client,
     default_box,
     donated_box,
-    box_without_qr_code,
-    marked_for_shipment_box,
     lost_box,
-    in_transit_box,
-    another_in_transit_box,
-    not_delivered_box,
-    another_not_delivered_box,
     created_in_donated_location_box,
 ):
     filters = "{ productIds: [1] }"
@@ -2890,13 +2884,4 @@ def test_box_mutations_filter(
         assert box["deletedOn"].startswith(today)
         assert box["history"][0]["changes"] == "deleted box"
     assert len(response["updatedBoxes"]) == 4
-    assert sorted(response["invalidBoxLabelIdentifiers"]) == sorted(
-        [
-            box_without_qr_code["label_identifier"],
-            marked_for_shipment_box["label_identifier"],
-            in_transit_box["label_identifier"],
-            another_in_transit_box["label_identifier"],
-            not_delivered_box["label_identifier"],
-            another_not_delivered_box["label_identifier"],
-        ]
-    )
+    assert response["invalidBoxLabelIdentifiers"] == []

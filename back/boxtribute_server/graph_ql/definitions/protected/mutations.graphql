@@ -8,7 +8,7 @@ type Mutation {
   " Update one or more properties of a box with specified label identifier. "
   updateBox(updateInput: BoxUpdateInput): Box
   updateMarkedForShipmentBox(updateInput: MarkedForShipmentBoxUpdateInput): Box
-  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. Specify either label identifiers OR additional filters to find boxes for deletion. "
   deleteBoxes(labelIdentifiers: [String!], filters: FilterBoxInput): DeleteBoxesResult
   " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult

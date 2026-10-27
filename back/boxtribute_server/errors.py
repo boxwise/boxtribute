@@ -128,5 +128,5 @@ class DeletedProduct(UserError):
         self.name = name
 
 
-class MissingFilters(UserError):
+class InvalidFilterInput(UserError):
     _ = None
