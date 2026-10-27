@@ -20,12 +20,13 @@ from ..business_logic.box_transfer.agreement.crud import (
 )
 from ..business_logic.box_transfer.shipment.crud import (
     _retrieve_shipment_details,
+    add_boxes_to_shipment,
     cancel_shipment,
     create_shipment,
     mark_shipment_as_lost,
+    remove_boxes_from_shipments,
     send_shipment,
     start_receiving_shipment,
-    update_shipment_when_preparing,
     update_shipment_when_receiving,
 )
 from ..business_logic.statistics.crud import create_shareable_link
@@ -937,9 +938,9 @@ class Generator:
                 length=nr_prepared_boxes,
             )
             box_label_identifiers = [b.label_identifier for b in prepared_boxes]
-            update_shipment_when_preparing(
+            add_boxes_to_shipment(
                 shipment=shipment,
-                prepared_box_label_identifiers=box_label_identifiers,
+                label_identifiers=box_label_identifiers,
                 user=user,
             )
             return shipment, prepared_boxes
@@ -951,9 +952,8 @@ class Generator:
         prepared_box_label_identifiers = [b.label_identifier for b in prepared_boxes]
         removed_box_label_identifiers = prepared_box_label_identifiers[-3:]
         lost_box_label_identifiers = prepared_box_label_identifiers[:3]
-        update_shipment_when_preparing(
-            shipment=shipment,
-            removed_box_label_identifiers=removed_box_label_identifiers,
+        remove_boxes_from_shipments(
+            label_identifiers=removed_box_label_identifiers,
             user=org1_user,
         )
         send_shipment(shipment=shipment, user=org1_user)
