@@ -35,6 +35,7 @@ def resolve_add_boxes_to_shipment(*_, update_input):
 @mutation.field("removeBoxesFromShipments")
 def resolve_remove_boxes_from_shipments(*_, label_identifiers):
     authorize(permission="shipment_detail:write")
+    # Shipment-level authz is more complex and hence enforced in the CRUD function
     return remove_boxes_from_shipments(label_identifiers=label_identifiers, user=g.user)
 
 

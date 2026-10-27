@@ -703,10 +703,16 @@ class Generator:
 
     def _generate_transfer_agreements(self):
         org1_user = CurrentUser(
-            id=2, organisation_id=1, base_ids=[1], timezone="Europe/Rome"
+            id=2,
+            organisation_id=1,
+            base_ids={"shipment:edit": [1]},
+            timezone="Europe/Rome",
         )
         org2_user = CurrentUser(
-            id=10, organisation_id=2, base_ids=[2, 3, 4], timezone="Europe/Athens"
+            id=10,
+            organisation_id=2,
+            base_ids={"shipment:edit": [2, 3, 4]},
+            timezone="Europe/Athens",
         )
 
         # Rejected agreement
@@ -952,6 +958,7 @@ class Generator:
         prepared_box_label_identifiers = [b.label_identifier for b in prepared_boxes]
         removed_box_label_identifiers = prepared_box_label_identifiers[-3:]
         lost_box_label_identifiers = prepared_box_label_identifiers[:3]
+        g.user = org1_user
         remove_boxes_from_shipments(
             label_identifiers=removed_box_label_identifiers,
             user=org1_user,
