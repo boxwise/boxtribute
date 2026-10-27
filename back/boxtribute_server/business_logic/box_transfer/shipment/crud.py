@@ -1,4 +1,6 @@
-from ....authz import authorize
+from collections import defaultdict
+
+from ....authz import authorize, authorized_bases_filter
 from ....db import db
 from ....enums import (
     BoxState,
@@ -496,7 +498,7 @@ def add_boxes_to_shipment(
     *,
     shipment,
     user,
-    label_identifiers=None,
+    label_identifiers,
     # filters=None,
 ):
     """Update shipment detail information during preparation (on shipment source side).
@@ -517,15 +519,40 @@ def add_boxes_to_shipment(
             # filters=filters,
             now=now,
         )
-        # _remove_boxes_from_shipment(
-        #     shipment_id=shipment.id,
-        #     user_id=user.id,
-        #     box_label_identifiers=removed_box_label_identifiers,
-        #     box_state=BoxState.InStock,
-        #     now=now,
-        # )
 
     return shipment
+
+
+def remove_boxes_from_shipments(*, label_identifiers, user):
+    if not label_identifiers:
+        return
+
+    label_identifiers = set(label_identifiers or [])
+    boxes = (
+        Box.select(Box, Shipment.id.alias("shipment_id"))
+        .join(ShipmentDetail)
+        .join(Shipment)
+        .where(
+            Box.label_identifier << label_identifiers,
+            Box.state == BoxState.MarkedForShipment,
+            authorized_bases_filter(Shipment, base_fk_field_name="source_base"),
+            Shipment.state == ShipmentState.Preparing,
+        )
+    )
+    grouped_label_identifiers = defaultdict(list)
+    for row in boxes:
+        grouped_label_identifiers[row.shipment_id].append(row.label_identifier)
+
+    now = utcnow()
+    for shipment_id, removed_label_identifiers in grouped_label_identifiers.items():
+        _remove_boxes_from_shipment(
+            shipment_id=shipment_id,
+            user_id=user.id,
+            box_label_identifiers=removed_label_identifiers,
+            box_state=BoxState.InStock,
+            now=now,
+        )
+    return boxes
 
 
 def update_shipment_when_receiving(

@@ -9,6 +9,7 @@ from .crud import (
     create_shipment,
     mark_shipment_as_lost,
     move_not_delivered_boxes_in_stock,
+    remove_boxes_from_shipments,
     send_shipment,
     start_receiving_shipment,
     update_shipment_when_receiving,
@@ -29,6 +30,11 @@ def resolve_add_boxes_to_shipment(*_, update_input):
     authorize(permission="shipment:edit", base_id=shipment.source_base_id)
     authorize(permission="shipment_detail:write")
     return add_boxes_to_shipment(**update_input, shipment=shipment, user=g.user)
+
+
+@mutation.field("removeBoxesFromShipments")
+def resolve_remove_boxes_from_shipments(*_, label_identifiers):
+    return remove_boxes_from_shipments(label_identifiers=label_identifiers, user=g.user)
 
 
 @mutation.field("updateShipmentWhenReceiving")

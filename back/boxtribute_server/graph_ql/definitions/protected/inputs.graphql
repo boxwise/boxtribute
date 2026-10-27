@@ -202,7 +202,6 @@ input DistributionEventCreationInput {
 input ShipmentWhenPreparingUpdateInput {
   id: ID!
   labelIdentifiers: [String!]
-  filters: FilterBoxInput
 }
 
 input ShipmentWhenReceivingUpdateInput {
