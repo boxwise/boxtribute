@@ -703,16 +703,10 @@ class Generator:
 
     def _generate_transfer_agreements(self):
         org1_user = CurrentUser(
-            id=2,
-            organisation_id=1,
-            base_ids={"shipment:edit": [1]},
-            timezone="Europe/Rome",
+            id=2, organisation_id=1, base_ids=[1], timezone="Europe/Rome"
         )
         org2_user = CurrentUser(
-            id=10,
-            organisation_id=2,
-            base_ids={"shipment:edit": [2, 3, 4]},
-            timezone="Europe/Athens",
+            id=10, organisation_id=2, base_ids=[2, 3, 4], timezone="Europe/Athens"
         )
 
         # Rejected agreement
@@ -918,10 +912,16 @@ class Generator:
 
     def _generate_shipments(self):
         org1_user = CurrentUser(
-            id=2, organisation_id=1, base_ids=[1], timezone="Europe/Rome"
+            id=2,
+            organisation_id=1,
+            base_ids={"shipment:edit": [1]},
+            timezone="Europe/Rome",
         )
         org2_user = CurrentUser(
-            id=10, organisation_id=2, base_ids=[2, 3, 4], timezone="Europe/Athens"
+            id=10,
+            organisation_id=2,
+            base_ids={"shipment:edit": [2, 3, 4]},
+            timezone="Europe/Athens",
         )
 
         def _prepare_shipment(source_base_id, target_base_id, *, intra_org=False):
