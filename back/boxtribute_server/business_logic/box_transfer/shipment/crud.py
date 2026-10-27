@@ -11,12 +11,14 @@ from ....enums import (
 )
 from ....exceptions import (
     IdenticalShipmentSourceAndTargetBase,
+    InvalidFilterInput,
     InvalidShipmentDetailUpdateInput,
     InvalidShipmentState,
     InvalidTransferAgreementBase,
     InvalidTransferAgreementState,
     ShipmentSourceAndTargetBaseOrganisationsMismatch,
 )
+from ....graph_ql.filtering import derive_box_filter
 from ....models.definitions.base import Base
 from ....models.definitions.box import Box
 from ....models.definitions.box_state import BoxState as BoxStateModel
@@ -273,24 +275,29 @@ def start_receiving_shipment(*, shipment, user):
     return shipment
 
 
-def _update_shipment_with_prepared_boxes(*, shipment, label_identifiers, user_id, now):
+def _update_shipment_with_prepared_boxes(
+    *, shipment, label_identifiers, filters, user_id, now
+):
     """Update given shipment with prepared boxes.
+    Boxes are identified either by label identifiers or by filters.
     If boxes are requested to be updated that are not located in the shipment's source
     base, or have a state different from InStock, they are silently discarded (i.e. not
     added to the ShipmentDetail model).
     """
-    if not label_identifiers:
+    if filters is None and not label_identifiers:
         return
 
-    boxes = (
-        Box.select(Box, Location)
-        .join(Location)
-        .where(
-            Box.label_identifier << label_identifiers,
-            Box.state == BoxState.InStock,
-            Location.base_id == shipment.source_base,
-        )
+    filter_conditions, selection = derive_box_filter(
+        filters, Box.select(Box, Location).join(Location)
     )
+    conditions = [
+        Box.state == BoxState.InStock,
+        Location.base_id == shipment.source_base,
+        *filter_conditions,
+    ]
+    if filters is None:
+        conditions.append(Box.label_identifier << label_identifiers)
+    boxes = selection.where(*conditions)
     details = [
         ShipmentDetail(
             shipment=shipment.id,
@@ -498,11 +505,17 @@ def add_boxes_to_shipment(
     shipment,
     user,
     label_identifiers=None,
+    filters=None,
 ):
     """Update shipment detail information during preparation (on shipment source side).
+    - raise InvalidFilterInput exception if not exactly one of label identifiers and
+      filters is given
     - raise InvalidShipmentState exception if shipment state is different from
       'Preparing'
     """
+    if (label_identifiers is None) == (filters is None):
+        raise InvalidFilterInput()
+
     if shipment.state != ShipmentState.Preparing:
         raise InvalidShipmentState(
             expected_states=[ShipmentState.Preparing], actual_state=shipment.state
@@ -514,39 +527,47 @@ def add_boxes_to_shipment(
             shipment=shipment,
             user_id=user.id,
             label_identifiers=label_identifiers,
+            filters=filters,
             now=now,
         )
 
     return shipment
 
 
-def remove_boxes_from_shipments(*, label_identifiers, user):
+def remove_boxes_from_shipments(*, user, label_identifiers=None, filters=None):
     """Move MarkedForShipment boxes back to stock, and soft-delete their shipment
-    details. Only boxes in shipments in 'Preparing' state with a source base that the
+    details. Boxes are identified either by label identifiers or by filters.
+    Only boxes in shipments in 'Preparing' state with a source base that the
     user is permitted to edit are considered; all other boxes are silently discarded.
     Return the boxes that were removed from their shipments.
+    Raise InvalidFilterInput exception if not exactly one of label identifiers and
+    filters is given.
     """
-    if not label_identifiers:
+    if (label_identifiers is None) == (filters is None):
+        raise InvalidFilterInput()
+    if filters is None and not label_identifiers:
         return []
 
-    label_identifiers = set(label_identifiers)
-    rows = (
+    filter_conditions, selection = derive_box_filter(
+        filters,
         Box.select(Box.label_identifier, Shipment.id)
         .join(ShipmentDetail)
-        .join(Shipment)
-        .where(
-            Box.label_identifier << label_identifiers,
-            Box.state == BoxState.MarkedForShipment,
-            ShipmentDetail.removed_on.is_null(),
-            Shipment.state == ShipmentState.Preparing,
-            authorized_bases_filter(
-                Shipment,
-                base_fk_field_name="source_base",
-                permission="shipment:edit",
-            ),
-        )
-        .tuples()
+        .join(Shipment),
     )
+    conditions = [
+        Box.state == BoxState.MarkedForShipment,
+        ShipmentDetail.removed_on.is_null(),
+        Shipment.state == ShipmentState.Preparing,
+        authorized_bases_filter(
+            Shipment,
+            base_fk_field_name="source_base",
+            permission="shipment:edit",
+        ),
+        *filter_conditions,
+    ]
+    if filters is None:
+        conditions.append(Box.label_identifier << set(label_identifiers))
+    rows = selection.where(*conditions).tuples()
     grouped_label_identifiers = defaultdict(list)
     for label_identifier, shipment_id in rows:
         grouped_label_identifiers[shipment_id].append(label_identifier)

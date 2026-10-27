@@ -2874,6 +2874,7 @@ def test_box_mutations_filter(
     lost_box,
     created_in_donated_location_box,
     null_box_state_location,
+    default_shipment,
 ):
     filters = "{ productIds: [1] }"
     label_identifiers = {
@@ -2908,6 +2909,25 @@ def test_box_mutations_filter(
             assert has_tag == (operation == "assignTagsToBoxes")
         assert response["invalidBoxLabelIdentifiers"] == []
         assert response["tagErrorInfo"] == []
+
+    # Only boxes in stock are added; the others (donated, lost) are silently ignored
+    shipment_id = default_shipment["id"]
+    mutation = f"""mutation {{ addBoxesToShipment( updateInput: {{
+            id: {shipment_id}, filters: {{ productIds: [1], states: [InStock] }} }} ) {{
+            details {{ removedOn box {{ labelIdentifier state }} }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    added = [d["box"] for d in response["details"] if d["removedOn"] is None]
+    for box in added:
+        assert box["state"] == BoxState.MarkedForShipment.name
+    assert default_box["label_identifier"] in {b["labelIdentifier"] for b in added}
+
+    mutation = """mutation { removeBoxesFromShipments(
+            filters: { productIds: [1], states: [MarkedForShipment] } ) {
+            labelIdentifier state } }"""
+    response = assert_successful_request(client, mutation)
+    assert default_box["label_identifier"] in {b["labelIdentifier"] for b in response}
+    for box in response:
+        assert box["state"] == BoxState.InStock.name
 
     location_id = null_box_state_location["id"]
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
@@ -2965,6 +2985,16 @@ def test_box_mutations_invalid_filter(client):
                     {{ ...on InvalidFilterInputError {{ _ }} }} }}"""
             response = assert_successful_request(client, mutation)
             assert response == {"_": None}
+
+    for selection in ["", 'labelIdentifiers: ["11112222"], filters: {}']:
+        mutation = f"""mutation {{ addBoxesToShipment( updateInput: {{
+                id: 1 {selection} }} ) {{ id }} }}"""
+        assert_bad_user_input(client, mutation)
+
+    for selection_args in ["", '(labelIdentifiers: ["11112222"], filters: {})']:
+        mutation = f"""mutation {{ removeBoxesFromShipments {selection_args} {{
+                labelIdentifier }} }}"""
+        assert_bad_user_input(client, mutation)
 
     for selection in ["", 'labelIdentifiers: ["11112222"], filters: {}']:
         mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{

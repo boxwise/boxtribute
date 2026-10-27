@@ -205,7 +205,9 @@ input DistributionEventCreationInput {
 
 input BoxesShipmentAddInput {
   id: ID!
+  " Specify either label identifiers OR filters to find boxes to add "
   labelIdentifiers: [String!]
+  filters: FilterBoxInput
 }
 
 input ShipmentWhenReceivingUpdateInput {
