@@ -2885,3 +2885,15 @@ def test_box_mutations_filter(
         assert box["history"][0]["changes"] == "deleted box"
     assert len(response["updatedBoxes"]) == 4
     assert response["invalidBoxLabelIdentifiers"] == []
+
+
+def test_box_mutations_invalid_filter(client):
+    mutation = "mutation { deleteBoxes { ...on InvalidFilterInputError { _ } } }"
+    response = assert_successful_request(client, mutation)
+    assert response == {"_": None}
+
+    mutation = """mutation { deleteBoxes( labelIdentifiers: ["11112222"],
+                                           filters: { states: [InStock] } )
+                        { ...on InvalidFilterInputError { _ } } }"""
+    response = assert_successful_request(client, mutation)
+    assert response == {"_": None}
