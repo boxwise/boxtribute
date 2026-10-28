@@ -468,8 +468,8 @@ def add_boxes_to_shipment(
     """Update shipment detail information during preparation (on shipment source side).
     Boxes are identified either by label identifiers or by filters.
     If boxes are requested to be updated that are not located in the shipment's source
-    base, or have a state different from InStock, they are silently discarded (i.e. not
-    added to the ShipmentDetail model).
+    base, are deleted, or have a state different from InStock, they are silently
+    discarded (i.e. not added as ShipmentDetail).
     - raise InvalidFilterInput exception if not exactly one of label identifiers and
       filters is given
     - raise InvalidShipmentState exception if shipment state is different from
@@ -491,6 +491,7 @@ def add_boxes_to_shipment(
         conditions = [
             Box.state == BoxState.InStock,
             Location.base_id == shipment.source_base,
+            (~Box.deleted_on | Box.deleted_on.is_null()),
             *filter_conditions,
         ]
         if filters is None:
@@ -504,6 +505,7 @@ def add_boxes_to_shipment(
                 source_location=box.location_id,
                 source_size=box.size_id,
                 source_quantity=box.number_of_items,
+                created_on=now,
                 created_by=user.id,
             )
             for box in boxes
@@ -520,9 +522,9 @@ def add_boxes_to_shipment(
 def remove_boxes_from_shipments(*, user, label_identifiers=None, filters=None):
     """Move MarkedForShipment boxes back to stock, and soft-delete their shipment
     details. Boxes are identified either by label identifiers or by filters.
-    Only boxes in shipments in 'Preparing' state with a source base that the
-    user is permitted to edit are considered; all other boxes are silently discarded.
-    Return the boxes that were removed from their shipments.
+    Only 'MarkedForShipment' boxes in shipments in 'Preparing' state with a source base
+    that the user is permitted to edit are considered; all other boxes are silently
+    discarded. Return the boxes that were removed from their shipments.
     Raise InvalidFilterInput exception if not exactly one of label identifiers and
     filters is given.
     """

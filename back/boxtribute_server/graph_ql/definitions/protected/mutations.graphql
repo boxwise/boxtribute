@@ -50,9 +50,9 @@ type Mutation {
 
   " Create a new shipment between two bases. The specified transfer agreement must be in `Accepted` state. The client must be member of the specified source base. "
   createShipment(creationInput: ShipmentCreationInput): Shipment
-  " Add boxes to the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. Specify either label identifiers OR filters to find boxes. "
+  " Add boxes to the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. Specify either label identifiers OR filters to find boxes. Any boxes that are not in the shipment's source base, deleted, or non-InStock are silently discarded."
   addBoxesToShipment(updateInput: BoxesShipmentAddInput): Shipment
-  " Remove boxes from shipment(s) during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. Specify either label identifiers OR filters to find boxes. "
+  " Remove boxes from shipment(s) during preparation on the source side. Specify either label identifiers OR filters to find boxes. Any boxes that are not in `Preparing` shipments, non-MarkedForShipment, or in a base that the user is not authorized for are silently discarded. "
   removeBoxesFromShipments(labelIdentifiers: [String!], filters: FilterBoxInput): [Box!]
   " Reconcile boxes or mark them as lost during shipment receival on the target side. Only valid if shipment is in `Receiving` state. If all boxes are reconciled, the state automatically updates to `Completed`. The client must be member of the shipment target base. "
   updateShipmentWhenReceiving(updateInput: ShipmentWhenReceivingUpdateInput): Shipment
