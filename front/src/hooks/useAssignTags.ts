@@ -6,18 +6,20 @@ import { useNotification } from "./useNotification";
 export const ASSIGN_TAGS_TO_BOXES = gql`
   mutation AssignTagsToBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
     assignTagsToBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
-      updatedBoxes {
-        labelIdentifier
-        tags {
-          id
+      ... on BoxesTagsOperationResult {
+        updatedBoxes {
+          labelIdentifier
+          tags {
+            id
+          }
+          lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
         }
-        lastModifiedOn
-        lastModifiedBy {
-          id
-          name
-        }
+        invalidBoxLabelIdentifiers
       }
-      invalidBoxLabelIdentifiers
     }
   }
 `;

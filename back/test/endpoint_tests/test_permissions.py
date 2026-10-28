@@ -582,14 +582,14 @@ def test_invalid_permission_for_user_read(client, default_product, default_user)
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on InsufficientPermissionError { name } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
         ],
         # Test case 8.2.24e
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on InsufficientPermissionError { name } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
         ],
         # Test case 12.2.4
@@ -730,14 +730,14 @@ def test_mutate_insufficient_permission(
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
-            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
         # Test case 8.2.24f
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
-            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
         # Test case 12.2.5

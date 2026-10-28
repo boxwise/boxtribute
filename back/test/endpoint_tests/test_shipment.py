@@ -1515,8 +1515,7 @@ def test_shipment_mutations_add_and_remove_boxes_without_label_identifiers(
                 updateInput: {{ id: {default_shipment["id"]} }}) {{
                     details {{ id removedOn box {{ labelIdentifier state }} }}
                 }} }}"""
-    shipment = assert_successful_request(client, mutation)
-    assert shipment["details"] == expected_details
+    assert_bad_user_input(client, mutation)
 
     assert assert_successful_request(client, _remove_boxes_mutation([])) == []
     assert (
