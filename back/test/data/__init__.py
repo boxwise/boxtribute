@@ -18,6 +18,7 @@ from .box import (
     another_not_delivered_box,
     base1_instock_boxes,
     box_without_qr_code,
+    created_in_donated_location_box,
     default_box,
     default_boxes,
     default_location_boxes,
@@ -100,7 +101,7 @@ from .shipment_detail import (
     prepared_shipment_detail,
     removed_shipment_detail,
 )
-from .size import another_size, default_size, mixed_size
+from .size import another_size, default_size, mixed_size, sizes
 from .size_range import another_size_range, default_size_range, size_ranges
 from .standard_product import (
     another_standard_product,
@@ -154,6 +155,7 @@ __all__ = [
     "box_without_qr_code",
     "canceled_shipment",
     "completed_shipment",
+    "created_in_donated_location_box",
     "default_beneficiary",
     "default_beneficiaries",
     "default_base",
@@ -229,6 +231,7 @@ __all__ = [
     "shareable_link",
     "shipments",
     "size_ranges",
+    "sizes",
     "standard_products",
     "stock_overview_link",
     "superceding_measure_standard_product",

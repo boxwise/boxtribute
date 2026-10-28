@@ -79,6 +79,7 @@ from ..business_logic.warehouse.box.fields import (
     unboxed_items_collection,
 )
 from ..business_logic.warehouse.box.mutations import mutation as box_mutation
+from ..business_logic.warehouse.box.queries import box_row
 from ..business_logic.warehouse.box.queries import query as box_query
 from ..business_logic.warehouse.location.fields import classic_location
 from ..business_logic.warehouse.location.queries import query as location_query
@@ -142,6 +143,7 @@ object_types = (
     base,
     beneficiary,
     box,
+    box_row,
     classic_location,
     distribution_spot,
     distribution_event,
@@ -195,6 +197,8 @@ union_types = (
     UnionType("CreateBoxesResult", resolve_type_by_class_name),
     UnionType("DeleteBoxesResult", resolve_type_by_class_name),
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
+    UnionType("AssignTagsToBoxesResult", resolve_type_by_class_name),
+    UnionType("UnassignTagsFromBoxesResult", resolve_type_by_class_name),
     UnionType("CreateBoxFromBoxResult", resolve_type_by_class_name),
     UnionType("QrCodeResult", resolve_type_by_class_name),
     UnionType("BoxResult", resolve_type_by_class_name),

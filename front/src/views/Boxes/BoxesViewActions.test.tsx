@@ -9,8 +9,10 @@ import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
 import { render, screen, waitFor, within } from "tests/test-utils";
 import { userEvent } from "@testing-library/user-event";
-import { ASSIGN_BOXES_TO_SHIPMENT } from "hooks/useAssignBoxesToShipment";
-import { graphql } from "../../../../graphql/graphql";
+import {
+  ASSIGN_BOXES_TO_SHIPMENT,
+  UNASSIGN_BOXES_FROM_SHIPMENTS,
+} from "hooks/useAssignBoxesToShipment";
 import { AlertWithoutAction } from "components/Alerts";
 import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
@@ -84,7 +86,7 @@ const mutation = ({
   gQLRequest = ASSIGN_BOXES_TO_SHIPMENT as TadaDocumentNode,
   variables = { id: "1", labelIdentifiers: ["123"] } as any,
   resultData = {
-    updateShipmentWhenPreparing: { ...basicShipment, details: [shipmentDetail1()] },
+    addBoxesToShipment: { ...basicShipment, details: [shipmentDetail1()] },
   } as any,
   networkError = false,
   graphQlError = false,
@@ -182,44 +184,6 @@ beforeEach(() => {
   void cache.reset();
   tableConfigsVar(new Map());
 });
-
-const unassignFromShipmentGQLRequest = graphql(`
-  mutation UnassignBoxesFromShipments($shipment0: ID!, $labelIdentifiers0: [String!]!) {
-    unassignBoxesFromShipment1: updateShipmentWhenPreparing(
-      updateInput: {
-        id: $shipment0
-        preparedBoxLabelIdentifiers: []
-        removedBoxLabelIdentifiers: $labelIdentifiers0
-      }
-    ) {
-      id
-      details {
-        id
-        removedOn
-        removedBy {
-          id
-          __typename
-        }
-        box {
-          labelIdentifier
-          state
-          shipmentDetail {
-            id
-            __typename
-          }
-          lastModifiedOn
-          lastModifiedBy {
-            id
-            name
-          }
-          __typename
-        }
-        __typename
-      }
-      __typename
-    }
-  }
-`);
 
 const moveBoxesMutation = ({
   labelIdentifiers = ["123"],
@@ -448,7 +412,7 @@ const boxesViewActionsTests = [
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
         variables: { id: "1", labelIdentifiers: ["123"] },
         resultData: {
-          updateShipmentWhenPreparing: generateMockShipment({}),
+          addBoxesToShipment: generateMockShipment({}),
         },
       }),
       boxesQuery({}),
@@ -521,10 +485,19 @@ const boxesViewActionsTests = [
       }),
       actionsQuery(),
       mutation({
-        gQLRequest: unassignFromShipmentGQLRequest,
-        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+        gQLRequest: UNASSIGN_BOXES_FROM_SHIPMENTS,
+        variables: { labelIdentifiers: ["123"] },
         resultData: {
-          unassignBoxesFromShipment1: generateMockShipment({ hasBoxes: false }),
+          removeBoxesFromShipments: [
+            {
+              __typename: "Box",
+              labelIdentifier: "123",
+              state: "InStock",
+              shipmentDetail: null,
+              lastModifiedOn: "2023-01-01T00:00:00+00:00",
+              lastModifiedBy: { __typename: "User", id: "1", name: "Dev Coordinator" },
+            },
+          ],
         },
       }),
     ],
@@ -547,8 +520,8 @@ const boxesViewActionsTests = [
       }),
       actionsQuery(),
       mutation({
-        gQLRequest: unassignFromShipmentGQLRequest,
-        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+        gQLRequest: UNASSIGN_BOXES_FROM_SHIPMENTS,
+        variables: { labelIdentifiers: ["123"] },
         graphQlError: true,
       }),
     ],
@@ -571,8 +544,8 @@ const boxesViewActionsTests = [
       }),
       actionsQuery(),
       mutation({
-        gQLRequest: unassignFromShipmentGQLRequest,
-        variables: { shipment0: "1", labelIdentifiers0: ["123"] },
+        gQLRequest: UNASSIGN_BOXES_FROM_SHIPMENTS,
+        variables: { labelIdentifiers: ["123"] },
         networkError: true,
       }),
     ],

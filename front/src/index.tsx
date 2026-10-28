@@ -9,6 +9,7 @@ import {
 import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Auth0ProviderWithHistory from "providers/Auth0ProviderWithHistory";
+import MatomoProviderWithHistory from "providers/MatomoProviderWithHistory";
 import ApolloAuth0Provider from "providers/ApolloAuth0Provider";
 import * as Sentry from "@sentry/react";
 import App from "./App";
@@ -65,9 +66,11 @@ root.render(
   <ChakraProvider theme={theme}>
     <CSSReset />
     <BrowserRouter>
-      <Auth0ProviderWithHistory>
-        <SentryProfiledProtectedApp />
-      </Auth0ProviderWithHistory>
+      <MatomoProviderWithHistory>
+        <Auth0ProviderWithHistory>
+          <SentryProfiledProtectedApp />
+        </Auth0ProviderWithHistory>
+      </MatomoProviderWithHistory>
     </BrowserRouter>
   </ChakraProvider>,
 );
