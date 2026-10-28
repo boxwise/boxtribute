@@ -3,7 +3,6 @@ from datetime import date
 
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.business_logic.warehouse.box.crud import WAREHOUSE_BOX_STATES
 from boxtribute_server.enums import BoxState, ProductGender, TagType
 from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.history import DbChangeHistory
@@ -2968,119 +2967,212 @@ def test_box_mutations_filter(
     assert response["invalidBoxLabelIdentifiers"] == []
 
 
-@pytest.mark.parametrize(
-    "filters",
-    [
-        "{ states: [InStock] }",
-        "{ locationIds: [1], tagIds: [3] }",
-        "{ productGenders: [Women], excludedTagIds: [3] }",
-    ],
-)
-def test_box_mutations_filter_sequence(
-    client, filters, default_shipment, null_box_state_location
-):
-    def matching_boxes():
-        query = f"""query {{ boxes(baseId: 1, filterInput: {filters}) {{
-                    elements {{ labelIdentifier state tags {{ id }} }} }} }}"""
-        return assert_successful_request(client, query)["elements"]
+def _tags_mutation(client, operation, filters, tag_id):
+    mutation = f"""mutation {{ {operation}( updateInput: {{
+            filters: {filters}, tagIds: [{tag_id}] }} ) {{
+            ...on BoxesTagsOperationResult {{
+                updatedBoxes {{ labelIdentifier tags {{ id }} }}
+                invalidBoxLabelIdentifiers
+                tagErrorInfo {{ id }}
+            }} }} }}"""
+    return assert_successful_request(client, mutation)
 
-    warehouse_states = {state.name for state in WAREHOUSE_BOX_STATES}
-    tag_id = 2
-    for operation in ["assignTagsToBoxes", "unassignTagsFromBoxes"]:
-        boxes = matching_boxes()
-        mutation = f"""mutation {{ {operation}( updateInput: {{
-                filters: {filters}, tagIds: [{tag_id}] }} ) {{
-                ...on BoxesTagsOperationResult {{
-                    updatedBoxes {{ labelIdentifier tags {{ id }} }}
-                    invalidBoxLabelIdentifiers
-                    tagErrorInfo {{ id }}
-                }} }} }}"""
-        response = assert_successful_request(client, mutation)
-        has_tag = operation == "assignTagsToBoxes"
-        expected = {
-            b["labelIdentifier"]
-            for b in boxes
-            if b["state"] in warehouse_states
-            and ({"id": str(tag_id)} in b["tags"]) != has_tag
-        }
-        assert {b["labelIdentifier"] for b in response["updatedBoxes"]} == expected
-        for box in response["updatedBoxes"]:
-            assert ({"id": str(tag_id)} in box["tags"]) == has_tag
-        assert response["invalidBoxLabelIdentifiers"] == []
-        assert response["tagErrorInfo"] == []
 
-    boxes = matching_boxes()
-    in_stock = {
-        b["labelIdentifier"] for b in boxes if b["state"] == BoxState.InStock.name
-    }
-    assert len(in_stock) > 0
+def _add_to_shipment_mutation(client, shipment_id, filters):
     mutation = f"""mutation {{ addBoxesToShipment( updateInput: {{
-            id: {default_shipment["id"]}, filters: {filters} }} ) {{
+            id: {shipment_id}, filters: {filters} }} ) {{
             details {{ removedOn box {{ labelIdentifier state }} }} }} }}"""
-    response = assert_successful_request(client, mutation)
-    added = [d["box"] for d in response["details"] if d["removedOn"] is None]
-    assert in_stock <= {b["labelIdentifier"] for b in added}
-    for box in added:
-        assert box["state"] == BoxState.MarkedForShipment.name
+    return assert_successful_request(client, mutation)
 
-    # Boxes added to the shipment are not in stock anymore. Hence they are only removed
-    # if the filters don't restrict the state
-    marked_for_shipment = {
-        b["labelIdentifier"]
-        for b in matching_boxes()
-        if b["state"] == BoxState.MarkedForShipment.name
-    }
-    remove_mutation = """mutation {{ removeBoxesFromShipments( filters: {} ) {{
+
+def _remove_from_shipments_mutation(client, filters):
+    mutation = f"""mutation {{ removeBoxesFromShipments( filters: {filters} ) {{
             labelIdentifier state }} }}"""
-    response = assert_successful_request(client, remove_mutation.format(filters))
-    removed = {b["labelIdentifier"] for b in response}
-    for box in response:
-        assert box["state"] == BoxState.InStock.name
-    if "states" in filters:
-        assert removed == set()
-        assert in_stock <= {b["labelIdentifier"] for b in added}
-        # Restore state
-        response = assert_successful_request(
-            client, remove_mutation.format("{ states: [MarkedForShipment] }")
-        )
-        assert in_stock <= {b["labelIdentifier"] for b in response}
-    else:
-        assert in_stock <= removed
-        assert removed <= {b["labelIdentifier"] for b in added} | marked_for_shipment
+    return assert_successful_request(client, mutation)
 
-    boxes = matching_boxes()
-    expected = {b["labelIdentifier"] for b in boxes}
-    location_id = null_box_state_location["id"]
+
+def _move_mutation(client, filters, location_id):
     mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
             filters: {filters}, locationId: {location_id} }} ) {{
             ...on BoxesResult {{
                 updatedBoxes {{ labelIdentifier location {{ id }} }}
                 invalidBoxLabelIdentifiers
             }} }} }}"""
-    response = assert_successful_request(client, mutation)
-    moved = {b["labelIdentifier"] for b in response["updatedBoxes"]}
-    assert len(moved) > 0
-    assert moved <= expected
-    for box in response["updatedBoxes"]:
-        assert box["location"]["id"] == str(location_id)
-    assert response["invalidBoxLabelIdentifiers"] == []
+    return assert_successful_request(client, mutation)
 
-    # Moved boxes might not match the filters anymore (e.g. location filter)
-    expected = {
-        b["labelIdentifier"] for b in matching_boxes() if b["state"] in warehouse_states
-    }
+
+def _delete_mutation(client, filters):
     mutation = f"""mutation {{ deleteBoxes( filters: {filters} ) {{
             ...on BoxesResult {{
                 updatedBoxes {{ labelIdentifier deletedOn }}
                 invalidBoxLabelIdentifiers
             }} }} }}"""
-    response = assert_successful_request(client, mutation)
-    deleted = {b["labelIdentifier"] for b in response["updatedBoxes"]}
-    assert deleted == expected
+    return assert_successful_request(client, mutation)
+
+
+def _in_shipment(label_identifier):
+    return {
+        "removedOn": None,
+        "box": {
+            "labelIdentifier": label_identifier,
+            "state": BoxState.MarkedForShipment.name,
+        },
+    }
+
+
+def _in_stock(label_identifier):
+    return {"labelIdentifier": label_identifier, "state": BoxState.InStock.name}
+
+
+def test_box_mutations_filter_states(client, default_shipment, null_box_state_location):
+    filters = "{ states: [InStock] }"
+    tag_id = 2
+    location_id = null_box_state_location["id"]
+
+    response = _tags_mutation(client, "assignTagsToBoxes", filters, tag_id)
+    assert response == {
+        "updatedBoxes": [{"labelIdentifier": "88111177", "tags": [{"id": "2"}]}],
+        "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [],
+    }
+
+    response = _tags_mutation(client, "unassignTagsFromBoxes", filters, tag_id)
+    assert response == {
+        "updatedBoxes": [
+            {"labelIdentifier": "12345678", "tags": [{"id": "3"}]},
+            {"labelIdentifier": "88111177", "tags": []},
+        ],
+        "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [],
+    }
+
+    response = _add_to_shipment_mutation(client, default_shipment["id"], filters)
+    assert response["details"] == [
+        _in_shipment("67890123"),
+        _in_shipment("12345678"),
+        _in_shipment("88111177"),
+    ]
+
+    # Boxes marked for shipment are not in stock anymore
+    assert _remove_from_shipments_mutation(client, filters) == []
+    response = _remove_from_shipments_mutation(
+        client, "{ states: [MarkedForShipment] }"
+    )
+    assert response == [
+        _in_stock("12345678"),
+        _in_stock("67890123"),
+        _in_stock("88111177"),
+    ]
+
+    response = _move_mutation(client, filters, location_id)
+    assert response == {
+        "updatedBoxes": [
+            {"labelIdentifier": "12345678", "location": {"id": str(location_id)}},
+            {"labelIdentifier": "67890123", "location": {"id": str(location_id)}},
+            {"labelIdentifier": "88111177", "location": {"id": str(location_id)}},
+        ],
+        "invalidBoxLabelIdentifiers": [],
+    }
+
+    response = _delete_mutation(client, filters)
+    assert [b["labelIdentifier"] for b in response["updatedBoxes"]] == [
+        "12345678",
+        "67890123",
+        "88111177",
+    ]
     for box in response["updatedBoxes"]:
         assert box["deletedOn"].startswith(today)
     assert response["invalidBoxLabelIdentifiers"] == []
-    assert not {b["labelIdentifier"] for b in matching_boxes()} & deleted
+
+
+def test_box_mutations_filter_location_and_tag(
+    client, default_shipment, null_box_state_location
+):
+    filters = "{ locationIds: [1], tagIds: [3] }"
+    tag_id = 2
+    location_id = null_box_state_location["id"]
+
+    # The only matching box already has the tag assigned
+    response = _tags_mutation(client, "assignTagsToBoxes", filters, tag_id)
+    assert response == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [],
+    }
+
+    response = _tags_mutation(client, "unassignTagsFromBoxes", filters, tag_id)
+    assert response == {
+        "updatedBoxes": [{"labelIdentifier": "12345678", "tags": [{"id": "3"}]}],
+        "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [],
+    }
+
+    response = _add_to_shipment_mutation(client, default_shipment["id"], filters)
+    assert response["details"] == [_in_shipment("67890123"), _in_shipment("12345678")]
+
+    assert _remove_from_shipments_mutation(client, filters) == [_in_stock("12345678")]
+
+    response = _move_mutation(client, filters, location_id)
+    assert response == {
+        "updatedBoxes": [
+            {"labelIdentifier": "12345678", "location": {"id": str(location_id)}}
+        ],
+        "invalidBoxLabelIdentifiers": [],
+    }
+
+    # The box was moved out of location 1 and does not match the filters anymore
+    assert _delete_mutation(client, filters) == {
+        "updatedBoxes": [],
+        "invalidBoxLabelIdentifiers": [],
+    }
+
+
+def test_box_mutations_filter_gender_and_excluded_tag(
+    client, default_shipment, null_box_state_location
+):
+    filters = "{ productGenders: [Women], excludedTagIds: [3] }"
+    tag_id = 2
+    location_id = null_box_state_location["id"]
+    label_identifiers = ["45678901", "23123123", "56756756", "97539753", "88111177"]
+
+    response = _tags_mutation(client, "assignTagsToBoxes", filters, tag_id)
+    assert response == {
+        "updatedBoxes": [
+            {"labelIdentifier": i, "tags": [{"id": "2"}]} for i in label_identifiers
+        ],
+        "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [],
+    }
+
+    response = _tags_mutation(client, "unassignTagsFromBoxes", filters, tag_id)
+    assert response == {
+        "updatedBoxes": [{"labelIdentifier": i, "tags": []} for i in label_identifiers],
+        "invalidBoxLabelIdentifiers": [],
+        "tagErrorInfo": [],
+    }
+
+    # Only boxes in stock can be added to the shipment
+    response = _add_to_shipment_mutation(client, default_shipment["id"], filters)
+    assert response["details"] == [_in_shipment("67890123"), _in_shipment("88111177")]
+
+    assert _remove_from_shipments_mutation(client, filters) == [_in_stock("88111177")]
+
+    response = _move_mutation(client, filters, location_id)
+    assert response == {
+        "updatedBoxes": [
+            {"labelIdentifier": i, "location": {"id": str(location_id)}}
+            for i in label_identifiers
+        ],
+        "invalidBoxLabelIdentifiers": [],
+    }
+
+    response = _delete_mutation(client, filters)
+    assert [b["labelIdentifier"] for b in response["updatedBoxes"]] == (
+        label_identifiers
+    )
+    for box in response["updatedBoxes"]:
+        assert box["deletedOn"].startswith(today)
+    assert response["invalidBoxLabelIdentifiers"] == []
 
 
 def test_box_mutations_invalid_filter(client):
