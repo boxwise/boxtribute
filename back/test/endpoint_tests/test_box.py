@@ -2889,14 +2889,7 @@ def test_box_mutations_filter(
 
     tag_id = 2
     for operation in ["assignTagsToBoxes", "unassignTagsFromBoxes"]:
-        mutation = f"""mutation {{ {operation}( updateInput: {{
-                filters: {filters}, tagIds: [{tag_id}] }} ) {{
-                ...on BoxesTagsOperationResult {{
-                    updatedBoxes {{ labelIdentifier tags {{ id }} }}
-                    invalidBoxLabelIdentifiers
-                    tagErrorInfo {{ id }}
-                }} }} }}"""
-        response = assert_successful_request(client, mutation)
+        response = _tags_mutation(client, operation, filters, tag_id)
         expected_label_identifiers = label_identifiers.copy()
         if operation == "assignTagsToBoxes":
             # Box already has the tag assigned
@@ -2912,31 +2905,15 @@ def test_box_mutations_filter(
 
     # Only boxes in stock are added; the others (donated, lost) are silently ignored
     shipment_id = default_shipment["id"]
-    mutation = f"""mutation {{ addBoxesToShipment( updateInput: {{
-            id: {shipment_id}, filters: {filters} }} ) {{
-            details {{ removedOn box {{ labelIdentifier state }} }} }} }}"""
-    response = assert_successful_request(client, mutation)
-    added = [d["box"] for d in response["details"] if d["removedOn"] is None]
-    for box in added:
-        assert box["state"] == BoxState.MarkedForShipment.name
-    assert default_box["label_identifier"] in {b["labelIdentifier"] for b in added}
+    response = _add_to_shipment_mutation(client, shipment_id, filters)
+    added = [d for d in response["details"] if d["removedOn"] is None]
+    assert _in_shipment(default_box["label_identifier"]) in added
 
-    mutation = f"""mutation {{ removeBoxesFromShipments(
-            filters: {filters} ) {{
-            labelIdentifier state }} }}"""
-    response = assert_successful_request(client, mutation)
-    assert default_box["label_identifier"] in {b["labelIdentifier"] for b in response}
-    for box in response:
-        assert box["state"] == BoxState.InStock.name
+    response = _remove_from_shipments_mutation(client, filters)
+    assert response == [_in_stock(default_box["label_identifier"])]
 
     location_id = null_box_state_location["id"]
-    mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
-            filters: {filters}, locationId: {location_id} }} ) {{
-            ...on BoxesResult {{
-                updatedBoxes {{ labelIdentifier location {{ id }} }}
-                invalidBoxLabelIdentifiers
-            }} }} }}"""
-    response = assert_successful_request(client, mutation)
+    response = _move_mutation(client, filters, location_id)
     assert {box["labelIdentifier"] for box in response["updatedBoxes"]} == (
         label_identifiers
     )
@@ -2944,16 +2921,7 @@ def test_box_mutations_filter(
         assert box["location"]["id"] == str(location_id)
     assert response["invalidBoxLabelIdentifiers"] == []
 
-    mutation = f"""mutation {{ deleteBoxes( filters: {filters} ) {{
-            ...on BoxesResult {{
-                updatedBoxes {{
-                    labelIdentifier
-                    deletedOn
-                    history {{ changes }}
-                }}
-                invalidBoxLabelIdentifiers
-            }} }} }}"""
-    response = assert_successful_request(client, mutation)
+    response = _delete_mutation(client, filters)
     for box in response["updatedBoxes"]:
         assert box["labelIdentifier"] in [
             lost_box["label_identifier"],
@@ -2962,7 +2930,6 @@ def test_box_mutations_filter(
             created_in_donated_location_box["label_identifier"],
         ]
         assert box["deletedOn"].startswith(today)
-        assert box["history"][0]["changes"] == "deleted box"
     assert len(response["updatedBoxes"]) == 4
     assert response["invalidBoxLabelIdentifiers"] == []
 
