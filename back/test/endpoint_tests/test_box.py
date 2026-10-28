@@ -3,6 +3,7 @@ from datetime import date
 
 import pytest
 from auth import mock_user_for_request
+from boxtribute_server.business_logic.warehouse.box.crud import WAREHOUSE_BOX_STATES
 from boxtribute_server.enums import BoxState, ProductGender, TagType
 from boxtribute_server.models.definitions.box import Box
 from boxtribute_server.models.definitions.history import DbChangeHistory
@@ -2965,6 +2966,121 @@ def test_box_mutations_filter(
         assert box["history"][0]["changes"] == "deleted box"
     assert len(response["updatedBoxes"]) == 4
     assert response["invalidBoxLabelIdentifiers"] == []
+
+
+@pytest.mark.parametrize(
+    "filters",
+    [
+        "{ states: [InStock] }",
+        "{ locationIds: [1], tagIds: [3] }",
+        "{ productGenders: [Women], excludedTagIds: [3] }",
+    ],
+)
+def test_box_mutations_filter_sequence(
+    client, filters, default_shipment, null_box_state_location
+):
+    def matching_boxes():
+        query = f"""query {{ boxes(baseId: 1, filterInput: {filters}) {{
+                    elements {{ labelIdentifier state tags {{ id }} }} }} }}"""
+        return assert_successful_request(client, query)["elements"]
+
+    warehouse_states = {state.name for state in WAREHOUSE_BOX_STATES}
+    tag_id = 2
+    for operation in ["assignTagsToBoxes", "unassignTagsFromBoxes"]:
+        boxes = matching_boxes()
+        mutation = f"""mutation {{ {operation}( updateInput: {{
+                filters: {filters}, tagIds: [{tag_id}] }} ) {{
+                ...on BoxesTagsOperationResult {{
+                    updatedBoxes {{ labelIdentifier tags {{ id }} }}
+                    invalidBoxLabelIdentifiers
+                    tagErrorInfo {{ id }}
+                }} }} }}"""
+        response = assert_successful_request(client, mutation)
+        has_tag = operation == "assignTagsToBoxes"
+        expected = {
+            b["labelIdentifier"]
+            for b in boxes
+            if b["state"] in warehouse_states
+            and ({"id": str(tag_id)} in b["tags"]) != has_tag
+        }
+        assert {b["labelIdentifier"] for b in response["updatedBoxes"]} == expected
+        for box in response["updatedBoxes"]:
+            assert ({"id": str(tag_id)} in box["tags"]) == has_tag
+        assert response["invalidBoxLabelIdentifiers"] == []
+        assert response["tagErrorInfo"] == []
+
+    boxes = matching_boxes()
+    in_stock = {
+        b["labelIdentifier"] for b in boxes if b["state"] == BoxState.InStock.name
+    }
+    assert len(in_stock) > 0
+    mutation = f"""mutation {{ addBoxesToShipment( updateInput: {{
+            id: {default_shipment["id"]}, filters: {filters} }} ) {{
+            details {{ removedOn box {{ labelIdentifier state }} }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    added = [d["box"] for d in response["details"] if d["removedOn"] is None]
+    assert in_stock <= {b["labelIdentifier"] for b in added}
+    for box in added:
+        assert box["state"] == BoxState.MarkedForShipment.name
+
+    # Boxes added to the shipment are not in stock anymore. Hence they are only removed
+    # if the filters don't restrict the state
+    marked_for_shipment = {
+        b["labelIdentifier"]
+        for b in matching_boxes()
+        if b["state"] == BoxState.MarkedForShipment.name
+    }
+    remove_mutation = """mutation {{ removeBoxesFromShipments( filters: {} ) {{
+            labelIdentifier state }} }}"""
+    response = assert_successful_request(client, remove_mutation.format(filters))
+    removed = {b["labelIdentifier"] for b in response}
+    for box in response:
+        assert box["state"] == BoxState.InStock.name
+    if "states" in filters:
+        assert removed == set()
+        assert in_stock <= {b["labelIdentifier"] for b in added}
+        # Restore state
+        response = assert_successful_request(
+            client, remove_mutation.format("{ states: [MarkedForShipment] }")
+        )
+        assert in_stock <= {b["labelIdentifier"] for b in response}
+    else:
+        assert in_stock <= removed
+        assert removed <= {b["labelIdentifier"] for b in added} | marked_for_shipment
+
+    boxes = matching_boxes()
+    expected = {b["labelIdentifier"] for b in boxes}
+    location_id = null_box_state_location["id"]
+    mutation = f"""mutation {{ moveBoxesToLocation( updateInput: {{
+            filters: {filters}, locationId: {location_id} }} ) {{
+            ...on BoxesResult {{
+                updatedBoxes {{ labelIdentifier location {{ id }} }}
+                invalidBoxLabelIdentifiers
+            }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    moved = {b["labelIdentifier"] for b in response["updatedBoxes"]}
+    assert len(moved) > 0
+    assert moved <= expected
+    for box in response["updatedBoxes"]:
+        assert box["location"]["id"] == str(location_id)
+    assert response["invalidBoxLabelIdentifiers"] == []
+
+    # Moved boxes might not match the filters anymore (e.g. location filter)
+    expected = {
+        b["labelIdentifier"] for b in matching_boxes() if b["state"] in warehouse_states
+    }
+    mutation = f"""mutation {{ deleteBoxes( filters: {filters} ) {{
+            ...on BoxesResult {{
+                updatedBoxes {{ labelIdentifier deletedOn }}
+                invalidBoxLabelIdentifiers
+            }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    deleted = {b["labelIdentifier"] for b in response["updatedBoxes"]}
+    assert deleted == expected
+    for box in response["updatedBoxes"]:
+        assert box["deletedOn"].startswith(today)
+    assert response["invalidBoxLabelIdentifiers"] == []
+    assert not {b["labelIdentifier"] for b in matching_boxes()} & deleted
 
 
 def test_box_mutations_invalid_filter(client):
