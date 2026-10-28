@@ -275,48 +275,6 @@ def start_receiving_shipment(*, shipment, user):
     return shipment
 
 
-def _update_shipment_with_prepared_boxes(
-    *, shipment, label_identifiers, filters, user_id, now
-):
-    """Update given shipment with prepared boxes.
-    Boxes are identified either by label identifiers or by filters.
-    If boxes are requested to be updated that are not located in the shipment's source
-    base, or have a state different from InStock, they are silently discarded (i.e. not
-    added to the ShipmentDetail model).
-    """
-    if filters is None and not label_identifiers:
-        return
-
-    filter_conditions, selection = derive_box_filter(
-        filters, Box.select(Box, Location).join(Location)
-    )
-    conditions = [
-        Box.state == BoxState.InStock,
-        Location.base_id == shipment.source_base,
-        *filter_conditions,
-    ]
-    if filters is None:
-        conditions.append(Box.label_identifier << label_identifiers)
-    boxes = selection.where(*conditions)
-    details = [
-        ShipmentDetail(
-            shipment=shipment.id,
-            box=box.id,
-            source_product=box.product_id,
-            source_location=box.location_id,
-            source_size=box.size_id,
-            source_quantity=box.number_of_items,
-            created_by=user_id,
-        )
-        for box in boxes
-    ]
-
-    _bulk_update_box_state(
-        boxes=boxes, state=BoxState.MarkedForShipment, user_id=user_id, now=now
-    )
-    ShipmentDetail.bulk_create(details, batch_size=BATCH_SIZE)
-
-
 def _remove_boxes_from_shipment(
     *, shipment_id, user_id, box_label_identifiers, box_state, now
 ):
@@ -508,6 +466,10 @@ def add_boxes_to_shipment(
     filters=None,
 ):
     """Update shipment detail information during preparation (on shipment source side).
+    Boxes are identified either by label identifiers or by filters.
+    If boxes are requested to be updated that are not located in the shipment's source
+    base, or have a state different from InStock, they are silently discarded (i.e. not
+    added to the ShipmentDetail model).
     - raise InvalidFilterInput exception if not exactly one of label identifiers and
       filters is given
     - raise InvalidShipmentState exception if shipment state is different from
@@ -523,13 +485,34 @@ def add_boxes_to_shipment(
 
     now = utcnow()
     with db.database.atomic():
-        _update_shipment_with_prepared_boxes(
-            shipment=shipment,
-            user_id=user.id,
-            label_identifiers=label_identifiers,
-            filters=filters,
-            now=now,
+        filter_conditions, selection = derive_box_filter(
+            filters, Box.select(Box, Location).join(Location)
         )
+        conditions = [
+            Box.state == BoxState.InStock,
+            Location.base_id == shipment.source_base,
+            *filter_conditions,
+        ]
+        if filters is None:
+            conditions.append(Box.label_identifier << label_identifiers)
+        boxes = selection.where(*conditions)
+        details = [
+            ShipmentDetail(
+                shipment=shipment.id,
+                box=box.id,
+                source_product=box.product_id,
+                source_location=box.location_id,
+                source_size=box.size_id,
+                source_quantity=box.number_of_items,
+                created_by=user.id,
+            )
+            for box in boxes
+        ]
+
+        _bulk_update_box_state(
+            boxes=boxes, state=BoxState.MarkedForShipment, user_id=user.id, now=now
+        )
+        ShipmentDetail.bulk_create(details, batch_size=BATCH_SIZE)
 
     return shipment
 
