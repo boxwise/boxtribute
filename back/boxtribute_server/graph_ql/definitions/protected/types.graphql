@@ -828,9 +828,14 @@ type InvalidNumberOfItemsError {
 type InvalidBaseError {
   ids: [Int!]!
 }
+type InvalidFilterInputError {
+  _: Boolean
+}
 
-union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | InvalidFilterInputError
+union AssignTagsToBoxesResult = BoxesTagsOperationResult | InvalidFilterInputError
+union UnassignTagsFromBoxesResult = BoxesTagsOperationResult | InvalidFilterInputError
+union DeleteBoxesResult = BoxesResult | InsufficientPermissionError | InvalidFilterInputError
 union CreateBoxFromBoxResult = Box | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | DeletedBoxError | InvalidBoxStateError | InvalidNumberOfItemsError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
 union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError

@@ -182,6 +182,13 @@ class InvalidPaginationInput(Exception):
     }
 
 
+class InvalidFilterInput(Exception):
+    extensions = {
+        "code": "BAD_USER_INPUT",
+        "description": "Specify either label identifiers or filters",
+    }
+
+
 class NegativeValue(Exception):
     def __init__(self, *args, field, **kwargs):
         self.extensions = {
