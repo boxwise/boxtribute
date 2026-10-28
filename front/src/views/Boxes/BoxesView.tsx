@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useAuthorization } from "hooks/useAuthorization";
-import { useApolloClient, useBackgroundQuery, useSuspenseQuery } from "@apollo/client";
+import { useSuspenseQuery } from "@apollo/client";
 import { graphql } from "../../../../graphql/graphql";
 import {
   locationToDropdownOptionTransformer,
@@ -8,24 +8,20 @@ import {
   tagToDropdownOptionsTransformer,
 } from "utils/transformers";
 import { Column } from "react-table";
-import { URL_FILTER_CONFIG, useTableConfig } from "hooks/useTableConfig";
+import { useTableConfig } from "hooks/useTableConfig";
 import {
   PRODUCT_BASIC_FIELDS_FRAGMENT,
   SIZE_BASIC_FIELDS_FRAGMENT,
 } from "../../../../graphql/fragments";
 import { BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BoxRow } from "./components/types";
-import { SelectColumnFilter } from "components/Table/Filter";
+import { DaysCell, StateCell, TagsCell, QrCodeCell } from "./components/TableCells";
 import {
-  DaysCell,
-  ObjectCell,
-  ShipmentCell,
-  StateCell,
-  TagsCell,
-  QrCodeCell,
-} from "./components/TableCells";
-import { prepareBoxesForBoxesViewQueryVariables } from "./components/transformers";
-import { SelectBoxStateFilter } from "./components/Filter";
+  categoriesToFilterOptions,
+  genderFilterOptions,
+  productsToFilterOptions,
+  sizesToFilterOptions,
+} from "./components/transformers";
 import {
   Heading,
   Popover,
@@ -41,11 +37,9 @@ import { FaInfoCircle } from "react-icons/fa";
 import { useAtomValue } from "jotai";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { DateCell, ProductWithSPCheckmarkCell } from "components/Table/Cells";
-import { BoxState } from "queries/types";
-import BoxesTable, { PAGE_SIZE } from "./components/BoxesTable";
-import { boxStateIds } from "utils/constants"; // added import to map state names -> ids
-import { useSearchParams } from "react-router-dom";
+import BoxesTable from "./components/BoxesTable";
 import { formatWeight, formatMonetaryValue } from "utils/helpers";
+import { useBoxesViewUrlState } from "./hooks/useBoxesViewUrlState";
 
 export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
   `
@@ -103,25 +97,48 @@ export const BOXES_QUERY_ELEMENT_FIELD_FRAGMENT = graphql(
   [PRODUCT_BASIC_FIELDS_FRAGMENT, SIZE_BASIC_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
 );
 
+export const BOX_ROW_FIELDS_FRAGMENT = graphql(`
+  fragment BoxRowFields on BoxRow @_unmask {
+    id
+    labelIdentifier
+    numberOfItems
+    comment
+    weight
+    monetaryValue
+    weightUnitSymbol
+    createdOn
+    lastModifiedOn
+    createdByName
+    lastModifiedByName
+    state
+    productName
+    productGender
+    containsStandardProduct
+    productCategoryName
+    sizeName
+    locationName
+    shipmentId
+    shipmentDetailId
+    hasQrCode
+    tagIds
+  }
+`);
+
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
   `
-    query BoxesForBoxesView($baseId: ID!, $filterInput: FilterBoxInput, $paginationInput: Int) {
-      boxes(
-        baseId: $baseId
-        filterInput: $filterInput
-        paginationInput: { first: $paginationInput }
-      ) {
-        totalCount
-        pageInfo {
-          hasNextPage
+    query BoxesForBoxesView($baseId: Int!, $options: BoxRowOptions) {
+      boxRows(baseId: $baseId, options: $options) {
+        page {
+          ...BoxRowFields
         }
-        elements {
-          ...BoxesQueryElementField
-        }
+        totalNumberOfBoxes
+        totalNumberOfItems
+        totalWeight
+        totalMonetaryValue
       }
     }
   `,
-  [BOXES_QUERY_ELEMENT_FIELD_FRAGMENT],
+  [BOX_ROW_FIELDS_FRAGMENT],
 );
 
 export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
@@ -129,6 +146,7 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
     query ActionOptionsForBoxesView($baseId: ID!) {
       base(id: $baseId) {
         id
+        monetaryCurrencyCode
         locations {
           id
           seq
@@ -140,8 +158,18 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
         tags(resourceType: Box) {
           ...TagBasicFields
         }
+        products {
+          ...ProductBasicFields
+        }
       }
-      shipments {
+      sizes {
+        ...SizeBasicFields
+      }
+      productCategories {
+        id
+        name
+      }
+      shipments(states: [Preparing]) {
         id
         labelIdentifier
         state
@@ -154,133 +182,57 @@ export const ACTION_OPTIONS_FOR_BOXESVIEW_QUERY = graphql(
       }
     }
   `,
-  [BASE_ORG_FIELDS_FRAGMENT, TAG_BASIC_FIELDS_FRAGMENT],
+  [
+    BASE_ORG_FIELDS_FRAGMENT,
+    TAG_BASIC_FIELDS_FRAGMENT,
+    PRODUCT_BASIC_FIELDS_FRAGMENT,
+    SIZE_BASIC_FIELDS_FRAGMENT,
+  ],
 );
 
-function Boxes({
-  hasExecutedInitialFetchOfBoxes,
-}: {
-  hasExecutedInitialFetchOfBoxes: { current: boolean };
-}) {
-  const [searchParams] = useSearchParams();
+function Boxes() {
   const authorize = useAuthorization();
   const showWeightAndValue = authorize({ minBeta: 7 });
   const baseId = useAtomValue(selectedBaseIdAtom);
-  const apolloClient = useApolloClient();
   const [isPopoverOpen, setIsPopoverOpen] = useBoolean();
   const tableConfigKey = `bases/${baseId}/boxes`;
+
+  // Filters, sorting and page are derived from the URL
+  const urlState = useBoxesViewUrlState(baseId);
 
   const defaultHiddenColumns = useMemo(() => {
     const start = [
       "qrLabel",
       "gender",
       "size",
-      "shipment",
       "comment",
       "age",
       "lastModified",
       "lastModifiedBy",
       "createdBy",
       "productCategory",
-      "no_tags", // Hidden column for excluded tags filter
-      "createdOn", // Always hidden; used only for date range filtering
       ...(showWeightAndValue ? ["weight", "monetaryValue"] : []),
     ];
 
-    const filterIds: string[] = [];
-    URL_FILTER_CONFIG.forEach(({ filterId, urlParam }) => {
-      const param = searchParams.get(urlParam);
-
-      if (param) {
-        filterIds.push(filterId);
-      }
-    });
-
+    // Columns of active filters are shown
+    const filterIds = urlState.filters.map(({ id }) => id);
     return start.filter((colId) => !filterIds.includes(colId));
-  }, [searchParams, showWeightAndValue]);
+  }, [urlState.filters, showWeightAndValue]);
 
+  // Only the hidden columns are kept here (in memory); the rest of the table state is in the URL.
   const tableConfig = useTableConfig({
     tableConfigKey,
     defaultTableConfig: {
-      columnFilters: [],
-      sortBy: [{ id: "lastModified", desc: true }],
       hiddenColumns: defaultHiddenColumns,
     },
-    syncFiltersAndUrlParams: true,
   });
 
-  // fetch options for actions on boxes causing the suspense.
+  // fetch options for actions on boxes and the filter options causing the suspense.
   const { data: actionOptionsData } = useSuspenseQuery(ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, {
     variables: {
       baseId,
     },
   });
-
-  // The first 50 boxes to be shown are preloaded causing the suspense on the initial mount.
-  // The rest of the boxes are fetched in the background in the following useEffect.
-  const [boxesQueryRef, { refetch: refetchBoxes }] = useBackgroundQuery(BOXES_FOR_BOXESVIEW_QUERY, {
-    variables: prepareBoxesForBoxesViewQueryVariables(
-      baseId,
-      tableConfig.getColumnFilters(),
-      PAGE_SIZE,
-    ),
-  });
-  const [isBackgroundFetchOfBoxesLoading, setIsBackgroundFetchOfBoxesLoading] = useState(
-    !hasExecutedInitialFetchOfBoxes.current,
-  );
-  useEffect(() => {
-    if (hasExecutedInitialFetchOfBoxes.current) {
-      return;
-    }
-
-    // Only on very initial mount, query 50 boxes of the most used states to preload the data into
-    // Apollo cache.
-    // But skip preloading a state if the current table config already requests it via filters.
-    // e.g. if tableConfig.getColumnFilters() already contains the id for "Donated" (boxStateIds.Donated),
-    // do not query Donated here.
-    const states = ["InStock", "Donated", "Scrap"] satisfies Partial<BoxState>[];
-
-    // Read the current state filter values (these are state IDs like "5", "6" etc.)
-    const stateFilterValues: string[] =
-      (tableConfig.getColumnFilters().find((f) => f.id === "state")?.value as string[]) ?? [];
-
-    for (const state of states) {
-      const stateId = boxStateIds[state];
-      // If the table is already filtered to this state ID, skip preloading it.
-      if (stateId && stateFilterValues.includes(stateId)) {
-        continue;
-      }
-
-      apolloClient.query({
-        query: BOXES_FOR_BOXESVIEW_QUERY,
-        variables: {
-          baseId,
-          filterInput: {
-            states: [state],
-          },
-          paginationInput: PAGE_SIZE,
-        },
-        fetchPolicy: "network-only",
-      });
-    }
-
-    apolloClient
-      .query({
-        query: BOXES_FOR_BOXESVIEW_QUERY,
-        variables: prepareBoxesForBoxesViewQueryVariables(baseId, tableConfig.getColumnFilters()),
-        fetchPolicy: "network-only",
-      })
-      .then(({ data, errors }) => {
-        if ((errors?.length || 0) === 0 && data?.boxes?.elements) {
-          hasExecutedInitialFetchOfBoxes.current = true;
-        }
-      })
-      .finally(() => {
-        setIsBackgroundFetchOfBoxesLoading(false);
-      });
-    // only on initial mount, so no dependencies needed.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const availableColumns: Column<BoxRow>[] = useMemo(
     () => [
@@ -289,76 +241,38 @@ function Boxes({
         accessor: "hasQrCode",
         id: "qrLabel",
         Cell: QrCodeCell,
-        disableFilters: true,
-        sortType: (rowA, rowB) => {
-          if (rowA.values.qrLabel === rowB.values.qrLabel) return 0;
-          if (rowA.values.qrLabel > rowB.values.qrLabel) return 1;
-          return -1;
-        },
+        disableSortBy: true,
       },
       {
         Header: "Box #",
         accessor: "labelIdentifier",
         id: "labelIdentifier",
-        disableFilters: true,
       },
       {
         Header: "Product",
-        accessor: "product",
+        accessor: "productName",
         id: "product",
         Cell: ProductWithSPCheckmarkCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.product?.name.toLowerCase() ?? "";
-          const b = rowB.values.product?.name.toLowerCase() ?? "";
-          return a.localeCompare(b);
-        },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
       },
       {
         Header: "Product Category",
-        accessor: "productCategory",
+        accessor: "productCategoryName",
         id: "productCategory",
-        Cell: ObjectCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.productCategory?.name.toLowerCase() ?? "";
-          const b = rowB.values.productCategory?.name.toLowerCase() ?? "";
-          return a.localeCompare(b);
-        },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
       },
       {
         Header: "Gender",
-        accessor: "gender",
+        accessor: "productGender",
         id: "gender",
-        Cell: ObjectCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.gender?.name.toLowerCase() ?? "";
-          const b = rowB.values.gender?.name.toLowerCase() ?? "";
-          return a.localeCompare(b);
-        },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
       },
       {
         Header: "Size",
-        accessor: "size",
+        accessor: "sizeName",
         id: "size",
-        Cell: ObjectCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.size?.name?.toLowerCase() ?? "";
-          const b = rowB.values.size?.name?.toLowerCase() ?? "";
-          return a.localeCompare(b);
-        },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
       },
       {
         Header: "Items",
         accessor: "numberOfItems",
         id: "numberOfItems",
-        disableFilters: true,
       },
       ...((showWeightAndValue
         ? [
@@ -366,18 +280,13 @@ function Boxes({
               Header: "Weight",
               accessor: "weight",
               id: "weight",
-              disableFilters: true,
-              Cell: ({ value, row }) => formatWeight(value, row.original.weightUnit),
-              sortType: (rowA, rowB) => (rowA.values.weight ?? -1) - (rowB.values.weight ?? -1),
+              Cell: ({ value, row }) => formatWeight(value, row.original.weightUnitSymbol),
             },
             {
               Header: "Value",
               accessor: "monetaryValue",
               id: "monetaryValue",
-              disableFilters: true,
               Cell: ({ value, row }) => formatMonetaryValue(value, row.original.currency),
-              sortType: (rowA, rowB) =>
-                (rowA.values.monetaryValue ?? -1) - (rowB.values.monetaryValue ?? -1),
             },
           ]
         : []) as Column<BoxRow>[]),
@@ -386,73 +295,24 @@ function Boxes({
         accessor: "state",
         id: "state",
         Cell: StateCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.state?.name.toLowerCase() ?? "";
-          const b = rowB.values.state?.name.toLowerCase() ?? "";
-          return a.localeCompare(b);
-        },
-        Filter: SelectBoxStateFilter,
-        filter: "includesSomeObject",
+        disableSortBy: true,
       },
       {
         Header: "Location",
-        accessor: "location",
+        accessor: "locationName",
         id: "location",
-        Cell: ObjectCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.location?.name.toLowerCase() ?? "";
-          const b = rowB.values.location?.name.toLowerCase() ?? "";
-          return a.localeCompare(b);
-        },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeObject",
       },
       {
         Header: "Tags",
         accessor: "tags",
         id: "tags",
         Cell: TagsCell,
-        sortType: (rowA, rowB) => {
-          const a = rowA.values.tags?.length ?? 0;
-          const b = rowB.values.tags?.length ?? 0;
-          return a - b;
-        },
-        Filter: SelectColumnFilter,
-        filter: "includesSomeTagObject",
-      },
-      {
-        // Hidden column for excluded tags filter
-        Header: "Exclude Tags",
-        accessor: "tags",
-        id: "no_tags",
-        filter: "excludesSomeTagObject",
-        // This column should not be shown in the table or column selector
-        disableSortBy: true,
-        disableFilters: false,
-      },
-      {
-        // Hidden column for creation date range filter
-        Header: "Created On",
-        accessor: "createdOn",
-        id: "createdOn",
-        filter: "dateRange",
-        disableSortBy: true,
-        disableFilters: false,
-      },
-      {
-        Header: "Shipment",
-        accessor: "shipment",
-        id: "shipment",
-        Cell: ShipmentCell,
-        disableFilters: true,
         disableSortBy: true,
       },
       {
         Header: "Comments",
         accessor: "comment",
         id: "comment",
-        Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
       },
       {
         Header: (
@@ -486,32 +346,50 @@ function Boxes({
         accessor: "age",
         id: "age",
         Cell: DaysCell,
-        disableFilters: true,
+        disableSortBy: true,
       },
       {
         Header: "Last Modified On",
         accessor: "lastModified",
         id: "lastModified",
         Cell: DateCell,
-        disableFilters: true,
-        sortType: "datetime",
+        disableSortBy: true,
       },
       {
         Header: "Last Modified By",
         accessor: "lastModifiedBy",
         id: "lastModifiedBy",
-        Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        disableSortBy: true,
       },
       {
         Header: "Created By",
         accessor: "createdBy",
         id: "createdBy",
-        Filter: SelectColumnFilter,
-        filter: "includesOneOfMultipleStrings",
+        disableSortBy: true,
       },
     ],
     [isPopoverOpen, setIsPopoverOpen.off, setIsPopoverOpen.on, showWeightAndValue],
+  );
+
+  const base = actionOptionsData.base;
+  const productOptions = useMemo(() => productsToFilterOptions(base?.products), [base?.products]);
+  const categoryOptions = useMemo(
+    () => categoriesToFilterOptions(actionOptionsData.productCategories),
+    [actionOptionsData.productCategories],
+  );
+  const sizeOptions = useMemo(
+    () => sizesToFilterOptions(actionOptionsData.sizes),
+    [actionOptionsData.sizes],
+  );
+  const genderOptions = useMemo(() => genderFilterOptions(), []);
+  const locationOptions = useMemo(
+    () => locationToDropdownOptionTransformer(base?.locations ?? []),
+    [base?.locations],
+  );
+  const tagOptions = useMemo(() => tagToDropdownOptionsTransformer(base?.tags ?? []), [base?.tags]);
+  const shipmentOptions = useMemo(
+    () => shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId),
+    [actionOptionsData.shipments, baseId],
   );
 
   return (
@@ -520,17 +398,18 @@ function Boxes({
         Manage Boxes
       </Heading>
       <BoxesTable
-        isBackgroundFetchOfBoxesLoading={isBackgroundFetchOfBoxesLoading}
-        hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes}
+        baseId={baseId}
+        urlState={urlState}
         tableConfig={tableConfig}
-        onRefetch={refetchBoxes}
-        boxesQueryRef={boxesQueryRef}
+        actionOptionsData={actionOptionsData}
         columns={availableColumns}
-        shipmentOptions={shipmentToDropdownOptionTransformer(actionOptionsData.shipments, baseId)}
-        locationOptions={locationToDropdownOptionTransformer(
-          actionOptionsData.base?.locations ?? [],
-        )}
-        tagOptions={tagToDropdownOptionsTransformer(actionOptionsData?.base?.tags ?? [])}
+        shipmentOptions={shipmentOptions}
+        locationOptions={locationOptions}
+        tagOptions={tagOptions}
+        productOptions={productOptions}
+        categoryOptions={categoryOptions}
+        genderOptions={genderOptions}
+        sizeOptions={sizeOptions}
       />
     </>
   );

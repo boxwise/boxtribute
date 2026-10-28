@@ -1,5 +1,5 @@
 import "regenerator-runtime/runtime";
-import { ReactElement, Suspense, useEffect, useMemo, useRef } from "react";
+import { ReactElement, Suspense, useEffect, useMemo } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
@@ -112,9 +112,6 @@ function App() {
   const organisation = useAtomValue(organisationAtom);
   const roles: string[] = user?.[JWT_ROLE] ?? [];
   const location = useLocation();
-  // For BoxesView to reduce number of expensive Boxes queries
-  // when navigating between boxes and other views.
-  const hasExecutedInitialFetchOfBoxes = useRef(false);
 
   useEffect(() => {
     const userId = user?.sub?.replace(/^auth0\|/, ""); // strip prefix
@@ -185,7 +182,7 @@ function App() {
                       }
                     >
                       <Suspense fallback={<TableSkeleton />}>
-                        <Boxes hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes} />
+                        <Boxes />
                       </Suspense>
                     </ErrorBoundary>
                   }

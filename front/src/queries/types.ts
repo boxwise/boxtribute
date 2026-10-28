@@ -5,7 +5,10 @@ import {
   CUSTOM_PRODUCT_FORM_OPTIONS_QUERY,
   STANDARD_PRODUCT_QUERY,
 } from "./queries";
-import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
+import {
+  ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
+  BOXES_FOR_BOXESVIEW_QUERY,
+} from "views/Boxes/BoxesView";
 import {
   BOX_FIELDS_FRAGMENT,
   DISTRO_EVENT_FIELDS_FRAGMENT,
@@ -35,6 +38,7 @@ export type ShipmentDetailWithAutomatchProduct = FragmentOf<
 export type TransferAgreements = FragmentOf<typeof TRANSFER_AGREEMENT_FIELDS_FRAGMENT>;
 export type BoxesForBoxesViewQuery = ResultOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
 export type BoxesForBoxesViewVariables = VariablesOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
+export type ActionOptionsForBoxesViewQuery = ResultOf<typeof ACTION_OPTIONS_FOR_BOXESVIEW_QUERY>;
 export type StandardProductsforProductsViewQuery = ResultOf<
   typeof STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY
 >;

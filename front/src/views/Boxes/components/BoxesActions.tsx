@@ -52,7 +52,7 @@ function BoxesActions({
 }: BoxesActionsProps) {
   // Used for remove tags
   const getSelectedBoxTags = useMemo(() => {
-    const selectedBoxTags = selectedBoxes.map((box) => box.values.tags);
+    const selectedBoxTags = selectedBoxes.map((box) => box.original.tags);
     const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
     const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
     return commonTags;
@@ -62,7 +62,7 @@ function BoxesActions({
   const thereIsABoxMarkedForShipmentSelected = useMemo(
     () =>
       selectedBoxes.some(
-        (box) => box.values.shipment !== null && box.values.state.name === "MarkedForShipment",
+        (box) => box.original.shipmentId != null && box.original.state === "MarkedForShipment",
       ),
     [selectedBoxes],
   );

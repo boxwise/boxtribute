@@ -5,11 +5,15 @@ import { HeaderGroup } from "react-table";
 interface IFilteringSortingTableHeaderProps {
   headerGroups: HeaderGroup<any>[];
   hideColumnFilters?: boolean;
+  /** Replaces the sort handling of react-table if the sort state is controlled externally (e.g.
+   * by URL search params). Only called for sortable columns. */
+  onSortColumn?: (column: HeaderGroup<any>) => void;
 }
 
 export function FilteringSortingTableHeader({
   headerGroups,
   hideColumnFilters = false,
+  onSortColumn,
 }: IFilteringSortingTableHeaderProps) {
   return (
     <Thead position="sticky" top={0} background="gray.100" zIndex={2}>
@@ -24,7 +28,13 @@ export function FilteringSortingTableHeader({
                 {column.isSorted && !column.isSortedDesc && (
                   <TriangleUpIcon aria-label="sorted ascending" />
                 )}
-                <div {...column.getSortByToggleProps()}>{column.render("Header")}</div>
+                <div
+                  {...(onSortColumn && column.canSort
+                    ? column.getSortByToggleProps({ onClick: () => onSortColumn(column) })
+                    : column.getSortByToggleProps())}
+                >
+                  {column.render("Header")}
+                </div>
                 {!hideColumnFilters && column.Filter && column.canFilter && (
                   <chakra.span>{column.render("Filter")}</chakra.span>
                 )}
