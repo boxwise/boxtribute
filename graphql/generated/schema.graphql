@@ -831,6 +831,8 @@ type Query {
   productCategories: [ProductCategory!]!
   " Return all [`SizeRanges`]({{Types.SizeRange}}). "
   sizeRanges: [SizeRange!]!
+  " Return all [`Sizes`]({{Types.Size}}). "
+  sizes: [Size!]!
   " Return [`Beneficiary`]({{Types.Beneficiary}}) with specified ID. Accessible for clients who are members of the beneficiary's base "
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "

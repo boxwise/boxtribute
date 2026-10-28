@@ -23,6 +23,8 @@ from utils import assert_forbidden_request, assert_successful_request
         "productCategory",
         # Test case 99.1.16
         "sizeRange",
+        # Test case 99.1.18
+        "size",
         # Test cases 3.1.4, 3.1.5
         "shipment",
         # Test cases 4.1.4, 4.1.6
@@ -53,7 +55,7 @@ def test_invalid_read_permissions(unauthorized, client, resource):
         query = "query { boxRows(baseId: 1) { page { id } } }"
     assert_forbidden_request(client, query, none_data=True)
 
-    if resource in ["sizeRange", "box", "boxRow"]:
+    if resource in ["sizeRange", "size", "box", "boxRow"]:
         return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
