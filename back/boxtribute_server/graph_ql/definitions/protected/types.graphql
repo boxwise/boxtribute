@@ -44,7 +44,6 @@ type BoxRow {
   sizeName: String
   locationId: ID
   locationName: String
-  shipmentDetailId: ID
   shipmentId: ID
   hasQrCode: Boolean
   tagIds: [ID!]!

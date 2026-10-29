@@ -166,7 +166,6 @@ def test_box_rows_query(client):
                 sizeName
                 locationId
                 locationName
-                shipmentDetailId
                 shipmentId
                 hasQrCode
                 tagIds

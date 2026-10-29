@@ -46,7 +46,6 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.product_category import ProductCategory
 from ....models.definitions.qr_code import QrCode
-from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.size import Size
 from ....models.definitions.size_range_size import SizeRangeSize
@@ -1059,8 +1058,7 @@ def get_boxes_page(
             Sz.label.alias("size_name"),
             L.id.alias("location_id"),
             L.name.alias("location_name"),
-            ShipmentDetail.id.alias("shipment_detail_id"),
-            Shipment.id.alias("shipment_id"),
+            ShipmentDetail.shipment.alias("shipment_id"),
             B.qr_code.is_null(False).alias("has_qr_code"),
             tag_ids,
         )
@@ -1082,7 +1080,6 @@ def get_boxes_page(
                 & ShipmentDetail.received_on.is_null()
             ),
         )
-        .join(Shipment, JOIN.LEFT_OUTER, on=(Shipment.id == ShipmentDetail.shipment))
         .join(Unit, JOIN.LEFT_OUTER, on=(Unit.id == B.weight_display_unit))
         .order_by(order(page_ids.c.sort_key), B.id.asc())
         .dicts()
