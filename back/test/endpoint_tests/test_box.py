@@ -221,6 +221,7 @@ def test_box_rows_filtering(client):
     ["sort_by", "field"],
     [
         ("LabelIdentifier", "labelIdentifier"),
+        ("LastModifiedOn", "lastModifiedOn"),
         ("ProductName", "productName"),
         ("CategoryName", "productCategoryName"),
         ("ProductGender", "productGender"),

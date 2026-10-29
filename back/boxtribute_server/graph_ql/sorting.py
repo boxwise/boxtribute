@@ -14,8 +14,9 @@ def derive_box_sorting(selection, sort_by):
     The joined tables are aliased in order to avoid clashes with joins that are added
     when filters are derived.
     """
-    sort_field = Box.last_modified_on
-    if sort_by == BoxSortField.LabelIdentifier:
+    if sort_by == BoxSortField.LastModifiedOn:
+        sort_field = Box.last_modified_on
+    elif sort_by == BoxSortField.LabelIdentifier:
         sort_field = Box.label_identifier
     elif sort_by == BoxSortField.NumberOfItems:
         sort_field = Box.number_of_items
