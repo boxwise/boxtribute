@@ -26,6 +26,7 @@ interface IBoxRowsStore {
 interface IBoxRowsView {
   baseId: string;
   filters: Filters<any>;
+  search: string;
   sortBy: BoxesSortBy | undefined;
   descending: boolean;
 }
@@ -48,7 +49,7 @@ function splitIntoUiPages(uiPage: number, rows: BoxRowsPage): Record<number, Box
 
 /**
  * Fetches the boxes of the boxes view page by page and keeps the fetched pages of the current view
- * (base, filters and sort) in memory. A view change discards all fetched pages, responses for a
+ * (base, filters, search and sort) in memory. A view change discards all fetched pages, responses for a
  * previous view are ignored. The next page is prefetched when a page is reached.
  *
  * The pages are kept here rather than in the Apollo cache because they must be refreshed and
@@ -58,13 +59,14 @@ function splitIntoUiPages(uiPage: number, rows: BoxRowsPage): Record<number, Box
 export function useBoxRows({
   baseId,
   filters,
+  search,
   sortBy,
   descending,
   page,
 }: IBoxRowsView & { page: number }) {
   const client = useApolloClient();
 
-  const viewKey = JSON.stringify({ baseId, filters, sortBy, descending });
+  const viewKey = JSON.stringify({ baseId, filters, search, sortBy, descending });
   // Only changes if the content of the view changes
   const view = useMemo(() => JSON.parse(viewKey) as IBoxRowsView, [viewKey]);
 

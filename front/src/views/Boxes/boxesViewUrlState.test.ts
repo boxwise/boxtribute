@@ -20,6 +20,7 @@ const parse = (query: string) => parseBoxesViewSearchParams(new URLSearchParams(
 
 const state = (overrides: Partial<IBoxesViewState> = {}): IBoxesViewState => ({
   filters: [],
+  search: "",
   sortBy: undefined,
   descending: false,
   page: 1,
@@ -34,7 +35,7 @@ describe("parseBoxesViewSearchParams", () => {
   it("parses all filters, the sort and the page", () => {
     expect(
       parse(
-        "state_ids=1,5&product_ids=267,350&gender_ids=2&product_category_ids=1&size_ids=52&location_ids=16,17&tag_ids=10&no_tag_ids=12&created_from=2021-01-01&created_to=2024-01-01&sort_by=weight&descending=true&page=4",
+        "state_ids=1,5&product_ids=267,350&gender_ids=2&product_category_ids=1&size_ids=52&location_ids=16,17&tag_ids=10&no_tag_ids=12&created_from=2021-01-01&created_to=2024-01-01&sort_by=weight&descending=true&page=4&q=red+shirt",
       ),
     ).toEqual({
       filters: [
@@ -48,10 +49,29 @@ describe("parseBoxesViewSearchParams", () => {
         { id: "no_tags", value: ["12"] },
         { id: "createdOn", value: ["2021-01-01", "2024-01-01"] },
       ],
+      search: "red shirt",
       sortBy: "weight",
       descending: true,
       page: 4,
     });
+  });
+
+  it("parses the search string, decoding whitespace and special characters", () => {
+    expect(parse("q=red%20shirt").search).toBe("red shirt");
+    expect(parse("q=a%26b%3Dc+d").search).toBe("a&b=c d");
+  });
+
+  it("treats an empty or whitespace-only search string as no search", () => {
+    expect(parse("q=").search).toBe("");
+    expect(parse("q=+++").search).toBe("");
+    expect(parse("q=%20%09").search).toBe("");
+  });
+
+  it("parses the sort by last modified date and state", () => {
+    expect(parse("sort_by=lastModified&descending=true")).toEqual(
+      state({ sortBy: "lastModified", descending: true }),
+    );
+    expect(parse("sort_by=state")).toEqual(state({ sortBy: "state", descending: false }));
   });
 
   it("ignores non-numeric and duplicate IDs", () => {
@@ -136,6 +156,18 @@ describe("serializeBoxesViewState", () => {
     );
   });
 
+  it("serializes the search string with URL encoding and omits it if blank", () => {
+    expect(serializeBoxesViewState(state({ search: "red shirt & more" })).toString()).toBe(
+      "q=red+shirt+%26+more",
+    );
+    expect(serializeBoxesViewState(state({ search: "" })).toString()).toBe("");
+    expect(serializeBoxesViewState(state({ search: "   " })).toString()).toBe("");
+    const base = new URLSearchParams("q=old&other=1");
+    const params = serializeBoxesViewState(state({ search: "" }), base);
+    expect(params.has("q")).toBe(false);
+    expect(params.get("other")).toBe("1");
+  });
+
   it("builds on the existing params instead of dropping them", () => {
     const base = new URLSearchParams("page=4&sort_by=product&descending=true&other=1&state_ids=1");
     const params = serializeBoxesViewState(
@@ -165,6 +197,7 @@ describe("serializeBoxesViewState", () => {
         { id: "state", value: ["1"] },
         { id: "createdOn", value: ["2021-01-01", "2024-01-01"] },
       ],
+      search: "blue box",
       sortBy: "numberOfItems",
       descending: true,
       page: 2,
@@ -197,6 +230,7 @@ describe("defaults and helpers", () => {
     expect(hasBoxesViewParams(new URLSearchParams(""))).toBe(false);
     expect(hasBoxesViewParams(new URLSearchParams("other=1"))).toBe(false);
     expect(hasBoxesViewParams(new URLSearchParams("page=2"))).toBe(true);
+    expect(hasBoxesViewParams(new URLSearchParams("q=shirt"))).toBe(true);
     expect(hasBoxesViewParams(new URLSearchParams("sort_by=product"))).toBe(true);
     expect(hasBoxesViewParams(new URLSearchParams("no_tag_ids="))).toBe(true);
     expect(BOXES_VIEW_URL_PARAMS).toContain("created_to");
@@ -221,7 +255,7 @@ describe("defaults and helpers", () => {
     Object.entries(SORT_BY_TO_BOX_SORT_FIELD).forEach(([sortBy, field]) => {
       expect(BOX_SORT_FIELD_TO_SORT_BY[field]).toBe(sortBy);
     });
-    expect(Object.keys(SORT_BY_TO_BOX_SORT_FIELD)).toHaveLength(10);
+    expect(Object.keys(SORT_BY_TO_BOX_SORT_FIELD)).toHaveLength(12);
   });
 
   it("computes and clamps the pages", () => {

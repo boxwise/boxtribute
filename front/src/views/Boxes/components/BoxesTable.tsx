@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -33,6 +33,7 @@ import { BoxRow } from "./types";
 import { boxesRawDataToTableDataTransformer } from "./transformers";
 import { ActionOptionsForBoxesViewQuery } from "queries/types";
 import ColumnSelector from "components/Table/ColumnSelector";
+import { GlobalFilter } from "components/Table/GlobalFilter";
 import useBoxesActions from "../hooks/useBoxesActions";
 import { useBoxRows } from "../hooks/useBoxRows";
 import { useBoxesViewUrlState } from "../hooks/useBoxesViewUrlState";
@@ -83,11 +84,23 @@ function BoxesTable({
 }: IBoxesTableProps) {
   const authorize = useAuthorization();
   const showWeightAndValue = authorize({ minBeta: 7 });
-  const { filters, sortBy, descending, page: currentPage, setFilters, setSort, setPage } = urlState;
+  const {
+    filters,
+    search,
+    sortBy,
+    descending,
+    page: currentPage,
+    filterBoxInput,
+    setFilters,
+    setSearch,
+    setSort,
+    setPage,
+  } = urlState;
 
   const { rows, totals, maxPage, isLoading, isPrefetching, isRefetching, refetch } = useBoxRows({
     baseId,
     filters,
+    search,
     sortBy,
     descending,
     page: currentPage,
@@ -114,6 +127,12 @@ function BoxesTable({
     [filters, controlledSortBy, currentPage],
   );
 
+  // Select-all: all boxes matching the filters of the view are selected, including the ones that
+  // are not loaded. Row selection by the user turns it off.
+  const [isSelectAll, setIsSelectAll] = useState(false);
+  const isSelectAllRef = useRef(isSelectAll);
+  isSelectAllRef.current = isSelectAll;
+
   const {
     headerGroups,
     prepareRow,
@@ -122,6 +141,7 @@ function BoxesTable({
     page,
     selectedFlatRows,
     toggleAllRowsSelected,
+    dispatch,
   } = useTable<BoxRow>(
     {
       columns,
@@ -149,20 +169,69 @@ function BoxesTable({
       hooks.visibleColumns.push((col) => [
         {
           id: "selection",
-          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => (
-            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-          ),
-          Cell: ({ row }: CellProps<any, any>) => (
-            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-          ),
+          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => {
+            const props = getToggleAllPageRowsSelectedProps();
+            return (
+              <IndeterminateCheckbox
+                {...props}
+                onChange={(e) => {
+                  setIsSelectAll(false);
+                  props.onChange?.(e);
+                }}
+              />
+            );
+          },
+          Cell: ({ row }: CellProps<any, any>) => {
+            const props = row.getToggleRowSelectedProps();
+            return (
+              <IndeterminateCheckbox
+                {...props}
+                onChange={(e) => {
+                  setIsSelectAll(false);
+                  props.onChange?.(e);
+                }}
+              />
+            );
+          },
         },
         ...col,
       ]);
     },
   );
-  const selectedCount = selectedFlatRows.length;
+  const totalNumberOfBoxes = totals?.totalNumberOfBoxes ?? 0;
+  const selectedCount = isSelectAll ? totalNumberOfBoxes : selectedFlatRows.length;
   const weightUnit = tableData.find((row) => row.weightUnitSymbol)?.weightUnitSymbol ?? null;
   const currency = actionOptionsData.base?.monetaryCurrencyCode ?? null;
+
+  // toggleAllRowsSelected(false) only deselects the rows that are currently loaded
+  const resetSelectedRows = useCallback(() => dispatch({ type: "resetSelectedRows" }), [dispatch]);
+
+  const resetSelection = useCallback(() => {
+    setIsSelectAll(false);
+    resetSelectedRows();
+  }, [resetSelectedRows]);
+
+  // The boxes found by the backend for select-all are restricted to the locations of the base,
+  // unless the filters specify locations. Otherwise, boxes of other bases that the user has access
+  // to would be affected as well.
+  const baseLocations = actionOptionsData.base?.locations;
+  const baseLocationIds = useMemo(
+    () => baseLocations?.map(({ id }) => Number(id)),
+    [baseLocations],
+  );
+  const selectAll = useMemo(
+    () =>
+      isSelectAll
+        ? {
+            filters: {
+              ...filterBoxInput,
+              locationIds: filterBoxInput.locationIds ?? baseLocationIds,
+            },
+            onDone: resetSelection,
+          }
+        : undefined,
+    [isSelectAll, filterBoxInput, baseLocationIds, resetSelection],
+  );
 
   const {
     onBoxRowClick,
@@ -173,13 +242,26 @@ function BoxesTable({
     onAssignBoxesToShipment,
     onUnassignBoxesToShipment,
     actionsAreLoading,
-  } = useBoxesActions(selectedFlatRows, refetch);
+  } = useBoxesActions(selectedFlatRows, refetch, selectAll);
 
-  // The selection is limited to the current page of the current view
-  const viewKey = JSON.stringify([baseId, filters, sortBy, descending, currentPage]);
+  // Select-all and the row selection are reset when the boxes of the view change
+  const viewKey = JSON.stringify([baseId, filters, search, sortBy, descending]);
   useEffect(() => {
-    toggleAllRowsSelected(false);
-  }, [viewKey, toggleAllRowsSelected]);
+    resetSelection();
+  }, [viewKey, resetSelection]);
+
+  // The row selection is limited to the current page, unless select-all is active. In that case,
+  // the rows of the new page are selected once they are loaded.
+  useEffect(() => {
+    if (!isSelectAllRef.current) {
+      resetSelectedRows();
+    }
+  }, [currentPage, resetSelectedRows]);
+  useEffect(() => {
+    if (isSelectAll) {
+      toggleAllRowsSelected(true);
+    }
+  }, [isSelectAll, tableData, toggleAllRowsSelected]);
 
   // Only the hidden columns are persisted in the table config
   useEffect(() => {
@@ -260,6 +342,8 @@ function BoxesTable({
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <BoxesActions
           selectedBoxes={selectedFlatRows}
+          isSelectAll={isSelectAll}
+          selectedCount={selectedCount}
           onMoveBoxes={onMoveBoxes}
           locationOptions={locationOptions}
           onDeleteBoxes={onDeleteBoxes}
@@ -274,7 +358,15 @@ function BoxesTable({
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
-            availableColumns={allColumns.filter((column) => column.id !== "selection")}
+            availableColumns={allColumns.filter(
+              (column) => column.id !== "selection" && column.id !== "shipmentId",
+            )}
+          />
+          <GlobalFilter
+            globalFilter={search}
+            setGlobalFilter={(value) => setSearch(value ?? "")}
+            placeholder="Search comments"
+            syncWithGlobalFilter
           />
           <FilterPanel
             isOpen={filterDisclosure.isOpen}
@@ -353,15 +445,31 @@ function BoxesTable({
             <Text as="span" fontWeight="bold" color="black">
               {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
             </Text>{" "}
-            <Text
-              as="span"
-              color="black"
-              cursor="pointer"
-              onClick={() => toggleAllRowsSelected(false)}
-            >
+            <Text as="span" color="black" cursor="pointer" onClick={resetSelection}>
               Clear all
             </Text>
           </HStack>
+        )}
+        {selectedCount > 0 && (
+          <Box as="span" color="gray.400" ml={4}>
+            |
+          </Box>
+        )}
+        {isLoading || totals === null ? (
+          <HStack spacing={2}>
+            <Skeleton height={5} width={20} />
+          </HStack>
+        ) : (
+          <Text
+            mx={4}
+            cursor={isSelectAll || totalNumberOfBoxes === 0 ? "default" : "pointer"}
+            color={isSelectAll || totalNumberOfBoxes === 0 ? "gray.400" : "black"}
+            onClick={() => {
+              if (!isSelectAll && totalNumberOfBoxes > 0) setIsSelectAll(true);
+            }}
+          >
+            Select all {totalNumberOfBoxes} {totalNumberOfBoxes === 1 ? "box" : "boxes"}
+          </Text>
         )}
       </Flex>
       <Table key="boxes-table">

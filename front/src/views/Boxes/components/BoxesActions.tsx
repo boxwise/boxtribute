@@ -25,6 +25,11 @@ import { SlOptions } from "react-icons/sl";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
+  /** Select-all is active: all boxes matching the current filters are selected, not only the
+   * ones of the current page */
+  isSelectAll?: boolean;
+  /** Total number of selected boxes. Defaults to the number of selected rows */
+  selectedCount?: number;
   onMoveBoxes: (locationId: string) => void;
   locationOptions: { label: string; value: string }[];
   onDeleteBoxes: () => void;
@@ -39,6 +44,8 @@ type BoxesActionsProps = {
 
 function BoxesActions({
   selectedBoxes,
+  isSelectAll = false,
+  selectedCount,
   onMoveBoxes,
   locationOptions,
   onDeleteBoxes,
@@ -52,19 +59,23 @@ function BoxesActions({
 }: BoxesActionsProps) {
   // Used for remove tags
   const getSelectedBoxTags = useMemo(() => {
+    // With select-all, the tags of the boxes of the other pages are unknown
+    if (isSelectAll) return tagOptions;
     const selectedBoxTags = selectedBoxes.map((box) => box.original.tags);
     const tagsToFilter = new Set(selectedBoxTags.flat().map((tag) => tag.id));
     const commonTags = tagOptions.filter((tag) => tagsToFilter.has(tag.value));
     return commonTags;
-  }, [selectedBoxes, tagOptions]);
+  }, [selectedBoxes, tagOptions, isSelectAll]);
 
   // Used for remove from shipment
   const thereIsABoxMarkedForShipmentSelected = useMemo(
     () =>
+      // With select-all, the boxes of the other pages are unknown
+      isSelectAll ||
       selectedBoxes.some(
         (box) => box.original.shipmentId != null && box.original.state === "MarkedForShipment",
       ),
-    [selectedBoxes],
+    [selectedBoxes, isSelectAll],
   );
 
   return (
@@ -90,6 +101,7 @@ function BoxesActions({
               onDeleteBoxes={onDeleteBoxes}
               actionsAreLoading={actionsAreLoading}
               selectedBoxes={selectedBoxes}
+              selectedCount={selectedCount}
               key="remove-boxes"
             />
           </MenuItem>

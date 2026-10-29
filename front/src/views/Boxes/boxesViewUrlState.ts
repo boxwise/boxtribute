@@ -23,6 +23,7 @@ const CREATED_TO_PARAM = "created_to";
 const SORT_BY_PARAM = "sort_by";
 const DESCENDING_PARAM = "descending";
 const PAGE_PARAM = "page";
+const SEARCH_PARAM = "q";
 
 /** All URL parameters that belong to the state of the boxes view. */
 export const BOXES_VIEW_URL_PARAMS: string[] = [
@@ -32,11 +33,14 @@ export const BOXES_VIEW_URL_PARAMS: string[] = [
   SORT_BY_PARAM,
   DESCENDING_PARAM,
   PAGE_PARAM,
+  SEARCH_PARAM,
 ];
 
 /** Two-way mapping between the `sort_by` URL values and the `BoxSortField` enum of the API. */
 export const SORT_BY_TO_BOX_SORT_FIELD = {
   labelIdentifier: "LabelIdentifier",
+  lastModified: "LastModifiedOn",
+  state: "State",
   product: "ProductName",
   category: "CategoryName",
   gender: "ProductGender",
@@ -58,6 +62,8 @@ export const BOX_SORT_FIELD_TO_SORT_BY = Object.fromEntries(
 /** Maps the ids of the sortable table columns to the `sort_by` URL values. */
 export const COLUMN_ID_TO_SORT_BY: Record<string, BoxesSortBy> = {
   labelIdentifier: "labelIdentifier",
+  lastModified: "lastModified",
+  state: "state",
   product: "product",
   productCategory: "category",
   gender: "gender",
@@ -77,6 +83,9 @@ export interface IBoxesViewState {
   /** react-table style filters, in canonical order. Values are lists of ID strings, except for
    * `createdOn` which is a `[from, to]` tuple of date strings (empty string if unset). */
   filters: Filters<any>;
+  /** Search string for the comments of the boxes. Empty if there is none (a string that consists of
+   * whitespace only is treated as empty). */
+  search: string;
   /** `undefined` means that the server default order (last modified, descending) is applied. */
   sortBy: BoxesSortBy | undefined;
   /** Only meaningful if `sortBy` is defined. */
@@ -110,6 +119,11 @@ export function isValidDateString(value: string | null | undefined): value is st
   return (
     date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
   );
+}
+
+/** A search string that is empty or consists of whitespace only is treated as no search. */
+export function normalizeSearch(search: string | null | undefined): string {
+  return search?.trim() ? search : "";
 }
 
 function parsePage(param: string | null): number {
@@ -150,7 +164,13 @@ export function parseBoxesViewSearchParams(searchParams: URLSearchParams): IBoxe
       : undefined;
   const descending = sortBy !== undefined && searchParams.get(DESCENDING_PARAM) === "true";
 
-  return { filters, sortBy, descending, page: parsePage(searchParams.get(PAGE_PARAM)) };
+  return {
+    filters,
+    search: normalizeSearch(searchParams.get(SEARCH_PARAM)),
+    sortBy,
+    descending,
+    page: parsePage(searchParams.get(PAGE_PARAM)),
+  };
 }
 
 /** Serializes the complete state of the boxes view. Empty and default values are omitted. All
@@ -175,6 +195,9 @@ export function serializeBoxesViewState(
     if (isValidDateString(to)) params.set(CREATED_TO_PARAM, to);
   }
 
+  const search = normalizeSearch(state.search);
+  if (search) params.set(SEARCH_PARAM, search);
+
   if (state.sortBy) {
     params.set(SORT_BY_PARAM, state.sortBy);
     params.set(DESCENDING_PARAM, String(state.descending));
@@ -193,6 +216,7 @@ export function getCanonicalQueryString(state: IBoxesViewState): string {
 export function getDefaultBoxesViewState(): IBoxesViewState {
   return {
     filters: [{ id: "state", value: [boxStateIds.InStock] }],
+    search: "",
     sortBy: undefined,
     descending: false,
     page: 1,

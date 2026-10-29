@@ -785,3 +785,79 @@ boxesViewActionsTests.forEach(
     );
   },
 );
+
+it("4.8.11 - Bulk mutation with active select-all sends the filters of the view", async () => {
+  const user = userEvent.setup();
+  const rowsOptions = firstRequestOptions({ states: ["InStock"] });
+  const row = toBoxRow(generateMockBox({ labelIdentifier: "123", state: "InStock", tags: [] }));
+  const rowsMock = boxRowsMock({
+    baseId: 1,
+    options: rowsOptions,
+    rows: [row],
+    totalNumberOfBoxes: 150,
+  });
+  const refetchMock = boxRowsMock({
+    baseId: 1,
+    options: rowsOptions,
+    rows: [row],
+    totalNumberOfBoxes: 150,
+  });
+  const refetchResult = vi.fn(() => refetchMock.result);
+
+  // The boxes of the view are restricted to the locations of the base. Boxes' label identifiers are
+  // not sent.
+  const filters = { states: ["InStock"], locationIds: [Number(location1.id)] };
+  const deleteMutationResult = vi.fn(() => ({
+    data: {
+      deleteBoxes: {
+        __typename: "BoxesResult",
+        updatedBoxes: [
+          {
+            labelIdentifier: "123",
+            deletedOn: new Date().toISOString(),
+            product: { id: 10, transferItemsCount: 1, instockItemsCount: 3 },
+          },
+        ],
+        invalidBoxLabelIdentifiers: [],
+      },
+    },
+  }));
+
+  render(
+    <ErrorBoundary fallback={<AlertWithoutAction alertText="Could not fetch boxes data!" />}>
+      <Suspense fallback={<TableSkeleton />}>
+        <Boxes />
+      </Suspense>
+    </ErrorBoundary>,
+    {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/1/boxes?state_ids=1",
+      addTypename: true,
+      mocks: [
+        rowsMock,
+        actionsQuery({ tags: [] }),
+        {
+          request: { query: DELETE_BOXES, variables: { filters } },
+          result: deleteMutationResult,
+        },
+        { ...refetchMock, result: refetchResult },
+      ],
+      cache,
+    },
+  );
+
+  await user.click(await screen.findByText("Select all 150 boxes", {}, { timeout: 15000 }));
+  await waitFor(() =>
+    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("150 Boxes selected"),
+  );
+
+  await user.click(await screen.findByTestId("delete-boxes-button", {}, { timeout: 10000 }));
+  await user.click(await screen.findByRole("button", { name: /delete/i }, { timeout: 10000 }));
+
+  await waitFor(() => expect(deleteMutationResult).toHaveBeenCalledTimes(1), { timeout: 15000 });
+  // The current page is reloaded and select-all is reset
+  await waitFor(() => expect(refetchResult).toHaveBeenCalledTimes(1), { timeout: 15000 });
+  await waitFor(() =>
+    expect(screen.getByTestId("selected-boxes-counter")).not.toHaveTextContent("selected"),
+  );
+}, 40000);

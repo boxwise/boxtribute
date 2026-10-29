@@ -118,7 +118,6 @@ export const BOX_ROW_FIELDS_FRAGMENT = graphql(`
     sizeName
     locationName
     shipmentId
-    shipmentDetailId
     hasQrCode
     tagIds
   }
@@ -202,6 +201,8 @@ function Boxes() {
 
   const defaultHiddenColumns = useMemo(() => {
     const start = [
+      // Only needed for the CSV export, never selectable by the user
+      "shipmentId",
       "qrLabel",
       "gender",
       "size",
@@ -295,7 +296,6 @@ function Boxes() {
         accessor: "state",
         id: "state",
         Cell: StateCell,
-        disableSortBy: true,
       },
       {
         Header: "Location",
@@ -353,7 +353,6 @@ function Boxes() {
         accessor: "lastModified",
         id: "lastModified",
         Cell: DateCell,
-        disableSortBy: true,
       },
       {
         Header: "Last Modified By",
@@ -365,6 +364,12 @@ function Boxes() {
         Header: "Created By",
         accessor: "createdBy",
         id: "createdBy",
+        disableSortBy: true,
+      },
+      {
+        Header: "Shipment ID",
+        accessor: "shipmentId",
+        id: "shipmentId",
         disableSortBy: true,
       },
     ],

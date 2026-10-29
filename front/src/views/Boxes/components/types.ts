@@ -22,7 +22,6 @@ export type BoxRow = {
   currency: string | null;
   tags: FragmentOf<typeof TAG_BASIC_FIELDS_FRAGMENT>[];
   shipmentId: string | null;
-  shipmentDetailId: string | null;
   hasQrCode: boolean;
   comment: string | null;
   age: number;

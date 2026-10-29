@@ -5,6 +5,7 @@ import {
   ActionOptionsForBoxesViewQuery,
   BoxesForBoxesViewQuery,
   BoxesForBoxesViewVariables,
+  FilterBoxInput,
 } from "queries/types";
 import { boxStateIds, genderIds } from "utils/constants";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
@@ -16,7 +17,6 @@ import {
 } from "../boxesViewUrlState";
 
 type BoxRowOptions = NonNullable<BoxesForBoxesViewVariables["options"]>;
-export type FilterBoxInput = NonNullable<BoxRowOptions["filters"]>;
 
 const stateNameById = Object.fromEntries(
   Object.entries(boxStateIds).map(([name, id]) => [id, name]),
@@ -33,9 +33,10 @@ const toInts = (value: unknown): number[] =>
     .map(Number)
     .filter((id) => Number.isInteger(id));
 
-/** Maps the react-table filters of the boxes view to the filters of the `boxRows` query.
- * Empty filters are omitted. */
-export const filtersToFilterBoxInput = (filters: Filters<any>): FilterBoxInput => {
+/** Maps the react-table filters and the search string of the boxes view to the filters of the
+ * `boxRows` query (and of the bulk-mutations). Empty filters are omitted, as well as a search
+ * string that is empty or consists of whitespace only. */
+export const filtersToFilterBoxInput = (filters: Filters<any>, search = ""): FilterBoxInput => {
   const input: FilterBoxInput = {};
 
   filters.forEach(({ id, value }) => {
@@ -83,6 +84,8 @@ export const filtersToFilterBoxInput = (filters: Filters<any>): FilterBoxInput =
     }
   });
 
+  if (search.trim()) input.pattern = search;
+
   return input;
 };
 
@@ -102,11 +105,11 @@ export const getServerPagination = (uiPage: number) =>
 
 export const prepareQueryVariables = (
   baseId: string | number,
-  state: Pick<IBoxesViewState, "filters" | "sortBy" | "descending" | "page">,
+  state: Pick<IBoxesViewState, "filters" | "search" | "sortBy" | "descending" | "page">,
 ): BoxesForBoxesViewVariables => {
   const options: BoxRowOptions = {
     ...getServerPagination(state.page),
-    filters: filtersToFilterBoxInput(state.filters),
+    filters: filtersToFilterBoxInput(state.filters, state.search),
   };
   if (state.sortBy) {
     options.sortBy = SORT_BY_TO_BOX_SORT_FIELD[state.sortBy];
@@ -141,7 +144,6 @@ export const boxesRawDataToTableDataTransformer = (
       currency,
       tags: row.tagIds.flatMap((tagId) => tagsById.get(tagId) ?? []),
       shipmentId: row.shipmentId ?? null,
-      shipmentDetailId: row.shipmentDetailId ?? null,
       hasQrCode: !!row.hasQrCode,
       comment: row.comment ?? null,
       age: createdOn ? differenceInDays(new Date(), createdOn) : 0,

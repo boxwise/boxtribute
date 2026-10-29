@@ -67,6 +67,18 @@ describe("filtersToFilterBoxInput", () => {
   });
 });
 
+describe("filtersToFilterBoxInput search", () => {
+  it("maps the search string to the pattern", () => {
+    expect(filtersToFilterBoxInput([], "blue")).toEqual({ pattern: "blue" });
+  });
+
+  it("omits the pattern for an empty or whitespace-only search string", () => {
+    expect(filtersToFilterBoxInput([], "")).toEqual({});
+    expect(filtersToFilterBoxInput([], "   ")).toEqual({});
+    expect(filtersToFilterBoxInput([])).toEqual({});
+  });
+});
+
 describe("getServerPagination", () => {
   it("fetches the UI pages 1 and 2 with the first request", () => {
     expect(getServerPagination(1)).toEqual({ page: 1, pageSize: 100 });
@@ -81,14 +93,19 @@ describe("getServerPagination", () => {
 
 describe("prepareQueryVariables", () => {
   it("converts the base ID to a number", () => {
-    expect(prepareQueryVariables("2", { filters: [], ...noSort, page: 1 }).baseId).toBe(2);
-    expect(prepareQueryVariables(7, { filters: [], ...noSort, page: 1 }).baseId).toBe(7);
+    expect(prepareQueryVariables("2", { filters: [], search: "", ...noSort, page: 1 }).baseId).toBe(
+      2,
+    );
+    expect(prepareQueryVariables(7, { filters: [], search: "", ...noSort, page: 1 }).baseId).toBe(
+      7,
+    );
   });
 
   it("omits sortBy and descending for the default sort", () => {
     expect(
       prepareQueryVariables("2", {
         filters: [{ id: "state", value: ["1"] }],
+        search: "",
         ...noSort,
         descending: true,
         page: 1,
@@ -99,10 +116,26 @@ describe("prepareQueryVariables", () => {
     });
   });
 
+  it("includes the search string as pattern", () => {
+    expect(
+      prepareQueryVariables("2", {
+        filters: [{ id: "state", value: ["1"] }],
+        search: "red shirt",
+        ...noSort,
+        page: 1,
+      }).options,
+    ).toEqual({
+      page: 1,
+      pageSize: 100,
+      filters: { states: ["InStock"], pattern: "red shirt" },
+    });
+  });
+
   it("includes sortBy and descending for a sorted view", () => {
     expect(
       prepareQueryVariables("2", {
         filters: [],
+        search: "",
         sortBy: "product",
         descending: false,
         page: 1,
@@ -111,6 +144,7 @@ describe("prepareQueryVariables", () => {
     expect(
       prepareQueryVariables("2", {
         filters: [],
+        search: "",
         sortBy: "monetaryValue",
         descending: true,
         page: 5,
@@ -119,7 +153,7 @@ describe("prepareQueryVariables", () => {
   });
 
   it("requests the UI page directly if it is beyond the first request", () => {
-    expect(prepareQueryVariables("1", { filters: [], ...noSort, page: 4 })).toEqual({
+    expect(prepareQueryVariables("1", { filters: [], search: "", ...noSort, page: 4 })).toEqual({
       baseId: 1,
       options: { page: 4, pageSize: 50, filters: {} },
     });
@@ -148,7 +182,6 @@ describe("boxesRawDataToTableDataTransformer", () => {
     sizeName: "Mixed",
     locationName: "Stockroom",
     shipmentId: null,
-    shipmentDetailId: null,
     hasQrCode: true,
     tagIds: ["11", "999", "10"],
   } as any;

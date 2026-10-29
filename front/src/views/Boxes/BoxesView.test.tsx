@@ -249,13 +249,26 @@ describe("4.8.1 - Initial load of Page", () => {
     expect(screen.getByTestId("total-summary")).toHaveTextContent(/1 box/);
   });
 
-  it("4.8.1.5 - The global filter is not offered", async () => {
+  it("4.8.1.5 - The global filter searches the comments", async () => {
     renderBoxes({
       initialUrl: "/bases/2/boxes?state_ids=1",
       mocks: [defaultRowsMock(), actionOptionsMock()],
     });
     await screen.findByText(/8650860/i);
-    expect(screen.queryByPlaceholderText(/search/i)).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search comments")).toBeInTheDocument();
+  });
+
+  it("4.8.1.6 - The shipment ID is not offered in the column selector", async () => {
+    const user = userEvent.setup();
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [defaultRowsMock(), actionOptionsMock()],
+    });
+    await screen.findByText(/8650860/i);
+    await user.click(screen.getByRole("button", { name: /columns shown/i }));
+    expect(await screen.findByText("Product Category")).toBeInTheDocument();
+    expect(screen.queryByText("Shipment ID")).not.toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: /shipment id/i })).not.toBeInTheDocument();
   });
 });
 
@@ -331,9 +344,9 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
       name: /toggle row selected/i,
     });
 
-    // Initially, counter is hidden. Selecting all boxes of the view is not supported.
-    expect(screen.getByTestId("selected-boxes-counter")).toBeEmptyDOMElement();
-    expect(screen.queryByText(/select all/i)).not.toBeInTheDocument();
+    // Initially, no box is selected but all boxes of the view can be selected
+    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("Select all 268 boxes");
+    expect(screen.getByTestId("selected-boxes-counter")).not.toHaveTextContent("selected");
 
     await user.click(checkbox1);
     await waitFor(() => expect(checkbox1).toBeChecked());
@@ -355,7 +368,10 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     await user.click(screen.getByText("Clear all"));
     await waitFor(() => expect(checkbox2).not.toBeChecked());
-    await waitFor(() => expect(screen.getByTestId("selected-boxes-counter")).toBeEmptyDOMElement());
+    await waitFor(() =>
+      expect(screen.getByTestId("selected-boxes-counter")).not.toHaveTextContent("selected"),
+    );
+    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("Select all 268 boxes");
   }, 15000);
 
   it("4.8.2.3 - The selection is cleared when the page changes", async () => {
@@ -381,7 +397,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
 
     await user.click(screen.getByRole("button", { name: /next page/i }));
     await screen.findByText("L0051");
-    expect(screen.getByTestId("selected-boxes-counter")).toBeEmptyDOMElement();
+    expect(screen.getByTestId("selected-boxes-counter")).not.toHaveTextContent("selected");
   });
 });
 
@@ -791,10 +807,83 @@ describe("4.8.6 - Sorting", () => {
     });
 
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
-    await user.click(getColumnHeader(/^Status$/));
     await user.click(getColumnHeader(/^Tags$/));
     expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1");
     expect(screen.queryByLabelText("sorted ascending")).not.toBeInTheDocument();
+  });
+
+  it("4.8.6.4 - The status column is sortable", async () => {
+    const user = userEvent.setup();
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [
+        defaultRowsMock(),
+        boxRowsMock({
+          options: firstRequestOptions(
+            { states: ["InStock"] },
+            { sortBy: "State", descending: false },
+          ),
+          rows: [instockBoxRow2, instockBoxRow1],
+          totalNumberOfBoxes: 2,
+        }),
+        actionOptionsMock(),
+      ],
+    });
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    await user.click(getColumnHeader(/^Status$/));
+    await waitFor(() =>
+      expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1&sort_by=state&descending=false"),
+    );
+    await waitFor(() => expect(screen.getAllByRole("row")[1]).toHaveTextContent("8650860"));
+    expect(screen.getByLabelText("sorted ascending")).toBeInTheDocument();
+  });
+
+  it("4.8.6.5 - The last modified column is sortable", async () => {
+    const user = userEvent.setup();
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [
+        defaultRowsMock(),
+        boxRowsMock({
+          options: firstRequestOptions(
+            { states: ["InStock"] },
+            { sortBy: "LastModifiedOn", descending: false },
+          ),
+          rows: [instockBoxRow2, instockBoxRow1],
+          totalNumberOfBoxes: 2,
+        }),
+        actionOptionsMock(),
+      ],
+    });
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    // The column is hidden by default
+    await user.click(screen.getByRole("button", { name: /columns shown/i }));
+    await user.click(await screen.findByRole("checkbox", { name: /last modified on/i }));
+    await user.click(getColumnHeader(/^Last Modified On$/));
+    await waitFor(() =>
+      expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1&sort_by=lastModified&descending=false"),
+    );
+    await waitFor(() => expect(screen.getAllByRole("row")[1]).toHaveTextContent("8650860"));
+  }, 30000);
+
+  it("4.8.6.6 - A sort by last modified date in the URL is sent to the server", async () => {
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1&sort_by=lastModified&descending=true",
+      mocks: [
+        defaultRowsMock(
+          firstRequestOptions(
+            { states: ["InStock"] },
+            { sortBy: "LastModifiedOn", descending: true },
+          ),
+        ),
+        actionOptionsMock(),
+      ],
+    });
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1&sort_by=lastModified&descending=true");
   });
 });
 
@@ -972,4 +1061,220 @@ describe("4.8.8 - Switching the base", () => {
     await screen.findByText(/4495955/i, {}, { timeout: 10000 });
     await waitFor(() => expect(currentUrl()).toBe("/bases/1/boxes?state_ids=1"));
   });
+});
+
+describe("4.8.9 - Searching the comments", () => {
+  const searchOptions = (pattern: string) => firstRequestOptions({ states: ["InStock"], pattern });
+  const searchMock = (pattern: string, rows: any[] = [instockBoxRow1]) => {
+    const mock = boxRowsMock({
+      options: searchOptions(pattern),
+      rows,
+      totalNumberOfBoxes: rows.length,
+    });
+    const result = vi.fn(() => mock.result);
+    return { mock: { ...mock, result }, result };
+  };
+
+  it("4.8.9.1 - Typing a pattern requests the boxes with the pattern as filter, debounced", async () => {
+    const user = userEvent.setup();
+    const search = searchMock("red shirt");
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [defaultRowsMock(), search.mock, actionOptionsMock()],
+    });
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    await user.type(screen.getByPlaceholderText("Search comments"), "red shirt");
+
+    // Only the final string is requested: requests for intermediate strings have no mock and
+    // would fail the view
+    await waitFor(() => expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1&q=red+shirt"), {
+      timeout: 5000,
+    });
+    await waitFor(() => expect(screen.queryByText(/8650860/i)).not.toBeInTheDocument());
+    expect(screen.getByText(/1481666/i)).toBeInTheDocument();
+    expect(search.result).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/could not fetch boxes data/i)).not.toBeInTheDocument();
+  }, 20000);
+
+  it("4.8.9.2 - A pattern in the URL is applied and shown in the input", async () => {
+    const search = searchMock("red shirt");
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1&q=red%20shirt",
+      mocks: [search.mock, actionOptionsMock()],
+    });
+
+    await screen.findByText(/1481666/i, {}, { timeout: 10000 });
+    expect(screen.queryByText(/8650860/i)).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search comments")).toHaveValue("red shirt");
+    expect(search.result).toHaveBeenCalledTimes(1);
+  });
+
+  it("4.8.9.3 - A whitespace-only string sends no pattern and is not kept in the URL", async () => {
+    const user = userEvent.setup();
+    const search = searchMock("a");
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [defaultRowsMock(), search.mock, defaultRowsMock(), actionOptionsMock()],
+    });
+
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    const input = screen.getByPlaceholderText("Search comments");
+    await user.type(input, "   ");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1");
+    expect(screen.getByText(/8650860/i)).toBeInTheDocument();
+
+    await user.clear(input);
+    await user.type(input, "a");
+    await waitFor(() => expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1&q=a"), {
+      timeout: 5000,
+    });
+    await screen.findByText(/1481666/i);
+    expect(search.result).toHaveBeenCalledTimes(1);
+
+    // Clearing the input removes the pattern from the URL and requests the unsearched boxes
+    await user.clear(input);
+    await waitFor(() => expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1"), {
+      timeout: 5000,
+    });
+    await screen.findByText(/8650860/i);
+  }, 20000);
+
+  it("4.8.9.4 - Searching resets the page and keeps the filters", async () => {
+    const user = userEvent.setup();
+    const search = searchMock("shirt");
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1&page=3",
+      mocks: [
+        boxRowsMock({
+          options: { page: 3, pageSize: 50, filters: { states: ["InStock"] } },
+          rows: [scrapBoxRow],
+          totalNumberOfBoxes: 268,
+        }),
+        // prefetch of the next page
+        boxRowsMock({
+          options: { page: 4, pageSize: 50, filters: { states: ["InStock"] } },
+          rows: [],
+          totalNumberOfBoxes: 268,
+        }),
+        search.mock,
+        actionOptionsMock(),
+      ],
+    });
+
+    await screen.findByText(/4495955/i, {}, { timeout: 10000 });
+    await user.type(screen.getByPlaceholderText("Search comments"), "shirt");
+    await waitFor(() => expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1&q=shirt"), {
+      timeout: 5000,
+    });
+    await screen.findByText(/1481666/i);
+  }, 20000);
+
+  it("4.8.9.5 - The input follows a change of the URL that was not caused by typing", async () => {
+    const user = userEvent.setup();
+    const search = searchMock("red shirt");
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1&q=red%20shirt",
+      editedUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [search.mock, defaultRowsMock(), actionOptionsMock()],
+    });
+
+    await screen.findByText(/1481666/i, {}, { timeout: 10000 });
+    await user.click(screen.getByText("edit URL"));
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
+    expect(screen.getByPlaceholderText("Search comments")).toHaveValue("");
+  });
+});
+
+describe("4.8.10 - Select all boxes of the view", () => {
+  const counter = () => screen.getByTestId("selected-boxes-counter");
+  const rowCheckbox = async (name: RegExp) =>
+    within(await screen.findByRole("row", { name }, { timeout: 10000 })).getByRole("checkbox", {
+      name: /toggle row selected/i,
+    });
+
+  it("4.8.10.1 - Selects all boxes of the view and turns off if a row is selected", async () => {
+    const user = userEvent.setup();
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [defaultRowsMock(), actionOptionsMock()],
+    });
+
+    const checkbox1 = await rowCheckbox(/8650860/i);
+    const checkbox2 = await rowCheckbox(/1481666/i);
+    await user.click(await screen.findByText("Select all 268 boxes"));
+
+    await waitFor(() => expect(counter()).toHaveTextContent("268 Boxes selected"));
+    expect(checkbox1).toBeChecked();
+    expect(checkbox2).toBeChecked();
+
+    // Select-all is not offered again while it is active
+    expect(counter()).toHaveTextContent("Select all 268 boxes");
+
+    await user.click(checkbox1);
+    await waitFor(() => expect(counter()).toHaveTextContent("1 Box selected"));
+    expect(checkbox1).not.toBeChecked();
+    expect(checkbox2).toBeChecked();
+    expect(counter()).not.toHaveTextContent("268 Boxes selected");
+
+    await user.click(screen.getByText("Clear all"));
+    await waitFor(() => expect(counter()).not.toHaveTextContent("selected"));
+  }, 20000);
+
+  it("4.8.10.2 - Is reset when the sorting changes", async () => {
+    const user = userEvent.setup();
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [
+        defaultRowsMock(),
+        boxRowsMock({
+          options: firstRequestOptions(
+            { states: ["InStock"] },
+            { sortBy: "LocationName", descending: false },
+          ),
+          rows: [instockBoxRow2, instockBoxRow1],
+          totalNumberOfBoxes: 268,
+        }),
+        actionOptionsMock(),
+      ],
+    });
+
+    await user.click(await screen.findByText("Select all 268 boxes"));
+    await waitFor(() => expect(counter()).toHaveTextContent("268 Boxes selected"));
+
+    await user.click(getColumnHeader(/^Location$/));
+    await waitFor(() => expect(counter()).not.toHaveTextContent("selected"));
+    await waitFor(() => expect(screen.getAllByRole("row")[1]).toHaveTextContent("8650860"));
+    expect(await rowCheckbox(/8650860/i)).not.toBeChecked();
+    await waitFor(() => expect(counter()).toHaveTextContent("Select all 268 boxes"));
+  }, 20000);
+
+  it("4.8.10.3 - Is kept when the page changes", async () => {
+    const user = userEvent.setup();
+    renderBoxes({
+      initialUrl: "/bases/2/boxes?state_ids=1",
+      mocks: [
+        defaultRowsMock(inStockOptions, generateBoxRows(60)),
+        boxRowsMock({
+          options: { page: 3, pageSize: 50, filters: { states: ["InStock"] } },
+          rows: [scrapBoxRow],
+          totalNumberOfBoxes: 268,
+        }),
+        actionOptionsMock(),
+      ],
+    });
+
+    await user.click(await screen.findByText("Select all 268 boxes"));
+    await waitFor(() => expect(counter()).toHaveTextContent("268 Boxes selected"));
+
+    await user.click(screen.getByRole("button", { name: /next page/i }));
+    await screen.findByText("L0051");
+    expect(counter()).toHaveTextContent("268 Boxes selected");
+    expect(await rowCheckbox(/L0051/i)).toBeChecked();
+
+    await user.click(screen.getByRole("button", { name: /previous page/i }));
+    await screen.findByText("L0001");
+    expect(counter()).toHaveTextContent("268 Boxes selected");
+  }, 20000);
 });

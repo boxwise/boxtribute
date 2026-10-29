@@ -38,6 +38,9 @@ export type ShipmentDetailWithAutomatchProduct = FragmentOf<
 export type TransferAgreements = FragmentOf<typeof TRANSFER_AGREEMENT_FIELDS_FRAGMENT>;
 export type BoxesForBoxesViewQuery = ResultOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
 export type BoxesForBoxesViewVariables = VariablesOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
+export type FilterBoxInput = NonNullable<
+  NonNullable<BoxesForBoxesViewVariables["options"]>["filters"]
+>;
 export type ActionOptionsForBoxesViewQuery = ResultOf<typeof ACTION_OPTIONS_FOR_BOXESVIEW_QUERY>;
 export type StandardProductsforProductsViewQuery = ResultOf<
   typeof STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY

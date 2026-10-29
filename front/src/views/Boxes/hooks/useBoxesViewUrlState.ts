@@ -7,6 +7,7 @@ import {
   getCanonicalQueryString,
   getDefaultBoxesViewState,
   hasBoxesViewParams,
+  normalizeSearch,
   parseBoxesViewSearchParams,
   serializeBoxesViewState,
 } from "../boxesViewUrlState";
@@ -99,6 +100,11 @@ export function useBoxesViewUrlState(baseId: string) {
     [state, write],
   );
 
+  const setSearch = useCallback(
+    (search: string) => write({ ...state, search: normalizeSearch(search), page: 1 }, true),
+    [state, write],
+  );
+
   const setSort = useCallback(
     (sort: { sortBy: BoxesSortBy | undefined; descending: boolean }) =>
       write({ ...state, sortBy: sort.sortBy, descending: sort.descending, page: 1 }, true),
@@ -111,7 +117,10 @@ export function useBoxesViewUrlState(baseId: string) {
     [state, write],
   );
 
-  const filterBoxInput = useMemo(() => filtersToFilterBoxInput(state.filters), [state.filters]);
+  const filterBoxInput = useMemo(
+    () => filtersToFilterBoxInput(state.filters, state.search),
+    [state.filters, state.search],
+  );
   const boxRowOptions = useMemo(
     () => prepareQueryVariables(baseId, state).options,
     [baseId, state],
@@ -119,10 +128,12 @@ export function useBoxesViewUrlState(baseId: string) {
 
   return {
     filters: state.filters,
+    search: state.search,
     sortBy: state.sortBy,
     descending: state.descending,
     page: state.page,
     setFilters,
+    setSearch,
     setSort,
     setPage,
     filterBoxInput,

@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
+import { FilterBoxInput } from "queries/types";
 
 export enum IDeleteBoxResultKind {
   SUCCESS = "success",
@@ -27,8 +28,8 @@ export interface IDeleteBoxResult {
 }
 
 export const DELETE_BOXES = graphql(`
-  mutation DeleteBoxes($labelIdentifiers: [String!]!) {
-    deleteBoxes(labelIdentifiers: $labelIdentifiers) {
+  mutation DeleteBoxes($labelIdentifiers: [String!], $filters: FilterBoxInput) {
+    deleteBoxes(labelIdentifiers: $labelIdentifiers, filters: $filters) {
       __typename
       ... on BoxesResult {
         updatedBoxes {
@@ -57,14 +58,17 @@ export const useDeleteBoxes = () => {
   const [deleteBoxesMutation] = useMutation(DELETE_BOXES);
 
   const deleteBoxes = useCallback(
-    (boxes: IBoxBasicFields[], showToasts: boolean = true, showErrors: boolean = true) => {
+    (
+      boxes: IBoxBasicFields[],
+      showToasts: boolean = true,
+      showErrors: boolean = true,
+      filters?: FilterBoxInput,
+    ) => {
       setIsLoading(true);
       const labelIdentifiers = boxes.map((box) => box.labelIdentifier);
 
       return deleteBoxesMutation({
-        variables: {
-          labelIdentifiers,
-        },
+        variables: filters ? { filters } : { labelIdentifiers },
       })
         .then(({ data, errors }) => {
           setIsLoading(false);

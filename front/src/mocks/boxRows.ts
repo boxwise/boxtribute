@@ -26,7 +26,6 @@ export const toBoxRow = (box: any, overrides: Record<string, any> = {}) => ({
   sizeName: box.size.label,
   locationName: box.location.name,
   shipmentId: box.shipmentDetail?.shipment?.id ?? null,
-  shipmentDetailId: box.shipmentDetail?.id ?? null,
   hasQrCode: !!box.qrCode,
   tagIds: box.tags.map(({ id }) => id),
   ...overrides,
