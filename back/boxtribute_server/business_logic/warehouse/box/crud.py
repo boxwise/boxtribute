@@ -975,7 +975,7 @@ def create_boxes(*, user_id, data):
 
 
 def get_boxes_page(
-    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=False
+    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=None
 ):
     page_size = max(min(50 if page_size is None else page_size, 100), 1)
 
@@ -1001,7 +1001,7 @@ def get_boxes_page(
     )
 
     def order(field):
-        return field.desc() if descending else field.asc()
+        return field.desc() if descending is not False else field.asc()
 
     # Inner query: sort and page on IDs only. The sort key is selected as well in order
     # to sort the page rows of the outer query (and to be compatible with DISTINCT)

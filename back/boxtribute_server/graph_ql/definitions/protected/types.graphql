@@ -577,6 +577,7 @@ input BoxRowOptions {
   pageSize: Int
   filters: FilterBoxInput
   sortBy: BoxSortField
+  " Sorting order. Default: true "
   descending: Boolean
 }
 

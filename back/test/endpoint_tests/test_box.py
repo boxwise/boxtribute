@@ -199,7 +199,7 @@ def test_box_rows_filtering(client):
     assert len(result["page"]) == 3
     assert result["totalNumberOfBoxes"] == 3
     label_identifiers = [box["labelIdentifier"] for box in result["page"]]
-    assert label_identifiers == sorted(label_identifiers)
+    assert label_identifiers == sorted(label_identifiers, reverse=True)  # default: desc
     for box in result["page"]:
         for tag_id in box["tagIds"]:
             assert int(tag_id) in [2, 3]
