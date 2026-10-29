@@ -215,6 +215,26 @@ def test_box_rows_filtering(client):
     assert len(result["page"]) == 0
     assert result["totalNumberOfBoxes"] == 0
 
+    query = f"""query {{ boxRows(baseId: 1, options: {{
+                            sortBy: {sort_by}, search: "not" }} ) {{
+                        totalNumberOfBoxes
+                        page {{ labelIdentifier }}
+                    }} }}"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 2
+    assert result["totalNumberOfBoxes"] == 2
+    label_identifiers = [box["labelIdentifier"] for box in result["page"]]
+    assert label_identifiers == ["67890123", "45678901"]
+
+    query = f"""query {{ boxRows(baseId: 1, options: {{
+                            sortBy: {sort_by}, search: "xyz" }} ) {{
+                        totalNumberOfBoxes
+                        page {{ labelIdentifier }}
+                    }} }}"""
+    result = assert_successful_request(client, query)
+    assert len(result["page"]) == 0
+    assert result["totalNumberOfBoxes"] == 0
+
 
 @pytest.mark.parametrize("descending", [False, True])
 @pytest.mark.parametrize(

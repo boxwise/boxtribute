@@ -975,12 +975,21 @@ def create_boxes(*, user_id, data):
 
 
 def get_boxes_page(
-    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=None
+    base_id,
+    *,
+    page=None,
+    page_size=None,
+    filters=None,
+    sort_by=None,
+    descending=None,
+    search=None,
 ):
     page_size = max(min(50 if page_size is None else page_size, 100), 1)
 
     box_selection = Box.select(Box.id).join(Location)
     conditions, selection = derive_box_filter(filters, box_selection)
+    if search:
+        conditions.append(Box.comment.contains(search))
     selection = selection.where(
         (Box.deleted_on.is_null() | (Box.deleted_on == 0)),
         Location.base == base_id,

@@ -577,6 +577,8 @@ input BoxRowOptions {
   pageSize: Int
   filters: FilterBoxInput
   sortBy: BoxSortField
+  " Pattern to case-insensitive search for in strings (implemented: comment) "
+  search: String
   " Sorting order. Default: true "
   descending: Boolean
 }
