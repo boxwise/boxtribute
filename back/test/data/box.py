@@ -38,6 +38,7 @@ def default_box_data():
         "weight_display_unit": kilogram_unit_data()["id"],
         "monetary_value": 99.9,
         "deleted_on": None,
+        "comment": None,
     }
 
 
@@ -66,6 +67,7 @@ def lost_box_data():
     data["id"] = 5
     data["label_identifier"] = "45678901"
     data["state"] = BoxState.Lost
+    data["comment"] = "not found"
     return data
 
 
@@ -84,6 +86,7 @@ def another_marked_for_shipment_box_data():
     data["product"] = product_data()[4]["id"]
     data["label_identifier"] = "67890123"
     data["last_modified_on"] = datetime(2021, 2, 2)
+    data["comment"] = "must NOT break"
     return data
 
 

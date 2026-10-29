@@ -166,7 +166,6 @@ def test_box_rows_query(client):
                 sizeName
                 locationId
                 locationName
-                shipmentDetailId
                 shipmentId
                 hasQrCode
                 tagIds
@@ -200,7 +199,7 @@ def test_box_rows_filtering(client):
     assert len(result["page"]) == 3
     assert result["totalNumberOfBoxes"] == 3
     label_identifiers = [box["labelIdentifier"] for box in result["page"]]
-    assert label_identifiers == sorted(label_identifiers)
+    assert label_identifiers == sorted(label_identifiers, reverse=True)  # default: desc
     for box in result["page"]:
         for tag_id in box["tagIds"]:
             assert int(tag_id) in [2, 3]
@@ -222,6 +221,8 @@ def test_box_rows_filtering(client):
     ["sort_by", "field"],
     [
         ("LabelIdentifier", "labelIdentifier"),
+        ("LastModifiedOn", "lastModifiedOn"),
+        ("State", "state"),
         ("ProductName", "productName"),
         ("CategoryName", "productCategoryName"),
         ("ProductGender", "productGender"),
@@ -1829,6 +1830,8 @@ def _format(parameter):
         [[{"states": "[NotDelivered]"}], 2],
         [[{"states": "[InStock,Lost]"}], 3],
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
+        [[{"pattern": '"not"'}], 2],
+        [[{"pattern": '"xyz"'}], 0],
         [[{"createdFrom": '"2020-11-27"'}], 14],
         [[{"createdFrom": '"2020-11-28"'}], 0],
         [[{"createdUntil": '"2020-11-27"'}], 14],
