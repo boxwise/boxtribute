@@ -1,4 +1,4 @@
-import { useState, ChangeEventHandler } from "react";
+import { useEffect, useRef, useState, ChangeEventHandler } from "react";
 import { useAsyncDebounce } from "react-table";
 import { SearchIcon } from "@chakra-ui/icons";
 import {
@@ -12,15 +12,33 @@ import {
 interface IProps {
   globalFilter: string;
   setGlobalFilter: (filterValue: string | undefined) => void;
+  placeholder?: string;
+  /** Opt-in for filters that are controlled externally (e.g. by URL search params): the input
+   * follows changes of `globalFilter` that were not caused by the input itself. */
+  syncWithGlobalFilter?: boolean;
 }
 
-export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
+export function GlobalFilter({
+  globalFilter,
+  setGlobalFilter,
+  placeholder = "Search",
+  syncWithGlobalFilter = false,
+}: IProps) {
   const [value, setValue] = useState<string>(globalFilter);
+  const lastEmittedValue = useRef(globalFilter ?? "");
   const { isOpen, onToggle } = useDisclosure();
   const [isLargerThan768] = useMediaQuery("(min-width: 768px)");
   const onChange = useAsyncDebounce((val: string) => {
+    lastEmittedValue.current = val;
     setGlobalFilter(val || undefined);
   }, 200);
+
+  useEffect(() => {
+    if (syncWithGlobalFilter && (globalFilter ?? "").trim() !== lastEmittedValue.current.trim()) {
+      lastEmittedValue.current = globalFilter ?? "";
+      setValue(globalFilter ?? "");
+    }
+  }, [globalFilter, syncWithGlobalFilter]);
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const val = e.target.value;
@@ -40,7 +58,7 @@ export function GlobalFilter({ globalFilter, setGlobalFilter }: IProps) {
         borderRadius={0}
         value={value || ""}
         onChange={handleChange}
-        placeholder="Search"
+        placeholder={placeholder}
       />
     </InputGroup>
   );

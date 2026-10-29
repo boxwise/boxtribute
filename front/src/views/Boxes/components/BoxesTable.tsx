@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useTransition, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
@@ -18,160 +18,150 @@ import {
   Column,
   useTable,
   useFilters,
-  useGlobalFilter,
   useSortBy,
   useRowSelect,
   usePagination,
   CellProps,
   Filters,
+  HeaderGroup,
+  TableState,
 } from "react-table";
 import { FilteringSortingTableHeader } from "components/Table/TableHeader";
-import { useAtomValue } from "jotai";
-import { QueryRef, useReadQuery } from "@apollo/client";
-import {
-  includesOneOfMultipleStringsFilterFn,
-  includesSomeObjectFilterFn,
-  includesSomeTagObjectFilterFn,
-  excludesSomeTagObjectFilterFn,
-  dateRangeFilterFn,
-} from "components/Table/Filter";
 import { IUseTableConfigReturnType } from "hooks/useTableConfig";
 import IndeterminateCheckbox from "./Checkbox";
-import { GlobalFilter } from "components/Table/GlobalFilter";
 import { BoxRow } from "./types";
-import {
-  boxesRawDataToTableDataTransformer,
-  prepareBoxesForBoxesViewQueryVariables,
-} from "./transformers";
-import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
-import { BoxesForBoxesViewVariables, BoxesForBoxesViewQuery } from "queries/types";
+import { boxesRawDataToTableDataTransformer } from "./transformers";
+import { ActionOptionsForBoxesViewQuery } from "queries/types";
 import ColumnSelector from "components/Table/ColumnSelector";
+import { GlobalFilter } from "components/Table/GlobalFilter";
 import useBoxesActions from "../hooks/useBoxesActions";
+import { useBoxRows } from "../hooks/useBoxRows";
+import { useBoxesViewUrlState } from "../hooks/useBoxesViewUrlState";
+import {
+  COLUMN_ID_TO_SORT_BY,
+  PAGE_SIZE,
+  SORT_BY_TO_COLUMN_ID,
+  getNextSort,
+} from "../boxesViewUrlState";
 import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BoxesFilter } from "./BoxesFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 import { FilterChips } from "./FilterChips";
 import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
-import { createOptions } from "utils/filterOptions";
 import { removeFilter, formatWeight, formatMonetaryValue } from "utils/helpers";
 import { useAuthorization } from "hooks/useAuthorization";
 
 interface IBoxesTableProps {
-  isBackgroundFetchOfBoxesLoading: boolean;
-  hasExecutedInitialFetchOfBoxes: { current: boolean };
+  baseId: string;
+  /** The state of the view derived from the URL */
+  urlState: ReturnType<typeof useBoxesViewUrlState>;
   tableConfig: IUseTableConfigReturnType;
-  onRefetch: (variables?: BoxesForBoxesViewVariables) => void;
-  boxesQueryRef: QueryRef<BoxesForBoxesViewQuery>;
+  actionOptionsData: ActionOptionsForBoxesViewQuery;
   columns: Column<BoxRow>[];
   locationOptions: IFilterValue[];
   tagOptions: IFilterValue[];
   shipmentOptions: IDropdownOption[];
+  productOptions: IFilterValue[];
+  categoryOptions: IFilterValue[];
+  genderOptions: IFilterValue[];
+  sizeOptions: IFilterValue[];
 }
 
-export const PAGE_SIZE = 50;
-
 function BoxesTable({
-  isBackgroundFetchOfBoxesLoading,
-  hasExecutedInitialFetchOfBoxes,
+  baseId,
+  urlState,
   tableConfig,
-  onRefetch,
-  boxesQueryRef,
+  actionOptionsData,
   columns,
   locationOptions,
   tagOptions,
   shipmentOptions,
+  productOptions,
+  categoryOptions,
+  genderOptions,
+  sizeOptions,
 }: IBoxesTableProps) {
-  const baseId = useAtomValue(selectedBaseIdAtom);
   const authorize = useAuthorization();
   const showWeightAndValue = authorize({ minBeta: 7 });
-  const [refetchBoxesIsPending, startRefetchBoxes] = useTransition();
-  const { data: rawData } = useReadQuery(boxesQueryRef);
-  const tableData = useMemo(() => boxesRawDataToTableDataTransformer(rawData), [rawData]);
+  const {
+    filters,
+    search,
+    sortBy,
+    descending,
+    page: currentPage,
+    filterBoxInput,
+    setFilters,
+    setSearch,
+    setSort,
+    setPage,
+  } = urlState;
 
-  // Add custom filter function to filter objects in a column
-  // https://react-table-v7.tanstack.com/docs/examples/filtering
-  const filterTypes = useMemo(
-    () => ({
-      includesSomeObject: includesSomeObjectFilterFn,
-      includesOneOfMultipleStrings: includesOneOfMultipleStringsFilterFn,
-      includesSomeTagObject: includesSomeTagObjectFilterFn,
-      excludesSomeTagObject: excludesSomeTagObjectFilterFn,
-      dateRange: dateRangeFilterFn,
-    }),
-    [],
+  const { rows, totals, maxPage, isLoading, isPrefetching, isRefetching, refetch } = useBoxRows({
+    baseId,
+    filters,
+    search,
+    sortBy,
+    descending,
+    page: currentPage,
+  });
+
+  const tableData = useMemo(
+    () => boxesRawDataToTableDataTransformer({ page: rows }, actionOptionsData),
+    [rows, actionOptionsData],
   );
 
-  function customGlobalFilter(rows, ids, filterValue) {
-    // Custom filter for global table search that can handle both simple cell content (e.g. comment
-    // or label identifier strings) and complex cell content (e.g. product objects; these would
-    // otherwise be interpreted as [Object object] and hence not match)
+  // Filters, sorting and pagination are controlled by the URL, not by react-table
+  const controlledSortBy = useMemo(
+    () => (sortBy ? [{ id: SORT_BY_TO_COLUMN_ID[sortBy], desc: descending }] : []),
+    [sortBy, descending],
+  );
+  const useControlledState = useCallback(
+    (state: TableState<BoxRow>): TableState<BoxRow> => ({
+      ...state,
+      filters,
+      sortBy: controlledSortBy,
+      pageIndex: currentPage - 1,
+      pageSize: PAGE_SIZE,
+    }),
+    [filters, controlledSortBy, currentPage],
+  );
 
-    // To lower-case for case insensitive searching
-    const search = String(filterValue).toLowerCase();
-
-    return rows.filter((row) =>
-      ids.some((id) => {
-        const value = row.values[id];
-        if (Array.isArray(value)) {
-          // If value is an array (e.g. tags)
-          return value.some((v) =>
-            // Try matching v.name (object) or v (string)
-            v && typeof v === "object"
-              ? (v.name || "").toLowerCase().includes(search)
-              : String(v).toLowerCase().includes(search),
-          );
-        } else if (typeof value === "object" && value !== null) {
-          // Match on object.name
-          return (value.name || "").toLowerCase().includes(search);
-        } else {
-          // Fallback: treat as string
-          return String(value || "")
-            .toLowerCase()
-            .includes(search);
-        }
-      }),
-    );
-  }
+  // Select-all: all boxes matching the filters of the view are selected, including the ones that
+  // are not loaded. Row selection by the user turns it off.
+  const [isSelectAll, setIsSelectAll] = useState(false);
+  const isSelectAllRef = useRef(isSelectAll);
+  isSelectAllRef.current = isSelectAll;
 
   const {
     headerGroups,
     prepareRow,
     allColumns,
-    state: { globalFilter, pageIndex, filters, sortBy, hiddenColumns },
-    setGlobalFilter,
+    state: { hiddenColumns },
     page,
-    rows,
-    setAllFilters,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    nextPage,
-    previousPage,
     selectedFlatRows,
-    toggleRowSelected,
     toggleAllRowsSelected,
-    isAllRowsSelected,
-  } = useTable(
+    dispatch,
+  } = useTable<BoxRow>(
     {
       columns,
       data: tableData,
-      filterTypes,
-      globalFilter: customGlobalFilter,
+      getRowId: (row) => row.labelIdentifier,
       initialState: {
         hiddenColumns: tableConfig.getHiddenColumns(),
-        sortBy: tableConfig.getSortBy(),
-        pageIndex: 0,
-        pageSize: PAGE_SIZE,
-        filters: tableConfig.getColumnFilters(),
-        ...(tableConfig.getGlobalFilter()
-          ? { globalFilter: tableConfig.getGlobalFilter() }
-          : undefined),
       },
-      autoResetSelectedRows: !isBackgroundFetchOfBoxesLoading,
+      manualPagination: true,
+      manualFilters: true,
+      manualSortBy: true,
+      disableMultiSort: true,
+      autoResetPage: false,
+      autoResetFilters: false,
+      autoResetSortBy: false,
+      autoResetSelectedRows: false,
+      pageCount: maxPage,
+      useControlledState,
     },
     useFilters,
-    useGlobalFilter,
     useSortBy,
     usePagination,
     useRowSelect,
@@ -179,29 +169,69 @@ function BoxesTable({
       hooks.visibleColumns.push((col) => [
         {
           id: "selection",
-          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => (
-            <IndeterminateCheckbox {...getToggleAllPageRowsSelectedProps()} />
-          ),
-          Cell: ({ row }: CellProps<any, any>) => (
-            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-          ),
+          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => {
+            const props = getToggleAllPageRowsSelectedProps();
+            return (
+              <IndeterminateCheckbox
+                {...props}
+                onChange={(e) => {
+                  setIsSelectAll(false);
+                  props.onChange?.(e);
+                }}
+              />
+            );
+          },
+          Cell: ({ row }: CellProps<any, any>) => {
+            const props = row.getToggleRowSelectedProps();
+            return (
+              <IndeterminateCheckbox
+                {...props}
+                onChange={(e) => {
+                  setIsSelectAll(false);
+                  props.onChange?.(e);
+                }}
+              />
+            );
+          },
         },
         ...col,
       ]);
     },
   );
-  const boxCount = rows.length;
-  const itemsCount = rows.reduce((total, row) => total + row.original.numberOfItems, 0);
-  const hasWeight = rows.some((row) => row.original.weight != null);
-  const totalWeight = rows.reduce((total, row) => total + (row.original.weight ?? 0), 0);
-  const weightUnit = rows.find((row) => row.original.weightUnit)?.original.weightUnit ?? null;
-  const hasMonetaryValue = rows.some((row) => row.original.monetaryValue != null);
-  const totalMonetaryValue = rows.reduce(
-    (total, row) => total + (row.original.monetaryValue ?? 0),
-    0,
+  const totalNumberOfBoxes = totals?.totalNumberOfBoxes ?? 0;
+  const selectedCount = isSelectAll ? totalNumberOfBoxes : selectedFlatRows.length;
+  const weightUnit = tableData.find((row) => row.weightUnitSymbol)?.weightUnitSymbol ?? null;
+  const currency = actionOptionsData.base?.monetaryCurrencyCode ?? null;
+
+  // toggleAllRowsSelected(false) only deselects the rows that are currently loaded
+  const resetSelectedRows = useCallback(() => dispatch({ type: "resetSelectedRows" }), [dispatch]);
+
+  const resetSelection = useCallback(() => {
+    setIsSelectAll(false);
+    resetSelectedRows();
+  }, [resetSelectedRows]);
+
+  // The boxes found by the backend for select-all are restricted to the locations of the base,
+  // unless the filters specify locations. Otherwise, boxes of other bases that the user has access
+  // to would be affected as well.
+  const baseLocations = actionOptionsData.base?.locations;
+  const baseLocationIds = useMemo(
+    () => baseLocations?.map(({ id }) => Number(id)),
+    [baseLocations],
   );
-  const currency = rows.find((row) => row.original.currency)?.original.currency ?? null;
-  const selectedCount = selectedFlatRows.length;
+  const selectAll = useMemo(
+    () =>
+      isSelectAll
+        ? {
+            filters: {
+              ...filterBoxInput,
+              locationIds: filterBoxInput.locationIds ?? baseLocationIds,
+            },
+            onDone: resetSelection,
+          }
+        : undefined,
+    [isSelectAll, filterBoxInput, baseLocationIds, resetSelection],
+  );
 
   const {
     onBoxRowClick,
@@ -212,87 +242,53 @@ function BoxesTable({
     onAssignBoxesToShipment,
     onUnassignBoxesToShipment,
     actionsAreLoading,
-  } = useBoxesActions(selectedFlatRows, toggleRowSelected);
+  } = useBoxesActions(selectedFlatRows, refetch, selectAll);
 
+  // Select-all and the row selection are reset when the boxes of the view change
+  const viewKey = JSON.stringify([baseId, filters, search, sortBy, descending]);
   useEffect(() => {
-    // Helper to compare filter values (deep equality for arrays)
-    const areFilterValuesEqual = (
-      filter1: { id: string; value: any } | undefined,
-      filter2: { id: string; value: any } | undefined,
-    ): boolean => {
-      if (!filter1 && !filter2) return true;
-      if (!filter1 || !filter2) return false;
+    resetSelection();
+  }, [viewKey, resetSelection]);
 
-      const val1 = Array.isArray(filter1.value) ? filter1.value : [filter1.value];
-      const val2 = Array.isArray(filter2.value) ? filter2.value : [filter2.value];
-
-      if (val1.length !== val2.length) return false;
-
-      // Sort and compare arrays
-      const sorted1 = [...val1].sort();
-      const sorted2 = [...val2].sort();
-      return sorted1.every((v, i) => v === sorted2[i]);
-    };
-
-    // refetch only if state or location filter actually changed
-    const newStateFilter = filters.find((filter) => filter.id === "state");
-    const oldStateFilter = tableConfig.getColumnFilters().find((filter) => filter.id === "state");
-    const newLocationFilter = filters.find((filter) => filter.id === "location");
-    const oldLocationFilter = tableConfig
-      .getColumnFilters()
-      .find((filter) => filter.id === "location");
-
-    if (
-      !areFilterValuesEqual(newStateFilter, oldStateFilter) ||
-      !areFilterValuesEqual(newLocationFilter, oldLocationFilter)
-    ) {
-      startRefetchBoxes(() => {
-        onRefetch(prepareBoxesForBoxesViewQueryVariables(baseId, filters));
-      });
+  // The row selection is limited to the current page, unless select-all is active. In that case,
+  // the rows of the new page are selected once they are loaded.
+  useEffect(() => {
+    if (!isSelectAllRef.current) {
+      resetSelectedRows();
     }
+  }, [currentPage, resetSelectedRows]);
+  useEffect(() => {
+    if (isSelectAll) {
+      toggleAllRowsSelected(true);
+    }
+  }, [isSelectAll, tableData, toggleAllRowsSelected]);
 
-    // update tableConfig
-    if (globalFilter !== tableConfig.getGlobalFilter()) {
-      tableConfig.setGlobalFilter(globalFilter);
-    }
-    if (filters !== tableConfig.getColumnFilters()) {
-      tableConfig.setColumnFilters(filters);
-    }
-    if (sortBy !== tableConfig.getSortBy()) {
-      tableConfig.setSortBy(sortBy);
-    }
+  // Only the hidden columns are persisted in the table config
+  useEffect(() => {
     if (hiddenColumns !== tableConfig.getHiddenColumns()) {
       tableConfig.setHiddenColumns(hiddenColumns);
     }
-  }, [baseId, filters, globalFilter, hiddenColumns, onRefetch, sortBy, tableConfig]);
+  }, [hiddenColumns, tableConfig]);
+
+  // Correct a page that is out of range, e.g. because of a manually edited URL
+  useEffect(() => {
+    if (totals !== null && currentPage > maxPage) {
+      setPage(maxPage, { replace: true });
+    }
+  }, [totals, currentPage, maxPage, setPage]);
 
   const filterDisclosure = useDisclosure();
 
-  const productOptions = useMemo(() => {
-    const enrichedData = tableData.map((row) => ({
-      product: row.product?.id
-        ? { id: row.product.id, name: `${row.product.name} (${row.gender?.name || ""})` }
-        : null,
-    }));
-    return createOptions(enrichedData, "product");
-  }, [tableData]);
-
-  const categoryOptions = useMemo(() => createOptions(tableData, "productCategory"), [tableData]);
-
-  const genderOptions = useMemo(() => createOptions(tableData, "gender"), [tableData]);
-
-  const sizeOptions = useMemo(() => createOptions(tableData, "size"), [tableData]);
-
   const handleApplyFilters = useCallback(
     (newFilters: Filters<any>) => {
-      setAllFilters(newFilters);
+      setFilters(newFilters);
     },
-    [setAllFilters],
+    [setFilters],
   );
 
   const handleClearFilters = useCallback(() => {
-    setAllFilters([]);
-  }, [setAllFilters]);
+    setFilters([]);
+  }, [setFilters]);
 
   const handleRemoveFilter = useCallback(
     (filterId: string, valueToRemove?: string) => {
@@ -306,7 +302,7 @@ function BoxesTable({
 
         if (!valueToRemove) {
           // Remove the entire filter
-          setAllFilters(filters.filter((f) => f.id !== "createdOn"));
+          setFilters(filters.filter((f) => f.id !== "createdOn"));
           return;
         }
 
@@ -314,25 +310,40 @@ function BoxesTable({
         const newTo = valueToRemove === "to" ? "" : to;
 
         if (!newFrom && !newTo) {
-          setAllFilters(filters.filter((f) => f.id !== "createdOn"));
+          setFilters(filters.filter((f) => f.id !== "createdOn"));
         } else {
-          setAllFilters(
+          setFilters(
             filters.map((f) => (f.id === "createdOn" ? { ...f, value: [newFrom, newTo] } : f)),
           );
         }
         return;
       }
 
-      removeFilter(filterId, valueToRemove, filters, setAllFilters);
+      removeFilter(filterId, valueToRemove, filters, setFilters);
     },
-    [filters, setAllFilters],
+    [filters, setFilters],
   );
+
+  const handleSortColumn = useCallback(
+    (column: HeaderGroup<any>) => {
+      const clicked = COLUMN_ID_TO_SORT_BY[column.id];
+      if (clicked) {
+        setSort(getNextSort({ sortBy, descending }, clicked));
+      }
+    },
+    [setSort, sortBy, descending],
+  );
+
+  const columnCount = columns.length + 1;
+  const isRowLoading = actionsAreLoading || isRefetching;
 
   return (
     <Flex direction="column" height="100%">
       <Flex alignItems="center" flexWrap="wrap" key="columnSelector" flex="none">
         <BoxesActions
           selectedBoxes={selectedFlatRows}
+          isSelectAll={isSelectAll}
+          selectedCount={selectedCount}
           onMoveBoxes={onMoveBoxes}
           locationOptions={locationOptions}
           onDeleteBoxes={onDeleteBoxes}
@@ -342,20 +353,21 @@ function BoxesTable({
           onAssignBoxesToShipment={onAssignBoxesToShipment}
           shipmentOptions={shipmentOptions}
           onUnassignBoxesToShipment={onUnassignBoxesToShipment}
-          actionsAreLoading={actionsAreLoading}
+          actionsAreLoading={isRowLoading}
         />
         <Spacer />
         <HStack spacing={2} mb={2}>
           <ColumnSelector
             availableColumns={allColumns.filter(
-              (column) =>
-                column.id !== "shipment" &&
-                column.id !== "selection" &&
-                column.id !== "no_tags" &&
-                column.id !== "createdOn",
+              (column) => column.id !== "selection" && column.id !== "shipmentId",
             )}
           />
-          <GlobalFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+          <GlobalFilter
+            globalFilter={search}
+            setGlobalFilter={(value) => setSearch(value ?? "")}
+            placeholder="Search comments"
+            syncWithGlobalFilter
+          />
           <FilterPanel
             isOpen={filterDisclosure.isOpen}
             onOpen={filterDisclosure.onOpen}
@@ -388,45 +400,43 @@ function BoxesTable({
         onClearAllFilters={handleClearFilters}
       />
       <Box bg="gray.100" px={4} py={2} mb={2} width="100%" data-testid="total-summary">
-        {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
+        {isLoading || totals === null ? (
           <HStack spacing={2}>
             <Text fontWeight="bold">Total</Text>
             <Skeleton height={5} width={20} />
           </HStack>
-        ) : hasExecutedInitialFetchOfBoxes.current ? (
+        ) : (
           <HStack spacing={10} data-testid="boxes-count">
             <Text fontWeight="bold">Total</Text>
             <Text>
               <Text as="span" fontWeight="bold">
-                {boxCount}
+                {totals.totalNumberOfBoxes}
               </Text>{" "}
-              box{boxCount === 1 ? "" : "es"}
+              box{totals.totalNumberOfBoxes === 1 ? "" : "es"}
             </Text>
             <Text>
               <Text as="span" fontWeight="bold">
-                {itemsCount}
+                {totals.totalNumberOfItems}
               </Text>{" "}
               items
             </Text>
-            {showWeightAndValue && hasWeight && (
+            {showWeightAndValue && totals.totalWeight > 0 && (
               <Text>
                 <Text as="span" fontWeight="bold">
-                  {formatWeight(totalWeight, null)}
+                  {formatWeight(totals.totalWeight, null)}
                 </Text>{" "}
                 est. weight{weightUnit ? ` (${weightUnit})` : ""}
               </Text>
             )}
-            {showWeightAndValue && hasMonetaryValue && (
+            {showWeightAndValue && totals.totalMonetaryValue > 0 && (
               <Text>
                 <Text as="span" fontWeight="bold">
-                  {formatMonetaryValue(totalMonetaryValue, currency)}
+                  {formatMonetaryValue(totals.totalMonetaryValue, currency)}
                 </Text>{" "}
                 est. value
               </Text>
             )}
           </HStack>
-        ) : (
-          <Text>Data unavailable</Text>
         )}
       </Box>
       <Flex alignItems="center" mb={2} data-testid="selected-boxes-counter">
@@ -435,12 +445,7 @@ function BoxesTable({
             <Text as="span" fontWeight="bold" color="black">
               {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
             </Text>{" "}
-            <Text
-              as="span"
-              color="black"
-              cursor="pointer"
-              onClick={() => toggleAllRowsSelected(false)}
-            >
+            <Text as="span" color="black" cursor="pointer" onClick={resetSelection}>
               Clear all
             </Text>
           </HStack>
@@ -450,92 +455,97 @@ function BoxesTable({
             |
           </Box>
         )}
-        {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending || tableConfig.isNotMounted ? (
+        {isLoading || totals === null ? (
           <HStack spacing={2}>
             <Skeleton height={5} width={20} />
           </HStack>
         ) : (
           <Text
             mx={4}
-            cursor={isAllRowsSelected ? "default" : "pointer"}
-            color={isAllRowsSelected ? "gray.400" : "black"}
+            cursor={isSelectAll || totalNumberOfBoxes === 0 ? "default" : "pointer"}
+            color={isSelectAll || totalNumberOfBoxes === 0 ? "gray.400" : "black"}
             onClick={() => {
-              if (!isAllRowsSelected) toggleAllRowsSelected(true);
+              if (!isSelectAll && totalNumberOfBoxes > 0) setIsSelectAll(true);
             }}
           >
-            Select all {boxCount} {boxCount === 1 ? "box" : "boxes"}
+            Select all {totalNumberOfBoxes} {totalNumberOfBoxes === 1 ? "box" : "boxes"}
           </Text>
         )}
       </Flex>
       <Table key="boxes-table">
-        <FilteringSortingTableHeader headerGroups={headerGroups} hideColumnFilters={true} />
+        <FilteringSortingTableHeader
+          headerGroups={headerGroups}
+          hideColumnFilters={true}
+          onSortColumn={handleSortColumn}
+        />
         <Tbody>
-          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-            <Tr key="refetchIsPending1">
-              <Td colSpan={columns.length + 1}>
-                <Skeleton height={5} />
-              </Td>
-            </Tr>
-          )}
-          {(refetchBoxesIsPending || tableConfig.isNotMounted) && (
-            <Tr key="refetchIsPending2">
-              <Td colSpan={columns.length + 1}>
-                <Skeleton height={5} />
-              </Td>
-            </Tr>
+          {isLoading && (
+            <>
+              <Tr key="loading1">
+                <Td colSpan={columnCount}>
+                  <Skeleton height={5} />
+                </Td>
+              </Tr>
+              <Tr key="loading2">
+                <Td colSpan={columnCount}>
+                  <Skeleton height={5} />
+                </Td>
+              </Tr>
+            </>
           )}
 
-          {page.map((row) => {
-            prepareRow(row);
-            if (row.isSelected && actionsAreLoading) {
+          {!isLoading &&
+            page.map((row) => {
+              prepareRow(row);
+              if (row.isSelected && isRowLoading) {
+                return (
+                  <Tr key={row.original.labelIdentifier}>
+                    <Td colSpan={columnCount}>
+                      <Skeleton height={5} />
+                    </Td>
+                  </Tr>
+                );
+              }
+
               return (
-                <Tr key={row.original.labelIdentifier}>
-                  <Td colSpan={columns.length + 1}>
-                    <Skeleton height={5} />
-                  </Td>
+                <Tr
+                  cursor="pointer"
+                  {...row.getRowProps()}
+                  onClick={() => onBoxRowClick(row.original.labelIdentifier)}
+                  key={row.original.labelIdentifier}
+                >
+                  {row.cells.map((cell) => (
+                    <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
+                      {cell.render("Cell")}
+                    </Td>
+                  ))}
                 </Tr>
               );
-            }
-
-            return (
-              <Tr
-                cursor="pointer"
-                {...row.getRowProps()}
-                onClick={() => onBoxRowClick(row.original.labelIdentifier)}
-                key={row.original.labelIdentifier}
-              >
-                {row.cells.map((cell) => (
-                  <Td key={`${row.original.labelIdentifier}-${cell.column.id}`}>
-                    {cell.render("Cell")}
-                  </Td>
-                ))}
-              </Tr>
-            );
-          })}
+            })}
         </Tbody>
       </Table>
       <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
         <Flex>
           <IconButton
             aria-label="Previous Page"
-            onClick={previousPage}
-            isDisabled={!canPreviousPage}
+            onClick={() => setPage(currentPage - 1)}
+            isDisabled={currentPage <= 1}
             icon={<ChevronLeftIcon h={6} w={6} />}
           />
         </Flex>
 
         <Flex justifyContent="center" m={4}>
-          <Text as="span">
+          <Text as="span" data-testid="page-indicator">
             Page{" "}
             <Text fontWeight="bold" as="span">
-              {pageIndex + 1}
+              {currentPage}
             </Text>{" "}
             of{" "}
-            {isBackgroundFetchOfBoxesLoading || refetchBoxesIsPending ? (
+            {totals === null ? (
               <Skeleton height={5} width={10} mr={2} />
             ) : (
               <Text fontWeight="bold" as="span">
-                {pageOptions.length}
+                {maxPage}
               </Text>
             )}
           </Text>
@@ -544,8 +554,8 @@ function BoxesTable({
         <Flex>
           <IconButton
             aria-label="Next Page"
-            onClick={nextPage}
-            isDisabled={!canNextPage}
+            onClick={() => setPage(currentPage + 1)}
+            isDisabled={isLoading || isPrefetching || currentPage >= maxPage}
             icon={<ChevronRightIcon h={6} w={6} />}
           />
         </Flex>

@@ -4,6 +4,7 @@ import React, { useEffect, forwardRef } from "react";
 interface IProps {
   indeterminate?: boolean;
   name?: string;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 const useCombinedRefs = (...refs): React.MutableRefObject<any> => {

@@ -11,6 +11,7 @@ interface RemoveBoxesButtonProps {
   onDeleteBoxes: () => void;
   actionsAreLoading: boolean;
   selectedBoxes: Row<BoxRow>[];
+  selectedCount?: number;
   labelIdentifier: string;
 }
 
@@ -18,6 +19,7 @@ const RemoveBoxesButton = ({
   onDeleteBoxes,
   actionsAreLoading,
   selectedBoxes,
+  selectedCount,
   labelIdentifier,
 }: RemoveBoxesButtonProps) => {
   const { createToast } = useNotification();
@@ -56,6 +58,7 @@ const RemoveBoxesButton = ({
         isLoading={actionsAreLoading}
         isOpen={isDialogOpen}
         selectedBoxes={selectedBoxes}
+        selectedCount={selectedCount}
         onClose={() => {
           setIsDialogOpen(false);
         }}

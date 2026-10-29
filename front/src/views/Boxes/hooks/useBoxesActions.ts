@@ -6,16 +6,41 @@ import { useNavigate } from "react-router-dom";
 import { Row } from "react-table";
 import { selectedBaseIdAtom } from "stores/globalPreferenceStore";
 import { BoxRow } from "../components/types";
-import { useDeleteBoxes } from "hooks/useDeleteBoxes";
+import { IDeleteBoxResultKind, useDeleteBoxes } from "hooks/useDeleteBoxes";
 import { IBoxBasicFields } from "types/graphql-local-only";
-import { useAssignTags } from "hooks/useAssignTags";
+import { IAssignTagsResultKind, useAssignTags } from "hooks/useAssignTags";
 import { useUnassignTags } from "hooks/useUnassignTags";
-import { useAssignBoxesToShipment } from "hooks/useAssignBoxesToShipment";
-import { BoxState } from "queries/types";
+import {
+  IAssignBoxToShipmentResultKind,
+  useAssignBoxesToShipment,
+} from "hooks/useAssignBoxesToShipment";
+import { BoxState, FilterBoxInput } from "queries/types";
 
+const toBoxBasicFields = ({ original }: Row<BoxRow>): IBoxBasicFields => ({
+  labelIdentifier: original.labelIdentifier,
+  state: original.state as BoxState,
+  shipmentDetail: null,
+});
+
+interface ISelectAll {
+  /** Filters that select all boxes of the view, also the ones that are not loaded */
+  filters: FilterBoxInput;
+  /** Called after an action succeeded, to reset the selection */
+  onDone: () => void;
+}
+
+/**
+ * @param selectedBoxes rows selected on the current page
+ * @param refetch reloads the current page of boxes. It is called after an action was executed since
+ * the boxes (and the totals) might have changed.
+ * @param selectAll defined if all boxes matching the filters of the view are selected. Then, the
+ * actions are applied to the boxes found by the backend with `selectAll.filters` instead of to the
+ * selected rows.
+ */
 function useBoxesActions(
   selectedBoxes: Row<BoxRow>[],
-  toggleRowSelected: (rowId: string, set?: boolean) => void,
+  refetch: () => Promise<void>,
+  selectAll?: ISelectAll,
 ) {
   const navigate = useNavigate();
   const baseId = useAtomValue(selectedBaseIdAtom);
@@ -36,13 +61,19 @@ function useBoxesActions(
           message: `Please select a box to move`,
         });
       }
-      const movableLabelIdentifiers = selectedBoxes
-        .filter(
-          (box) => !["Receiving", "MarkedForShipment", "InTransit"].includes(box.values.state.name),
-        )
-        .map((box) => box.values.labelIdentifier);
+      // The backend ignores boxes in shipment states if the boxes are found by filters
+      const movableLabelIdentifiers = selectAll
+        ? []
+        : selectedBoxes
+            .filter(
+              (box) =>
+                !["Receiving", "MarkedForShipment", "InTransit"].includes(box.original.state ?? ""),
+            )
+            .map((box) => box.original.labelIdentifier);
 
-      const boxCountInShipmentStates = selectedBoxes.length - movableLabelIdentifiers.length;
+      const boxCountInShipmentStates = selectAll
+        ? 0
+        : selectedBoxes.length - movableLabelIdentifiers.length;
       if (boxCountInShipmentStates > 0) {
         createToast({
           type: "info",
@@ -52,8 +83,14 @@ function useBoxesActions(
         });
       }
       moveBoxesAction
-        .moveBoxes(movableLabelIdentifiers, parseInt(locationId, 10), true, true)
-        .then((moveBoxesResult) => {
+        .moveBoxes(
+          movableLabelIdentifiers,
+          parseInt(locationId, 10),
+          true,
+          true,
+          selectAll?.filters,
+        )
+        .then(async (moveBoxesResult) => {
           if (
             moveBoxesResult.failedLabelIdentifiers &&
             moveBoxesResult.failedLabelIdentifiers.length > 0 &&
@@ -69,48 +106,73 @@ function useBoxesActions(
               }. Try again?`,
             });
           }
+          if (moveBoxesResult.kind !== IMoveBoxesResultKind.BAD_USER_INPUT) {
+            await refetch();
+          }
+          if (
+            moveBoxesResult.kind === IMoveBoxesResultKind.SUCCESS ||
+            moveBoxesResult.kind === IMoveBoxesResultKind.SUCCESS_WITH_BOXES_ALREADY_AT_TARGET
+          ) {
+            selectAll?.onDone();
+          }
         });
     },
-    [createToast, moveBoxesAction, selectedBoxes],
+    [createToast, moveBoxesAction, selectedBoxes, refetch, selectAll],
   );
 
   // Delete Boxes
   const { deleteBoxes, isLoading: isDeleteBoxesLoading } = useDeleteBoxes();
-  const onDeleteBoxes = useCallback(() => {
-    deleteBoxes(selectedBoxes.map((box) => box.values as IBoxBasicFields));
-  }, [deleteBoxes, selectedBoxes]);
+  const onDeleteBoxes = useCallback(async () => {
+    const result = selectAll
+      ? await deleteBoxes([], true, true, selectAll.filters)
+      : await deleteBoxes(selectedBoxes.map(toBoxBasicFields));
+    await refetch();
+    if (result.kind === IDeleteBoxResultKind.SUCCESS) {
+      selectAll?.onDone();
+    }
+  }, [deleteBoxes, selectedBoxes, refetch, selectAll]);
 
   // Assign Tags to Boxes
   const { assignTags, isLoading: isAssignTagsLoading } = useAssignTags();
   const onAssignTags = useCallback(
     async (tagIds: string[]) => {
-      await assignTags(
-        selectedBoxes.map((box) => box.values.labelIdentifier),
+      const result = await assignTags(
+        selectAll ? [] : selectedBoxes.map((box) => box.original.labelIdentifier),
         tagIds.map((id) => parseInt(id, 10)),
+        true,
+        selectAll?.filters,
       );
-      selectedBoxes.forEach((row) => {
-        toggleRowSelected(row.id, true);
-      });
+      if (result.kind !== IAssignTagsResultKind.BAD_USER_INPUT) {
+        await refetch();
+      }
+      if (
+        result.kind === IAssignTagsResultKind.SUCCESS ||
+        result.kind === IAssignTagsResultKind.PARTIAL_FAIL
+      ) {
+        selectAll?.onDone();
+      }
     },
-    [assignTags, selectedBoxes, toggleRowSelected],
+    [assignTags, selectedBoxes, refetch, selectAll],
   );
 
   // Unassign tags from boxesMore actions
   const { unassignTags, isLoading: isUnassignTagsLoading } = useUnassignTags();
   const onUnassignTags = useCallback(
-    (tagIds: string[]) => {
+    async (tagIds: string[]) => {
       if (tagIds.length > 0) {
-        unassignTags(
-          selectedBoxes.map((box) => box.values.labelIdentifier),
+        const isSuccessful = await unassignTags(
+          selectAll ? [] : selectedBoxes.map((box) => box.original.labelIdentifier),
           tagIds.map((id) => parseInt(id, 10)),
-        ).then(() => {
-          selectedBoxes.forEach((row) => {
-            toggleRowSelected(row.id, true);
-          });
-        });
+          true,
+          selectAll?.filters,
+        );
+        await refetch();
+        if (isSuccessful) {
+          selectAll?.onDone();
+        }
       }
     },
-    [unassignTags, selectedBoxes, toggleRowSelected],
+    [unassignTags, selectedBoxes, refetch, selectAll],
   );
 
   // Assign to Shipment
@@ -130,16 +192,11 @@ function useBoxesActions(
       }
       assignBoxesToShipment(
         shipmentId,
-        selectedBoxes.map((box) => {
-          const { labelIdentifier, state } = box.original;
-          return {
-            labelIdentifier,
-            state: state.name as BoxState,
-          } as IBoxBasicFields;
-        }),
+        selectAll ? [] : selectedBoxes.map(toBoxBasicFields),
         true,
         false,
-      ).then((assignBoxesToShipmentResult) => {
+        selectAll?.filters,
+      ).then(async (assignBoxesToShipmentResult) => {
         if (
           assignBoxesToShipmentResult.notInStockBoxes &&
           assignBoxesToShipmentResult.notInStockBoxes.length > 0
@@ -168,9 +225,18 @@ function useBoxesActions(
             } to shipment. Try again?`,
           });
         }
+        if (assignBoxesToShipmentResult.kind !== IAssignBoxToShipmentResultKind.BAD_USER_INPUT) {
+          await refetch();
+        }
+        if (
+          assignBoxesToShipmentResult.kind === IAssignBoxToShipmentResultKind.SUCCESS ||
+          assignBoxesToShipmentResult.kind === IAssignBoxToShipmentResultKind.BOX_FAIL
+        ) {
+          selectAll?.onDone();
+        }
       });
     },
-    [createToast, assignBoxesToShipment, selectedBoxes],
+    [createToast, assignBoxesToShipment, selectedBoxes, refetch, selectAll],
   );
 
   // Unassign from Shipment
@@ -182,14 +248,10 @@ function useBoxesActions(
       });
     }
     unassignBoxesFromShipments(
-      selectedBoxes.map((box) => {
-        const { labelIdentifier, state } = box.original;
-        return {
-          labelIdentifier,
-          state: state.name as BoxState,
-        } as IBoxBasicFields;
-      }),
-    ).then(({ notMarkedForShipmentBoxes, failedBoxes }) => {
+      selectAll ? [] : selectedBoxes.map(toBoxBasicFields),
+      true,
+      selectAll?.filters,
+    ).then(async ({ kind, notMarkedForShipmentBoxes, failedBoxes }) => {
       if (notMarkedForShipmentBoxes && notMarkedForShipmentBoxes.length > 0) {
         createToast({
           type: "info",
@@ -210,8 +272,17 @@ function useBoxesActions(
           } from shipment. Try again?`,
         });
       }
+      if (kind !== IAssignBoxToShipmentResultKind.BAD_USER_INPUT) {
+        await refetch();
+      }
+      if (
+        kind === IAssignBoxToShipmentResultKind.SUCCESS ||
+        kind === IAssignBoxToShipmentResultKind.BOX_FAIL
+      ) {
+        selectAll?.onDone();
+      }
     });
-  }, [unassignBoxesFromShipments, selectedBoxes, createToast]);
+  }, [unassignBoxesFromShipments, selectedBoxes, createToast, refetch, selectAll]);
 
   const actionsAreLoading =
     moveBoxesAction.isLoading ||

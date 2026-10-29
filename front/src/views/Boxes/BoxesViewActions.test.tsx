@@ -4,6 +4,7 @@ import { location1 } from "mocks/locations";
 import { generateMockBox } from "mocks/boxes";
 import { shipmentDetail1 } from "mocks/shipmentDetail";
 import { tag1, tag2 } from "mocks/tags";
+import { actionOptionsMock, boxRowsMock, firstRequestOptions, toBoxRow } from "mocks/boxRows";
 import { useAuth0 } from "@auth0/auth0-react";
 import { mockAuthenticatedUser } from "mocks/hooks";
 import { cache, tableConfigsVar } from "queries/cache";
@@ -18,7 +19,7 @@ import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { ErrorBoundary } from "@sentry/react";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
-import Boxes, { ACTION_OPTIONS_FOR_BOXESVIEW_QUERY, BOXES_FOR_BOXESVIEW_QUERY } from "./BoxesView";
+import Boxes from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import { DELETE_BOXES } from "hooks/useDeleteBoxes";
 import { ASSIGN_TAGS_TO_BOXES } from "hooks/useAssignTags";
@@ -26,61 +27,53 @@ import { UNASSIGN_TAGS_FROM_BOXES } from "hooks/useUnassignTags";
 import { MOVE_BOXES_TO_LOCATION } from "hooks/useMoveBoxes";
 import { TadaDocumentNode } from "gql.tada";
 
-const boxesQuery = ({
+interface IBoxRowsQueryProps {
+  state?: string;
+  stateFilter?: string[];
+  shipmentDetail?: any;
+  labelIdentifier?: string;
+  tags?: any[];
+}
+
+/** Mocks the first request of the view, containing a single box. */
+const boxRowsQuery = ({
   state = "InStock",
   stateFilter = ["InStock"],
-  shipmentDetail = null as any,
+  shipmentDetail = null,
   labelIdentifier = "123",
-  paginationInput = 50,
-}) => ({
-  request: {
-    query: BOXES_FOR_BOXESVIEW_QUERY,
-    variables: {
-      baseId: "1",
-      filterInput: stateFilter.length ? { states: stateFilter } : {},
-      paginationInput: paginationInput,
-    },
-  },
-  result: {
-    data: {
-      boxes: {
-        __typename: "BoxPage",
-        elements: [
-          generateMockBox({
-            labelIdentifier,
-            state,
-            shipmentDetail,
-          }),
-        ],
-        pageInfo: {
-          __typename: "PageInfo",
-          hasNextPage: false,
-        },
-        totalCount: 1,
-      },
-    },
-  },
-});
+  tags = [tag2],
+}: IBoxRowsQueryProps) =>
+  boxRowsMock({
+    baseId: 1,
+    options: firstRequestOptions(stateFilter.length ? { states: stateFilter } : {}),
+    rows: [toBoxRow(generateMockBox({ labelIdentifier, state, shipmentDetail, tags }))],
+  });
 
-const actionsQuery = () => ({
-  request: {
-    query: ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
-    variables: {
-      baseId: "1",
-    },
-  },
-  result: {
-    data: {
-      base: {
-        __typename: "Base",
-        id: "1",
-        locations: [location1],
-        tags: [tag1],
+/** Mocks the request that reloads the current page after an action was executed. The result
+ * function allows to check whether the request was sent. */
+const refetchQuery = (props: IBoxRowsQueryProps) => {
+  const mock = boxRowsQuery(props);
+  const result = vi.fn(() => mock.result);
+  return { mock: { ...mock, result }, result };
+};
+
+const actionsQuery = ({ tags = [tag1] as any[] } = {}) => {
+  const mock = actionOptionsMock("1");
+  return {
+    ...mock,
+    result: {
+      data: {
+        ...mock.result.data,
+        base: {
+          ...mock.result.data.base,
+          locations: [location1],
+          tags,
+        },
+        shipments: [generateMockShipment({ hasBoxes: false })],
       },
-      shipments: [generateMockShipment({ hasBoxes: false })],
     },
-  },
-});
+  };
+};
 
 const mutation = ({
   gQLRequest = ASSIGN_BOXES_TO_SHIPMENT as TadaDocumentNode,
@@ -183,6 +176,7 @@ beforeEach(() => {
   mockAuthenticatedUser(mockedUseAuth0, "dev_volunteer@boxaid.org");
   void cache.reset();
   tableConfigsVar(new Map());
+  localStorage.clear();
 });
 
 const moveBoxesMutation = ({
@@ -292,37 +286,38 @@ const deleteBoxesMutation = ({
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
 });
 
-const boxesViewActionsTests = [
+const inStock = {};
+const donated = { state: "Donated", stateFilter: ["Donated"] };
+const markedForShipment = { state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] };
+const inShipment = { ...markedForShipment, shipmentDetail: shipmentDetail1() };
+
+interface IBoxesViewActionsTest {
+  name: string;
+  /** The box shown in the table */
+  box?: IBoxRowsQueryProps;
+  tags?: any[];
+  mutations?: any[];
+  clicks: (RegExp | string)[];
+  toast?: RegExp | null;
+  triggerError?: RegExp;
+  /** Whether the current page of the view is expected to be reloaded after the action */
+  refetches?: boolean;
+  searchParams: string;
+}
+
+const boxesViewActionsTests: IBoxesViewActionsTest[] = [
   {
     name: "4.8.5.2 - MoveBoxes Action is successful",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      moveBoxesMutation({
-        labelIdentifiers: ["123"],
-        locationId: 1,
-      }),
-    ],
+    mutations: [moveBoxesMutation({ labelIdentifiers: ["123"], locationId: 1 })],
     clicks: [/move/i, /warehouse/i],
     toast: /A box was successfully moved/i,
+    refetches: true,
     searchParams: "?state_ids=1",
   },
   {
     name: "4.8.5.3 - MoveBoxes Action is failing due to GraphQL error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      moveBoxesMutation({
-        labelIdentifiers: ["123"],
-        locationId: 1,
-        graphQlError: true,
-      }),
+    mutations: [
+      moveBoxesMutation({ labelIdentifiers: ["123"], locationId: 1, graphQlError: true }),
     ],
     clicks: [/move/i, /warehouse/i],
     triggerError: /Could not move box/i,
@@ -330,17 +325,8 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.4 - MoveBoxes Action is failing due to Network error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      moveBoxesMutation({
-        labelIdentifiers: ["123"],
-        locationId: 1,
-        networkError: true,
-      }),
+    mutations: [
+      moveBoxesMutation({ labelIdentifiers: ["123"], locationId: 1, networkError: true }),
     ],
     clicks: [/move/i, /warehouse/i],
     triggerError: /Network issue: could not move box/i,
@@ -348,12 +334,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.6 - MoveBoxes Action fails due to insufficient permissions",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
+    mutations: [
       moveBoxesMutation({
         labelIdentifiers: ["123"],
         locationId: 1,
@@ -366,17 +347,8 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.7 - MoveBoxes Action fails due to deleted location",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      moveBoxesMutation({
-        labelIdentifiers: ["123"],
-        locationId: 1,
-        deletedLocationError: true,
-      }),
+    mutations: [
+      moveBoxesMutation({ labelIdentifiers: ["123"], locationId: 1, deletedLocationError: true }),
     ],
     clicks: [/move/i, /warehouse/i],
     triggerError: /The target location has been deleted/i,
@@ -384,30 +356,14 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.5.5 - MoveBoxes Action is not executing since box is in wrong state",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
-      boxesQuery({
-        state: "MarkedForShipment",
-        stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
-      }),
-      actionsQuery(),
-    ],
+    box: markedForShipment,
     clicks: [/Move/, /warehouse/i],
     toast: /Cannot move a box in shipment states./i,
     searchParams: "?state_ids=3",
   },
   {
     name: "4.8.3.2 - Assign To Shipment Action is successful",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
+    mutations: [
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
         variables: { id: "1", labelIdentifiers: ["123"] },
@@ -415,20 +371,15 @@ const boxesViewActionsTests = [
           addBoxesToShipment: generateMockShipment({}),
         },
       }),
-      boxesQuery({}),
     ],
     clicks: [/transfer/i, /thessaloniki/i],
     toast: /A Box was successfully assigned/i,
+    refetches: true,
     searchParams: "?state_ids=1",
   },
   {
     name: "4.8.3.3 - Assign To Shipment Action is failing due to GraphQL error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
+    mutations: [
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
         variables: { id: "1", labelIdentifiers: ["123"] },
@@ -441,12 +392,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.3.4 - Assign To Shipment Action is failing due to Network error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
+    mutations: [
       mutation({
         gQLRequest: ASSIGN_BOXES_TO_SHIPMENT,
         variables: { id: "1", labelIdentifiers: ["123"] },
@@ -459,31 +405,15 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.3.5 - Assign To Shipment Action is not executing since box is in wrong state",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"], paginationInput: 100000 }),
-      actionsQuery(),
-    ],
+    box: donated,
     clicks: [/transfer/i, /thessaloniki/i],
     toast: /Cannot assign a box/i,
     searchParams: "?state_ids=5",
   },
   {
     name: "4.8.4.2 - Unassign From Shipment Action is successful",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
-      boxesQuery({
-        state: "MarkedForShipment",
-        shipmentDetail: shipmentDetail1(),
-        stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
-      }),
-      actionsQuery(),
+    box: inShipment,
+    mutations: [
       mutation({
         gQLRequest: UNASSIGN_BOXES_FROM_SHIPMENTS,
         variables: { labelIdentifiers: ["123"] },
@@ -503,22 +433,13 @@ const boxesViewActionsTests = [
     ],
     clicks: [/remove from shipment/i],
     toast: /A Box was successfully unassigned/i,
+    refetches: true,
     searchParams: "?state_ids=3",
   },
   {
     name: "4.8.4.3 - Unassign From Shipment Action is failing due to GraphQL error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
-      boxesQuery({
-        state: "MarkedForShipment",
-        shipmentDetail: shipmentDetail1(),
-        stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
-      }),
-      actionsQuery(),
+    box: inShipment,
+    mutations: [
       mutation({
         gQLRequest: UNASSIGN_BOXES_FROM_SHIPMENTS,
         variables: { labelIdentifiers: ["123"] },
@@ -531,18 +452,8 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.4.4 - Unassign From Shipment Action is failing due to Network error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ state: "MarkedForShipment", stateFilter: ["MarkedForShipment"] }),
-      boxesQuery({
-        state: "MarkedForShipment",
-        shipmentDetail: shipmentDetail1(),
-        stateFilter: ["MarkedForShipment"],
-        paginationInput: 100000,
-      }),
-      actionsQuery(),
+    box: inShipment,
+    mutations: [
       mutation({
         gQLRequest: UNASSIGN_BOXES_FROM_SHIPMENTS,
         variables: { labelIdentifiers: ["123"] },
@@ -555,77 +466,36 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.6.1 - DeleteBoxes Action is loading and shows Table skeleton",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-    ],
     clicks: [], // No action clicks since we're just testing the initial load
     toast: null, // No toast message expected
     searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.2 - DeleteBoxes Action is successful",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      deleteBoxesMutation({
-        labelIdentifiers: ["123"],
-      }),
-    ],
+    mutations: [deleteBoxesMutation({ labelIdentifiers: ["123"] })],
     clicks: [/delete box/i],
     toast: /A box was successfully deleted|Boxes successfully deleted/i,
+    refetches: true,
     searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.3 - DeleteBoxes Action is failing due to GraphQL error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      deleteBoxesMutation({
-        labelIdentifiers: ["123"],
-        graphQlError: true,
-      }),
-    ],
+    mutations: [deleteBoxesMutation({ labelIdentifiers: ["123"], graphQlError: true })],
     clicks: [/delete box/i],
     triggerError: /Could not delete boxes./i,
     searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.4 - DeleteBoxes Action is failing due to Network error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      deleteBoxesMutation({
-        labelIdentifiers: ["123"],
-        networkError: true,
-      }),
-    ],
+    mutations: [deleteBoxesMutation({ labelIdentifiers: ["123"], networkError: true })],
     clicks: [/delete box/i],
     triggerError: /Could not delete boxes./i,
     searchParams: "?state_ids=1",
   },
   {
     name: "4.8.6.5 - DeleteBoxes Action fails due to invalid box identifier",
-    mocks: [
-      boxesQuery({
-        labelIdentifier: "456",
-      }),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ labelIdentifier: "456", paginationInput: 100000 }),
-      actionsQuery(),
+    box: { labelIdentifier: "456" },
+    mutations: [
       deleteBoxesMutation({
         labelIdentifiers: ["456"],
         invalidBoxLabelIdentifiers: ["456"],
@@ -637,16 +507,8 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.6.6 - DeleteBoxes Action fails due to insufficient permissions",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
-      deleteBoxesMutation({
-        labelIdentifiers: ["123"],
-        insufficientPermissionError: true,
-      }),
+    mutations: [
+      deleteBoxesMutation({ labelIdentifiers: ["123"], insufficientPermissionError: true }),
     ],
     clicks: [/delete box/i],
     triggerError: /You don't have the permissions to delete these boxes/i,
@@ -654,12 +516,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.7.1 - Add tags Action is successful",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
+    mutations: [
       assignTagsMutation({
         labelIdentifiers: ["123"],
         tagIds: [parseInt(tag1.id, 10)],
@@ -667,16 +524,12 @@ const boxesViewActionsTests = [
     ],
     clicks: [/add tags/i, "tag1", /apply/i],
     toast: /A Box was successfully assigned tags/i,
+    refetches: true,
     searchParams: "?state_ids=1",
   },
   {
     name: "4.8.7.2 - Add tags Action is failing due to GraphQL error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
+    mutations: [
       assignTagsMutation({
         labelIdentifiers: ["123"],
         tagIds: [parseInt(tag1.id, 10)],
@@ -689,12 +542,7 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.7.3 - Add tags Action is failing due to Network error",
-    mocks: [
-      boxesQuery({}),
-      boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-      boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-      boxesQuery({ paginationInput: 100000 }),
-      actionsQuery(),
+    mutations: [
       assignTagsMutation({
         labelIdentifiers: ["123"],
         tagIds: [parseInt(tag1.id, 10)],
@@ -707,222 +555,309 @@ const boxesViewActionsTests = [
   },
   {
     name: "4.8.7.4 - Remove tags Action is successful",
-    mocks: (() => {
-      const bq1 = boxesQuery({});
-      bq1.result.data.boxes.elements[0].tags = [tag2];
-
-      const bq2 = boxesQuery({ paginationInput: 100000 });
-      bq2.result.data.boxes.elements[0].tags = [tag2];
-
-      const aq = actionsQuery();
-      aq.result.data.base.tags = [tag1, tag2];
-
-      return [
-        bq1,
-        boxesQuery({ state: "Donated", stateFilter: ["Donated"] }),
-        boxesQuery({ state: "Scrap", stateFilter: ["Scrap"] }),
-        bq2,
-        aq,
-        unassignTagsMutation({
-          labelIdentifiers: ["123"],
-          tagIds: [parseInt(tag2.id, 10)],
-        }),
-      ];
-    })(),
+    tags: [tag1, tag2],
+    mutations: [
+      unassignTagsMutation({
+        labelIdentifiers: ["123"],
+        tagIds: [parseInt(tag2.id, 10)],
+      }),
+    ],
     clicks: [/remove tags/i, /remove test tag/i, /apply/i],
     toast: /A Box was successfully unassigned tags/i,
+    refetches: true,
     searchParams: "?state_ids=1",
   },
 ];
 
-boxesViewActionsTests.forEach(({ name, mocks, clicks, toast, searchParams, triggerError }) => {
-  it(
+boxesViewActionsTests.forEach(
+  ({
     name,
-    async () => {
-      const user = userEvent.setup();
-      render(
-        <ErrorBoundary
-          fallback={
-            <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
-          }
-        >
-          <Suspense fallback={<TableSkeleton />}>
-            <Boxes hasExecutedInitialFetchOfBoxes={{ current: false }} />
-          </Suspense>
-        </ErrorBoundary>,
-        {
-          routePath: "/bases/:baseId/boxes",
-          initialUrl: `/bases/1/boxes${searchParams || ""}`,
-          addTypename: true,
-          mocks,
-          cache,
-        },
-      );
-
-      // Check loading state
-      expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
-
-      if (clicks.length > 0) {
-        // Wait for loading to complete - the TableSkeleton should disappear
-        await waitFor(() => expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument(), {
-          timeout: 15000,
-        });
-
-        const boxesCountTd = await screen.findByTestId("boxes-count", {}, { timeout: 15000 });
-        await waitFor(() => expect(boxesCountTd).toHaveTextContent(/1 box/i), { timeout: 15000 });
-
-        // Select the first box - wait for table to be fully loaded
-        const row1 = await screen.findByRole("row", { name: /snow trousers/i }, { timeout: 10000 });
-        const checkbox1 = within(row1).getByRole("checkbox", {
-          name: /toggle row selected/i,
-        });
-        expect(checkbox1).not.toBeChecked();
-        await user.click(checkbox1);
-        await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
-
-        // Ensure state propagation in CI environments
-        await waitFor(
-          () =>
-            expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent(
-              /1 Box selected/i,
-            ),
-          { timeout: 2000 },
+    box = inStock,
+    tags,
+    mutations = [],
+    clicks,
+    toast,
+    searchParams,
+    triggerError,
+    refetches,
+  }) => {
+    it(
+      name,
+      async () => {
+        const user = userEvent.setup();
+        const refetch = refetchQuery(box);
+        render(
+          <ErrorBoundary
+            fallback={
+              <AlertWithoutAction alertText="Could not fetch boxes data! Please try reloading the page." />
+            }
+          >
+            <Suspense fallback={<TableSkeleton />}>
+              <Boxes />
+            </Suspense>
+          </ErrorBoundary>,
+          {
+            routePath: "/bases/:baseId/boxes",
+            initialUrl: `/bases/1/boxes${searchParams || ""}`,
+            addTypename: true,
+            mocks: [boxRowsQuery(box), actionsQuery({ tags }), ...mutations, refetch.mock],
+            cache,
+          },
         );
 
-        // Clicks logic
-        if (name.toLowerCase().includes("deleteboxes")) {
-          // Check for "Remove Box" button visibility
-          const deleteBoxButton = await screen.findByTestId(
-            "delete-boxes-button",
-            {},
-            { timeout: 10000 },
-          );
-          expect(deleteBoxButton).toBeInTheDocument();
-          await user.click(deleteBoxButton);
+        // Check loading state
+        expect(await screen.findByTestId("TableSkeleton")).toBeInTheDocument();
 
-          const confirmDialogButton = await screen.findByRole(
-            "button",
-            { name: /delete/i },
-            { timeout: 10000 },
+        if (clicks.length > 0) {
+          // Wait for loading to complete - the TableSkeleton should disappear
+          await waitFor(
+            () => expect(screen.queryByTestId("TableSkeleton")).not.toBeInTheDocument(),
+            { timeout: 15000 },
           );
-          expect(confirmDialogButton).toBeInTheDocument();
-          await user.click(confirmDialogButton);
-        } else if (name.toLowerCase().includes("add tags")) {
-          const addTagsButton = await screen.findByTestId(
-            "assign-tags-button",
-            {},
-            { timeout: 10000 },
-          );
-          await user.click(addTagsButton);
 
-          const selectContainer = await screen.findByTestId(
-            "assign-tags-select-container",
-            {},
-            { timeout: 10000 },
-          );
-          const selectInput = within(selectContainer).getByRole("combobox");
-          await user.click(selectInput);
+          const boxesCountTd = await screen.findByTestId("boxes-count", {}, { timeout: 15000 });
+          await waitFor(() => expect(boxesCountTd).toHaveTextContent(/1 box/i), { timeout: 15000 });
 
-          const tagOption = await screen.findByText(clicks[1], {}, { timeout: 10000 });
-          await user.click(tagOption);
+          // Select the first box - wait for table to be fully loaded
+          const row1 = await screen.findByRole(
+            "row",
+            { name: /snow trousers/i },
+            { timeout: 10000 },
+          );
+          const checkbox1 = within(row1).getByRole("checkbox", {
+            name: /toggle row selected/i,
+          });
+          expect(checkbox1).not.toBeChecked();
+          await user.click(checkbox1);
+          await waitFor(() => expect(checkbox1).toBeChecked(), { timeout: 10000 });
 
-          const applyButton = await screen.findByTestId(
-            "apply-assign-tags-button",
-            {},
-            { timeout: 10000 },
+          // Ensure state propagation in CI environments
+          await waitFor(
+            () =>
+              expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent(
+                /1 Box selected/i,
+              ),
+            { timeout: 2000 },
           );
-          await user.click(applyButton);
-        } else if (name.toLowerCase().includes("remove tags")) {
-          const removeTagsButton = await screen.findByTestId(
-            "remove-tags-button",
-            {},
-            { timeout: 10000 },
-          );
-          await user.click(removeTagsButton);
 
-          const selectContainer = await screen.findByTestId(
-            "remove-tags-select-container",
-            {},
-            { timeout: 10000 },
-          );
-          const selectInput = within(selectContainer).getByRole("combobox");
-          await user.click(selectInput);
+          // Clicks logic
+          if (name.toLowerCase().includes("deleteboxes")) {
+            // Check for "Remove Box" button visibility
+            const deleteBoxButton = await screen.findByTestId(
+              "delete-boxes-button",
+              {},
+              { timeout: 10000 },
+            );
+            expect(deleteBoxButton).toBeInTheDocument();
+            await user.click(deleteBoxButton);
 
-          const tagBadgeToRemove = await screen.findByLabelText(
-            clicks[1] as string,
-            {},
-            { timeout: 10000 },
-          );
-          await user.click(tagBadgeToRemove);
+            const confirmDialogButton = await screen.findByRole(
+              "button",
+              { name: /delete/i },
+              { timeout: 10000 },
+            );
+            expect(confirmDialogButton).toBeInTheDocument();
+            await user.click(confirmDialogButton);
+          } else if (name.toLowerCase().includes("add tags")) {
+            const addTagsButton = await screen.findByTestId(
+              "assign-tags-button",
+              {},
+              { timeout: 10000 },
+            );
+            await user.click(addTagsButton);
 
-          const applyButton = await screen.findByTestId(
-            "apply-remove-tags-button",
-            {},
-            { timeout: 10000 },
-          );
-          await user.click(applyButton);
-        } else if (name.toLowerCase().includes("unassign from shipment")) {
-          // First, open the box-actions menu (SlOptions icon button)
-          const boxActionsMenuButton = await screen.findByTestId(
-            "box-actions-menu-button",
-            {},
-            { timeout: 10000 },
-          );
-          await user.click(boxActionsMenuButton);
+            const selectContainer = await screen.findByTestId(
+              "assign-tags-select-container",
+              {},
+              { timeout: 10000 },
+            );
+            const selectInput = within(selectContainer).getByRole("combobox");
+            await user.click(selectInput);
 
-          // Then click the "Remove from Shipment" button
-          const actionButton = await screen.findByRole(
-            "button",
-            { name: clicks[0] },
-            { timeout: 10000 },
-          );
-          expect(actionButton).toBeInTheDocument();
-          await user.click(actionButton);
-        } else {
-          // Perform action based on the `clicks` parameter
-          const actionButton = await screen.findByRole(
-            "button",
-            { name: clicks[0] },
-            { timeout: 10000 },
-          );
-          expect(actionButton).toBeInTheDocument();
-          await user.click(actionButton);
+            const tagOption = await screen.findByText(clicks[1], {}, { timeout: 10000 });
+            await user.click(tagOption);
 
-          if (clicks[1]) {
-            // Wait until the sub-action is present, ensuring all Menu updates are flushed
-            const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });
-            expect(subButton).toBeInTheDocument();
-            await user.click(subButton);
+            const applyButton = await screen.findByTestId(
+              "apply-assign-tags-button",
+              {},
+              { timeout: 10000 },
+            );
+            await user.click(applyButton);
+          } else if (name.toLowerCase().includes("remove tags")) {
+            const removeTagsButton = await screen.findByTestId(
+              "remove-tags-button",
+              {},
+              { timeout: 10000 },
+            );
+            await user.click(removeTagsButton);
+
+            const selectContainer = await screen.findByTestId(
+              "remove-tags-select-container",
+              {},
+              { timeout: 10000 },
+            );
+            const selectInput = within(selectContainer).getByRole("combobox");
+            await user.click(selectInput);
+
+            const tagBadgeToRemove = await screen.findByLabelText(
+              clicks[1] as string,
+              {},
+              { timeout: 10000 },
+            );
+            await user.click(tagBadgeToRemove);
+
+            const applyButton = await screen.findByTestId(
+              "apply-remove-tags-button",
+              {},
+              { timeout: 10000 },
+            );
+            await user.click(applyButton);
+          } else if (name.toLowerCase().includes("unassign from shipment")) {
+            // First, open the box-actions menu (SlOptions icon button)
+            const boxActionsMenuButton = await screen.findByTestId(
+              "box-actions-menu-button",
+              {},
+              { timeout: 10000 },
+            );
+            await user.click(boxActionsMenuButton);
+
+            // Then click the "Remove from Shipment" button
+            const actionButton = await screen.findByRole(
+              "button",
+              { name: clicks[0] },
+              { timeout: 10000 },
+            );
+            expect(actionButton).toBeInTheDocument();
+            await user.click(actionButton);
+          } else {
+            // Perform action based on the `clicks` parameter
+            const actionButton = await screen.findByRole(
+              "button",
+              { name: clicks[0] },
+              { timeout: 10000 },
+            );
+            expect(actionButton).toBeInTheDocument();
+            await user.click(actionButton);
+
+            if (clicks[1]) {
+              // Wait until the sub-action is present, ensuring all Menu updates are flushed
+              const subButton = await screen.findByText(clicks[1], {}, { timeout: 10000 });
+              expect(subButton).toBeInTheDocument();
+              await user.click(subButton);
+            }
           }
         }
-      }
 
-      if (triggerError) {
-        // error message appears
-        await waitFor(
-          () =>
-            expect(mockedTriggerError).toHaveBeenCalledWith(
-              expect.objectContaining({
-                message: expect.stringMatching(triggerError),
-              }),
-            ),
-          { timeout: 15000 },
-        );
-      }
+        if (triggerError) {
+          // error message appears
+          await waitFor(
+            () =>
+              expect(mockedTriggerError).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  message: expect.stringMatching(triggerError),
+                }),
+              ),
+            { timeout: 15000 },
+          );
+        }
 
-      // Check for the expected toast message
-      if (toast) {
-        await waitFor(
-          () =>
-            expect(mockedCreateToast).toHaveBeenCalledWith(
-              expect.objectContaining({
-                message: expect.stringMatching(toast),
-              }),
-            ),
-          { timeout: 15000 },
-        );
-      }
+        // Check for the expected toast message
+        if (toast) {
+          await waitFor(
+            () =>
+              expect(mockedCreateToast).toHaveBeenCalledWith(
+                expect.objectContaining({
+                  message: expect.stringMatching(toast),
+                }),
+              ),
+            { timeout: 15000 },
+          );
+        }
+
+        if (refetches) {
+          // The current page of the view is reloaded to reflect the changes
+          await waitFor(() => expect(refetch.result).toHaveBeenCalledTimes(1), {
+            timeout: 15000,
+          });
+        }
+      },
+      40000,
+    );
+  },
+);
+
+it("4.8.11 - Bulk mutation with active select-all sends the filters of the view", async () => {
+  const user = userEvent.setup();
+  const rowsOptions = firstRequestOptions({ states: ["InStock"] });
+  const row = toBoxRow(generateMockBox({ labelIdentifier: "123", state: "InStock", tags: [] }));
+  const rowsMock = boxRowsMock({
+    baseId: 1,
+    options: rowsOptions,
+    rows: [row],
+    totalNumberOfBoxes: 150,
+  });
+  const refetchMock = boxRowsMock({
+    baseId: 1,
+    options: rowsOptions,
+    rows: [row],
+    totalNumberOfBoxes: 150,
+  });
+  const refetchResult = vi.fn(() => refetchMock.result);
+
+  // The boxes of the view are restricted to the locations of the base. Boxes' label identifiers are
+  // not sent.
+  const filters = { states: ["InStock"], locationIds: [Number(location1.id)] };
+  const deleteMutationResult = vi.fn(() => ({
+    data: {
+      deleteBoxes: {
+        __typename: "BoxesResult",
+        updatedBoxes: [
+          {
+            labelIdentifier: "123",
+            deletedOn: new Date().toISOString(),
+            product: { id: 10, transferItemsCount: 1, instockItemsCount: 3 },
+          },
+        ],
+        invalidBoxLabelIdentifiers: [],
+      },
     },
-    40000,
+  }));
+
+  render(
+    <ErrorBoundary fallback={<AlertWithoutAction alertText="Could not fetch boxes data!" />}>
+      <Suspense fallback={<TableSkeleton />}>
+        <Boxes />
+      </Suspense>
+    </ErrorBoundary>,
+    {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/1/boxes?state_ids=1",
+      addTypename: true,
+      mocks: [
+        rowsMock,
+        actionsQuery({ tags: [] }),
+        {
+          request: { query: DELETE_BOXES, variables: { filters } },
+          result: deleteMutationResult,
+        },
+        { ...refetchMock, result: refetchResult },
+      ],
+      cache,
+    },
   );
-});
+
+  await user.click(await screen.findByText("Select all 150 boxes", {}, { timeout: 15000 }));
+  await waitFor(() =>
+    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("150 Boxes selected"),
+  );
+
+  await user.click(await screen.findByTestId("delete-boxes-button", {}, { timeout: 10000 }));
+  await user.click(await screen.findByRole("button", { name: /delete/i }, { timeout: 10000 }));
+
+  await waitFor(() => expect(deleteMutationResult).toHaveBeenCalledTimes(1), { timeout: 15000 });
+  // The current page is reloaded and select-all is reset
+  await waitFor(() => expect(refetchResult).toHaveBeenCalledTimes(1), { timeout: 15000 });
+  await waitFor(() =>
+    expect(screen.getByTestId("selected-boxes-counter")).not.toHaveTextContent("selected"),
+  );
+}, 40000);

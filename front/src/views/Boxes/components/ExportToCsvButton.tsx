@@ -38,22 +38,23 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
       >
         <CSVLink
           onClick={checkForSelectedBoxes}
-          data={selectedBoxes.map((box) => {
-            return {
-              ...box.values,
-              product: box.values.product.name,
-              state: box.values.state.name,
-              productCategory: box.values.productCategory.name,
-              size: box.values.size.name,
-              gender: box.values.gender.name,
-              location: box.values.location.name,
-              tags: box.values.tags.map((tag: { name: string }) => tag.name),
-              shipment: box.values.shipment?.labelIdentifier,
-              lastModified: new Date(box.values.lastModified.toString())
-                .toISOString()
-                .replace("Z", "+00:00"),
-            };
-          })}
+          data={selectedBoxes.map(({ original: box }) => ({
+            labelIdentifier: box.labelIdentifier,
+            product: box.productName,
+            productCategory: box.productCategoryName,
+            gender: box.productGender,
+            size: box.sizeName,
+            numberOfItems: box.numberOfItems,
+            state: box.state,
+            location: box.locationName,
+            tags: box.tags.map((tag) => tag.name),
+            shipmentId: box.shipmentId,
+            comment: box.comment,
+            age: box.age,
+            lastModified: box.lastModified?.toISOString().replace("Z", "+00:00") ?? "",
+            lastModifiedBy: box.lastModifiedBy,
+            createdBy: box.createdBy,
+          }))}
           filename={filename}
           headers={[
             { label: "Box Number", key: "labelIdentifier" },
@@ -65,7 +66,7 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
             { label: "State", key: "state" },
             { label: "Location", key: "location" },
             { label: "Tags", key: "tags" },
-            { label: "Shipment", key: "shipment" },
+            { label: "Shipment ID", key: "shipmentId" },
             { label: "Comment", key: "comment" },
             { label: "Age at Export", key: "age" },
             { label: "Last Modified (UTC time)", key: "lastModified" },
