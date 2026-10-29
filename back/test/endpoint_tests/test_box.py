@@ -222,6 +222,7 @@ def test_box_rows_filtering(client):
     [
         ("LabelIdentifier", "labelIdentifier"),
         ("LastModifiedOn", "lastModifiedOn"),
+        ("State", "state"),
         ("ProductName", "productName"),
         ("CategoryName", "productCategoryName"),
         ("ProductGender", "productGender"),

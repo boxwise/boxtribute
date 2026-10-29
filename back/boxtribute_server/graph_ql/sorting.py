@@ -2,6 +2,7 @@ from peewee import JOIN
 
 from ..enums import BoxSortField
 from ..models.definitions.box import Box
+from ..models.definitions.box_state import BoxState
 from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
@@ -34,6 +35,10 @@ def derive_box_sorting(selection, sort_by):
             sort_size, JOIN.LEFT_OUTER, on=(sort_size.id == Box.size), src=Box
         )
         sort_field = sort_size.label
+    elif sort_by == BoxSortField.State:
+        sort_state = BoxState.alias("sort_state")
+        selection = selection.join(sort_state, src=Box)
+        sort_field = sort_state.label
     elif sort_by in (
         BoxSortField.ProductName,
         BoxSortField.ProductGender,

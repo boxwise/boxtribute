@@ -175,6 +175,7 @@ enum PackingListEntryState {
 enum BoxSortField {
   LabelIdentifier
   LastModifiedOn
+  State
   ProductName
   CategoryName
   ProductGender
