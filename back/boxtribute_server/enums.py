@@ -168,6 +168,8 @@ class ShareableView(enum.IntEnum):
 
 class BoxSortField(enum.IntEnum):
     LabelIdentifier = 1
+    LastModifiedOn = enum.auto()
+    State = enum.auto()
     ProductName = enum.auto()
     CategoryName = enum.auto()
     ProductGender = enum.auto()

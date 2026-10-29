@@ -46,7 +46,6 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.product_category import ProductCategory
 from ....models.definitions.qr_code import QrCode
-from ....models.definitions.shipment import Shipment
 from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.size import Size
 from ....models.definitions.size_range_size import SizeRangeSize
@@ -976,7 +975,7 @@ def create_boxes(*, user_id, data):
 
 
 def get_boxes_page(
-    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=False
+    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=None
 ):
     page_size = max(min(50 if page_size is None else page_size, 100), 1)
 
@@ -1002,7 +1001,7 @@ def get_boxes_page(
     )
 
     def order(field):
-        return field.desc() if descending else field.asc()
+        return field.desc() if descending is not False else field.asc()
 
     # Inner query: sort and page on IDs only. The sort key is selected as well in order
     # to sort the page rows of the outer query (and to be compatible with DISTINCT)
@@ -1059,8 +1058,7 @@ def get_boxes_page(
             Sz.label.alias("size_name"),
             L.id.alias("location_id"),
             L.name.alias("location_name"),
-            ShipmentDetail.id.alias("shipment_detail_id"),
-            Shipment.id.alias("shipment_id"),
+            ShipmentDetail.shipment.alias("shipment_id"),
             B.qr_code.is_null(False).alias("has_qr_code"),
             tag_ids,
         )
@@ -1082,7 +1080,6 @@ def get_boxes_page(
                 & ShipmentDetail.received_on.is_null()
             ),
         )
-        .join(Shipment, JOIN.LEFT_OUTER, on=(Shipment.id == ShipmentDetail.shipment))
         .join(Unit, JOIN.LEFT_OUTER, on=(Unit.id == B.weight_display_unit))
         .order_by(order(page_ids.c.sort_key), B.id.asc())
         .dicts()

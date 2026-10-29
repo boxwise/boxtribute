@@ -44,7 +44,6 @@ type BoxRow {
   sizeName: String
   locationId: ID
   locationName: String
-  shipmentDetailId: ID
   shipmentId: ID
   hasQrCode: Boolean
   tagIds: [ID!]!
@@ -578,6 +577,7 @@ input BoxRowOptions {
   pageSize: Int
   filters: FilterBoxInput
   sortBy: BoxSortField
+  " Sorting order. Default: true "
   descending: Boolean
 }
 
@@ -614,6 +614,8 @@ input FilterBoxInput {
   excludedTagIds: [Int!]
   " Filter for all boxes that are in *one* of the specified locations. "
   locationIds: [Int!]
+  " Filter for all boxes with comment containing this pattern (case-insensitive). "
+  pattern: String
 }
 
 input FilterProductInput {
