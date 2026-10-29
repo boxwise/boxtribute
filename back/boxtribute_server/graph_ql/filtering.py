@@ -72,6 +72,10 @@ def derive_box_filter(filter_input, selection=None):
     if states:
         conditions.append(Box.state << states)
 
+    pattern = filter_input.get("pattern")
+    if pattern:
+        conditions.append(Box.comment.contains(pattern))
+
     created_from = filter_input.get("created_from")
     if created_from is not None:
         conditions.append(Box.created_on >= created_from)

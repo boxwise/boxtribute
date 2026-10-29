@@ -577,8 +577,6 @@ input BoxRowOptions {
   pageSize: Int
   filters: FilterBoxInput
   sortBy: BoxSortField
-  " Pattern to case-insensitive search for in strings (implemented: comment) "
-  search: String
   " Sorting order. Default: true "
   descending: Boolean
 }
@@ -616,6 +614,8 @@ input FilterBoxInput {
   excludedTagIds: [Int!]
   " Filter for all boxes that are in *one* of the specified locations. "
   locationIds: [Int!]
+  " Filter for all boxes with comment containing this pattern (case-insensitive). "
+  pattern: String
 }
 
 input FilterProductInput {
