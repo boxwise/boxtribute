@@ -13,6 +13,7 @@ from flask import g, request
 from sentry_sdk import set_user as set_sentry_user
 
 from .exceptions import AuthenticationFailed
+from .models.definitions.user import User
 
 JWT_CLAIM_PREFIX = "https://www.boxtribute.com"
 REQUIRED_CLAIMS = ("roles", "permissions", "base_ids", "organisation_id")
@@ -58,6 +59,20 @@ def get_token_from_auth_header(header_string):
 
     token = parts[1]
     return token
+
+
+def validate_user(user_id):
+    """Look up the user in the DB, and if it does not exist, raise an exception that
+    surfaces as 401.
+    Intended to catch out-of-sync situations between database and Auth0.
+    """
+    if User.get_or_none(user_id) is None:
+        raise AuthenticationFailed(
+            {
+                "code": "unknown_user",
+                "description": f"User (ID {user_id}) does not exist in database.",
+            },
+        )
 
 
 def get_public_key(domain):
@@ -264,6 +279,7 @@ def requires_auth(f):
             domain=domain,
             audience=os.environ["AUTH0_AUDIENCE"],
         )
+        validate_user(int(payload["sub"].replace("auth0|", "")))
         g.user = CurrentUser.from_jwt(payload)
         set_sentry_user({"id": g.user.id, "jwt_payload": payload})
 
