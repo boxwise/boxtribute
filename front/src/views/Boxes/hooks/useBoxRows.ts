@@ -88,10 +88,10 @@ export function useBoxRows({
   const requestPage = useCallback(
     async (uiPage: number, { isForced = false }: { isForced?: boolean } = {}) => {
       const variables = prepareQueryVariables(view.baseId, { ...view, page: uiPage });
-      const requestId = `${viewKey}|${JSON.stringify(variables.options)}`;
+      const requestEpoch = epoch.current;
+      const requestId = `${requestEpoch}|${viewKey}|${JSON.stringify(variables.options)}`;
       if (!isForced && inFlight.current.has(requestId)) return;
       inFlight.current.add(requestId);
-      const requestEpoch = epoch.current;
 
       try {
         const { data } = await client.query({

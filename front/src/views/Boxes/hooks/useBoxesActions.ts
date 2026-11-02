@@ -194,7 +194,7 @@ function useBoxesActions(
         shipmentId,
         selectAll ? [] : selectedBoxes.map(toBoxBasicFields),
         true,
-        false,
+        !!selectAll,
         selectAll?.filters,
       ).then(async (assignBoxesToShipmentResult) => {
         if (

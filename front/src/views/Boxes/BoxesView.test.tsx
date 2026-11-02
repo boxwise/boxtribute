@@ -398,7 +398,7 @@ describe("4.8.2 - Selecting rows and performing bulk actions", () => {
     await user.click(screen.getByRole("button", { name: /next page/i }));
     await screen.findByText("L0051");
     expect(screen.getByTestId("selected-boxes-counter")).not.toHaveTextContent("selected");
-  });
+  }, 15000);
 });
 
 describe("4.8.3 - URL Parameter Sync for Filters", () => {

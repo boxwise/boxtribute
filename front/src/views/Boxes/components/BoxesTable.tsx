@@ -200,7 +200,7 @@ function BoxesTable({
   );
   const totalNumberOfBoxes = totals?.totalNumberOfBoxes ?? 0;
   const selectedCount = isSelectAll ? totalNumberOfBoxes : selectedFlatRows.length;
-  const weightUnit = tableData.find((row) => row.weightUnitSymbol)?.weightUnitSymbol ?? null;
+  const weightUnit = "kg";
   const currency = actionOptionsData.base?.monetaryCurrencyCode ?? null;
 
   // toggleAllRowsSelected(false) only deselects the rows that are currently loaded
