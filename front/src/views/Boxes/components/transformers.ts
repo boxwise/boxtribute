@@ -1,4 +1,3 @@
-import { differenceInDays } from "date-fns";
 import { Filters } from "react-table";
 import { BoxRow } from "./types";
 import {
@@ -146,7 +145,7 @@ export const boxesRawDataToTableDataTransformer = (
       shipmentId: row.shipmentId ?? null,
       hasQrCode: !!row.hasQrCode,
       comment: row.comment ?? null,
-      age: createdOn ? differenceInDays(new Date(), createdOn) : 0,
+      age: row.age ?? 0,
       createdOn,
       lastModified: row.lastModifiedOn ? new Date(row.lastModifiedOn) : (createdOn ?? new Date()),
       createdBy: row.createdByName ?? null,

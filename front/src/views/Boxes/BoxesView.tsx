@@ -107,6 +107,7 @@ export const BOX_ROW_FIELDS_FRAGMENT = graphql(`
     monetaryValue
     weightUnitSymbol
     createdOn
+    age
     lastModifiedOn
     createdByName
     lastModifiedByName
