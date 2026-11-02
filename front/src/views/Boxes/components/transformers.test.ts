@@ -171,6 +171,7 @@ describe("boxesRawDataToTableDataTransformer", () => {
     monetaryValue: 12.5,
     weightUnitSymbol: "kg",
     createdOn: "2021-10-29T15:02:40+00:00",
+    age: 42,
     lastModifiedOn: "2023-01-09T17:24:29+00:00",
     createdByName: "Some User",
     lastModifiedByName: "Another User",
@@ -223,7 +224,7 @@ describe("boxesRawDataToTableDataTransformer", () => {
     expect(box.tags.map(({ name }) => name)).toEqual(["new", "company X"]);
     expect(box.createdOn).toEqual(new Date("2021-10-29T15:02:40+00:00"));
     expect(box.lastModified).toEqual(new Date("2023-01-09T17:24:29+00:00"));
-    expect(box.age).toBeGreaterThan(0);
+    expect(box.age).toBe(42);
   });
 
   it("handles missing values", () => {

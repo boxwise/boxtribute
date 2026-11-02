@@ -1194,7 +1194,7 @@ describe("4.8.10 - Select all boxes of the view", () => {
       name: /toggle row selected/i,
     });
 
-  it("4.8.10.1 - Selects all boxes of the view and turns off if a row is selected", async () => {
+  it("4.8.10.1 - Disables the selection checkboxes while select-all is active", async () => {
     const user = userEvent.setup();
     renderBoxes({
       initialUrl: "/bases/2/boxes?state_ids=1",
@@ -1202,24 +1202,22 @@ describe("4.8.10 - Select all boxes of the view", () => {
     });
 
     const checkbox1 = await rowCheckbox(/8650860/i);
-    const checkbox2 = await rowCheckbox(/1481666/i);
+    expect(checkbox1).toBeEnabled();
     await user.click(await screen.findByText("Select all 268 boxes"));
 
     await waitFor(() => expect(counter()).toHaveTextContent("268 Boxes selected"));
-    expect(checkbox1).toBeChecked();
-    expect(checkbox2).toBeChecked();
-
-    // Select-all is not offered again while it is active
-    expect(counter()).toHaveTextContent("Select all 268 boxes");
-
-    await user.click(checkbox1);
-    await waitFor(() => expect(counter()).toHaveTextContent("1 Box selected"));
-    expect(checkbox1).not.toBeChecked();
-    expect(checkbox2).toBeChecked();
-    expect(counter()).not.toHaveTextContent("268 Boxes selected");
+    const selectedCheckbox1 = await rowCheckbox(/8650860/i);
+    const selectedCheckbox2 = await rowCheckbox(/1481666/i);
+    expect(selectedCheckbox1).toBeChecked();
+    expect(selectedCheckbox2).toBeChecked();
+    expect(selectedCheckbox1).toBeDisabled();
+    expect(selectedCheckbox2).toBeDisabled();
+    expect(screen.getByRole("checkbox", { name: /toggle all/i })).toBeDisabled();
 
     await user.click(screen.getByText("Clear all"));
     await waitFor(() => expect(counter()).not.toHaveTextContent("selected"));
+    expect(await rowCheckbox(/8650860/i)).toBeEnabled();
+    expect(await rowCheckbox(/8650860/i)).not.toBeChecked();
   }, 20000);
 
   it("4.8.10.2 - Is reset when the sorting changes", async () => {

@@ -15,6 +15,7 @@ export const toBoxRow = (box: any, overrides: Record<string, any> = {}) => ({
   monetaryValue: box.monetaryValue,
   weightUnitSymbol: box.weightDisplayUnit?.symbol ?? null,
   createdOn: box.createdOn,
+  age: 5,
   lastModifiedOn: box.lastModifiedOn,
   createdByName: box.createdBy?.name ?? null,
   lastModifiedByName: box.lastModifiedBy?.name ?? null,

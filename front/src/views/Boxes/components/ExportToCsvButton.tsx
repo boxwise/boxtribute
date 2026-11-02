@@ -6,15 +6,65 @@ import { Row } from "react-table";
 import { BoxRow } from "./types";
 import { useNotification } from "hooks/useNotification";
 import { RiFileDownloadLine } from "react-icons/ri";
+import { useApolloClient } from "@apollo/client";
+import { FilterBoxInput } from "queries/types";
+import { EXPORT_BOX_ROWS_TO_CSV_QUERY } from "../BoxesView";
 
 interface ExportToCsvButtonProps {
   selectedBoxes: Row<BoxRow>[];
+  /** Set while select-all is active: the CSV of all matching boxes is created by the backend */
+  selectAllExport?: { baseId: number; filters: FilterBoxInput };
 }
 
-const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) => {
+const decodeBase64Utf8 = (encoded: string) => {
+  const binary = atob(encoded);
+  return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
+};
+
+const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({
+  selectedBoxes,
+  selectAllExport,
+}) => {
   const { createToast } = useNotification();
+  const client = useApolloClient();
+
+  const filename = `Stock_${new Date().toJSON().slice(0, 10)}_${new Date().valueOf()}`;
+
+  const exportAllBoxes = async () => {
+    if (!selectAllExport) return;
+    try {
+      const { data } = await client.query({
+        query: EXPORT_BOX_ROWS_TO_CSV_QUERY,
+        variables: selectAllExport,
+        fetchPolicy: "no-cache",
+      });
+      if (!data?.exportBoxRowsToCsv) {
+        throw new Error("No CSV data received");
+      }
+      const url = URL.createObjectURL(
+        new Blob([decodeBase64Utf8(data.exportBoxRowsToCsv)], { type: "text/csv;charset=utf-8" }),
+      );
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${filename}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      createToast({
+        type: "error",
+        message: "Could not export the boxes. Please try again.",
+      });
+    }
+  };
 
   const checkForSelectedBoxes = () => {
+    if (selectAllExport) {
+      exportAllBoxes();
+      // Prevents the download of the rows of the current page
+      return false;
+    }
     if (selectedBoxes.length === 0) {
       createToast({
         type: "warning",
@@ -25,7 +75,6 @@ const ExportToCsvButton: React.FC<ExportToCsvButtonProps> = ({ selectedBoxes }) 
     return true;
   };
 
-  const filename = `Stock_${new Date().toJSON().slice(0, 10)}_${new Date().valueOf()}`;
   return (
     <>
       <Button

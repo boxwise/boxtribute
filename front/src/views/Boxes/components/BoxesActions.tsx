@@ -22,12 +22,15 @@ import { useMemo } from "react";
 import { AddIcon } from "@chakra-ui/icons";
 import { BiMinusCircle, BiNetworkChart } from "react-icons/bi";
 import { SlOptions } from "react-icons/sl";
+import { FilterBoxInput } from "queries/types";
 
 type BoxesActionsProps = {
   selectedBoxes: Row<BoxRow>[];
   /** Select-all is active: all boxes matching the current filters are selected, not only the
    * ones of the current page */
   isSelectAll?: boolean;
+  /** Set while select-all is active: the export is requested from the backend for these filters */
+  selectAllExport?: { baseId: number; filters: FilterBoxInput };
   /** Total number of selected boxes. Defaults to the number of selected rows */
   selectedCount?: number;
   onMoveBoxes: (locationId: string) => void;
@@ -45,6 +48,7 @@ type BoxesActionsProps = {
 function BoxesActions({
   selectedBoxes,
   isSelectAll = false,
+  selectAllExport,
   selectedCount,
   onMoveBoxes,
   locationOptions,
@@ -106,7 +110,11 @@ function BoxesActions({
             />
           </MenuItem>
           <MenuItem as="div">
-            <ExportToCsvButton selectedBoxes={selectedBoxes} key="export-csv" />
+            <ExportToCsvButton
+              selectedBoxes={selectedBoxes}
+              selectAllExport={selectAllExport}
+              key="export-csv"
+            />
           </MenuItem>
           <Menu>
             <AssignTagsButton

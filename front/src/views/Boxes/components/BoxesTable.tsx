@@ -128,7 +128,7 @@ function BoxesTable({
   );
 
   // Select-all: all boxes matching the filters of the view are selected, including the ones that
-  // are not loaded. Row selection by the user turns it off.
+  // are not loaded. The selection checkboxes are disabled while it is active.
   const [isSelectAll, setIsSelectAll] = useState(false);
   const isSelectAllRef = useRef(isSelectAll);
   isSelectAllRef.current = isSelectAll;
@@ -169,30 +169,18 @@ function BoxesTable({
       hooks.visibleColumns.push((col) => [
         {
           id: "selection",
-          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => {
-            const props = getToggleAllPageRowsSelectedProps();
-            return (
-              <IndeterminateCheckbox
-                {...props}
-                onChange={(e) => {
-                  setIsSelectAll(false);
-                  props.onChange?.(e);
-                }}
-              />
-            );
-          },
-          Cell: ({ row }: CellProps<any, any>) => {
-            const props = row.getToggleRowSelectedProps();
-            return (
-              <IndeterminateCheckbox
-                {...props}
-                onChange={(e) => {
-                  setIsSelectAll(false);
-                  props.onChange?.(e);
-                }}
-              />
-            );
-          },
+          Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => (
+            <IndeterminateCheckbox
+              {...getToggleAllPageRowsSelectedProps()}
+              disabled={isSelectAllRef.current}
+            />
+          ),
+          Cell: ({ row }: CellProps<any, any>) => (
+            <IndeterminateCheckbox
+              {...row.getToggleRowSelectedProps()}
+              disabled={isSelectAllRef.current}
+            />
+          ),
         },
         ...col,
       ]);
@@ -343,6 +331,9 @@ function BoxesTable({
         <BoxesActions
           selectedBoxes={selectedFlatRows}
           isSelectAll={isSelectAll}
+          selectAllExport={
+            selectAll ? { baseId: Number(baseId), filters: selectAll.filters } : undefined
+          }
           selectedCount={selectedCount}
           onMoveBoxes={onMoveBoxes}
           locationOptions={locationOptions}

@@ -19,7 +19,7 @@ import { TableSkeleton } from "components/Skeletons";
 import { Suspense } from "react";
 import { ErrorBoundary } from "@sentry/react";
 import { mockedCreateToast, mockedTriggerError } from "tests/setupTests";
-import Boxes from "./BoxesView";
+import Boxes, { EXPORT_BOX_ROWS_TO_CSV_QUERY } from "./BoxesView";
 import { FakeGraphQLError, FakeGraphQLNetworkError } from "mocks/functions";
 import { DELETE_BOXES } from "hooks/useDeleteBoxes";
 import { ASSIGN_TAGS_TO_BOXES } from "hooks/useAssignTags";
@@ -860,4 +860,65 @@ it("4.8.11 - Bulk mutation with active select-all sends the filters of the view"
   await waitFor(() =>
     expect(screen.getByTestId("selected-boxes-counter")).not.toHaveTextContent("selected"),
   );
+}, 40000);
+
+it("4.8.12 - Export CSV with active select-all requests the CSV from the backend", async () => {
+  const user = userEvent.setup();
+  const row = toBoxRow(generateMockBox({ labelIdentifier: "123", state: "InStock", tags: [] }));
+  const csv = "Box Number,Product\n123,Jackets\n";
+  const exportResult = vi.fn(() => ({
+    data: { exportBoxRowsToCsv: btoa(csv) },
+  }));
+  const createObjectURL = vi.fn<(blob: Blob) => string>(() => "blob:csv");
+  const revokeObjectURL = vi.fn();
+  Object.assign(URL, { createObjectURL, revokeObjectURL });
+  const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+  render(
+    <ErrorBoundary fallback={<AlertWithoutAction alertText="Could not fetch boxes data!" />}>
+      <Suspense fallback={<TableSkeleton />}>
+        <Boxes />
+      </Suspense>
+    </ErrorBoundary>,
+    {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/1/boxes?state_ids=1",
+      addTypename: true,
+      mocks: [
+        boxRowsMock({
+          baseId: 1,
+          options: firstRequestOptions({ states: ["InStock"] }),
+          rows: [row],
+          totalNumberOfBoxes: 150,
+        }),
+        actionsQuery({ tags: [] }),
+        {
+          request: {
+            query: EXPORT_BOX_ROWS_TO_CSV_QUERY,
+            variables: {
+              baseId: 1,
+              filters: { states: ["InStock"], locationIds: [Number(location1.id)] },
+            },
+          },
+          result: exportResult,
+        },
+      ],
+      cache,
+    },
+  );
+
+  await user.click(await screen.findByText("Select all 150 boxes", {}, { timeout: 15000 }));
+  await user.click(await screen.findByTestId("box-actions-menu-button"));
+  await user.click(await screen.findByText("Export CSV"));
+
+  await waitFor(() => expect(exportResult).toHaveBeenCalledTimes(1), { timeout: 15000 });
+  await waitFor(() => expect(clickSpy).toHaveBeenCalledTimes(1));
+  const blob = createObjectURL.mock.calls.at(-1)![0];
+  const text = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.readAsText(blob);
+  });
+  expect(text).toBe(csv);
+  clickSpy.mockRestore();
 }, 40000);

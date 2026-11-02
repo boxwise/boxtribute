@@ -124,6 +124,12 @@ export const BOX_ROW_FIELDS_FRAGMENT = graphql(`
   }
 `);
 
+export const EXPORT_BOX_ROWS_TO_CSV_QUERY = graphql(`
+  query ExportBoxRowsToCsv($baseId: Int!, $filters: FilterBoxInput) {
+    exportBoxRowsToCsv(baseId: $baseId, filters: $filters)
+  }
+`);
+
 export const BOXES_FOR_BOXESVIEW_QUERY = graphql(
   `
     query BoxesForBoxesView($baseId: Int!, $options: BoxRowOptions) {
