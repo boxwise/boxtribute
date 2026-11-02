@@ -28,6 +28,8 @@ type BoxRow {
   monetaryValue: Float
   weightUnitSymbol: String
   createdOn: Datetime
+  " Time since creation in days. "
+  age: Int
   lastModifiedOn: Datetime
   createdById: ID
   createdByName: String

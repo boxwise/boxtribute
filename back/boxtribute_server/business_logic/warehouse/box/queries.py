@@ -5,7 +5,7 @@ from ....graph_ql.filtering import derive_box_filter
 from ....graph_ql.pagination import load_into_page
 from ....models.definitions.box import Box
 from ....models.definitions.location import Location
-from .crud import get_boxes_page
+from .crud import export_box_rows_to_csv, get_boxes_page
 
 box_row = ObjectType("BoxRow")
 query = QueryType()
@@ -63,3 +63,17 @@ def resolve_box_rows(*_, base_id, options=None):
 def resolve_box_row_tag_ids(row, _):
     tag_ids = row["tag_ids"]
     return [int(i) for i in tag_ids.split(",")] if tag_ids else []
+
+
+@query.field("exportBoxRowsToCsv")
+def resolve_export_box_rows_to_csv(*_, base_id, filters=None):
+    authorize(permission="stock:read", base_id=base_id)
+    authorize(permission="product:read", base_id=base_id)
+    authorize(permission="location:read", base_id=base_id)
+    authorize(permission="tag:read", base_id=base_id)
+    authorize(permission="tag_relation:read")
+    authorize(permission="user:read")
+    authorize(permission="size:read")
+    authorize(permission="product_category:read")
+
+    return export_box_rows_to_csv(base_id, filters)
