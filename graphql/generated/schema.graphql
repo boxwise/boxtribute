@@ -818,6 +818,8 @@ type Query {
   " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
   boxRows(baseId: Int!, options: BoxRowOptions): BoxRowsResult!
+  " Return data of all boxes in given base as base64-encoded CSV string "
+  exportBoxRowsToCsv(baseId: Int!, filters: FilterBoxInput): String
   " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource. "
   qrCode(code: String!): QrCodeResult!
   qrExists(code: String): Boolean
@@ -912,6 +914,8 @@ type BoxRow {
   monetaryValue: Float
   weightUnitSymbol: String
   createdOn: Datetime
+  " Time since creation in days. "
+  age: Int
   lastModifiedOn: Datetime
   createdById: ID
   createdByName: String
