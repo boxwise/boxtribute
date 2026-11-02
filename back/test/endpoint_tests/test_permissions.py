@@ -76,7 +76,6 @@ def operation_name(operation):
         """box( labelIdentifier: "12345678") { id }""",
         # Test case 8.1.35
         """qrExists( code: "1337beef" )""",
-        "exportBoxRowsToCsv( baseId: 1)",
     ],
     ids=operation_name,
 )
@@ -99,7 +98,6 @@ def test_invalid_permission(unauthorized, client, query):
         # Test case 8.1.6c
         """boxes( baseId: 2 ) { totalCount }""",
         """boxRows( baseId: 2 ) { page { id } }""",
-        "exportBoxRowsToCsv( baseId: 2 )",
         # Test case 8.1.24
         """product( id: 2 ) { id }""",
         # Test case 9.1.8

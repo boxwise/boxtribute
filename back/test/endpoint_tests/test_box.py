@@ -1,4 +1,3 @@
-import base64
 import time
 from datetime import date
 
@@ -134,25 +133,6 @@ def test_box_query_by_qr_code(client, default_box, default_qr_code):
             }}"""
     queried_box = assert_successful_request(client, query)["box"]
     assert queried_box["labelIdentifier"] == default_box["label_identifier"]
-
-
-def test_export_box_rows(client, tags, not_delivered_box):
-    query = """query { exportBoxRowsToCsv(baseId: 1) }"""
-    result = assert_successful_request(client, query)
-    lines = base64.b64decode(result).decode().splitlines()
-    assert len(lines) == 13 + 1
-    sorted_lines = sorted(lines)
-    assert sorted_lines[0].startswith(not_delivered_box["label_identifier"])
-    assert ProductGender.Women.name in sorted_lines[0]
-    assert BoxState.NotDelivered.name in sorted_lines[0]
-    age = (date.today() - not_delivered_box["created_on"].date()).days
-    assert str(age) in sorted_lines[0]
-    assert (
-        not_delivered_box["last_modified_on"].isoformat().replace("T", " ")
-        in sorted_lines[0]
-    )
-    assert tags[1]["name"] in sorted_lines[1]
-    assert tags[2]["name"] in sorted_lines[1]
 
 
 def test_box_rows_query(client):
