@@ -1,3 +1,6 @@
+import base64
+import csv
+import io
 import random
 import re
 from collections import defaultdict
@@ -8,7 +11,7 @@ from peewee import JOIN, IntegrityError, fn
 
 from ....authz import authorize
 from ....db import db
-from ....enums import BoxState, TaggableObjectType, TagType
+from ....enums import BoxState, ProductGender, TaggableObjectType, TagType
 from ....errors import (
     DeletedBase,
     DeletedBox,
@@ -49,6 +52,7 @@ from ....models.definitions.qr_code import QrCode
 from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.size import Size
 from ....models.definitions.size_range_size import SizeRangeSize
+from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
 from ....models.definitions.user import User
@@ -974,11 +978,16 @@ def create_boxes(*, user_id, data):
     )
 
 
-def get_boxes_page(
-    base_id, *, page=None, page_size=None, filters=None, sort_by=None, descending=None
-):
+def get_boxes_page(base_id, *, page=None, page_size=None, **options):
+    page = page or 1
     page_size = max(min(50 if page_size is None else page_size, 100), 1)
+    return _get_boxes_page(base_id, page=page, page_size=page_size, **options)
 
+
+def _get_boxes_page(
+    base_id, *, page, page_size, filters=None, sort_by=None, descending=None
+):
+    """Internal function to enable setting unlimited page size."""
     box_selection = Box.select(Box.id).join(Location)
     conditions, selection = derive_box_filter(filters, box_selection)
     selection = selection.where(
@@ -1009,7 +1018,7 @@ def get_boxes_page(
     page_ids = (
         selection.columns(Box.id, sort_field.alias("sort_key"))
         .order_by(order(sort_field), Box.id.asc())
-        .paginate(page or 1, page_size)
+        .paginate(page, page_size)
         .alias("s")
     )
 
@@ -1061,6 +1070,7 @@ def get_boxes_page(
             ShipmentDetail.shipment.alias("shipment_id"),
             B.qr_code.is_null(False).alias("has_qr_code"),
             tag_ids,
+            fn.DATEDIFF(fn.NOW(), B.created_on).alias("age"),
         )
         .from_(page_ids)
         .join(B, on=(B.id == page_ids.c.id))
@@ -1086,3 +1096,60 @@ def get_boxes_page(
         .execute()
     )
     return {"page": rows, **totals}
+
+
+def export_box_rows_to_csv(base_id, filters=None):
+    """Serialize data of all boxes in the given base as CSV, taking filters into
+    account. The field names are the same as in the ExportToCsvButton component.
+    """
+    raw_boxes = _get_boxes_page(base_id, page=1, page_size=100_000, filters=filters)
+    tags = {
+        tag.id: tag.name
+        for tag in Tag.select(Tag.id, Tag.name).where(Tag.base == base_id)
+    }
+
+    fieldnames = [
+        "Box Number",
+        "Product",
+        "Product Category",
+        "Gender",
+        "Size",
+        "Number of items",
+        "State",
+        "Location",
+        "Tags",
+        "Shipment",
+        "Comment",
+        "Age at Export",
+        "Last Modified (UTC time)",
+        "Last Modified By",
+        "Created By",
+    ]
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+    for box in raw_boxes["page"]:
+        writer.writerow(
+            {
+                "Box Number": box["label_identifier"],
+                "Product": box["product_name"],
+                "Product Category": box["product_category_name"],
+                "Gender": ProductGender(box["product_gender"]).name,
+                "Size": box["size_name"],
+                "Number of items": box["number_of_items"],
+                "State": BoxState(box["state"]).name,
+                "Location": box["location_name"],
+                "Tags": ",".join(
+                    [tags[int(i)] for i in box["tag_ids"].split(",")]
+                    if box["tag_ids"]
+                    else []
+                ),
+                "Shipment": box["shipment_id"],
+                "Comment": box["comment"],
+                "Age at Export": box["age"],
+                "Last Modified (UTC time)": box["last_modified_on"],
+                "Last Modified By": box["last_modified_by_name"],
+                "Created By": box["created_by_name"],
+            }
+        )
+    return base64.b64encode(output.getvalue().encode()).decode()
