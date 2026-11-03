@@ -441,7 +441,7 @@ function BoxesTable({
             </Text>
           </HStack>
         )}
-        {selectedCount > 0 && (
+        {selectedCount > 0 && !isSelectAll && (
           <Box as="span" color="gray.400" ml={4}>
             |
           </Box>
@@ -451,16 +451,19 @@ function BoxesTable({
             <Skeleton height={5} width={20} />
           </HStack>
         ) : (
-          <Text
-            mx={4}
-            cursor={isSelectAll || totalNumberOfBoxes === 0 ? "default" : "pointer"}
-            color={isSelectAll || totalNumberOfBoxes === 0 ? "gray.400" : "black"}
-            onClick={() => {
-              if (!isSelectAll && totalNumberOfBoxes > 0) setIsSelectAll(true);
-            }}
-          >
-            Select all {totalNumberOfBoxes} {totalNumberOfBoxes === 1 ? "box" : "boxes"}
-          </Text>
+          !isSelectAll && (
+            <Text
+              mx={4}
+              py={2}
+              cursor={totalNumberOfBoxes === 0 ? "default" : "pointer"}
+              color={totalNumberOfBoxes === 0 ? "gray.400" : "black"}
+              onClick={() => {
+                if (totalNumberOfBoxes > 0) setIsSelectAll(true);
+              }}
+            >
+              Select all {totalNumberOfBoxes} {totalNumberOfBoxes === 1 ? "box" : "boxes"}
+            </Text>
+          )
         )}
       </Flex>
       <Table key="boxes-table">
