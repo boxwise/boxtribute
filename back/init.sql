@@ -825,8 +825,8 @@ CREATE TABLE `genders` (
 
 LOCK TABLES `genders` WRITE;
 /*!40000 ALTER TABLE `genders` DISABLE KEYS */;
-INSERT INTO `genders` VALUES (1,'Female','Female',1,NULL,NULL,NULL,NULL,0,1,1,0,0,'0'),
-  (2,'Male','Male',2,NULL,NULL,NULL,NULL,1,0,1,0,0,'0'),
+INSERT INTO `genders` VALUES (1,'Women','Women',1,NULL,NULL,NULL,NULL,0,1,1,0,0,'0'),
+  (2,'Men','Men',2,NULL,NULL,NULL,NULL,1,0,1,0,0,'0'),
   (3,'Unisex Adult','Unisex',3,NULL,NULL,NULL,NULL,1,1,1,0,0,'0'),
   (4,'Girl','Girl',4,NULL,NULL,NULL,NULL,0,1,0,1,0,'0'),
   (5,'Boy','Boy',5,NULL,NULL,NULL,NULL,1,0,0,1,0,'0'),
@@ -1208,7 +1208,7 @@ DROP TABLE IF EXISTS `locations`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `locations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `label` varchar(20) NOT NULL,
+  `label` varchar(50) NOT NULL,
   `camp_id` int unsigned NOT NULL,
   `seq` int DEFAULT NULL,
   `created` datetime DEFAULT NULL,
@@ -1606,7 +1606,9 @@ INSERT INTO `phinxlog` VALUES (20190610113824,'InitialSchema','2021-06-18 15:51:
   (20260421150000,'FixSizesData','2026-05-20 07:43:03','2026-05-20 07:43:03',0),
   (20260421160000,'RemoveSizegroup20','2026-05-20 07:43:03','2026-05-20 07:43:03',0),
   (20260701113522,'AddBoxMonetaryValueWeight','2026-07-07 09:26:30','2026-07-07 09:26:31',0),
-  (20260727102106,'UpdateInsightMenu','2026-07-27 08:54:28','2026-07-27 08:54:28',0);
+  (20260725095602,'WidenLocationsLabelColumn','2026-11-03 12:47:30','2026-11-03 12:47:31',0),
+  (20260727102106,'UpdateInsightMenu','2026-07-27 08:54:28','2026-07-27 08:54:28',0),
+  (20261103140826,'RenameFemaleMaleGenders','2026-11-03 13:26:18','2026-11-03 13:26:18',0);
 /*!40000 ALTER TABLE `phinxlog` ENABLE KEYS */;
 UNLOCK TABLES;
 
