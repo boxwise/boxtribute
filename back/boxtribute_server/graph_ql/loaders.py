@@ -813,7 +813,10 @@ class FamilyHeadForBeneficiaryLoader(DataLoader):
         family_heads = {
             b.id: b
             for b in Beneficiary.select()
-            .where(Beneficiary.id << family_head_ids)
+            .where(
+                Beneficiary.id << family_head_ids,
+                authorized_bases_filter(Beneficiary),
+            )
             .iterator()
         }
         return [family_heads.get(i) for i in family_head_ids]

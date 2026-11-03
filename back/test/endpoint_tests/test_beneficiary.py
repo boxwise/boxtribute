@@ -264,7 +264,7 @@ def test_beneficiary_mutations(
         "groupIdentifier": new_group_id,
         "gender": new_gender.name,
         "languages": [language],
-        "familyHead": {"id": beneficiary_id},
+        "familyHead": None,
         "isVolunteer": False,
         "signed": True,
         "registered": True,
@@ -522,12 +522,6 @@ def test_beneficiary_mutations(
             "record_id": int(beneficiary_id),
             "from_int": None,
             "to_int": None,
-        },
-        {
-            "changes": "parent_id",
-            "record_id": int(beneficiary_id),
-            "from_int": None,
-            "to_int": int(beneficiary_id),
         },
         {
             "changes": HISTORY_DELETION_MESSAGE,

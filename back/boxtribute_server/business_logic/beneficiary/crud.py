@@ -54,7 +54,7 @@ def create_beneficiary(
         not_registered=not registered,
         signed=signature is not None,  # set depending on signature
         comment=comment,
-        family_head=family_head_id,
+        family_head=None,
         created_on=now,
         created_by=user_id,
         last_modified_on=now,
@@ -134,7 +134,7 @@ def update_beneficiary(
         beneficiary.gender = gender
 
     if family_head_id is not None:
-        beneficiary.family_head = family_head_id
+        beneficiary.family_head = None
     beneficiary.seq = 1 if family_head_id is None else 2
 
     if registered is not None:
