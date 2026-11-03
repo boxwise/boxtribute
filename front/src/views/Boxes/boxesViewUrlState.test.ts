@@ -22,7 +22,7 @@ const state = (overrides: Partial<IBoxesViewState> = {}): IBoxesViewState => ({
   filters: [],
   search: "",
   sortBy: undefined,
-  descending: false,
+  descending: true,
   page: 1,
   ...overrides,
 });
@@ -223,7 +223,7 @@ describe("getCanonicalQueryString", () => {
 
 describe("defaults and helpers", () => {
   it("defaults to InStock boxes, no sort and the first page", () => {
-    expect(getDefaultBoxesViewState()).toEqual(state({ filters: [{ id: "state", value: ["1"] }] }));
+    expect(getDefaultBoxesViewState()).toEqual(state({ descending: false, filters: [{ id: "state", value: ["1"] }] }));
   });
 
   it("detects whether the URL has params of the view", () => {

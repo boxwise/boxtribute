@@ -164,7 +164,7 @@ export function parseBoxesViewSearchParams(searchParams: URLSearchParams): IBoxe
     sortByParam && Object.prototype.hasOwnProperty.call(SORT_BY_TO_BOX_SORT_FIELD, sortByParam)
       ? (sortByParam as BoxesSortBy)
       : undefined;
-  const descending = sortBy !== undefined && searchParams.get(DESCENDING_PARAM) === "true";
+  const descending = sortBy === undefined || searchParams.get(DESCENDING_PARAM) === "true";
 
   return {
     filters,
