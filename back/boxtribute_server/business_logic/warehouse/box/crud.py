@@ -867,7 +867,8 @@ def create_boxes(*, user_id, data):
             if size_id is None:
                 # If it's a product with discrete size, and the specified size is
                 # not available in the product's sizerange, then fallback to "Mixed".
-                size_id = sizes.get("mixed")
+                # The "One size" size range has no "mixed" size, so use "One size" size
+                size_id = sizes.get("mixed", list(sizes.values())[0])
                 size_comment = f"""original size: '{row["size_name"]}'"""
                 comment = f"{comment}; {size_comment}" if comment else size_comment
         complete_data.append(
