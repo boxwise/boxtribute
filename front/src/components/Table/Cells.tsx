@@ -32,8 +32,7 @@ export function ProductWithSPCheckmarkCell({ value, row }: CellProps<any>) {
   return (
     <chakra.span display="flex" gap={2}>
       {value?.name || value}{" "}
-      {(row.original.isStandard ||
-        row.original.containsStandardProduct) && (
+      {(row.original.isStandard || row.original.containsStandardProduct) && (
         <Popover closeOnEsc closeOnBlur isLazy>
           <PopoverTrigger>
             <Box onClick={(e) => e.stopPropagation()}>
