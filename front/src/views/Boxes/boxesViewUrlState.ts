@@ -220,7 +220,7 @@ export function getDefaultBoxesViewState(): IBoxesViewState {
     filters: [{ id: "state", value: [boxStateIds.InStock] }],
     search: "",
     sortBy: undefined,
-    descending: false,
+    descending: true,
     page: 1,
   };
 }

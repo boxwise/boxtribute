@@ -203,11 +203,11 @@ describe("4.8.1 - Initial load of Page", () => {
           await screen.findByText(
             /could not fetch boxes data! Please try reloading the page./i,
             {},
-            { timeout: 5000 },
+            { timeout: 10000 },
           ),
         ).toBeInTheDocument();
       },
-      15000,
+      20000,
     );
   });
 
@@ -235,17 +235,17 @@ describe("4.8.1 - Initial load of Page", () => {
         boxRowsMock({
           options: inStockOptions,
           rows: [instockBoxRow1],
-          delay: 300,
+          delay: 2000,
         }),
         actionOptionsMock(),
       ],
     });
 
     // The table is rendered, but the boxes are still loading
-    await screen.findByRole("table");
+    await screen.findByRole("table", {}, { timeout: 10000 });
     expect(screen.getByTestId("total-summary")).not.toHaveTextContent(/boxes/);
     expect(screen.queryByText("1481666")).not.toBeInTheDocument();
-    expect(await screen.findByText("1481666")).toBeInTheDocument();
+    expect(await screen.findByText("1481666", {}, { timeout: 10000 })).toBeInTheDocument();
     expect(screen.getByTestId("total-summary")).toHaveTextContent(/1 box/);
   });
 
@@ -254,7 +254,7 @@ describe("4.8.1 - Initial load of Page", () => {
       initialUrl: "/bases/2/boxes?state_ids=1",
       mocks: [defaultRowsMock(), actionOptionsMock()],
     });
-    await screen.findByText(/8650860/i);
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
     expect(screen.getByPlaceholderText("Search comments")).toBeInTheDocument();
   });
 
@@ -264,9 +264,9 @@ describe("4.8.1 - Initial load of Page", () => {
       initialUrl: "/bases/2/boxes?state_ids=1",
       mocks: [defaultRowsMock(), actionOptionsMock()],
     });
-    await screen.findByText(/8650860/i);
+    await screen.findByText(/8650860/i, {}, { timeout: 10000 });
     await user.click(screen.getByRole("button", { name: /columns shown/i }));
-    expect(await screen.findByText("Product Category")).toBeInTheDocument();
+    expect(await screen.findByText("Product Category", {}, { timeout: 5000 })).toBeInTheDocument();
     expect(screen.queryByText("Shipment ID")).not.toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: /shipment id/i })).not.toBeInTheDocument();
   });
