@@ -1,4 +1,4 @@
-import { InMemoryCache, makeVar, Reference } from "@apollo/client";
+import { InMemoryCache, makeVar } from "@apollo/client";
 import { IScannedBoxesData } from "types/graphql-local-only";
 import { ITableConfig } from "hooks/useTableConfig";
 import { GET_SCANNED_BOXES } from "./local-only";
@@ -21,39 +21,6 @@ export const cache = new InMemoryCache({
           merge(_, incoming) {
             // For a complete replacement (like in flushAllBoxes),
             return incoming;
-          },
-        },
-        boxes: {
-          // Only use baseId for cache key generation for this field.
-          // filterInput and paginationInput will be ignored in cache key generation.
-          keyArgs: ["baseId"],
-          merge(existing, incoming, { readField }) {
-            if (!incoming) {
-              return existing;
-            }
-            const existingElements = existing?.elements ?? [];
-            const incomingElements = incoming.elements ?? [];
-            // Use a Map to store elements by labelIdentifier, ensuring uniqueness and easy updates.
-            // Assumption: all boxes have a labelIdentifier field!
-            // Incoming elements will overwrite existing ones with the same labelIdentifier.
-            const elementsMap = new Map<string, Reference | Record<string, any>>();
-            existingElements.forEach((element: Reference | Record<string, any>) => {
-              const labelIdentifier = readField<string>("labelIdentifier", element);
-              if (labelIdentifier != null) {
-                elementsMap.set(labelIdentifier, element);
-              }
-            });
-            incomingElements.forEach((element: Reference | Record<string, any>) => {
-              const labelIdentifier = readField<string>("labelIdentifier", element);
-              if (labelIdentifier != null) {
-                elementsMap.set(labelIdentifier, element); // Add or update element
-              }
-            });
-            const mergedElements = Array.from(elementsMap.values());
-            return {
-              ...incoming, // Use totalCount, pageInfo, etc., from the latest fetch
-              elements: mergedElements,
-            };
           },
         },
       },

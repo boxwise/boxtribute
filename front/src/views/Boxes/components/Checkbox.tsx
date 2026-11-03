@@ -4,6 +4,8 @@ import React, { useEffect, forwardRef } from "react";
 interface IProps {
   indeterminate?: boolean;
   name?: string;
+  disabled?: boolean;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 const useCombinedRefs = (...refs): React.MutableRefObject<any> => {
@@ -43,7 +45,11 @@ const IndeterminateCheckbox = forwardRef<HTMLInputElement, IProps>(
         ref={combinedRef}
         onClick={(e) => e.stopPropagation()}
         {...rest}
-        style={{ cursor: "pointer", width: "1.25rem", height: "1.25rem" }}
+        style={{
+          cursor: rest.disabled ? "not-allowed" : "pointer",
+          width: "1.25rem",
+          height: "1.25rem",
+        }}
       />
     );
   },

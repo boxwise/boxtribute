@@ -140,26 +140,7 @@ function BoxCreateView() {
   });
 
   // Mutation after form submission
-  const [createBoxMutation, createBoxMutationState] = useMutation(CREATE_BOX_MUTATION, {
-    update(cache, { data }) {
-      if (!data?.createBox) return;
-      const { createBox } = data;
-
-      cache.modify({
-        fields: {
-          boxes(existingBoxesRef = { totalCount: 0, elements: [] }) {
-            const newBoxRef = cache.identify(createBox);
-
-            return {
-              ...existingBoxesRef,
-              totalCount: existingBoxesRef.totalCount + 1,
-              elements: [{ __ref: newBoxRef }, ...existingBoxesRef.elements],
-            };
-          },
-        },
-      });
-    },
-  });
+  const [createBoxMutation, createBoxMutationState] = useMutation(CREATE_BOX_MUTATION);
 
   // Prep data for Form
   const allTags = allFormOptions.data?.base?.tags;

@@ -2,10 +2,17 @@ import { useCallback, useState } from "react";
 import { gql, useApolloClient } from "@apollo/client";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
+import { FilterBoxInput } from "queries/types";
 
 export const ASSIGN_TAGS_TO_BOXES = gql`
-  mutation AssignTagsToBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
-    assignTagsToBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
+  mutation AssignTagsToBoxes(
+    $labelIdentifiers: [String!]
+    $filters: FilterBoxInput
+    $tagIds: [Int!]!
+  ) {
+    assignTagsToBoxes(
+      updateInput: { labelIdentifiers: $labelIdentifiers, filters: $filters, tagIds: $tagIds }
+    ) {
       ... on BoxesTagsOperationResult {
         updatedBoxes {
           labelIdentifier
@@ -51,10 +58,12 @@ export const useAssignTags = () => {
       labelIdentifiers: string[],
       tagIds: number[],
       showToastMessage: boolean = true,
+      filters?: FilterBoxInput,
     ): Promise<IAssignTagsResult> => {
       setIsLoading(true);
 
-      if (labelIdentifiers.length === 0) {
+      // Boxes specified by filters are resolved by the backend
+      if (!filters && labelIdentifiers.length === 0) {
         setIsLoading(false);
         return {
           kind: IAssignTagsResultKind.BAD_USER_INPUT,
@@ -65,7 +74,7 @@ export const useAssignTags = () => {
       try {
         const { data, errors } = await apolloClient.mutate({
           mutation: ASSIGN_TAGS_TO_BOXES,
-          variables: { labelIdentifiers, tagIds },
+          variables: { ...(filters ? { filters } : { labelIdentifiers }), tagIds },
         });
 
         setIsLoading(false);

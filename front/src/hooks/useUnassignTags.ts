@@ -3,10 +3,17 @@ import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
+import { FilterBoxInput } from "queries/types";
 
 export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
-  mutation UnassignTagsFromBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
-    unassignTagsFromBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
+  mutation UnassignTagsFromBoxes(
+    $labelIdentifiers: [String!]
+    $filters: FilterBoxInput
+    $tagIds: [Int!]!
+  ) {
+    unassignTagsFromBoxes(
+      updateInput: { labelIdentifiers: $labelIdentifiers, filters: $filters, tagIds: $tagIds }
+    ) {
       ... on BoxesTagsOperationResult {
         updatedBoxes {
           labelIdentifier
@@ -38,12 +45,17 @@ export const useUnassignTags = () => {
   const [unassignTagsMutation] = useMutation(UNASSIGN_TAGS_FROM_BOXES);
 
   const unassignTags = useCallback(
-    (labelIdentifiers: string[], tagIds: number[], showToasts: boolean = true) => {
+    (
+      labelIdentifiers: string[],
+      tagIds: number[],
+      showToasts: boolean = true,
+      filters?: FilterBoxInput,
+    ) => {
       setIsLoading(true);
 
       return unassignTagsMutation({
         variables: {
-          labelIdentifiers,
+          ...(filters ? { filters } : { labelIdentifiers }),
           tagIds,
         },
       })
@@ -76,6 +88,8 @@ export const useUnassignTags = () => {
               } successfully unassigned tags.`,
             });
           }
+
+          return !errors?.length && !tagErrorInfoArray?.length;
         })
         .catch((err) => {
           setIsLoading(false);
@@ -84,6 +98,7 @@ export const useUnassignTags = () => {
               message: err + "Could not unassign tags from boxes. Try again?",
             });
           }
+          return false;
         });
     },
     [unassignTagsMutation, triggerError, createToast],

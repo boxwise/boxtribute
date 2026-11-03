@@ -11,7 +11,7 @@ from peewee import JOIN, IntegrityError, fn
 
 from ....authz import authorize
 from ....db import db
-from ....enums import BoxState, ProductGender, TaggableObjectType, TagType
+from ....enums import BoxSortField, BoxState, ProductGender, TaggableObjectType, TagType
 from ....errors import (
     DeletedBase,
     DeletedBox,
@@ -1010,6 +1010,9 @@ def _get_boxes_page(
     )
 
     def order(field):
+        if sort_by == BoxSortField.Age:
+            # largest (most recent) creation date means smallest age
+            return field.asc() if descending is not False else field.desc()
         return field.desc() if descending is not False else field.asc()
 
     # Inner query: sort and page on IDs only. The sort key is selected as well in order

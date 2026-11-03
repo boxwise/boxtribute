@@ -91,7 +91,10 @@ def derive_box_filter(filter_input, selection=None):
 
     last_modified_until = filter_input.get("last_modified_until")
     if last_modified_until is not None:
-        conditions.append(Box.last_modified_on <= last_modified_until)
+        # The date is inclusive, hence compare to the start of the following day
+        conditions.append(
+            Box.last_modified_on < last_modified_until + timedelta(days=1)
+        )
 
     product_gender = filter_input.get("product_gender")
     if product_gender is not None:

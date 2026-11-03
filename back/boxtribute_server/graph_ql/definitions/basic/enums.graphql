@@ -185,4 +185,5 @@ enum BoxSortField {
   MonetaryValue
   LocationName
   Comment
+  Age
 }

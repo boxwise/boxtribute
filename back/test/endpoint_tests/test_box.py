@@ -252,6 +252,7 @@ def test_box_rows_filtering(client):
         ("MonetaryValue", "monetaryValue"),
         ("LocationName", "locationName"),
         ("Comment", "comment"),
+        ("Age", "age"),
     ],
 )
 def test_box_rows_sorting(client, sort_by, field, descending):
@@ -265,6 +266,7 @@ def test_box_rows_sorting(client, sort_by, field, descending):
             comment=None if box.id % 4 == 0 else f"comment {box.id % 3}",
             weight=None if box.id % 5 == 0 else box.id % 3,
             monetary_value=None if box.id % 6 == 0 else box.id % 4,
+            created_on=date(2024, 1, box.id),
         ).where(Box.id == box.id).execute()
 
     query = f"""query {{ boxRows(

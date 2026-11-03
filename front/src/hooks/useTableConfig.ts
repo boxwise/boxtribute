@@ -1,21 +1,17 @@
 import { useReactiveVar } from "@apollo/client";
 import { tableConfigsVar } from "queries/cache";
-import { useCallback, useMemo, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { Filters, SortingRule } from "react-table";
-import { boxStateIds } from "utils/constants";
 
 export interface ITableConfig {
   globalFilter?: string;
-  columnFilters: Filters<any>;
-  sortBy: SortingRule<any>[];
+  columnFilters?: Filters<any>;
+  sortBy?: SortingRule<any>[];
   hiddenColumns?: string[];
 }
 
 interface IUseTableConfigProps {
   tableConfigKey: string;
   defaultTableConfig: ITableConfig;
-  syncFiltersAndUrlParams?: boolean;
 }
 
 export interface IUseTableConfigReturnType {
@@ -27,222 +23,18 @@ export interface IUseTableConfigReturnType {
   setColumnFilters: (columnFilters: Filters<any>) => void;
   setSortBy: (sortBy: SortingRule<any>[]) => void;
   setHiddenColumns: (hiddenColumns: string[] | undefined) => void;
-  isNotMounted: boolean;
 }
 
-// Helper functions for URL parameter sync
-const parseIds = (idsParam: string | null): string[] => {
-  if (!idsParam) return [];
-
-  return idsParam
-    .split(",")
-    .map((id) => id.trim())
-    .filter((id) => id && !isNaN(Number(id)));
-};
-
-const serializeIds = (filters: string[]): string | null => {
-  if (!filters.length) return null;
-  return filters.join(",");
-};
-
-// Configuration for URL parameter mapping
-// TODO: if we need to generlaize this for other tables, this should become a variable of the hook
-export const URL_FILTER_CONFIG = [
-  { filterId: "product", urlParam: "product_ids" },
-  { filterId: "state", urlParam: "state_ids" },
-  { filterId: "gender", urlParam: "gender_ids" },
-  { filterId: "productCategory", urlParam: "product_category_ids" },
-  { filterId: "size", urlParam: "size_ids" },
-  { filterId: "location", urlParam: "location_ids" },
-  { filterId: "tags", urlParam: "tag_ids" },
-  { filterId: "no_tags", urlParam: "no_tag_ids" },
-] as const;
-
-// Helper to update URL parameters from filters
-const updateUrlFromFilters = (
-  filters: Filters<any>,
-  searchParams: URLSearchParams,
-  setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void,
-) => {
-  const newSearchParams = new URLSearchParams();
-
-  // Process each filter type using configuration
-  URL_FILTER_CONFIG.forEach(({ filterId, urlParam }) => {
-    const filter = filters.find((f) => f.id === filterId);
-    if (filter && filter.value?.length > 0) {
-      const serializedIds = serializeIds(filter.value);
-      if (serializedIds) {
-        newSearchParams.set(urlParam, serializedIds);
-      }
-    }
-  });
-
-  // Handle createdOn date range filter ([fromDate, toDate])
-  const createdOnFilter = filters.find((f) => f.id === "createdOn");
-  if (createdOnFilter && Array.isArray(createdOnFilter.value)) {
-    const [from, to] = createdOnFilter.value as [string, string];
-    if (from) newSearchParams.set("created_from", from);
-    if (to) newSearchParams.set("created_to", to);
-  }
-
-  // Only update if something changed
-  if (newSearchParams.toString() !== searchParams.toString()) {
-    setSearchParams(newSearchParams, { replace: true });
-  }
-};
-
-// Helper to parse URL parameters into filters
-const parseUrlFilters = (searchParams: URLSearchParams) => {
-  const urlFilters: Record<string, string[]> = {};
-
-  URL_FILTER_CONFIG.forEach(({ filterId, urlParam }) => {
-    const param = searchParams.get(urlParam);
-    urlFilters[filterId] = parseIds(param);
-  });
-
-  // Handle createdOn date range URL params
-  const createdFrom = searchParams.get("created_from");
-  const createdTo = searchParams.get("created_to");
-  if (createdFrom || createdTo) {
-    urlFilters["createdOn"] = [createdFrom ?? "", createdTo ?? ""];
-  }
-
-  return urlFilters;
-};
-
-// Helper to create initial column filters from URL and defaults
-const createInitialColumnFilters = (
-  defaultColumnFilters: Filters<any>,
-  urlFilters: Record<string, string[]>,
-): Filters<any> => {
-  let initialColumnFilters = [...defaultColumnFilters];
-
-  // Process each filter type using configuration
-  URL_FILTER_CONFIG.forEach(({ filterId }) => {
-    const urlFilterValue = urlFilters[filterId];
-    if (urlFilterValue && urlFilterValue.length > 0) {
-      // Remove existing filter of this type
-      initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== filterId);
-      // Add new filter with URL values
-      initialColumnFilters.push({ id: filterId, value: urlFilterValue });
-    }
-  });
-
-  // Handle createdOn date range filter
-  const createdOnValue = urlFilters["createdOn"] as [string, string] | undefined;
-  if (createdOnValue && (createdOnValue[0] || createdOnValue[1])) {
-    initialColumnFilters = initialColumnFilters.filter((filter) => filter.id !== "createdOn");
-    initialColumnFilters.push({ id: "createdOn", value: createdOnValue });
-  }
-
-  return initialColumnFilters;
-};
+// Stable references for configs that do not define filters or sorting. The boxes view stores only
+// its hidden columns here; its filters, sorting and page live in the URL.
+const NO_FILTERS: Filters<any> = [];
+const NO_SORTING: SortingRule<any>[] = [];
 
 export const useTableConfig = ({
   tableConfigKey,
   defaultTableConfig,
-  syncFiltersAndUrlParams = false,
 }: IUseTableConfigProps): IUseTableConfigReturnType => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  // Parse all URL filters using helper
-  const urlFilters = useMemo(() => {
-    // Validate state_ids are part of known states
-    const urlFilters = parseUrlFilters(searchParams);
-    if (urlFilters.state?.length > 0) {
-      urlFilters.state = urlFilters.state.filter((stateId) =>
-        Object.values(boxStateIds).includes(stateId),
-      );
-    }
-    return urlFilters;
-  }, [searchParams]);
-
-  // Compute the initial filters if there is no saved config
-  const initialColumnFilters = useMemo(() => {
-    if (!syncFiltersAndUrlParams) return defaultTableConfig.columnFilters;
-
-    // If URL params exist, merge them into defaults (URL wins)
-    const hasUrlParams =
-      URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam)) ||
-      !!searchParams.get("created_from") ||
-      !!searchParams.get("created_to");
-    return hasUrlParams
-      ? createInitialColumnFilters(defaultTableConfig.columnFilters, urlFilters)
-      : defaultTableConfig.columnFilters;
-  }, [defaultTableConfig.columnFilters, syncFiltersAndUrlParams, searchParams, urlFilters]);
-
   const tableConfigsState = useReactiveVar(tableConfigsVar);
-
-  // Use state so changes cause a re-render and callers pick up the updated isNotMounted value
-  const [isInitialMount, setIsInitialMount] = useState(true);
-
-  // Update URL when filters change
-  const updateUrl = useCallback(
-    (filters: Filters<any>) => {
-      updateUrlFromFilters(filters, searchParams, setSearchParams);
-    },
-    [searchParams, setSearchParams],
-  );
-
-  /* Initial mount logic (one-time):
-   *
-   * - We compute `initialColumnFilters` earlier so callers can synchronously read
-   *   URL-applied filters from the getters during render (avoids the race where
-   *   react-table/queries initialize with defaults before the effect runs).
-   *
-   * - Here in the effect we persist a table config only if there is no existing
-   *   saved config for the key. This avoids stomping user-saved settings on first load.
-   *
-   * - If URL params exist, we persist the URL-merged filters (URL wins over defaults).
-   *   If the URL is empty and there's no saved config, we persist the default filters
-   *   (and write them into the URL via the existing updateUrl logic).
-   *
-   * - Important: we avoid performing any synchronous state mutation during render.
-   *   The getters return the precomputed values and this effect performs the side
-   *   effect of persisting them after mount. This pattern prevents the race that
-   *   previously caused initial queries to use the default "InStock" filter even
-   *   when the URL requested e.g. "Donated".
-   */
-  useEffect(() => {
-    if (isInitialMount && syncFiltersAndUrlParams) {
-      const hasUrlParams =
-        URL_FILTER_CONFIG.some(({ urlParam }) => searchParams.get(urlParam)) ||
-        !!searchParams.get("created_from") ||
-        !!searchParams.get("created_to");
-      const existingConfig = tableConfigsState.get(tableConfigKey);
-      if (!existingConfig) {
-        const initialFiltersToPersist = hasUrlParams
-          ? initialColumnFilters
-          : defaultTableConfig.columnFilters;
-
-        tableConfigsState.set(tableConfigKey, {
-          ...defaultTableConfig,
-          columnFilters: initialFiltersToPersist,
-        });
-        tableConfigsVar(tableConfigsState);
-      } else if (!hasUrlParams) {
-        // If URL is empty, write the default filters into the URL
-        updateUrl(existingConfig.columnFilters);
-      }
-
-      // mark initial mount complete and trigger a re-render so consumers see the change
-      setIsInitialMount(false);
-    }
-    // Intentionally disable exhaustive-deps: this effect is meant to run only once on initial mount.
-    // The dependencies intentionally included are: syncFiltersAndUrlParams, searchParams, tableConfigKey, tableConfigsState, updateUrl, defaultTableConfig, urlFilters, initialColumnFilters.
-    // These values are stable/memoized by design. Adding all inferred deps would cause unwanted re-runs; update dependencies intentionally if behavior changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    syncFiltersAndUrlParams,
-    searchParams,
-    tableConfigKey,
-    tableConfigsState,
-    updateUrl,
-    defaultTableConfig,
-    urlFilters,
-    initialColumnFilters,
-  ]);
-
-  // Note: URL sync happens via setColumnFilters when filters change through UI
 
   function getGlobalFilter() {
     const cfg = tableConfigsState.get(tableConfigKey);
@@ -251,12 +43,12 @@ export const useTableConfig = ({
 
   function getColumnFilters() {
     const cfg = tableConfigsState.get(tableConfigKey);
-    return cfg?.columnFilters ?? initialColumnFilters;
+    return cfg?.columnFilters ?? defaultTableConfig.columnFilters ?? NO_FILTERS;
   }
 
   function getSortBy() {
     const cfg = tableConfigsState.get(tableConfigKey);
-    return cfg?.sortBy ?? defaultTableConfig.sortBy;
+    return cfg?.sortBy ?? defaultTableConfig.sortBy ?? NO_SORTING;
   }
 
   function getHiddenColumns() {
@@ -281,9 +73,6 @@ export const useTableConfig = ({
       hiddenColumns: prevConfig.hiddenColumns,
     });
     tableConfigsVar(tableConfigsState);
-
-    // Update URL parameters
-    if (syncFiltersAndUrlParams) updateUrl(columnFilters);
   }
 
   function setSortBy(sortBy: SortingRule<any>[]) {
@@ -309,6 +98,5 @@ export const useTableConfig = ({
     setColumnFilters,
     setSortBy,
     setHiddenColumns,
-    isNotMounted: isInitialMount,
   };
 };

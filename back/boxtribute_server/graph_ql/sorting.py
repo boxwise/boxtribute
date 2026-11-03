@@ -28,6 +28,8 @@ def derive_box_sorting(selection, sort_by):
         sort_field = Box.comment
     elif sort_by == BoxSortField.LocationName:
         sort_field = Location.name  # Location is joined in any case
+    elif sort_by == BoxSortField.Age:
+        sort_field = Box.created_on
     elif sort_by == BoxSortField.SizeName:
         sort_size = Size.alias("sort_size")
         selection = selection.join(

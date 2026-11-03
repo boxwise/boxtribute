@@ -287,27 +287,6 @@ function BTBox() {
 
   const [createBoxFromBoxMutation, createBoxFromBoxMutationStatus] = useMutation(
     CREATE_BOX_FROM_BOX_MUTATION,
-    {
-      update(cache, { data }) {
-        if (!data?.createBoxFromBox) return;
-        if (data.createBoxFromBox.__typename !== "Box") return;
-        const { createBoxFromBox } = data;
-
-        cache.modify({
-          fields: {
-            boxes(existingBoxesRef = { totalCount: 0, elements: [] }) {
-              const newBoxRef = cache.identify(createBoxFromBox);
-
-              return {
-                ...existingBoxesRef,
-                totalCount: existingBoxesRef.totalCount + 1,
-                elements: [{ __ref: newBoxRef }, ...existingBoxesRef.elements],
-              };
-            },
-          },
-        });
-      },
-    },
   );
 
   const { isOpen: isPlusOpen, onOpen: onPlusOpen, onClose: onPlusClose } = useDisclosure();
