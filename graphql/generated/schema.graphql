@@ -185,6 +185,7 @@ enum BoxSortField {
   MonetaryValue
   LocationName
   Comment
+  Age
 }
 scalar Datetime
 scalar Date

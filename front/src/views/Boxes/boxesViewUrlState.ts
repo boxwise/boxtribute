@@ -50,6 +50,7 @@ export const SORT_BY_TO_BOX_SORT_FIELD = {
   monetaryValue: "MonetaryValue",
   location: "LocationName",
   comment: "Comment",
+  age: "Age",
 } as const;
 
 export type BoxesSortBy = keyof typeof SORT_BY_TO_BOX_SORT_FIELD;
@@ -73,6 +74,7 @@ export const COLUMN_ID_TO_SORT_BY: Record<string, BoxesSortBy> = {
   monetaryValue: "monetaryValue",
   location: "location",
   comment: "comment",
+  age: "age",
 };
 
 export const SORT_BY_TO_COLUMN_ID = Object.fromEntries(

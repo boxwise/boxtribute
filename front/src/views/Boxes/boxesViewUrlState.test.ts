@@ -255,7 +255,7 @@ describe("defaults and helpers", () => {
     Object.entries(SORT_BY_TO_BOX_SORT_FIELD).forEach(([sortBy, field]) => {
       expect(BOX_SORT_FIELD_TO_SORT_BY[field]).toBe(sortBy);
     });
-    expect(Object.keys(SORT_BY_TO_BOX_SORT_FIELD)).toHaveLength(12);
+    expect(Object.keys(SORT_BY_TO_BOX_SORT_FIELD)).toHaveLength(13);
   });
 
   it("computes and clamps the pages", () => {

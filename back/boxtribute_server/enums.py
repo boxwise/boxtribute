@@ -179,3 +179,4 @@ class BoxSortField(enum.IntEnum):
     MonetaryValue = enum.auto()
     LocationName = enum.auto()
     Comment = enum.auto()
+    Age = enum.auto()

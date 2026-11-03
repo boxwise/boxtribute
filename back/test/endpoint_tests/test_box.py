@@ -252,6 +252,7 @@ def test_box_rows_filtering(client):
         ("MonetaryValue", "monetaryValue"),
         ("LocationName", "locationName"),
         ("Comment", "comment"),
+        ("Age", "age"),
     ],
 )
 def test_box_rows_sorting(client, sort_by, field, descending):

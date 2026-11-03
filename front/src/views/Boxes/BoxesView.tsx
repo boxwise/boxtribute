@@ -353,7 +353,6 @@ function Boxes() {
         accessor: "age",
         id: "age",
         Cell: DaysCell,
-        disableSortBy: true,
       },
       {
         Header: "Last Modified On",
