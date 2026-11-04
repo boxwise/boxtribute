@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { JWT_ROLE } from "utils/constants";
 import { isCoordinatorOrAbove } from "../roles";
@@ -63,16 +63,13 @@ export function MobileWalkthroughProvider({ children }: { children: React.ReactN
   const roles: string[] = user?.[JWT_ROLE] ?? [];
   const isCoordinator = isCoordinatorOrAbove(roles);
 
-  const [step, setStep] = useState<MobileWalkthroughStep>("idle");
-  const [slideIndex, setSlideIndex] = useState(0);
-
-  // Auto-show welcome for first-time mobile users
-  useEffect(() => {
+  // Initialize state lazily based on local storage
+  const [step, setStep] = useState<MobileWalkthroughStep>(() => {
     const state = loadState(userId);
-    if (!state.hasSeenWelcome) {
-      setStep("welcome");
-    }
-  }, [userId]);
+    return state.hasSeenWelcome ? "idle" : "welcome";
+  });
+
+  const [slideIndex, setSlideIndex] = useState(0);
 
   const markSeen = useCallback(() => {
     saveState(userId, { hasSeenWelcome: true });

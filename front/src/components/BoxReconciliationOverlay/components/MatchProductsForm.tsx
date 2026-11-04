@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Box, Button, Flex, Text, Wrap, WrapItem } from "@chakra-ui/react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { groupBy } from "lodash";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { BiSubdirectoryRight } from "react-icons/bi";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { IProductWithSizeRangeData } from "./BoxReconciliationView";
@@ -69,7 +69,6 @@ export function MatchProductsForm({
   const {
     handleSubmit,
     control,
-    watch,
     resetField,
     formState: { errors, isSubmitting },
   } = useForm<MatchProductsFormData>({
@@ -78,39 +77,32 @@ export function MatchProductsForm({
   });
 
   // needed for updating size select field for new product
-  const productId = watch("productId");
-  const sizeId = watch("sizeId");
+  const productId = useWatch({ control, name: "productId" });
+  const sizeId = useWatch({ control, name: "sizeId" });
   const productRef = useRef<string | undefined>();
 
   // sizes reset depending on selected product
-  const [sizesOptionsForCurrentProduct, setSizesOptionsForCurrentProduct] = useState<
-    IDropdownOption[]
-  >([]);
+  const sizesOptionsForCurrentProduct: IDropdownOption[] = useMemo(
+    () =>
+      productId
+        ? (productAndSizesData
+            .find((p) => p.id === productId.value)
+            ?.sizeRange?.sizes?.map((s) => ({ label: s.label, value: s.id })) ?? [])
+        : [],
+    [productId, productAndSizesData],
+  );
 
   useEffect(() => {
-    if (productId != null) {
-      const productAndSizeDataForCurrentProduct = productAndSizesData.find(
-        (p) => p.id === productId.value,
-      );
-      const prepSizesOptionsForCurrentProduct =
-        productAndSizeDataForCurrentProduct?.sizeRange?.sizes?.map((s) => ({
-          label: s.label,
-          value: s.id,
-        })) || [];
-      setSizesOptionsForCurrentProduct(() => prepSizesOptionsForCurrentProduct);
-
-      // Reset size if the product reference is different than the currently selected product
-      if (productRef.current !== productId.value) {
-        productRef.current = productId.value;
-        // if there is only one option select it directly
-        if (prepSizesOptionsForCurrentProduct.length === 1) {
-          resetField("sizeId", { defaultValue: prepSizesOptionsForCurrentProduct[0] });
-        } else {
-          resetField("sizeId", { defaultValue: undefined });
-        }
+    if (productId != null && productRef.current !== productId.value) {
+      productRef.current = productId.value;
+      // if there is only one option select it directly
+      if (sizesOptionsForCurrentProduct.length === 1) {
+        resetField("sizeId", { defaultValue: sizesOptionsForCurrentProduct[0] });
+      } else {
+        resetField("sizeId", { defaultValue: undefined });
       }
     }
-  }, [productId, productAndSizesData, resetField]);
+  }, [productId, sizesOptionsForCurrentProduct, resetField]);
 
   // Option Preparations for select fields
   const productsGroupedByCategory: Record<string, IProductWithSizeRangeData[]> = groupBy(

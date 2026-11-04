@@ -15,7 +15,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import SelectField, { IDropdownOption } from "components/Form/SelectField";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { IChangeNumberOfItemsBoxData } from "../BoxView";
 import { useAuthorization } from "hooks/useAuthorization";
 import { NumberField } from "@boxtribute/shared-components";
@@ -44,7 +44,6 @@ function TakeItemsFromBoxOverlay({
   const {
     handleSubmit,
     control,
-    watch,
     formState: { isSubmitting, errors },
   } = useForm<ITakeItemsFromBoxData>({
     defaultValues: {
@@ -54,8 +53,8 @@ function TakeItemsFromBoxOverlay({
   });
   const authorize = useAuthorization();
 
-  const selectedLocationId = watch("locationId");
-  const numberOfItems = watch("numberOfItems");
+  const selectedLocationId = useWatch({ control, name: "locationId" });
+  const numberOfItems = useWatch({ control, name: "numberOfItems" });
 
   const onSubmit = (data: ITakeItemsFromBoxData) => {
     if (data.locationId?.value && onSubmitCreateBoxFromBox) {
