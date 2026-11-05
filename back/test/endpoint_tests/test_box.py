@@ -278,9 +278,7 @@ def test_box_rows_sorting(client, sort_by, field, descending):
 
     def key(row):
         value = row[field]
-        if field == "productGender":
-            value = ProductGender[value].value
-        elif isinstance(value, str):
+        if isinstance(value, str):
             value = value.lower()
         # NULL values are sorted first in ascending order
         return (value is not None, value)
