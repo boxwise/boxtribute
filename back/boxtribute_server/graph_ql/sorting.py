@@ -6,6 +6,7 @@ from ..models.definitions.box_state import BoxState
 from ..models.definitions.location import Location
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
+from ..models.definitions.product_gender import ProductGender
 from ..models.definitions.size import Size
 
 
@@ -49,8 +50,6 @@ def derive_box_sorting(selection, sort_by):
         selection = selection.join(
             sort_product, on=(sort_product.id == Box.product), src=Box
         )
-        # The gender is sorted by ID, i.e. in the order of the ProductGender enum
-        sort_field = sort_product.gender
         if sort_by == BoxSortField.ProductName:
             sort_field = sort_product.name
         elif sort_by == BoxSortField.CategoryName:
@@ -61,4 +60,12 @@ def derive_box_sorting(selection, sort_by):
                 src=sort_product,
             )
             sort_field = sort_category.name
+        else:  # ProductGender
+            sort_gender = ProductGender.alias("sort_gender")
+            selection = selection.join(
+                sort_gender,
+                on=(sort_gender.id == sort_product.gender),
+                src=sort_product,
+            )
+            sort_field = sort_gender.label
     return selection, sort_field
