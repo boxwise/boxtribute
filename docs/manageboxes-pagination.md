@@ -97,6 +97,17 @@ Estimate: 6-8h
 1. filters, sorting, page nr should be tracked via URL params
 1. if select-all active and bulk-action requested, send applied filters along with bulk-mutation, instead of label identifiers
 
+### Evaluation
+
+Overall the work could be completed in the planned time frame. The result in production meets the expectations with loading times of about 200ms for a ManageBoxes page.
+The following aspects turned out to be more complex:
+- to combine the requirement of pagination with sorting and filtering, it was decided to use offset-based pagination. It plays well with SQL offset pagination which is supported through a peewee method, and it's simpler to implement with varying sorting dimensions than cursor-based pagination. The existing cursor-based pagination implementation is kept for e.g. the `boxes` query. Resources:
+    - https://ignaciochiazzo.medium.com/paginating-requests-in-apis-d4883d4c1c4c
+    - https://dev.to/omeiza_ahmed/cursor-pagination-vs-offset-pagination-which-one-should-you-use-4c36
+    - https://stackoverflow.com/questions/55744926/offset-pagination-vs-cursor-pagination
+- select-all, then unselect some rows, for bulk-mutations. This is not feasible with the current bulk-mutation filters-input. It was decided to disable unselecting rows while select-all is active
+- FE caching: previously on ManageBoxes all boxes were loaded into the Apollo cache, and then had be kept updated when running mutations. This is now obsolete because a) the new response type `BoxRow` is not directly compatible with the `Box` type used in other places in the app, and b) after each mutation on ManageBoxes we re-fetch a fresh page anyways (it's inexpensive)
+
 ## Resources
 
 <details>
