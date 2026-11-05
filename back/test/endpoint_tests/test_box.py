@@ -1852,6 +1852,8 @@ def _format(parameter):
         [[{"states": "[Lost,MarkedForShipment]"}], 4],
         [[{"pattern": '"not"'}], 2],
         [[{"pattern": '"xyz"'}], 0],
+        [[{"pattern": '"123"'}], 5],
+        [[{"pattern": '"12345678"'}], 1],
         [[{"createdFrom": '"2020-11-27"'}], 14],
         [[{"createdFrom": '"2020-11-28"'}], 0],
         [[{"createdUntil": '"2020-11-27"'}], 14],

@@ -31,7 +31,7 @@ export function GlobalFilter({
   const onChange = useAsyncDebounce((val: string) => {
     lastEmittedValue.current = val;
     setGlobalFilter(val || undefined);
-  }, 200);
+  }, 400);
 
   useEffect(() => {
     if (syncWithGlobalFilter && (globalFilter ?? "").trim() !== lastEmittedValue.current.trim()) {

@@ -616,7 +616,7 @@ input FilterBoxInput {
   excludedTagIds: [Int!]
   " Filter for all boxes that are in *one* of the specified locations. "
   locationIds: [Int!]
-  " Filter for all boxes with comment containing this pattern (case-insensitive). "
+  " Filter for all boxes with comment or label identifier containing this pattern (case-insensitive). "
   pattern: String
 }
 
