@@ -255,7 +255,7 @@ describe("4.8.1 - Initial load of Page", () => {
       mocks: [defaultRowsMock(), actionOptionsMock()],
     });
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
-    expect(screen.getByPlaceholderText("Search comments or box #")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Search comment/box #")).toBeInTheDocument();
   });
 
   it("4.8.1.6 - The shipment ID is not offered in the column selector", async () => {
@@ -1084,7 +1084,7 @@ describe("4.8.9 - Searching the comments", () => {
     });
 
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
-    await user.type(screen.getByPlaceholderText("Search comments or box #"), "red shirt");
+    await user.type(screen.getByPlaceholderText("Search comment/box #"), "red shirt");
 
     // Only the final string is requested: requests for intermediate strings have no mock and
     // would fail the view
@@ -1106,7 +1106,7 @@ describe("4.8.9 - Searching the comments", () => {
 
     await screen.findByText(/1481666/i, {}, { timeout: 10000 });
     expect(screen.queryByText(/8650860/i)).not.toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Search comments or box #")).toHaveValue("red shirt");
+    expect(screen.getByPlaceholderText("Search comment/box #")).toHaveValue("red shirt");
     expect(search.result).toHaveBeenCalledTimes(1);
   });
 
@@ -1119,7 +1119,7 @@ describe("4.8.9 - Searching the comments", () => {
     });
 
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
-    const input = screen.getByPlaceholderText("Search comments or box #");
+    const input = screen.getByPlaceholderText("Search comment/box #");
     await user.type(input, "   ");
     await new Promise((resolve) => setTimeout(resolve, 500));
     expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1");
@@ -1164,7 +1164,7 @@ describe("4.8.9 - Searching the comments", () => {
     });
 
     await screen.findByText(/4495955/i, {}, { timeout: 10000 });
-    await user.type(screen.getByPlaceholderText("Search comments or box #"), "shirt");
+    await user.type(screen.getByPlaceholderText("Search comment/box #"), "shirt");
     await waitFor(() => expect(currentUrl()).toBe("/bases/2/boxes?state_ids=1&q=shirt"), {
       timeout: 5000,
     });
@@ -1183,7 +1183,7 @@ describe("4.8.9 - Searching the comments", () => {
     await screen.findByText(/1481666/i, {}, { timeout: 10000 });
     await user.click(screen.getByText("edit URL"));
     await screen.findByText(/8650860/i, {}, { timeout: 10000 });
-    expect(screen.getByPlaceholderText("Search comments or box #")).toHaveValue("");
+    expect(screen.getByPlaceholderText("Search comment/box #")).toHaveValue("");
   });
 });
 
