@@ -28,42 +28,28 @@ Sally wins on time, effort and audio handling; our own agent wins on control and
 
 | Criterion | A. Sally | B. Our own EU agent |
 | --- | --- | --- |
-| Hosting rule (level 2) | Passes on paper. Sub-processors: Hetzner, DeepL, Strato (Germany); Stripe (Ireland, billing only). DPA is public; two inconsistencies to clarify. | Passes by design |
+| Non-US Hosting rule | Passes on paper. Sub-processors: Hetzner, DeepL, Strato (Germany); Stripe (Ireland, billing only). DPA is public (nobody else does that) | Passes by design |
 | Time to first use | Days after the DPA is signed. 30-day free trial. | Realistically multiple weeks. |
-| Build and maintenance | Close to zero. Admin only: seats, DPA, sub-processor change notices. | Adds upload flow, speech-to-text, speaker labels, note template and audio deletion to our service. |
-| Running cost (excl. VAT) | Pro plan €34 per seat per month (annual billing): about €408 a year for 1 seat, €816 for 2. | About €5 per month for 40 calls, plus a share of hosting . |
-| Transcript quality | Vendor says up to 94.1% accuracy on Pro. Few independent reviews. | Unknown until tested; speaker labelling depends on the provider. |
-| Consent in the call | Bot announces itself; anyone can type "opt out" to remove it and delete the recording so far. We still ask verbally. | Unchanged from today: verbal consent, captured in the recording. |
+| Build and maintenance | Close to zero. Admin only: seats, DPA, sub-processor change notices. | Adds permission flow, upload flow, speech-to-text, speaker labels, note template and audio deletion to our service. |
+| Running cost (excl. VAT) | Start plan €12 per seat and per month, Pro plan €39 per seat per month | About €5 per month for 40 calls, plus a share of hosting (total. €20 to €60 per month) |
+| Transcript quality | Vendor says up >90% for Start plan and 94.1% accuracy on Pro. | Unknown until tested; speaker labelling depends on the provider. |
+| Number of calls per month | 20x 1 hr calls at Start. Unlimited at Pro | Unlimited |
+| Summary formats | 40 template meeting formats for summaries at Start. custom meeting formats possible at Pro | We define the summary format ourselves |
+| Search  across meetings | unlimited | not sure how to implement yet (extra agent probably) |
+| ask AI across meetings | up to 30 questions per month on single calls or all calls at Start, unlimited and ask questions of call in a certain folder at Pro  | not sure how to implement yet (extra agent probably). It would also be possible to connect to Sally through API, MCP. |
+| Consent in the call | Bot announces itself; anyone can type "opt out" to remove it and delete the recording so far. We still ask verbally and update our privacy policy. | We might want to build a proper (automated) flow for this: verbal consent or asked in email before, saved in always the same, correct place |
 | Audio retention | Raw audio deleted after processing unless we ask to keep it. | We must build and enforce deletion ourselves. |
 | Control and exit | Monthly plan has no minimum term. Export as DOCX or Markdown. Vendor may change models and sub-processors with 30 days' notice. | Full control of prompts, retention and approval. No new vendor. |
-| Main risk | Small vendor; terms accept price rises unless we object, and charge €5,000 per shared account. | Use case 1 waits; adds load to a one-person service. |
+| Main risk | Small vendor; terms accept price rises unless we object, and charge €5,000 if they find out that we share our account with a third party. | Maintenance |
 
-Pro is needed: Starter (€8) allows 1,200 minutes per month, while 40 calls of 45 minutes are 1,800, and only Pro has custom prompts for our note template. The English pricing page shows $40 instead of €34, so we confirm the price in writing.
+Other interesting features at Sally Pro Plan:
+- organize meetings in folders and ask AI questions across the the calls in a folder
+- you can define "Benchmark" questions for a call beforehand (like "What is their budget?") and it gives you a conscrete answer
 
 ## Recommendation
 
-Go with Sally (option A) for use cases 1 and 4, starting with one Pro seat for the partnerships lead. It is the only third-party tool whose DPA we could read and whose sub-processors all clear our hosting rule. It also frees our limited build time for use case 2, which no tool covers.
-
-Conditions:
-
-- Monthly billing for the first year, so we can leave without penalty if the vendor changes course.
-- Sally's integrations (Slack, Trello, n8n, MCP) are connected only to tools allowed by the hosting rule. Never to Claude or other US AI services.
-- We review the choice in 12 months, when our own agent is running. Moving use case 1 onto it then is a small step.
-
-## Consequences
-
-**If Sally:**
-
-- Partner call notes work for the team within weeks, not months.
-- We add a second vendor holding level 2 data, with its own DPA, terms and sub-processor notices to watch.
-- Partners see a visible bot in the call. Verbal consent stays our responsibility, and in-person recordings have no in-meeting notice.
-- Our liability claims against Sally are capped at 12 months of fees (except GDPR damage claims).
-
-**If our own agent:**
-
-- One vendor set and one place to enforce the hosting rule and retention.
-- Use case 1 stays manual on one person's device until the agent is ready.
-- Our build and maintenance budget is shared with use cases 2, 3 and 5, so transcription competes with them.
+Test Sally (option A) in Pro for one month for free and then review again.
+Access through a Google Group address
 
 ## Other tools checked
 
@@ -76,25 +62,11 @@ Four other EU tools were researched in October 2026; none is a clear candidate t
 | [Recapro](https://www.recapro.ai) (France) | No DPA or terms text available; very small company. |
 | [DeepScript](https://deepscript.com/) (Germany) | Same company as Sally, transcription only. A fallback speech-to-text provider for option B. |
 
-## Before signing
-
-- [ ] Sally explains two DPA inconsistencies in writing: it says no data leaves Germany but lists Stripe (Ireland), and it lists DeepL while saying no external AI is used. Also confirm the data centre (Falkenstein in the DPA, Nuremberg on DeepScript's site).
-- [ ] Written quote for Pro in euros, monthly and annual, and whether a non-profit discount exists (none is published).
-- [ ] Sign the DPA before any real partner call goes through Sally. Use the trial with internal or test calls only.
-- [ ] Short legal read of the terms: automatic acceptance of price rises, liability cap, €5,000 penalty per shared account (one seat per person, no shared logins).
-
-## Open questions
-
-- How many seats: the partnerships lead only, or also the user researcher for use case 4?
-- Use case 4 needs analysis across many interviews. Sally offers that only on Enterprise. Do we buy that, or let our own agent analyse exported transcripts later?
-- Do our most sensitive partners accept a visible note-taking bot in their calls?
-
 ## Sources
 
-Research done 15 to 31 October 2026; prices may have changed since.
+Research done 15 to 31 October 2026;
 
 - [Sally sample DPA](https://help.sally.io/downloads/sample_dpa_for_sally.pdf)
 - [Sally pricing (English)](https://www.sally.io/pricing) and [Sally pricing (German)](https://www.sally.io/de/preise)
 - [Sally SaaS terms](https://www.sally.io/de/saas-nutzungsbedingungen)
 - [Sally privacy note](https://help.sally.io/downloads/privacy_note.pdf)
-- Full tool comparison: eu-transcription-tools-comparison.md
