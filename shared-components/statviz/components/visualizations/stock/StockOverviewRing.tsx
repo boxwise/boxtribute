@@ -178,7 +178,7 @@ export default function StockOverviewRing({
       drilldownValues.length > 0 ? `${drilldownValues[drilldownValues.length - 1]}` : "";
 
     if (level === 1) {
-      return `All Items by ${getGroupOption()?.label}`;
+      return `by ${getGroupOption()?.label}`;
     }
 
     const previousGroupOption = getGroupOption(1);

@@ -189,7 +189,7 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Category");
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 by Category");
     expect(screen.getByText("Category A: 5")).toBeInTheDocument();
     expect(screen.getByText("Category B: 3")).toBeInTheDocument();
     expect(screen.getByText("ORGANIZATION: ORGANISATION ONE")).toBeInTheDocument();
@@ -203,7 +203,7 @@ describe("Shared FE", () => {
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Gender");
+      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 by Gender");
     });
     expect(screen.getByText("Men: 5")).toBeInTheDocument();
     expect(screen.getByText("Women: 3")).toBeInTheDocument();
@@ -215,7 +215,7 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Category");
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 by Category");
     expect(screen.getByText("Category A: 5")).toBeInTheDocument();
     expect(screen.getByText("Category B: 3")).toBeInTheDocument();
   });
@@ -227,7 +227,7 @@ describe("Shared FE", () => {
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Size");
+      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 by Size");
     });
     expect(screen.getByText("Size A: 5")).toBeInTheDocument();
     expect(screen.getByText("Size B: 3")).toBeInTheDocument();
@@ -240,7 +240,7 @@ describe("Shared FE", () => {
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Product");
+      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 by Product");
     });
     expect(screen.getByText("shoes: 5")).toBeInTheDocument();
     expect(screen.getByText("shirts: 3")).toBeInTheDocument();
@@ -252,7 +252,7 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Category");
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 by Category");
     expect(screen.getByText("Category A: 5")).toBeInTheDocument();
     expect(screen.getByText("Category B: 3")).toBeInTheDocument();
   });
@@ -263,7 +263,7 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("16 All Items by Category");
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("16 by Category");
     expect(screen.getByText("Category A: 10")).toBeInTheDocument();
     expect(screen.getByText("Category B: 6")).toBeInTheDocument();
   });
