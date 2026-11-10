@@ -142,36 +142,6 @@ enum BeneficiaryReachType {
   Checkout
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
-enum DistributionEventState {
-  Planning
-  Packing
-  OnDistro
-  ReturnedFromDistribution
-  ReturnTrackingInProgress
-  Completed
-}
-
-enum DistributionEventTrackingFlowDirection {
-  In
-  Out
-  # Internal
-  BackToBox
-}
-
-enum DistributionEventsTrackingGroupState {
-  InProgress
-  Completed
-}
-
-enum PackingListEntryState {
-  NotStarted
-  PackingInProgress
-  Packed
-}
-
 enum BoxSortField {
   LabelIdentifier
   LastModifiedOn
@@ -587,21 +557,6 @@ input ShipmentCreationInput {
   transferAgreementId: Int
 }
 
-input DistributionSpotCreationInput {
-  baseId: Int!
-  name: String
-  comment: String!
-  latitude: Float
-  longitude: Float
-}
-
-input DistributionEventCreationInput {
-  distributionSpotId: Int!
-  name: String
-  plannedStartDateTime: Datetime!
-  plannedEndDateTime: Datetime
-}
-
 input BoxesShipmentAddInput {
   id: ID!
   " Specify either label identifiers OR filters to find boxes to add "
@@ -623,13 +578,6 @@ input ShipmentDetailUpdateInput {
   targetLocationId: Int!
   targetSizeId: Int!
   targetQuantity: Int!
-}
-
-input PackingListEntryInput {
-  distributionEventId: ID!
-  productId: Int!
-  sizeId: Int!
-  numberOfItems: Int!
 }
 
 input TagCreationInput {
@@ -741,65 +689,6 @@ type Mutation {
 
   " Create a link that can be publicly shared and resolved. "
   createShareableLink(creationInput: LinkCreationInput): ShareableLinkCreationResult
-
-  # Undocumented mutations of the mobile-distribution feature
-  createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
-  createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
-
-  addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
-  removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
-  removeAllPackingListEntriesFromDistributionEventForProduct(
-    distributionEventId: ID!
-    productId: ID!
-  ): Boolean
-  updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int!): PackingListEntry
-  updateSelectedProductsForDistributionEventPackingList(
-    distributionEventId: ID!
-    productIdsToAdd: [ID!]!
-    productIdsToRemove: [ID!]!
-  ): DistributionEvent
-
-  changeDistributionEventState(
-    distributionEventId: ID!
-    newState: DistributionEventState!
-  ): DistributionEvent
-
-  assignBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
-  unassignBoxFromDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
-  moveItemsFromBoxToDistributionEvent(
-    boxLabelIdentifier: ID!
-    distributionEventId: ID!
-    numberOfItems: Int!
-  ): UnboxedItemsCollection
-  removeItemsFromUnboxedItemsCollection(
-    id: ID!
-    numberOfItems: Int!
-  ): UnboxedItemsCollection
-
-  startDistributionEventsTrackingGroup(
-    distributionEventIds: [ID!]!,
-    baseId: ID!,
-    # returnedToLocationId: ID
-  ): DistributionEventsTrackingGroup
-
-  setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
-    distributionEventsTrackingGroupId: ID!
-    productId: ID!
-    sizeId: ID!
-    numberOfItems: Int!
-  ): DistributionEventsTrackingEntry
-
-  moveItemsFromReturnTrackingGroupToBox(
-    distributionEventsTrackingGroupId: ID!
-    productId: ID!
-    sizeId: ID!
-    numberOfItems: Int!
-    targetBoxLabelIdentifier: ID!
-  ): DistributionEventsTrackingEntry
-
-  completeDistributionEventsTrackingGroup(
-    id: ID!
-  ): DistributionEventsTrackingGroup
 }
 type Query {
   " Return all non-deleted [`Bases`]({{Types.Base}}) that the client is authorized to view. "
@@ -877,13 +766,6 @@ type Query {
   topProductsDonated(baseId: Int!): TopProductsDonatedData
   movedBoxes(baseId: Int!): MovedBoxesData
   stockOverview(baseId: Int!): StockOverviewData
-
-  # Undocumented queries of the mobile-distribution feature
-  distributionSpots: [DistributionSpot!]!
-  distributionSpot(id: ID!): DistributionSpot
-  distributionEvent(id: ID!): DistributionEvent
-  packingListEntry(id: ID!): PackingListEntry
-  distributionEventsTrackingGroup(id: ID!): DistributionEventsTrackingGroup
 }
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
@@ -893,17 +775,6 @@ interface ItemsCollection {
   size: Size
   numberOfItems: Int
   location: Location
-  distributionEvent: DistributionEvent
-}
-
-type UnboxedItemsCollection implements ItemsCollection {
-  id: ID!
-  product: Product
-  size: Size
-  numberOfItems: Int
-  label: String
-  location: Location
-  distributionEvent: DistributionEvent
 }
 
 type BoxRow {
@@ -957,7 +828,6 @@ type Box implements ItemsCollection {
   labelIdentifier: String!
   " If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   location: Location
-  distributionEvent: DistributionEvent
   numberOfItems: Int
   " If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   product: Product
@@ -1230,16 +1100,6 @@ type Base {
   products(filterInput: FilterProductInput): [Product!]!
   " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
-  distributionSpots: [DistributionSpot!]!
-  distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
-
-  # TODO: rethink these queries once the prototype testing is over
-  # probably better to have filter parameters and only one query operation
-  distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
-  distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
-
-  distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
-  distributionEventsStatistics: [DistributionEventsStatistics!]!
   " Number of all non-deleted InStock boxes in the base. "
   instockBoxesCount: Int!
   " Number of items of all non-deleted InStock boxes in the base. "
@@ -1254,79 +1114,6 @@ type Organisation {
   name: String!
   " List of all non-deleted [`Bases`]({{Types.Base}}) managed by this organisation. Accessible for any authenticated user "
   bases(filterInput: FilterBaseInput): [Base!]
-}
-
-type DistributionEventsStatistics {
-  productName: String!
-  genderLabel: String!
-  categoryLabel: String!
-  sizeLabel: String!
-  inflow: Int!
-  outflow: Int!
-  earliestPossibleDistroDate: String!
-  latestPossibleDistroDate: String!
-  potentiallyInvolvedDistributionSpots: String!
-  involvedDistributionEventIds: String!
-  distroEventTrackingGroupId: String!
-  productId: String!
-  sizeId: String!
-}
-
-type DistributionEvent {
-  id: ID!
-  distributionSpot: DistributionSpot
-  name: String
-  state: DistributionEventState!
-
-  plannedStartDateTime: Datetime!
-  plannedEndDateTime: Datetime!
-  packingListEntries: [PackingListEntry!]!
-
-  # TODO: Consider to also add field "itemsCollections" to this type
-  # It would return both boxes as well as unboxed items collections
-  boxes: [Box!]!
-  unboxedItemsCollections: [UnboxedItemsCollection!]!
-
-  distributionEventsTrackingGroup: DistributionEventsTrackingGroup
-}
-
-type DistributionEventsTrackingEntry {
-  id: ID!
-  product: Product!
-  size: Size!
-  numberOfItems: Int!
-  distributionEventsTrackingGroup: DistributionEventsTrackingGroup!
-  dateTimeOfTracking: Datetime!
-  flowDirection: DistributionEventTrackingFlowDirection!
-}
-
-type DistributionEventsTrackingGroup {
-  id: ID!
-  state: DistributionEventsTrackingGroupState!
-  distributionEvents: [DistributionEvent!]!
-  distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
-  createdOn: Datetime!
-}
-
-type PackingListEntry {
-  id: ID!
-  product: Product
-  size: Size
-  numberOfItems: Int!
-  matchingPackedItemsCollections: [ItemsCollection!]!
-  state: PackingListEntryState!
-}
-
-type DistributionSpot implements Location {
-  id: ID!
-  name: String
-  base: Base
-  " Not implemented, only for compatibility with Location interface "
-  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  comment: String!
-  latitude: Float
-  longitude: Float
-  distributionEvents: [DistributionEvent!]!
 }
 
 """
