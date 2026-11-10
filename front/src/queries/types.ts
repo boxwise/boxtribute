@@ -11,7 +11,6 @@ import {
 } from "views/Boxes/BoxesView";
 import {
   BOX_FIELDS_FRAGMENT,
-  DISTRO_EVENT_FIELDS_FRAGMENT,
   SHIPMENT_DETAIL_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
@@ -20,7 +19,6 @@ import {
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
 
-export type DistributionEventState = FragmentOf<typeof DISTRO_EVENT_FIELDS_FRAGMENT>["state"];
 export type BoxState = FragmentOf<typeof BOX_FIELDS_FRAGMENT>["state"];
 export type ShipmentState = Shipment["state"];
 

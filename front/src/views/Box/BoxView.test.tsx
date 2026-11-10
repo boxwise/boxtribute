@@ -410,10 +410,6 @@ it("3.1.1 - Initial load of Page", async () => {
   // Test case 3.1.1.3.1 - Content: State color for Instock Box is correct
   expect(screen.getByTestId("box-state")).toHaveStyle(`color: #0CA789`);
 
-  // Test case 3.1.1.4 - Hide Distro Event Functionality for Ineligible Orgs
-  // const distroEventSection = screen.getByTestId("box-sections");
-  // expect(distroEventSection).not.toContain<string>("Assign this Box to Distribution Event:");
-
   // Test case 3.1.1.5 - Content: Box Tags are shown correctly
   const boxTags = screen.getByTestId("box-tags");
   expect(boxTags).toBeInTheDocument();
