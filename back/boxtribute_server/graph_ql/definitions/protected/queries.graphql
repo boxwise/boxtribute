@@ -74,11 +74,4 @@ type Query {
   topProductsDonated(baseId: Int!): TopProductsDonatedData
   movedBoxes(baseId: Int!): MovedBoxesData
   stockOverview(baseId: Int!): StockOverviewData
-
-  # Undocumented queries of the mobile-distribution feature
-  distributionSpots: [DistributionSpot!]!
-  distributionSpot(id: ID!): DistributionSpot
-  distributionEvent(id: ID!): DistributionEvent
-  packingListEntry(id: ID!): PackingListEntry
-  distributionEventsTrackingGroup(id: ID!): DistributionEventsTrackingGroup
 }

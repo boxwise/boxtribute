@@ -4,7 +4,6 @@ from ...enums import BoxState as BoxStateEnum
 from ..fields import UIntForeignKeyField, ZeroDateTimeField
 from . import Model
 from .box_state import BoxState
-from .distribution_event import DistributionEvent
 from .location import Location
 from .product import Product
 from .qr_code import QrCode
@@ -46,13 +45,6 @@ class Box(Model):
         on_update="CASCADE",
     )
     deleted_on = ZeroDateTimeField(column_name="deleted", null=True, default=None)
-    distribution_event = UIntForeignKeyField(
-        column_name="distro_event_id",
-        field="id",
-        model=DistributionEvent,
-        null=True,
-        on_update="CASCADE",
-    )
     number_of_items = IntegerField(column_name="items", null=True)
     location = UIntForeignKeyField(
         column_name="location_id",

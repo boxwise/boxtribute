@@ -57,22 +57,6 @@ def non_default_box_state_location_data():
     return data
 
 
-def distribution_spot_data():
-    data = default_location_data()
-    data["id"] = 5
-    data["type"] = LocationType.DistributionSpot
-    data["latitude"] = 13.37
-    return data
-
-
-def another_distribution_spot_data():
-    data = default_location_data()
-    data["id"] = 6
-    data["base"] = base_data()[2]["id"]
-    data["type"] = LocationType.DistributionSpot
-    return data
-
-
 def deleted_location_data():
     data = default_location_data()
     data["id"] = 7
@@ -125,11 +109,6 @@ def location_in_deleted_base():
 
 
 @pytest.fixture
-def distribution_spot():
-    return distribution_spot_data()
-
-
-@pytest.fixture
 def base1_classic_locations():
     return [
         default_location_data(),
@@ -155,8 +134,6 @@ def create():
             another_location_data(),
             null_box_state_location_data(),
             non_default_box_state_location_data(),
-            distribution_spot_data(),
-            another_distribution_spot_data(),
             deleted_location_data(),
             yet_another_location_data(),
             location_in_deleted_base_data(),

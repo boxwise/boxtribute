@@ -408,28 +408,8 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[7] + (
 )
 
 # ### BETA-LEVEL 99 ###
-# In addition to level 98,
-# - actions for mobile-distribution
 # THIS IS USED FOR THE TEST USER (test/auth.py) AND GOD USERS
-MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98] + (
-    # + mutations for mobile distribution pages
-    "createDistributionSpot",
-    "createDistributionEvent",
-    "addPackingListEntryToDistributionEvent",
-    "removePackingListEntryFromDistributionEvent",
-    "removeAllPackingListEntriesFromDistributionEventForProduct",
-    "updatePackingListEntry",
-    "updateSelectedProductsForDistributionEventPackingList",
-    "changeDistributionEventState",
-    "assignBoxToDistributionEvent",
-    "unassignBoxFromDistributionEvent",
-    "moveItemsFromBoxToDistributionEvent",
-    "removeItemsFromUnboxedItemsCollection",
-    "startDistributionEventsTrackingGroup",
-    "setReturnedNumberOfItemsForDistributionEventsTrackingGroup",
-    "moveItemsFromReturnTrackingGroupToBox",
-    "completeDistributionEventsTrackingGroup",
-)
+MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98]
 
 
 def check_user_beta_level(

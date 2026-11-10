@@ -188,21 +188,6 @@ input ShipmentCreationInput {
   transferAgreementId: Int
 }
 
-input DistributionSpotCreationInput {
-  baseId: Int!
-  name: String
-  comment: String!
-  latitude: Float
-  longitude: Float
-}
-
-input DistributionEventCreationInput {
-  distributionSpotId: Int!
-  name: String
-  plannedStartDateTime: Datetime!
-  plannedEndDateTime: Datetime
-}
-
 input BoxesShipmentAddInput {
   id: ID!
   " Specify either label identifiers OR filters to find boxes to add "
@@ -224,13 +209,6 @@ input ShipmentDetailUpdateInput {
   targetLocationId: Int!
   targetSizeId: Int!
   targetQuantity: Int!
-}
-
-input PackingListEntryInput {
-  distributionEventId: ID!
-  productId: Int!
-  sizeId: Int!
-  numberOfItems: Int!
 }
 
 input TagCreationInput {
