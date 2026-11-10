@@ -59,9 +59,9 @@ const ringGroupingUrlId = "srg";
 
 const ringGroupingOptions: IFilterValue[] = [
   { value: "categoryName", label: "Category", urlId: "cn" },
-  { value: "productName", label: "Product", urlId: "pn" },
   { value: "gender", label: "Gender", urlId: "g" },
   { value: "sizeName", label: "Size", urlId: "s" },
+  { value: "productName", label: "Product", urlId: "p" },
 ];
 
 const defaultRingGrouping = ringGroupingOptions[0];

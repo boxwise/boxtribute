@@ -233,8 +233,8 @@ describe("Shared FE", () => {
     expect(screen.getByText("Size B: 3")).toBeInTheDocument();
   });
 
-  it("groups by product when srg=pn", async () => {
-    renderApp("/?code=abc123&view=stockoverview&srg=pn", [
+  it("groups by product when srg=p", async () => {
+    renderApp("/?code=abc123&view=stockoverview&srg=p", [
       resolveLinkMock({ result: { data: { resolveLink: stockOverviewData } } }),
     ]);
 
