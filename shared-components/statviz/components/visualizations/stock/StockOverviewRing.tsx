@@ -268,6 +268,7 @@ export default function StockOverviewRing({
           <WrapItem>
             <Box>
               <Button
+                aria-label="Move up one drilldown level"
                 isDisabled={drilldownPath.length < 2}
                 borderRadius="0px"
                 border="2px"
