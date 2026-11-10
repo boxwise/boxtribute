@@ -13,7 +13,7 @@ import {
   WrapItem,
   useDisclosure,
 } from "@chakra-ui/react";
-import { filter, groupBy, innerJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
+import { filter, groupBy, innerJoin, leftJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
@@ -147,9 +147,10 @@ export default function StockOverviewRing({
     const preparedStockData = tidy(
       data?.facts as Partial<StockOverviewResult>,
       innerJoin<StockOverviewResult, ICategoryDim>(categoryDim!, { by: "categoryId" }),
-      innerJoin<StockOverviewResult & ICategoryDim, ISizeDim>(sizeDim!, {
+      leftJoin<StockOverviewResult & ICategoryDim, ISizeDim>(sizeDim!, {
         by: "sizeId",
       }),
+      map((stock) => ({ ...stock, sizeName: stock.sizeName ?? "N/A" })),
       // @ts-expect-error spread of tidy filter functions not typed
       ...drilldownFilters,
     ) as PreparedStock[];
