@@ -843,8 +843,6 @@ it("3.1.10 - No Data or Null Data Fetched for a given Box Label Identifier", asy
       onPlusOpen={mockFunction}
       onMinusOpen={mockFunction}
       onStateChange={mockFunction}
-      onAssignBoxToDistributionEventClick={mockFunction}
-      onUnassignBoxFromDistributionEventClick={mockFunction}
       onAssignBoxesToShipment={mockFunction}
       onUnassignBoxesToShipment={mockFunction}
       shipmentOptions={[]}
