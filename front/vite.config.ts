@@ -57,7 +57,6 @@ export default defineConfig({
         "**/vitest.{workspace,projects}.[jt]s?(on)",
         "**/.{eslint,mocha,prettier}rc.{?(c|m)js,yml}",
         "**/mocks/**",
-        "src/views/Distributions/**",
       ],
     },
   },
