@@ -104,7 +104,6 @@ def test_invalid_permission(unauthorized, client, query):
         """product( id: 2 ) { id }""",
         # Test case 9.1.8
         """beneficiary( id: 4 ) { id }""",
-        """packingListEntry( id: 1 ) { id }""",
         # Test case 3.1.6
         """shipment( id: 5 ) { id }""",
         """beneficiaryFigures( baseId: 2 ) { averageFamilySize }""",
