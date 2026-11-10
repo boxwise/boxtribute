@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { ChakraProvider } from "@chakra-ui/react";
 import { MockedProvider, MockedResponse } from "@apollo/client/testing";
 import { GraphQLError } from "graphql";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { theme } from "@boxtribute/shared-components/utils/theme";
 import App, { RESOLVE_LINK } from "./App";
 
@@ -189,7 +189,7 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 boxes");
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Category");
     expect(screen.getByText("Category A: 5")).toBeInTheDocument();
     expect(screen.getByText("Category B: 3")).toBeInTheDocument();
     expect(screen.getByText("ORGANIZATION: ORGANISATION ONE")).toBeInTheDocument();
@@ -202,7 +202,9 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 boxes");
+    await waitFor(() => {
+      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Gender");
+    });
     expect(screen.getByText("Men: 5")).toBeInTheDocument();
     expect(screen.getByText("Women: 3")).toBeInTheDocument();
   });
@@ -213,7 +215,7 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 boxes");
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Category");
     expect(screen.getByText("Category A: 5")).toBeInTheDocument();
     expect(screen.getByText("Category B: 3")).toBeInTheDocument();
   });
@@ -224,20 +226,35 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 boxes");
+    await waitFor(() => {
+      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Size");
+    });
     expect(screen.getByText("Size A: 5")).toBeInTheDocument();
     expect(screen.getByText("Size B: 3")).toBeInTheDocument();
   });
 
-  it("groups by location when srg=l", async () => {
+  it("groups by product when srg=pn", async () => {
+    renderApp("/?code=abc123&view=stockoverview&srg=pn", [
+      resolveLinkMock({ result: { data: { resolveLink: stockOverviewData } } }),
+    ]);
+
+    expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Product");
+    });
+    expect(screen.getByText("shoes: 5")).toBeInTheDocument();
+    expect(screen.getByText("shirts: 3")).toBeInTheDocument();
+  });
+
+  it("falls back to the default category grouping for the removed location option (srg=l)", async () => {
     renderApp("/?code=abc123&view=stockoverview&srg=l", [
       resolveLinkMock({ result: { data: { resolveLink: stockOverviewData } } }),
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 boxes");
-    expect(screen.getByText("Location A: 5")).toBeInTheDocument();
-    expect(screen.getByText("Location B: 3")).toBeInTheDocument();
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("8 All Items by Category");
+    expect(screen.getByText("Category A: 5")).toBeInTheDocument();
+    expect(screen.getByText("Category B: 3")).toBeInTheDocument();
   });
 
   it("shows items count grouped by category when sboi=ic", async () => {
@@ -246,7 +263,7 @@ describe("Shared FE", () => {
     ]);
 
     expect(await screen.findByTestId("pie-chart")).toBeInTheDocument();
-    expect(screen.getByTestId("pie-center")).toHaveTextContent("16 items");
+    expect(screen.getByTestId("pie-center")).toHaveTextContent("16 All Items by Category");
     expect(screen.getByText("Category A: 10")).toBeInTheDocument();
     expect(screen.getByText("Category B: 6")).toBeInTheDocument();
   });
