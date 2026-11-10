@@ -35,7 +35,6 @@ export const generateMockLocationWithBase = ({
     name: "Lesvos",
     monetaryCurrencyCode: "EUR",
     organisation: organisation1,
-    distributionEventsBeforeReturnedFromDistributionState: [],
     locations: [
       {
         __typename: "ClassicLocation",

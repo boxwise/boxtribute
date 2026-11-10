@@ -14,10 +14,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  ASSIGN_BOX_TO_DISTRIBUTION_MUTATION,
-  UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION,
-} from "views/Distributions/queries";
 import { HISTORY_FIELDS_FRAGMENT, LOCATION_BASIC_FIELDS_FRAGMENT } from "queries/fragments";
 import { BOXES_QUERY_ELEMENT_FIELD_FRAGMENT } from "views/Boxes/BoxesView";
 import { useErrorHandling } from "hooks/useErrorHandling";
@@ -271,12 +267,6 @@ function BTBox() {
     UPDATE_NUMBER_OF_ITEMS_IN_BOX_MUTATION,
   );
 
-  const [assignBoxToDistributionEventMutation, assignBoxToDistributionEventMutationStatus] =
-    useMutation(ASSIGN_BOX_TO_DISTRIBUTION_MUTATION);
-
-  const [unassignBoxFromDistributionEventMutation, unassignBoxFromDistributionEventMutationStatus] =
-    useMutation(UNASSIGN_BOX_FROM_DISTRIBUTION_MUTATION);
-
   const [updateStateMutation, updateStateMutationStatus] = useMutation(
     UPDATE_STATE_IN_BOX_MUTATION,
   );
@@ -318,15 +308,10 @@ function BTBox() {
     isAssignBoxesToShipmentLoading ||
     updateStateMutationStatus.loading ||
     updateBoxLocationMutationStatus.loading ||
-    assignBoxToDistributionEventMutationStatus.loading ||
-    unassignBoxFromDistributionEventMutationStatus.loading ||
     updateNumberOfItemsMutationStatus.loading ||
     createBoxFromBoxMutationStatus.loading;
 
-  const error =
-    allData.error ||
-    assignBoxToDistributionEventMutationStatus.error ||
-    unassignBoxFromDistributionEventMutationStatus.error;
+  const error = allData.error;
 
   const onStateChange = useCallback(
     async (newState: BoxState) => {
@@ -617,40 +602,6 @@ function BTBox() {
       });
   }, [createQrCodeMutation, triggerError, createToast, labelIdentifier, boxData]);
 
-  const onAssignBoxToDistributionEventClick = (distributionEventId: string) => {
-    assignBoxToDistributionEventMutation({
-      variables: {
-        boxLabelIdentifier: labelIdentifier,
-        distributionEventId,
-      },
-      // Unused functionality. Instead of refetching, data should be returned by mutation
-      // refetchQueries: [
-      //   refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
-      //   {
-      //     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-      //     variables: { distributionEventId },
-      //   },
-      // ],
-    });
-  };
-
-  const onUnassignBoxFromDistributionEventClick = (distributionEventId: string) => {
-    unassignBoxFromDistributionEventMutation({
-      variables: {
-        boxLabelIdentifier: labelIdentifier,
-        distributionEventId,
-      },
-      // Unused functionality. Instead of refetching, data should be returned by mutation
-      // refetchQueries: [
-      //   refetchBoxByLabelIdentifierQueryConfig(labelIdentifier),
-      //   {
-      //     query: PACKING_LIST_ENTRIES_FOR_DISTRIBUTION_EVENT_QUERY,
-      //     variables: { distributionEventId },
-      //   },
-      // ],
-    });
-  };
-
   type requestType = "assign" | "unassign" | "reassign";
 
   const handleAssignBoxToShipmentError = useCallback(
@@ -870,8 +821,6 @@ function BTBox() {
         onMinusOpen={onMinusOpen}
         onMoveToLocationClick={onMoveBoxToLocationClick}
         onStateChange={onStateChange}
-        onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
-        onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
         onAssignBoxesToShipment={onAssignBoxesToShipment}
         onUnassignBoxesToShipment={onUnassignBoxesToShipment}
         isLoading={loading}
