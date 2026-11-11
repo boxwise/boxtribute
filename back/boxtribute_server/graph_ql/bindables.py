@@ -130,6 +130,8 @@ def resolve_type_by_class_name(obj, *_):
 
 
 def resolve_location_type(obj, *_):
+    # Note: if a DistributionSpot is about to be resolved, the type look-up deliberately
+    # fails because it does not exist in the schema anymore
     return obj.type.name
 
 
