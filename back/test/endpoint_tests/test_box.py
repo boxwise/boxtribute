@@ -1854,6 +1854,8 @@ def _format(parameter):
         [[{"pattern": '"xyz"'}], 0],
         [[{"pattern": '"123"'}], 5],
         [[{"pattern": '"12345678"'}], 1],
+        [[{"pattern": '"gest"'}], 10],
+        [[{"pattern": '"ts"'}], 11],
         [[{"createdFrom": '"2020-11-27"'}], 14],
         [[{"createdFrom": '"2020-11-28"'}], 0],
         [[{"createdUntil": '"2020-11-27"'}], 14],

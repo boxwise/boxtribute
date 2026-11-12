@@ -75,8 +75,13 @@ def derive_box_filter(filter_input, selection=None):
     pattern = filter_input.get("pattern")
     if pattern:
         conditions.append(
-            (Box.comment.contains(pattern) | Box.label_identifier.contains(pattern))
+            (
+                Box.comment.contains(pattern)
+                | Box.label_identifier.contains(pattern)
+                | Product.name.contains(pattern)
+            )
         )
+        join_with_product_required = True
 
     created_from = filter_input.get("created_from")
     if created_from is not None:
