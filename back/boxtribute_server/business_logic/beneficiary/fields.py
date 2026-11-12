@@ -44,9 +44,9 @@ def resolve_beneficiary_age(beneficiary_obj, _):
     return compute_age(beneficiary_obj.date_of_birth)
 
 
-@beneficiary.field("active")
+@beneficiary.field("deactivatedOn")
 def resolve_beneficiary_active(beneficiary_obj, _):
-    return beneficiary_obj.deleted_on is None  # ZeroDateTimeField
+    return beneficiary_obj.deleted_on
 
 
 @beneficiary.field("base")

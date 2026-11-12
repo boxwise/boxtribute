@@ -280,13 +280,14 @@ def test_beneficiary_mutations(
     today = date.today().isoformat()
     deactivated_beneficiary_id = default_beneficiary["id"]
     mutation = f"""mutation {{
-            deactivateBeneficiary(id: {deactivated_beneficiary_id}) {{ active }} }}"""
+            deactivateBeneficiary(id: {deactivated_beneficiary_id})
+                {{ deactivatedOn }} }}"""
     response = assert_successful_request(client, mutation)
-    assert not response["active"]
+    assert response["deactivatedOn"] is not None
     deactivated_child_id = another_relative_beneficiary["id"]
-    query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ active }} }}"
+    query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ deactivatedOn }} }}"
     response = assert_successful_request(client, query)
-    assert not response["active"]
+    assert response["deactivatedOn"] is not None
 
     phone_number = "+491234567"
     mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
@@ -630,7 +631,6 @@ def test_beneficiaries_filtered_query(client, filters, number):
     query = f"""query {{ beneficiaries(filterInput: {{ {filter_input} }}) {{
                 elements {{
                     id
-                    active
                     isVolunteer
                     registered
                 }} }} }}"""
@@ -638,7 +638,7 @@ def test_beneficiaries_filtered_query(client, filters, number):
     assert len(beneficiaries) == number
 
     for f in filters:
-        for name in ["active", "isVolunteer", "registered"]:
+        for name in ["isVolunteer", "registered"]:
             if name in f:
                 value = f[name] == "true"
                 assert [b[name] for b in beneficiaries] == number * [value]

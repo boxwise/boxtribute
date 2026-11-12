@@ -394,10 +394,10 @@ type Beneficiary {
   languages: [Language!]
   " Null if this beneficiary is the family head "
   familyHead: Beneficiary
-  active: Boolean!
   isVolunteer: Boolean!
   signed: Boolean!
   registered: Boolean!
+  email: String
   phoneNumber: String
   signature: String
   dateOfSignature: Date
@@ -409,6 +409,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  deactivatedOn: Datetime
   tags: [Tag!]
 }
 
