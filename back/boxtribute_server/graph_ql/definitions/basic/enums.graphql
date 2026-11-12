@@ -157,3 +157,18 @@ enum BoxSortField {
   Comment
   Age
 }
+
+enum BeneficiarySortField {
+  LastName
+  FirstName
+  Gender
+  Age
+  GroupIdentifier
+  Tokens
+  LastActiveOn
+  CreatedOn
+  Email
+  Phone
+  AdditionalTextField1
+  AdditionalTextField2
+}

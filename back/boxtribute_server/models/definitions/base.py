@@ -14,8 +14,8 @@ class Base(Model):
     )
     # Currency code for monetary value of e.g. boxes
     monetary_currency_code = CharField(constraints=[SQL("DEFAULT 'EUR'")])
-
     adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
+    # created_on
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         column_name="created_by",
