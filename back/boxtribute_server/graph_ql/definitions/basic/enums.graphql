@@ -142,36 +142,6 @@ enum BeneficiaryReachType {
   Checkout
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
-enum DistributionEventState {
-  Planning
-  Packing
-  OnDistro
-  ReturnedFromDistribution
-  ReturnTrackingInProgress
-  Completed
-}
-
-enum DistributionEventTrackingFlowDirection {
-  In
-  Out
-  # Internal
-  BackToBox
-}
-
-enum DistributionEventsTrackingGroupState {
-  InProgress
-  Completed
-}
-
-enum PackingListEntryState {
-  NotStarted
-  PackingInProgress
-  Packed
-}
-
 enum BoxSortField {
   LabelIdentifier
   LastModifiedOn

@@ -5,37 +5,7 @@ Remember to adjust graph_ql/enums.py when adding a new class here.
 import enum
 
 
-class DistributionEventsTrackingGroupState(enum.IntEnum):
-    InProgress = 1
-    Completed = enum.auto()
-
-
-class DistributionEventState(enum.IntEnum):
-    Planning = 1
-    Packing = enum.auto()
-    OnDistro = enum.auto()
-    ReturnedFromDistribution = enum.auto()
-    ReturnTrackingInProgress = enum.auto()
-    Completed = enum.auto()
-
-
-class DistributionEventTrackingFlowDirection(enum.IntEnum):
-    In = 1
-    Out = enum.auto()
-    # Internal = enum.auto()
-    BackToBox = enum.auto()
-
-
-class PackingListEntryState(enum.IntEnum):
-    NotStarted = 1
-    PackingInProgress = enum.auto()
-    Packed = enum.auto()
-
-
 class LocationType(enum.Enum):
-    """Indiciates which concrete type (classic Location, Distribution Spot, etc)
-    a Location is."""
-
     ClassicLocation = "Warehouse"
     DistributionSpot = "MapDistroSpot"
 

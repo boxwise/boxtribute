@@ -1,7 +1,6 @@
 import { Box, Stack } from "@chakra-ui/react";
 import { IDropdownOption } from "components/Form/SelectField";
 import BoxCard from "./BoxCard";
-import BoxDistributionEvent from "./BoxDistributionEvent";
 import BoxTabs from "./BoxTabs";
 import { BoxByLabelIdentifier, BoxState } from "queries/types";
 
@@ -14,8 +13,6 @@ interface IBoxDetailsProps {
   onPlusOpen: () => void;
   onMinusOpen: () => void;
   onStateChange: (boxState: BoxState) => void;
-  onAssignBoxToDistributionEventClick: (distributionEventId: string) => void;
-  onUnassignBoxFromDistributionEventClick: (distributionEventId: string) => void;
   onAssignBoxesToShipment: (shipmentId: string) => void;
   onUnassignBoxesToShipment: (shipmentId: string) => void;
   shipmentOptions: IDropdownOption[];
@@ -26,8 +23,6 @@ function BoxDetails({
   boxData,
   boxInTransit,
   onMoveToLocationClick,
-  onAssignBoxToDistributionEventClick,
-  onUnassignBoxFromDistributionEventClick,
   onHistoryOpen,
   onPlusOpen,
   onMinusOpen,
@@ -69,13 +64,6 @@ function BoxDetails({
         shipmentOptions={shipmentOptions}
         isLoading={isLoading}
       />
-      {boxData.distributionEvent && (
-        <BoxDistributionEvent
-          boxData={boxData}
-          onUnassignBoxFromDistributionEventClick={onUnassignBoxFromDistributionEventClick}
-          onAssignBoxToDistributionEventClick={onAssignBoxToDistributionEventClick}
-        />
-      )}
     </Stack>
   );
 }

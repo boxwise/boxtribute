@@ -3202,3 +3202,16 @@ def test_box_mutations_invalid_filter(client):
                 {{ ...on InvalidFilterInputError {{ _ }} }} }}"""
         response = assert_successful_request(client, mutation)
         assert response == {"_": None}
+
+
+def test_box_in_distribution_spot(client, default_box, distribution_spot):
+    mutation = f"""mutation {{ updateBox( updateInput: {{
+                labelIdentifier: "{default_box['label_identifier']}",
+                locationId: {distribution_spot["id"]} }} ) {{ location {{ id }} }} }}"""
+    response = client.post("/graphql", json={"query": mutation})
+    assert response.status_code == 200
+    assert (
+        response.json["errors"][0]["message"]
+        == "Abstract type 'Location' was resolved to a type 'DistributionSpot' that "
+        "does not exist inside the schema."
+    )

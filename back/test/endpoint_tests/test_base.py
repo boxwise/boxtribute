@@ -62,11 +62,6 @@ def test_bases_query(
 def test_base_query(
     client,
     default_base,
-    default_tracking_group,
-    distribution_spot,
-    distro_spot5_distribution_events,
-    distro_spot5_distribution_events_before_return_state,
-    distro_spot5_distribution_events_in_return_state,
     base1_active_tags,
     base1_undeleted_classic_locations,
     base1_undeleted_products,
@@ -81,12 +76,6 @@ def test_base_query(
                     locations {{ id }}
                     products(filterInput: {{ type: All }}) {{ id }}
                     tags {{ id }}
-                    distributionSpots {{ id }}
-                    distributionEvents {{ id }}
-                    distributionEventsBeforeReturnedFromDistributionState {{ id }}
-                    distributionEventsInReturnedFromDistributionState {{ id }}
-                    distributionEventsStatistics {{ productId }}
-                    distributionEventsTrackingGroups {{ id }}
                 }}
             }}"""
 
@@ -100,18 +89,4 @@ def test_base_query(
         "locations": [
             {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
         ],
-        "distributionSpots": [{"id": str(distribution_spot["id"])}],
-        "distributionEvents": [
-            {"id": str(event["id"])} for event in distro_spot5_distribution_events
-        ],
-        "distributionEventsBeforeReturnedFromDistributionState": [
-            {"id": str(event["id"])}
-            for event in distro_spot5_distribution_events_before_return_state
-        ],
-        "distributionEventsInReturnedFromDistributionState": [
-            {"id": str(event["id"])}
-            for event in distro_spot5_distribution_events_in_return_state
-        ],
-        "distributionEventsStatistics": [],
-        "distributionEventsTrackingGroups": [{"id": str(default_tracking_group["id"])}],
     }

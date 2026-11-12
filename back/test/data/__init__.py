@@ -30,13 +30,6 @@ from .box import (
     not_delivered_box,
 )
 from .box_state import default_box_state
-from .distribution_event import (
-    default_distribution_event,
-    distro_spot5_distribution_events,
-    distro_spot5_distribution_events_before_return_state,
-    distro_spot5_distribution_events_in_return_state,
-)
-from .distribution_event_tracking_group import default_tracking_group
 from .history import default_history
 from .location import (
     another_location,
@@ -56,7 +49,6 @@ from .organisation import (
     inactive_organisation,
     organisations,
 )
-from .packing_list_entry import packing_list_entry
 from .product import (
     another_product,
     base1_products,
@@ -163,7 +155,6 @@ __all__ = [
     "default_box",
     "default_boxes",
     "default_box_state",
-    "default_distribution_event",
     "default_history",
     "default_location",
     "default_location_boxes",
@@ -177,7 +168,6 @@ __all__ = [
     "default_size",
     "default_size_range",
     "default_standard_product",
-    "default_tracking_group",
     "default_transaction",
     "default_transfer_agreement",
     "default_user",
@@ -186,9 +176,6 @@ __all__ = [
     "deleted_location",
     "disabled_standard_product",
     "distribution_spot",
-    "distro_spot5_distribution_events",
-    "distro_spot5_distribution_events_before_return_state",
-    "distro_spot5_distribution_events_in_return_state",
     "donated_box",
     "english_lesson_service",
     "expired_link",
@@ -212,7 +199,6 @@ __all__ = [
     "not_delivered_box",
     "null_box_state_location",
     "organisations",
-    "packing_list_entry",
     "pound_unit",
     "prepared_shipment_detail",
     "product_categories",
@@ -270,8 +256,6 @@ _NAMES = [
     "shipment",
     "tag",
     "shareable_link",
-    "distribution_event_tracking_group",
-    "distribution_event",
     "service",
 ]
 

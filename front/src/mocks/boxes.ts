@@ -71,7 +71,6 @@ export const generateMockBox = ({
   createdBy: user1,
   lastModifiedOn: "2023-11-19T10:24:29+00:00",
   lastModifiedBy: user1,
-  distributionEvent: null,
   deletedOn,
   __typename: "Box",
 });
