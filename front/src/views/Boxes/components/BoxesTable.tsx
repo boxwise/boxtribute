@@ -356,7 +356,7 @@ function BoxesTable({
           <GlobalFilter
             globalFilter={search}
             setGlobalFilter={(value) => setSearch(value ?? "")}
-            placeholder="Search comment/box #"
+            placeholder="Search"
             syncWithGlobalFilter
           />
           <FilterPanel
