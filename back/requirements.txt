@@ -1,4 +1,4 @@
-ariadne==1.1.0
+ariadne==1.1.1
 Flask==3.1.3
 Flask-Cors==6.0.5
 sentry-sdk[flask]==2.71.0
@@ -9,7 +9,5 @@ PyJWT[crypto]==2.15.1
 aiodataloader==0.4.3
 gunicorn
 auth0-python==6.7.0
-# Cap version because ariadne is not compatible with new API
-graphql-core<3.3.0
 # Dependency of auth0-python. Newer versions are not compatible with freezegun
 pydantic<2.14
