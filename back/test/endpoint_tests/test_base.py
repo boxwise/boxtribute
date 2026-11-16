@@ -76,6 +76,23 @@ def test_base_query(
                     locations {{ id }}
                     products(filterInput: {{ type: All }}) {{ id }}
                     tags {{ id }}
+                    groupIdentifier
+                    adultAge
+                    daysToKeepInactiveBeneficiaries
+                    tokensPerAdult
+                    tokensPerChild
+                    trackingRegisteredBeneficiariesEnabled
+                    beneficiariesAsVolunteersEnabled
+                    beneficiaryEmailEnabled
+                    beneficiaryPhoneEnabled
+                    beneficiaryCustomTextField1Enabled
+                    beneficiaryCustomTextField2Enabled
+                    beneficiaryCustomNumberFieldEnabled
+                    beneficiaryCustomDateFieldEnabled
+                    beneficiaryCustomTextField1Name
+                    beneficiaryCustomTextField2Name
+                    beneficiaryCustomNumberFieldName
+                    beneficiaryCustomDateFieldName
                 }}
             }}"""
 
@@ -88,5 +105,44 @@ def test_base_query(
         "tags": [{"id": str(t["id"])} for t in base1_active_tags],
         "locations": [
             {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
+        ],
+        "groupIdentifier": default_base["group_identifier"],
+        "adultAge": default_base["adult_age"],
+        "daysToKeepInactiveBeneficiaries": default_base[
+            "days_to_keep_inactive_beneficiaries"
+        ],
+        "tokensPerAdult": default_base["tokens_per_adult"],
+        "tokensPerChild": default_base["tokens_per_child"],
+        "trackingRegisteredBeneficiariesEnabled": default_base[
+            "tracking_registered_beneficiaries_enabled"
+        ],
+        "beneficiariesAsVolunteersEnabled": default_base[
+            "beneficiaries_as_volunteers_enabled"
+        ],
+        "beneficiaryEmailEnabled": default_base["beneficiary_email_enabled"],
+        "beneficiaryPhoneEnabled": default_base["beneficiary_phone_enabled"],
+        "beneficiaryCustomTextField1Enabled": default_base[
+            "beneficiary_custom_text_field_1_enabled"
+        ],
+        "beneficiaryCustomTextField2Enabled": default_base[
+            "beneficiary_custom_text_field_2_enabled"
+        ],
+        "beneficiaryCustomNumberFieldEnabled": default_base[
+            "beneficiary_custom_number_field_enabled"
+        ],
+        "beneficiaryCustomDateFieldEnabled": default_base[
+            "beneficiary_custom_date_field_enabled"
+        ],
+        "beneficiaryCustomTextField1Name": default_base[
+            "beneficiary_custom_text_field_1_name"
+        ],
+        "beneficiaryCustomTextField2Name": default_base[
+            "beneficiary_custom_text_field_2_name"
+        ],
+        "beneficiaryCustomNumberFieldName": default_base[
+            "beneficiary_custom_number_field_name"
+        ],
+        "beneficiaryCustomDateFieldName": default_base[
+            "beneficiary_custom_date_field_name"
         ],
     }

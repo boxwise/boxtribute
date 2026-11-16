@@ -353,10 +353,10 @@ type Base {
   beneficiaryCustomTextField2Enabled: Boolean!
   beneficiaryCustomNumberFieldEnabled: Boolean!
   beneficiaryCustomDateFieldEnabled: Boolean!
-  beneficiaryCustomTextField1Label: String
-  beneficiaryCustomTextField2Label: String
-  beneficiaryCustomNumberFieldLabel: String
-  beneficiaryCustomDateFieldLabel: String
+  beneficiaryCustomTextField1Name: String
+  beneficiaryCustomTextField2Name: String
+  beneficiaryCustomNumberFieldName: String
+  beneficiaryCustomDateFieldName: String
 }
 
 """

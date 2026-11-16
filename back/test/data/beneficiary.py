@@ -24,6 +24,8 @@ def default_beneficiary_data():
         "group_identifier": "1234",
         "comment": "comment for fun",
         "gender": HumanGender.Male,
+        "email": "every.body@web.com",
+        "phone_number": None,
     }
 
 

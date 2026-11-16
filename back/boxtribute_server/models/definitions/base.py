@@ -14,7 +14,7 @@ class Base(Model):
     )
     # Currency code for monetary value of e.g. boxes
     monetary_currency_code = CharField(constraints=[SQL("DEFAULT 'EUR'")])
-    adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
+    adult_age = IntegerField(constraints=[SQL("DEFAULT 15")], default=15)
     # created_on
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
@@ -27,7 +27,7 @@ class Base(Model):
     )
     cycle_start = DateTimeField(column_name="cyclestart", default=utcnow, null=True)
     days_to_keep_inactive_beneficiaries = IntegerField(
-        column_name="delete_inactive_users", constraints=[SQL("DEFAULT 30")]
+        column_name="delete_inactive_users", constraints=[SQL("DEFAULT 30")], default=30
     )
     deleted_on = DateTimeField(null=True, column_name="deleted", default=None)
     token_cap_for_adult = IntegerField(
@@ -37,13 +37,15 @@ class Base(Model):
         column_name="dropcapchild", constraints=[SQL("DEFAULT 99999")]
     )
     tokens_per_adult = CharField(
-        column_name="dropsperadult", constraints=[SQL("DEFAULT '100'")]
+        column_name="dropsperadult", constraints=[SQL("DEFAULT '100'")], default="100"
     )
     tokens_per_child = CharField(
-        column_name="dropsperchild", constraints=[SQL("DEFAULT '100'")]
+        column_name="dropsperchild", constraints=[SQL("DEFAULT '100'")], default="100"
     )
     group_identifier = CharField(
-        column_name="familyidentifier", constraints=[SQL("DEFAULT 'Container'")]
+        column_name="familyidentifier",
+        constraints=[SQL("DEFAULT 'Container'")],
+        default="Container",
     )
     modified = DateTimeField(null=True)
     modified_by = UIntForeignKeyField(
@@ -65,43 +67,57 @@ class Base(Model):
     )
     seq = IntegerField()
     tracking_registered_beneficiaries_enabled = SmallIntegerField(
-        column_name="beneficiaryisregistered", constraints=[SQL("DEFAULT '1'")]
+        column_name="beneficiaryisregistered",
+        constraints=[SQL("DEFAULT '1'")],
+        default=True,
     )
     beneficiaries_as_volunteers_enabled = SmallIntegerField(
-        column_name="beneficiaryisvolunteer", constraints=[SQL("DEFAULT '1'")]
+        column_name="beneficiaryisvolunteer",
+        constraints=[SQL("DEFAULT '1'")],
+        default=True,
     )
     separate_shop_and_warehouse_products = SmallIntegerField(
         column_name="separateshopandwhproducts", constraints=[SQL("DEFAULT '0'")]
     )
     beneficiary_email_enabled = SmallIntegerField(
-        column_name="email_enabled", constraints=[SQL("DEFAULT '0'")]
+        column_name="email_enabled", constraints=[SQL("DEFAULT '0'")], default=False
     )
     beneficiary_phone_enabled = SmallIntegerField(
-        column_name="phone_enabled", constraints=[SQL("DEFAULT '0'")]
+        column_name="phone_enabled", constraints=[SQL("DEFAULT '0'")], default=False
     )
-    beneficiary_custom_text_field1_enabled = SmallIntegerField(
-        column_name="additional_field1_enabled", constraints=[SQL("DEFAULT '0'")]
+    # Call "field_1" instead of "field1" for compatibility with ariadne's
+    # camel-case-to-snake-case converter. Same for corresponding name fields
+    beneficiary_custom_text_field_1_enabled = SmallIntegerField(
+        column_name="additional_field1_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
     )
-    beneficiary_custom_text_field2_enabled = SmallIntegerField(
-        column_name="additional_field2_enabled", constraints=[SQL("DEFAULT '0'")]
+    beneficiary_custom_text_field_2_enabled = SmallIntegerField(
+        column_name="additional_field2_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
     )
     beneficiary_custom_number_field_enabled = SmallIntegerField(
-        column_name="additional_field3_enabled", constraints=[SQL("DEFAULT '0'")]
+        column_name="additional_field3_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
     )
     beneficiary_custom_date_field_enabled = SmallIntegerField(
-        column_name="additional_field4_enabled", constraints=[SQL("DEFAULT '0'")]
+        column_name="additional_field4_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
     )
-    beneficiary_custom_text_field1_label = CharField(
-        column_name="additional_field1_label", max_length=255
+    beneficiary_custom_text_field_1_name = CharField(
+        column_name="additional_field1_label", max_length=255, null=True
     )
-    beneficiary_custom_text_field2_label = CharField(
-        column_name="additional_field2_label", max_length=255
+    beneficiary_custom_text_field_2_name = CharField(
+        column_name="additional_field2_label", max_length=255, null=True
     )
-    beneficiary_custom_number_field_label = CharField(
-        column_name="additional_field3_label", max_length=255
+    beneficiary_custom_number_field_name = CharField(
+        column_name="additional_field3_label", max_length=255, null=True
     )
-    beneficiary_custom_date_field_label = CharField(
-        column_name="additional_field4_label", max_length=255
+    beneficiary_custom_date_field_name = CharField(
+        column_name="additional_field4_label", max_length=255, null=True
     )
 
     class Meta:

@@ -32,8 +32,11 @@ def _generate_beneficiary_query(id):
             registered
             signature
             dateOfSignature
+            email
+            phoneNumber
             tokens
             createdOn
+            deactivatedOn
             transactions {{
                 id
                 beneficiary {{ id }}
@@ -80,6 +83,9 @@ def test_beneficiary_query(
         "registered": True,
         "signature": None,
         "dateOfSignature": None,
+        "email": default_beneficiary["email"],
+        "phoneNumber": default_beneficiary["phone_number"],
+        "deactivatedOn": None,
         "tokens": default_transaction["tokens"] + relative_transaction["tokens"],
         "createdOn": default_beneficiary["created_on"].isoformat() + "+00:00",
         "transactions": [
@@ -270,6 +276,9 @@ def test_beneficiary_mutations(
         "registered": True,
         "signature": signature,
         "dateOfSignature": f"{new_dos}T00:00:00",
+        "email": "",
+        "phoneNumber": None,
+        "deactivatedOn": None,
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
         "transactions": [],
