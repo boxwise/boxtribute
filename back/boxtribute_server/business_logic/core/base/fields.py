@@ -52,10 +52,13 @@ def resolve_base_tags(base_obj, _, resource_type=None):
 @base.field("beneficiaries")
 def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="beneficiary:read", base_id=base_obj.id)
-    base_filter_condition = Beneficiary.base == base_obj.id
-    filter_condition = base_filter_condition & derive_beneficiary_filter(filter_input)
+    conditions, selection = derive_beneficiary_filter(filter_input)
+    conditions.append(Beneficiary.base == base_obj.id)
     return load_into_page(
-        Beneficiary, filter_condition, pagination_input=pagination_input
+        Beneficiary,
+        *conditions,
+        selection=selection,
+        pagination_input=pagination_input,
     )
 
 

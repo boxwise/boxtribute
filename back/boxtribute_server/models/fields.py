@@ -114,3 +114,15 @@ class ZeroDateField(DateField):
         if value == "0000-00-00":
             return
         return super().adapt(value)
+
+
+class IntAsCharField(CharField):
+    """Custom class to store an integer value in a legacy `varchar` DB column, while
+    exposing it as an integer on the application level.
+    """
+
+    def db_value(self, value):
+        return None if value is None else str(value)
+
+    def python_value(self, value):
+        return None if value is None else int(value)

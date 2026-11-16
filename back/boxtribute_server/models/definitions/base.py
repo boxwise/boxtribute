@@ -1,6 +1,6 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField, SmallIntegerField
 
-from ..fields import UIntForeignKeyField
+from ..fields import IntAsCharField, UIntForeignKeyField
 from ..utils import utcnow
 from . import Model
 from .organisation import Organisation
@@ -36,10 +36,10 @@ class Base(Model):
     token_cap_for_child = IntegerField(
         column_name="dropcapchild", constraints=[SQL("DEFAULT 99999")]
     )
-    tokens_per_adult = CharField(
+    tokens_per_adult = IntAsCharField(
         column_name="dropsperadult", constraints=[SQL("DEFAULT '100'")], default="100"
     )
-    tokens_per_child = CharField(
+    tokens_per_child = IntAsCharField(
         column_name="dropsperchild", constraints=[SQL("DEFAULT '100'")], default="100"
     )
     group_identifier = CharField(
