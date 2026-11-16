@@ -3,6 +3,7 @@ from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 from ...enums import HumanGender
 from ..fields import (
     EnumCharField,
+    IntAsCharField,
     UIntForeignKeyField,
     ZeroDateField,
     ZeroDateTimeField,
@@ -99,7 +100,7 @@ class Beneficiary(Model):
     custom_text_field_2 = CharField(
         column_name="customfield2_value", max_length=255, null=True
     )
-    custom_number_field = CharField(
+    custom_number_field = IntAsCharField(
         column_name="customfield3_value", max_length=255, null=True
     )
     custom_date_field = DateTimeField(column_name="customfield4_value", null=True)
