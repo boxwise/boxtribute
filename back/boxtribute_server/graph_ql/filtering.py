@@ -90,6 +90,10 @@ def derive_beneficiary_filter(filter_input, selection=None):
             (Beneficiary.last_name.contains(pattern))
             | (Beneficiary.first_name.contains(pattern))
             | (Beneficiary.comment.contains(pattern))
+            | (Beneficiary.email.contains(pattern))
+            | (Beneficiary.phone_number.contains(pattern))
+            | (Beneficiary.custom_text_field_1.contains(pattern))
+            | (Beneficiary.custom_text_field_2.contains(pattern))
             | (Beneficiary.group_identifier == pattern)
         )
     return conditions, selection

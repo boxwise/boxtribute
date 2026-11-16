@@ -423,6 +423,10 @@ type Beneficiary {
   registered: Boolean!
   email: String
   phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: String
   signature: String
   dateOfSignature: Date
   " Number of tokens the beneficiary holds (sum of all transaction values) "

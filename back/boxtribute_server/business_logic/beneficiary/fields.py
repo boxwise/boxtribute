@@ -13,6 +13,11 @@ def resolve_beneficiary_family_head(beneficiary_obj, info):
     )
 
 
+@beneficiary.field("familyMembers")
+def resolve_beneficiary_family_members(*_):
+    return []
+
+
 @beneficiary.field("tags")
 def resolve_beneficiary_tags(beneficiary_obj, info):
     authorize(permission="tag:read", base_id=beneficiary_obj.base_id)

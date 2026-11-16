@@ -34,6 +34,10 @@ def _generate_beneficiary_query(id):
             dateOfSignature
             email
             phoneNumber
+            customTextField1
+            customTextField2
+            customNumberField
+            customDateField
             tokens
             createdOn
             deactivatedOn
@@ -85,6 +89,10 @@ def test_beneficiary_query(
         "dateOfSignature": None,
         "email": default_beneficiary["email"],
         "phoneNumber": default_beneficiary["phone_number"],
+        "customTextField1": default_beneficiary["custom_text_field_1"],
+        "customTextField2": default_beneficiary["custom_text_field_2"],
+        "customDateField": None,
+        "customNumberField": default_beneficiary["custom_number_field"],
         "deactivatedOn": None,
         "tokens": default_transaction["tokens"] + relative_transaction["tokens"],
         "createdOn": default_beneficiary["created_on"].isoformat() + "+00:00",
@@ -278,6 +286,10 @@ def test_beneficiary_mutations(
         "dateOfSignature": f"{new_dos}T00:00:00",
         "email": "",
         "phoneNumber": None,
+        "customTextField1": None,
+        "customTextField2": None,
+        "customNumberField": None,
+        "customDateField": None,
         "deactivatedOn": None,
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
@@ -637,6 +649,9 @@ def _format(parameter):
         [[{"pattern": '"Z"'}], 0],
         [[{"pattern": '"1234"'}], 3],
         [[{"pattern": '"123"'}], 1],
+        [[{"pattern": '"491"'}], 1],
+        [[{"pattern": '"web.com"'}], 1],
+        [[{"pattern": '"uk"'}], 1],
         [[{"createdFrom": '"2022-01-01"'}, {"deactivated": "false"}], 2],
         [[{"deactivated": "false"}, {"registered": "false"}], 1],
         [[{"deactivated": "true"}, {"pattern": '"no"'}], 1],

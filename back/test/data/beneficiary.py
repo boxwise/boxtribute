@@ -26,6 +26,9 @@ def default_beneficiary_data():
         "gender": HumanGender.Male,
         "email": "every.body@web.com",
         "phone_number": None,
+        "custom_text_field_1": "UK",
+        "custom_text_field_2": None,
+        "custom_number_field": 3,
     }
 
 
@@ -45,6 +48,7 @@ def relative_beneficiary_data():
         "is_volunteer": True,
         "not_registered": True,
         "deleted_on": datetime(2021, 12, 31),  # == not active
+        "phone_number": "+4911111111",
     }
 
 

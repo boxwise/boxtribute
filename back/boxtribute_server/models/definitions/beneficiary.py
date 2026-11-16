@@ -93,10 +93,10 @@ class Beneficiary(Model):
     is_volunteer = IntegerField(
         column_name="volunteer", constraints=[SQL("DEFAULT 0")], default=False
     )
-    custom_text_field1 = CharField(
+    custom_text_field_1 = CharField(
         column_name="customfield1_value", max_length=255, null=True
     )
-    custom_text_field2 = CharField(
+    custom_text_field_2 = CharField(
         column_name="customfield2_value", max_length=255, null=True
     )
     custom_number_field = CharField(
