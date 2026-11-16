@@ -498,8 +498,6 @@ input FilterBeneficiaryInput {
   tagIds: [Int!]
   " Filter for all beneficiaries that have *none* of the specified tags. "
   excludedTagIds: [Int!]
-  " Todo: call 'inactive'. Whether the beneficiary was not lately created, modified, or involved in a transaction. "
-  active: Boolean
   isVolunteer: Boolean
   registered: Boolean
   signed: Boolean

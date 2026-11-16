@@ -22,15 +22,18 @@ def derive_beneficiary_filter(filter_input):
 
     created_until = filter_input.get("created_until")
     if created_until is not None:
-        condition &= Beneficiary.created_on <= created_until
+        # The date is inclusive, hence compare to the start of the following day
+        condition &= Beneficiary.created_on < created_until + timedelta(days=1)
 
-    active = filter_input.get("active")
-    if active is not None:
+    deactivated = filter_input.get("deactivated")
+    if deactivated is not None:
         # By default, the 'deleted_on' DateTimeField is '0000-00-00 00:00:00' which
         # evaluates to both NULL and NOT NULL. Hence in order to find actual dates
-        # (indicating inactive beneficiaries) use >0 instead of IS NOT NULL
+        # (indicating deactivated beneficiaries) use >0 instead of IS NOT NULL
         condition &= (
-            Beneficiary.deleted_on.is_null() if active else Beneficiary.deleted_on > 0
+            Beneficiary.deleted_on > 0
+            if deactivated
+            else (Beneficiary.deleted_on.is_null() | ~Beneficiary.deleted_on)
         )
 
     is_volunteer = filter_input.get("is_volunteer")
