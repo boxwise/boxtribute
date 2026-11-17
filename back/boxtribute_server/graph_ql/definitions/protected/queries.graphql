@@ -45,7 +45,7 @@ type Query {
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
-  # beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
+  beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
   " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
   tags(tagType: TagType): [Tag!]!
   " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "

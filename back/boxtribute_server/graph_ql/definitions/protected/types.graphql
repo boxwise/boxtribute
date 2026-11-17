@@ -50,6 +50,39 @@ type BoxRowsResult {
   totalMonetaryValue: Float
 }
 
+type BeneficiaryRow {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  gender: HumanGender
+  age: Int # in days
+  " null for family heads "
+  familyHeadId: Int
+  groupIdentifier: String!
+  " Sum of all transactions that the beneficiary was involved in "
+  tokens: Int
+  tagIds: [Int!]
+  comment: String
+  " Date of the creation, last transaction (that family head was involved in; because transactions are always associated with family head), last modification, last tag assignment, or last service assignment "
+  lastActiveOn: Date
+  createdOn: Date
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
+  " True if days since lastActiveOn larger than (Base.daysToKeepInactiveBeneficiaries - 14) "
+  soonToBeDeactivated: Boolean!
+  signed: Boolean!
+}
+
+type BeneficiaryRowsResult {
+  page: [BeneficiaryRow!]!
+  " totals are computed based on the filters specified in the query input "
+  totalNumberOfBeneficiaries: Int
+}
+
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
@@ -406,7 +439,7 @@ type Beneficiary {
   firstName: String!
   lastName: String!
   dateOfBirth: Date
-  " If dateOfBirth is not set, age will be null. "
+  " In days. If dateOfBirth is not set, age will be null. "
   age: Int
   comment: String
   base: Base
@@ -518,8 +551,9 @@ input BeneficiaryRowOptions {
   " Size of the requested page. Default: 50. Clamped between 1 and 100. "
   pageSize: Int
   filters: FilterBeneficiaryInput
+  " Default: LastName "
   sortBy: BeneficiarySortField
-  " Sorting order. Default: true "
+  " Sorting order. Default: false (ascending) "
   descending: Boolean
 }
 

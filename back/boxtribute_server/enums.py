@@ -150,3 +150,18 @@ class BoxSortField(enum.IntEnum):
     LocationName = enum.auto()
     Comment = enum.auto()
     Age = enum.auto()
+
+
+class BeneficiarySortField(enum.IntEnum):
+    LastName = 1
+    FirstName = enum.auto()
+    Gender = enum.auto()
+    Age = enum.auto()
+    GroupIdentifier = enum.auto()
+    Tokens = enum.auto()
+    LastActiveOn = enum.auto()
+    CreatedOn = enum.auto()
+    Email = enum.auto()
+    Phone = enum.auto()
+    CustomTextField1 = enum.auto()
+    CustomTextField2 = enum.auto()

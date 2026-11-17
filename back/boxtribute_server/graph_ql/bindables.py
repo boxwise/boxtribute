@@ -6,6 +6,7 @@ from ariadne import InterfaceType, UnionType
 
 from ..business_logic.beneficiary.fields import beneficiary
 from ..business_logic.beneficiary.mutations import mutation as beneficiary_mutation
+from ..business_logic.beneficiary.queries import beneficiary_row
 from ..business_logic.beneficiary.queries import query as beneficiary_query
 from ..business_logic.box_transfer.agreement.fields import transfer_agreement
 from ..business_logic.box_transfer.agreement.mutations import (
@@ -101,6 +102,7 @@ mutation_types = (
 object_types = (
     base,
     beneficiary,
+    beneficiary_row,
     box,
     box_row,
     classic_location,

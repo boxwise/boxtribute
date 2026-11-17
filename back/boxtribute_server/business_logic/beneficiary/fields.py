@@ -1,7 +1,7 @@
 from ariadne import ObjectType
 
 from ...authz import authorize
-from ...models.utils import compute_age
+from ...models.utils import compute_age_in_days
 
 beneficiary = ObjectType("Beneficiary")
 
@@ -48,7 +48,7 @@ def resolve_beneficiary_languages(beneficiary_obj, info):
 
 @beneficiary.field("age")
 def resolve_beneficiary_age(beneficiary_obj, _):
-    return compute_age(beneficiary_obj.date_of_birth)
+    return compute_age_in_days(beneficiary_obj.date_of_birth)
 
 
 @beneficiary.field("deactivatedOn")

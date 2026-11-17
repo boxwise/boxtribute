@@ -1,9 +1,16 @@
 from collections import defaultdict
 
+from peewee import fn
+
 from ...db import db
-from ...enums import HumanGender, TaggableObjectType
+from ...enums import BeneficiarySortField, HumanGender, TaggableObjectType
 from ...errors import DeletedBase, ResourceDoesNotExist
 from ...exceptions import InvalidBeneficiaryImport
+from ...graph_ql.filtering import derive_beneficiary_filter
+from ...graph_ql.sorting import (
+    compute_beneficiary_last_active_on,
+    derive_beneficiary_sorting,
+)
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.history import DbChangeHistory
@@ -13,9 +20,11 @@ from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import (
     BATCH_SIZE,
     HISTORY_CREATION_MESSAGE,
+    compute_age_in_days,
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
+    today,
     utcnow,
 )
 
@@ -194,6 +203,167 @@ def create_transaction(
         created_on=utcnow(),
         created_by=user_id,
     )
+
+
+def get_beneficiaries_page(base_id, *, page=None, page_size=None, **options):
+    page = page or 1
+    page_size = max(min(50 if page_size is None else page_size, 100), 1)
+    return _get_beneficiaries_page(base_id, page=page, page_size=page_size, **options)
+
+
+def _get_beneficiaries_page(
+    base_id, *, page, page_size, filters=None, sort_by=None, descending=None
+):
+    """Internal function. Build and execute a peewee query for a page of
+    BeneficiaryRow data, taking given filters and sorting into account.
+
+    If sorting by last name (the default), a page consists of `page_size` family
+    heads (beneficiaries without a family head of their own) plus all of their family
+    members; the total number of returned rows may thus exceed `page_size`.
+    For any other sort field, a page consists of exactly `page_size` beneficiaries
+    (family heads and members alike), sorted by the specified field.
+    """
+    sort_by = sort_by or BeneficiarySortField.LastName
+
+    base_selection = Beneficiary.select(Beneficiary.id)
+    conditions, base_selection = derive_beneficiary_filter(filters, base_selection)
+    base_selection = base_selection.where(
+        Beneficiary.base == base_id,
+        (Beneficiary.deleted_on.is_null() | (Beneficiary.deleted_on == 0)),
+        *conditions,
+    )
+
+    # The total always reflects the number of filtered beneficiaries, never families,
+    # independent of the page_ids/sort_key_by_id computed below
+    total_number_of_beneficiaries = (
+        Beneficiary.select(fn.COUNT(Beneficiary.id.distinct()))
+        .where(Beneficiary.id << base_selection)
+        .scalar()
+    )
+
+    def order(field):
+        # Unlike BoxRowOptions, descending order is not the default here
+        is_descending = bool(descending)
+        if sort_by == BeneficiarySortField.Age:
+            # smallest (earliest) date of birth means largest age
+            return field.asc() if is_descending else field.desc()
+        return field.desc() if is_descending else field.asc()
+
+    if sort_by == BeneficiarySortField.LastName:
+        heads_selection = base_selection.where(Beneficiary.family_head.is_null())
+        sorted_selection, sort_field = derive_beneficiary_sorting(
+            heads_selection, sort_by
+        )
+        head_rows = list(
+            sorted_selection.columns(Beneficiary.id, sort_field.alias("sort_key"))
+            .order_by(order(sort_field), Beneficiary.id.asc())
+            .paginate(page, page_size)
+            .dicts()
+        )
+        head_ids = [row["id"] for row in head_rows]
+        position_by_id = {head_id: idx for idx, head_id in enumerate(head_ids)}
+
+        member_rows = (
+            list(
+                Beneficiary.select(Beneficiary.id, Beneficiary.family_head)
+                .where(
+                    Beneficiary.family_head << head_ids,
+                    (Beneficiary.deleted_on.is_null() | (Beneficiary.deleted_on == 0)),
+                )
+                .dicts()
+            )
+            if head_ids
+            else []
+        )
+
+        ids = head_ids + [row["id"] for row in member_rows]
+        # Members are ordered right after their family head; heads are ordered
+        # before their members
+        sort_key_by_id = {
+            head_id: (idx, 0, head_id) for head_id, idx in position_by_id.items()
+        }
+        sort_key_by_id.update(
+            {
+                row["id"]: (position_by_id[row["family_head"]], 1, row["id"])
+                for row in member_rows
+            }
+        )
+    else:
+        sorted_selection, sort_field = derive_beneficiary_sorting(
+            base_selection, sort_by
+        )
+        rows = list(
+            sorted_selection.columns(Beneficiary.id, sort_field.alias("sort_key"))
+            .order_by(order(sort_field), Beneficiary.id.asc())
+            .paginate(page, page_size)
+            .dicts()
+        )
+        ids = [row["id"] for row in rows]
+        sort_key_by_id = {row["id"]: idx for idx, row in enumerate(rows)}
+
+    if not ids:
+        return {
+            "page": [],
+            "total_number_of_beneficiaries": total_number_of_beneficiaries,
+        }
+
+    tag_ids = (
+        TagsRelation.select(fn.GROUP_CONCAT(TagsRelation.tag))
+        .where(
+            TagsRelation.object_id == Beneficiary.id,
+            TagsRelation.object_type == TaggableObjectType.Beneficiary,
+            TagsRelation.deleted_on.is_null(),
+        )
+        .alias("tag_ids")
+    )
+    tokens = (
+        Transaction.select(fn.COALESCE(fn.SUM(Transaction.tokens), 0)).where(
+            Transaction.beneficiary == Beneficiary.id
+        )
+    ).alias("tokens")
+    last_active_on = compute_beneficiary_last_active_on(Beneficiary)
+    soon_to_be_deactivated = fn.DATEDIFF(today.strftime("%Y-%m-%d"), last_active_on) > (
+        Base.days_to_keep_inactive_beneficiaries - 14
+    )
+
+    rows = (
+        Beneficiary.select(
+            Beneficiary.id,
+            Beneficiary.first_name.alias("first_name"),
+            Beneficiary.last_name.alias("last_name"),
+            Beneficiary.gender.alias("gender"),
+            fn.IF(
+                Beneficiary.date_of_birth > 0,
+                compute_age_in_days(Beneficiary.date_of_birth),
+                None,
+            ).alias("age"),
+            Beneficiary.family_head.alias("family_head_id"),
+            Beneficiary.group_identifier.alias("group_identifier"),
+            tokens,
+            tag_ids,
+            Beneficiary.comment.alias("comment"),
+            last_active_on.alias("last_active_on"),
+            Beneficiary.created_on.alias("created_on"),
+            Beneficiary.email.alias("email"),
+            Beneficiary.phone_number.alias("phone_number"),
+            Beneficiary.custom_text_field_1.alias("custom_text_field_1"),
+            Beneficiary.custom_text_field_2.alias("custom_text_field_2"),
+            Beneficiary.custom_number_field.alias("custom_number_field"),
+            Beneficiary.custom_date_field.alias("custom_date_field"),
+            soon_to_be_deactivated.alias("soon_to_be_deactivated"),
+            Beneficiary.signed.alias("signed"),
+        )
+        .join(Base, on=(Base.id == Beneficiary.base))
+        .where(Beneficiary.id << ids)
+        .dicts()
+        .execute()
+    )
+    rows = sorted(rows, key=lambda row: sort_key_by_id[row["id"]])
+
+    return {
+        "page": rows,
+        "total_number_of_beneficiaries": total_number_of_beneficiaries,
+    }
 
 
 class BeneficiariesResult(dict):
