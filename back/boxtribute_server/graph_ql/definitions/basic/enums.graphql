@@ -169,6 +169,6 @@ enum BeneficiarySortField {
   CreatedOn
   Email
   Phone
-  AdditionalTextField1
-  AdditionalTextField2
+  CustomTextField1
+  CustomTextField2
 }
