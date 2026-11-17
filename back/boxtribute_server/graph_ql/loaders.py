@@ -822,6 +822,33 @@ class FamilyHeadForBeneficiaryLoader(DataLoader):
         return [family_heads.get(i) for i in family_head_ids]
 
 
+class FamilyMembersForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        family_keys = {
+            b.id: b.family_head_id or b.id
+            for b in Beneficiary.select(Beneficiary.id, Beneficiary.family_head)
+            .where(Beneficiary.id << beneficiary_ids)
+            .iterator()
+        }
+        family_head_ids = list(set(family_keys.values()))
+        FamilyMember = Beneficiary.alias()
+        members = defaultdict(list)
+        for m in (
+            FamilyMember.select()
+            .where(
+                authorized_bases_filter(FamilyMember, permission="beneficiary:read"),
+                (FamilyMember.family_head << family_head_ids)
+                | (FamilyMember.id << family_head_ids),
+            )
+            .order_by(FamilyMember.id)
+        ):
+            members[m.family_head_id or m.id].append(m)
+        return [
+            [m for m in members.get(family_keys.get(i), []) if m.id != i]
+            for i in beneficiary_ids
+        ]
+
+
 class LanguagesForBeneficiaryLoader(DataLoader):
     async def batch_load_fn(self, beneficiary_ids):
         languages = {}

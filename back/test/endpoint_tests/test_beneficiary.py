@@ -27,6 +27,7 @@ def _generate_beneficiary_query(id):
             gender
             languages
             familyHead {{ id }}
+            familyMembers {{ id }}
             isVolunteer
             signed
             registered
@@ -64,6 +65,7 @@ def test_beneficiary_query(
     client,
     default_beneficiary,
     relative_beneficiary,
+    another_relative_beneficiary,
     default_transaction,
     relative_transaction,
     tags,
@@ -82,6 +84,10 @@ def test_beneficiary_query(
         "gender": HumanGender(default_beneficiary["gender"]).name,
         "languages": [Language.en.name, Language.ar.name],
         "familyHead": None,
+        "familyMembers": [
+            {"id": str(relative_beneficiary["id"])},
+            {"id": str(another_relative_beneficiary["id"])},
+        ],
         "isVolunteer": False,
         "signed": False,
         "registered": True,
@@ -123,6 +129,7 @@ def test_beneficiary_query(
     query = f"""query {{ beneficiary(id: {beneficiary_id}) {{
                 id
                 familyHead {{ id }}
+                familyMembers {{ id }}
                 languages
                 gender
                 age
@@ -131,6 +138,10 @@ def test_beneficiary_query(
     assert beneficiary == {
         "id": str(beneficiary_id),
         "familyHead": {"id": str(default_beneficiary["id"])},
+        "familyMembers": [
+            {"id": str(default_beneficiary["id"])},
+            {"id": str(another_relative_beneficiary["id"])},
+        ],
         "languages": [],
         "gender": HumanGender.Diverse.name,
         "age": None,
@@ -279,6 +290,7 @@ def test_beneficiary_mutations(
         "gender": new_gender.name,
         "languages": [language],
         "familyHead": None,
+        "familyMembers": [],
         "isVolunteer": False,
         "signed": True,
         "registered": True,

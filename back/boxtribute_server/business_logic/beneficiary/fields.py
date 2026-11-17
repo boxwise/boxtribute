@@ -14,8 +14,10 @@ def resolve_beneficiary_family_head(beneficiary_obj, info):
 
 
 @beneficiary.field("familyMembers")
-def resolve_beneficiary_family_members(*_):
-    return []
+def resolve_beneficiary_family_members(beneficiary_obj, info):
+    return info.context["family_members_for_beneficiary_loader"].load(
+        beneficiary_obj.id
+    )
 
 
 @beneficiary.field("tags")
