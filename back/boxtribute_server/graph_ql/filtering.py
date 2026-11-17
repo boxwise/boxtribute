@@ -8,52 +8,95 @@ from ..models.definitions.product import Product
 from ..models.definitions.tags_relation import TagsRelation
 
 
-def derive_beneficiary_filter(filter_input):
-    """Derive filter condition for select-query from given filter parameters. If no
-    parameters given, return True (i.e. no filtering applied).
+def derive_beneficiary_filter(filter_input, selection=None):
+    """Derive filter conditions for select-query from given filter parameters, along
+    with corresponding model selection. If no parameters given, return empty
+    conditions (i.e. no filtering applied) and `Beneficiary.select()`.
     """
+    if selection is None:
+        selection = Beneficiary.select()
     if not filter_input:
-        return True
+        return [], selection
 
-    condition = True
+    conditions = []
     created_from = filter_input.get("created_from")
     if created_from is not None:
-        condition &= Beneficiary.created_on >= created_from
+        conditions.append(Beneficiary.created_on >= created_from)
 
     created_until = filter_input.get("created_until")
     if created_until is not None:
-        condition &= Beneficiary.created_on <= created_until
+        # The date is inclusive, hence compare to the start of the following day
+        conditions.append(Beneficiary.created_on < created_until + timedelta(days=1))
 
-    active = filter_input.get("active")
-    if active is not None:
-        # By default, the 'deleted_on' DateTimeField is '0000-00-00 00:00:00' which
-        # evaluates to both NULL and NOT NULL. Hence in order to find actual dates
-        # (indicating inactive beneficiaries) use >0 instead of IS NOT NULL
-        condition &= (
-            Beneficiary.deleted_on.is_null() if active else Beneficiary.deleted_on > 0
+    genders = filter_input.get("genders")
+    if genders:
+        conditions.append(Beneficiary.gender << genders)
+
+    tag_ids = filter_input.get("tag_ids")
+    if tag_ids:
+        selection = selection.join(
+            TagsRelation,
+            src=Beneficiary,
+            on=(
+                (TagsRelation.object_type == TaggableObjectType.Beneficiary)
+                & (TagsRelation.object_id == Beneficiary.id)
+                & (TagsRelation.tag << tag_ids)
+                & (TagsRelation.deleted_on.is_null())
+            ),
+        ).distinct()
+
+    excluded_tag_ids = filter_input.get("excluded_tag_ids")
+    if excluded_tag_ids:
+        conditions.append(
+            Beneficiary.id.not_in(
+                TagsRelation.select(TagsRelation.object_id).where(
+                    TagsRelation.object_type == TaggableObjectType.Beneficiary,
+                    TagsRelation.tag << excluded_tag_ids,
+                    TagsRelation.deleted_on.is_null(),
+                )
+            )
         )
 
     is_volunteer = filter_input.get("is_volunteer")
     if is_volunteer is not None:
-        condition &= (
+        conditions.append(
             Beneficiary.is_volunteer if is_volunteer else ~Beneficiary.is_volunteer
         )
 
     registered = filter_input.get("registered")
     if registered is not None:
-        condition &= (
+        conditions.append(
             ~Beneficiary.not_registered if registered else Beneficiary.not_registered
+        )
+
+    signed = filter_input.get("signed")
+    if signed is not None:
+        conditions.append(Beneficiary.signed if signed else ~Beneficiary.signed)
+
+    deactivated = filter_input.get("deactivated")
+    if deactivated is not None:
+        # By default, the 'deleted_on' DateTimeField is '0000-00-00 00:00:00' which
+        # evaluates to both NULL and NOT NULL. Hence in order to find actual dates
+        # (indicating deactivated beneficiaries) use >0 instead of IS NOT NULL
+        conditions.append(
+            Beneficiary.deleted_on > 0
+            if deactivated
+            else (Beneficiary.deleted_on.is_null() | ~Beneficiary.deleted_on)
         )
 
     pattern = filter_input.get("pattern")
     if pattern is not None:
-        condition &= (
+        conditions.append(
             (Beneficiary.last_name.contains(pattern))
             | (Beneficiary.first_name.contains(pattern))
             | (Beneficiary.comment.contains(pattern))
+            | (Beneficiary.email.contains(pattern))
+            | (Beneficiary.phone_number.contains(pattern))
+            | (Beneficiary.custom_text_field_1.contains(pattern))
+            | (Beneficiary.custom_text_field_2.contains(pattern))
             | (Beneficiary.group_identifier == pattern)
         )
-    return condition
+    return conditions, selection
 
 
 def derive_box_filter(filter_input, selection=None):

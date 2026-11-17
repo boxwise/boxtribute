@@ -13,6 +13,13 @@ def resolve_beneficiary_family_head(beneficiary_obj, info):
     )
 
 
+@beneficiary.field("familyMembers")
+def resolve_beneficiary_family_members(beneficiary_obj, info):
+    return info.context["family_members_for_beneficiary_loader"].load(
+        beneficiary_obj.id
+    )
+
+
 @beneficiary.field("tags")
 def resolve_beneficiary_tags(beneficiary_obj, info):
     authorize(permission="tag:read", base_id=beneficiary_obj.base_id)
@@ -44,9 +51,9 @@ def resolve_beneficiary_age(beneficiary_obj, _):
     return compute_age(beneficiary_obj.date_of_birth)
 
 
-@beneficiary.field("active")
+@beneficiary.field("deactivatedOn")
 def resolve_beneficiary_active(beneficiary_obj, _):
-    return beneficiary_obj.deleted_on is None  # ZeroDateTimeField
+    return beneficiary_obj.deleted_on
 
 
 @beneficiary.field("base")

@@ -17,9 +17,11 @@ def resolve_beneficiary(*_, id):
 
 @query.field("beneficiaries")
 def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
-    filter_condition = derive_beneficiary_filter(filter_input)
+    conditions, selection = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        authorized_bases_filter(Beneficiary) & filter_condition,
+        authorized_bases_filter(Beneficiary),
+        *conditions,
+        selection=selection,
         pagination_input=pagination_input,
     )

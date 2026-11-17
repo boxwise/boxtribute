@@ -27,13 +27,21 @@ def _generate_beneficiary_query(id):
             gender
             languages
             familyHead {{ id }}
+            familyMembers {{ id }}
             isVolunteer
             signed
             registered
             signature
             dateOfSignature
+            email
+            phoneNumber
+            customTextField1
+            customTextField2
+            customNumberField
+            customDateField
             tokens
             createdOn
+            deactivatedOn
             transactions {{
                 id
                 beneficiary {{ id }}
@@ -57,6 +65,7 @@ def test_beneficiary_query(
     client,
     default_beneficiary,
     relative_beneficiary,
+    another_relative_beneficiary,
     default_transaction,
     relative_transaction,
     tags,
@@ -75,11 +84,22 @@ def test_beneficiary_query(
         "gender": HumanGender(default_beneficiary["gender"]).name,
         "languages": [Language.en.name, Language.ar.name],
         "familyHead": None,
+        "familyMembers": [
+            {"id": str(relative_beneficiary["id"])},
+            {"id": str(another_relative_beneficiary["id"])},
+        ],
         "isVolunteer": False,
         "signed": False,
         "registered": True,
         "signature": None,
         "dateOfSignature": None,
+        "email": default_beneficiary["email"],
+        "phoneNumber": default_beneficiary["phone_number"],
+        "customTextField1": default_beneficiary["custom_text_field_1"],
+        "customTextField2": default_beneficiary["custom_text_field_2"],
+        "customDateField": None,
+        "customNumberField": default_beneficiary["custom_number_field"],
+        "deactivatedOn": None,
         "tokens": default_transaction["tokens"] + relative_transaction["tokens"],
         "createdOn": default_beneficiary["created_on"].isoformat() + "+00:00",
         "transactions": [
@@ -109,6 +129,7 @@ def test_beneficiary_query(
     query = f"""query {{ beneficiary(id: {beneficiary_id}) {{
                 id
                 familyHead {{ id }}
+                familyMembers {{ id }}
                 languages
                 gender
                 age
@@ -117,6 +138,10 @@ def test_beneficiary_query(
     assert beneficiary == {
         "id": str(beneficiary_id),
         "familyHead": {"id": str(default_beneficiary["id"])},
+        "familyMembers": [
+            {"id": str(default_beneficiary["id"])},
+            {"id": str(another_relative_beneficiary["id"])},
+        ],
         "languages": [],
         "gender": HumanGender.Diverse.name,
         "age": None,
@@ -265,11 +290,19 @@ def test_beneficiary_mutations(
         "gender": new_gender.name,
         "languages": [language],
         "familyHead": None,
+        "familyMembers": [],
         "isVolunteer": False,
         "signed": True,
         "registered": True,
         "signature": signature,
         "dateOfSignature": f"{new_dos}T00:00:00",
+        "email": "",
+        "phoneNumber": None,
+        "customTextField1": None,
+        "customTextField2": None,
+        "customNumberField": None,
+        "customDateField": None,
+        "deactivatedOn": None,
         "tokens": 0,
         "createdOn": created_beneficiary["createdOn"],
         "transactions": [],
@@ -280,13 +313,14 @@ def test_beneficiary_mutations(
     today = date.today().isoformat()
     deactivated_beneficiary_id = default_beneficiary["id"]
     mutation = f"""mutation {{
-            deactivateBeneficiary(id: {deactivated_beneficiary_id}) {{ active }} }}"""
+            deactivateBeneficiary(id: {deactivated_beneficiary_id})
+                {{ deactivatedOn }} }}"""
     response = assert_successful_request(client, mutation)
-    assert not response["active"]
+    assert response["deactivatedOn"] is not None
     deactivated_child_id = another_relative_beneficiary["id"]
-    query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ active }} }}"
+    query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ deactivatedOn }} }}"
     response = assert_successful_request(client, query)
-    assert not response["active"]
+    assert response["deactivatedOn"] is not None
 
     phone_number = "+491234567"
     mutation = f"""mutation {{ createBeneficiaries(creationInput: {{
@@ -606,21 +640,36 @@ def _format(parameter):
         [[{"createdFrom": '"2021-01-01"'}], 4],
         [[{"createdUntil": '"2019-12-31"'}], 0],
         [[{"createdUntil": '"2021-01-01"'}], 1],
-        [[{"active": "true"}], 4],
-        [[{"active": "false"}], 1],
+        [[{"deactivated": "false"}], 4],
+        [[{"deactivated": "true"}], 1],
         [[{"isVolunteer": "true"}], 2],
         [[{"isVolunteer": "false"}], 3],
         [[{"registered": "true"}], 3],
         [[{"registered": "false"}], 2],
+        [[{"signed": "true"}], 0],
+        [[{"signed": "false"}], 5],
+        [[{"genders": "[Male]"}], 2],
+        [[{"genders": "[Female]"}], 1],
+        [[{"genders": "[Diverse]"}], 2],
+        [[{"genders": "[Male,Female]"}], 3],
+        [[{"tagIds": "[1]"}], 2],
+        [[{"tagIds": "[3]"}], 1],
+        [[{"excludedTagIds": "[1]"}], 3],
+        [[{"excludedTagIds": "[3]"}], 4],
         [[{"pattern": '"Body"'}], 4],
         [[{"pattern": '"fun"'}], 1],
         [[{"pattern": '"Z"'}], 0],
         [[{"pattern": '"1234"'}], 3],
         [[{"pattern": '"123"'}], 1],
-        [[{"createdFrom": '"2022-01-01"'}, {"active": "true"}], 2],
-        [[{"active": "true"}, {"registered": "false"}], 1],
-        [[{"active": "false"}, {"pattern": '"no"'}], 1],
+        [[{"pattern": '"491"'}], 1],
+        [[{"pattern": '"web.com"'}], 1],
+        [[{"pattern": '"uk"'}], 1],
+        [[{"createdFrom": '"2022-01-01"'}, {"deactivated": "false"}], 2],
+        [[{"deactivated": "false"}, {"registered": "false"}], 1],
+        [[{"deactivated": "true"}, {"pattern": '"no"'}], 1],
         [[{"isVolunteer": "true"}, {"registered": "true"}], 0],
+        [[{"genders": "[Male]"}, {"tagIds": "[1]"}], 2],
+        [[{"excludedTagIds": "[1]"}, {"deactivated": "false"}], 2],
     ],
     ids=_format,
 )
@@ -630,7 +679,6 @@ def test_beneficiaries_filtered_query(client, filters, number):
     query = f"""query {{ beneficiaries(filterInput: {{ {filter_input} }}) {{
                 elements {{
                     id
-                    active
                     isVolunteer
                     registered
                 }} }} }}"""
@@ -638,7 +686,7 @@ def test_beneficiaries_filtered_query(client, filters, number):
     assert len(beneficiaries) == number
 
     for f in filters:
-        for name in ["active", "isVolunteer", "registered"]:
+        for name in ["isVolunteer", "registered"]:
             if name in f:
                 value = f[name] == "true"
                 assert [b[name] for b in beneficiaries] == number * [value]

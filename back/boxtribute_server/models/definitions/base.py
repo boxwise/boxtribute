@@ -1,6 +1,6 @@
 from peewee import SQL, CharField, DateTimeField, IntegerField, SmallIntegerField
 
-from ..fields import UIntForeignKeyField
+from ..fields import IntAsCharField, UIntForeignKeyField
 from ..utils import utcnow
 from . import Model
 from .organisation import Organisation
@@ -14,8 +14,8 @@ class Base(Model):
     )
     # Currency code for monetary value of e.g. boxes
     monetary_currency_code = CharField(constraints=[SQL("DEFAULT 'EUR'")])
-
-    adult_age = IntegerField(constraints=[SQL("DEFAULT 15")])
+    adult_age = IntegerField(constraints=[SQL("DEFAULT 15")], default=15)
+    # created_on
     created = DateTimeField(null=True)
     created_by = UIntForeignKeyField(
         column_name="created_by",
@@ -26,33 +26,27 @@ class Base(Model):
         on_update="CASCADE",
     )
     cycle_start = DateTimeField(column_name="cyclestart", default=utcnow, null=True)
-    days_to_keep_deleted_persons = IntegerField(
-        column_name="daystokeepdeletedpersons",
-        constraints=[SQL("DEFAULT 9999")],
-        null=True,
+    days_to_keep_inactive_beneficiaries = IntegerField(
+        column_name="delete_inactive_users", constraints=[SQL("DEFAULT 30")], default=30
     )
-    delete_inactive_users = IntegerField(constraints=[SQL("DEFAULT 30")])
     deleted_on = DateTimeField(null=True, column_name="deleted", default=None)
-    dropcap_adult = IntegerField(
+    token_cap_for_adult = IntegerField(
         column_name="dropcapadult", constraints=[SQL("DEFAULT 99999")]
     )
-    dropcap_child = IntegerField(
+    token_cap_for_child = IntegerField(
         column_name="dropcapchild", constraints=[SQL("DEFAULT 99999")]
     )
-    dropsper_adult = CharField(
-        column_name="dropsperadult", constraints=[SQL("DEFAULT '100'")]
+    tokens_per_adult = IntAsCharField(
+        column_name="dropsperadult", constraints=[SQL("DEFAULT '100'")], default="100"
     )
-    dropsper_child = CharField(
-        column_name="dropsperchild", constraints=[SQL("DEFAULT '100'")]
+    tokens_per_child = IntAsCharField(
+        column_name="dropsperchild", constraints=[SQL("DEFAULT '100'")], default="100"
     )
-    extra_portion = IntegerField(
-        column_name="extraportion", constraints=[SQL("DEFAULT 0")], null=True
+    group_identifier = CharField(
+        column_name="familyidentifier",
+        constraints=[SQL("DEFAULT 'Container'")],
+        default="Container",
     )
-    family_identifier = CharField(
-        column_name="familyidentifier", constraints=[SQL("DEFAULT 'Container'")]
-    )
-    idcard = IntegerField(column_name="idcard", constraints=[SQL("DEFAULT 0")])
-    market = IntegerField(constraints=[SQL("DEFAULT 1")])
     modified = DateTimeField(null=True)
     modified_by = UIntForeignKeyField(
         column_name="modified_by",
@@ -71,33 +65,59 @@ class Base(Model):
     reset_tokens = IntegerField(
         column_name="resettokens", constraints=[SQL("DEFAULT 0")], null=True
     )
-    schedule_break = CharField(
-        column_name="schedulebreak", constraints=[SQL("DEFAULT '1'")]
-    )
-    schedule_break_duration = CharField(
-        column_name="schedulebreakduration", constraints=[SQL("DEFAULT '1'")]
-    )
-    schedule_break_start = CharField(
-        column_name="schedulebreakstart", constraints=[SQL("DEFAULT '13:00'")]
-    )
-    schedule_start = CharField(
-        column_name="schedulestart", constraints=[SQL("DEFAULT '11:00'")]
-    )
-    schedule_stop = CharField(
-        column_name="schedulestop", constraints=[SQL("DEFAULT '17:00'")]
-    )
-    schedule_timeslot = CharField(
-        column_name="scheduletimeslot", constraints=[SQL("DEFAULT '0.5'")]
-    )
     seq = IntegerField()
-    beneficiary_is_registered = SmallIntegerField(
-        column_name="beneficiaryisregistered", constraints=[SQL("DEFAULT '1'")]
+    tracking_registered_beneficiaries_enabled = SmallIntegerField(
+        column_name="beneficiaryisregistered",
+        constraints=[SQL("DEFAULT '1'")],
+        default=True,
     )
-    beneficiary_is_volunteer = SmallIntegerField(
-        column_name="beneficiaryisvolunteer", constraints=[SQL("DEFAULT '1'")]
+    beneficiaries_as_volunteers_enabled = SmallIntegerField(
+        column_name="beneficiaryisvolunteer",
+        constraints=[SQL("DEFAULT '1'")],
+        default=True,
     )
     separate_shop_and_warehouse_products = SmallIntegerField(
         column_name="separateshopandwhproducts", constraints=[SQL("DEFAULT '0'")]
+    )
+    beneficiary_email_enabled = SmallIntegerField(
+        column_name="email_enabled", constraints=[SQL("DEFAULT '0'")], default=False
+    )
+    beneficiary_phone_enabled = SmallIntegerField(
+        column_name="phone_enabled", constraints=[SQL("DEFAULT '0'")], default=False
+    )
+    # Call "field_1" instead of "field1" for compatibility with ariadne's
+    # camel-case-to-snake-case converter. Same for corresponding name fields
+    beneficiary_custom_text_field_1_enabled = SmallIntegerField(
+        column_name="additional_field1_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
+    )
+    beneficiary_custom_text_field_2_enabled = SmallIntegerField(
+        column_name="additional_field2_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
+    )
+    beneficiary_custom_number_field_enabled = SmallIntegerField(
+        column_name="additional_field3_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
+    )
+    beneficiary_custom_date_field_enabled = SmallIntegerField(
+        column_name="additional_field4_enabled",
+        constraints=[SQL("DEFAULT '0'")],
+        default=False,
+    )
+    beneficiary_custom_text_field_1_name = CharField(
+        column_name="additional_field1_label", max_length=255, null=True
+    )
+    beneficiary_custom_text_field_2_name = CharField(
+        column_name="additional_field2_label", max_length=255, null=True
+    )
+    beneficiary_custom_number_field_name = CharField(
+        column_name="additional_field3_label", max_length=255, null=True
+    )
+    beneficiary_custom_date_field_name = CharField(
+        column_name="additional_field4_label", max_length=255, null=True
     )
 
     class Meta:

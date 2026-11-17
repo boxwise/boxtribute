@@ -157,6 +157,21 @@ enum BoxSortField {
   Comment
   Age
 }
+
+enum BeneficiarySortField {
+  LastName
+  FirstName
+  Gender
+  Age
+  GroupIdentifier
+  Tokens
+  LastActiveOn
+  CreatedOn
+  Email
+  Phone
+  CustomTextField1
+  CustomTextField2
+}
 scalar Datetime
 scalar Date
 interface DataCube {
@@ -737,6 +752,7 @@ type Query {
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
+  # beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
   " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
   tags(tagType: TagType): [Tag!]!
   " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "
@@ -1104,6 +1120,28 @@ type Base {
   instockBoxesCount: Int!
   " Number of items of all non-deleted InStock boxes in the base. "
   instockItemsCount: Int!
+  " Identifier for beneficiary families (e.g. UNHCR ID) "
+  groupIdentifier: String!
+  " Beneficiary adult age in years "
+  adultAge: Int!
+  " Beneficiaries without activity (modification, transaction) will be automatically deactivated after this time span. "
+  daysToKeepInactiveBeneficiaries: Int!
+  " Number of tokens assigned per adult beneficiary "
+  tokensPerAdult: Int!
+  " Number of tokens assigned per child beneficiary "
+  tokensPerChild: Int!
+  trackingRegisteredBeneficiariesEnabled: Boolean!
+  beneficiariesAsVolunteersEnabled: Boolean!
+  beneficiaryEmailEnabled: Boolean!
+  beneficiaryPhoneEnabled: Boolean!
+  beneficiaryCustomTextField1Enabled: Boolean!
+  beneficiaryCustomTextField2Enabled: Boolean!
+  beneficiaryCustomNumberFieldEnabled: Boolean!
+  beneficiaryCustomDateFieldEnabled: Boolean!
+  beneficiaryCustomTextField1Name: String
+  beneficiaryCustomTextField2Name: String
+  beneficiaryCustomNumberFieldName: String
+  beneficiaryCustomDateFieldName: String
 }
 
 """
@@ -1161,12 +1199,14 @@ type Beneficiary {
   groupIdentifier: String!
   gender: HumanGender
   languages: [Language!]
+  " The other members that share the same family head "
+  familyMembers: [Beneficiary!]
   " Null if this beneficiary is the family head "
   familyHead: Beneficiary
-  active: Boolean!
   isVolunteer: Boolean!
   signed: Boolean!
   registered: Boolean!
+  email: String
   phoneNumber: String
   signature: String
   dateOfSignature: Date
@@ -1178,6 +1218,7 @@ type Beneficiary {
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  deactivatedOn: Datetime
   tags: [Tag!]
 }
 
@@ -1237,13 +1278,30 @@ input FilterBeneficiaryInput {
   createdFrom: Date
   " Filter for all beneficiaries who were created on this date (incl.), or earlier. "
   createdUntil: Date
-  active: Boolean
+  genders: [HumanGender!]
+  " Filter for all beneficiaries that have *at least one* of the specified tags. "
+  tagIds: [Int!]
+  " Filter for all beneficiaries that have *none* of the specified tags. "
+  excludedTagIds: [Int!]
   isVolunteer: Boolean
   registered: Boolean
+  signed: Boolean
+  deactivated: Boolean
   """
-  Filter for all beneficiaries where pattern is (case-insensitive) part of first name, last name, or comment, or where pattern matches the group identifier
+  Filter for all beneficiaries where pattern is (case-insensitive) part of first name, last name, comment, email, phone number, additional text fields, or where pattern matches the group identifier
   """
   pattern: String
+}
+
+input BeneficiaryRowOptions {
+  " Index of the page requested, starting at 1 "
+  page: Int
+  " Size of the requested page. Default: 50. Clamped between 1 and 100. "
+  pageSize: Int
+  filters: FilterBeneficiaryInput
+  sortBy: BeneficiarySortField
+  " Sorting order. Default: true "
+  descending: Boolean
 }
 
 input BoxRowOptions {
