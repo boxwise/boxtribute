@@ -118,9 +118,12 @@ def derive_beneficiary_sorting(selection, sort_by):
         sort_field = Beneficiary.custom_text_field_2
     elif sort_by == BeneficiarySortField.Tokens:
         sort_transaction = Transaction.alias("sort_transaction")
-        sort_field = sort_transaction.select(
-            fn.COALESCE(fn.SUM(sort_transaction.tokens), 0)
-        ).where(sort_transaction.beneficiary == Beneficiary.id)
+        sort_field = fn.COALESCE(
+            sort_transaction.select(fn.SUM(sort_transaction.tokens)).where(
+                sort_transaction.beneficiary == Beneficiary.id
+            ),
+            0,
+        )
     elif sort_by == BeneficiarySortField.LastActiveOn:
         sort_field = compute_beneficiary_last_active_on(Beneficiary)
     else:

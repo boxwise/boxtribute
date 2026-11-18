@@ -295,7 +295,7 @@ def test_beneficiary_mutations(
         "signed": True,
         "registered": True,
         "signature": signature,
-        "dateOfSignature": f"{new_dos}T00:00:00",
+        "dateOfSignature": new_dos,
         "email": "",
         "phoneNumber": None,
         "customTextField1": None,
@@ -936,7 +936,7 @@ def test_beneficiary_rows_last_active_on_with_missing_dates(client):
     page = assert_successful_request(client, query, field="beneficiaryRows")["page"]
     rows = {row["id"]: row for row in page}
 
-    assert rows["1"]["lastActiveOn"] == f"{last_modified_on.isoformat()}T00:00:00"
+    assert rows["1"]["lastActiveOn"] == last_modified_on.isoformat()
     assert rows["1"]["soonToBeDeactivated"] is False
     assert rows["6"]["lastActiveOn"] is None
     assert rows["6"]["soonToBeDeactivated"] is False
