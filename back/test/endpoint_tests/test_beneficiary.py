@@ -921,6 +921,26 @@ def test_beneficiary_rows_soon_to_be_deactivated_boundary(
     row = next(row for row in page if row["id"] == "1")
     assert row["soonToBeDeactivated"] is expected
 
+
+def test_beneficiary_rows_last_active_on_with_missing_dates(client):
+    last_modified_on = date.today() - timedelta(days=2)
+    Beneficiary.update(created_on=None, last_modified_on=last_modified_on).where(
+        Beneficiary.id == 1
+    ).execute()
+    Beneficiary.update(created_on=None, last_modified_on=None).where(
+        Beneficiary.id == 6
+    ).execute()
+
+    query = """query { beneficiaryRows(baseId: 1) {
+            page { id lastActiveOn soonToBeDeactivated } } }"""
+    page = assert_successful_request(client, query, field="beneficiaryRows")["page"]
+    rows = {row["id"]: row for row in page}
+
+    assert rows["1"]["lastActiveOn"] == f"{last_modified_on.isoformat()}T00:00:00"
+    assert rows["1"]["soonToBeDeactivated"] is False
+    assert rows["6"]["lastActiveOn"] is None
+    assert rows["6"]["soonToBeDeactivated"] is False
+
     # Additional tests deemed relevant but not implemented here:
     # - combining sortBy=LastName with filters (verifying that
     #   total_number_of_beneficiaries reflects per-row filtering, independent of

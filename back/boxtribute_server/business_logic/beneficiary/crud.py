@@ -279,8 +279,10 @@ def _get_beneficiaries_page(
     Head = Beneficiary.alias("head")  # the beneficiary's family head, if any
 
     last_active_on = compute_beneficiary_last_active_on(B)
-    soon_to_be_deactivated = fn.DATEDIFF(today.strftime("%Y-%m-%d"), last_active_on) > (
-        Base.days_to_keep_inactive_beneficiaries - 14
+    soon_to_be_deactivated = fn.COALESCE(
+        fn.DATEDIFF(today.strftime("%Y-%m-%d"), last_active_on)
+        > (Base.days_to_keep_inactive_beneficiaries - 14),
+        False,
     )
     family_head_last_name = fn.COALESCE(Head.last_name, B.last_name)
 

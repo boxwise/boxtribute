@@ -85,9 +85,9 @@ def compute_beneficiary_last_active_on(model):
         Transaction.beneficiary == head_id
     )
     return fn.GREATEST(
-        model.created_on,
-        fn.COALESCE(model.last_modified_on, model.created_on),
-        fn.COALESCE(last_transaction_on, model.created_on),
+        fn.COALESCE(model.created_on, model.last_modified_on, last_transaction_on),
+        fn.COALESCE(model.last_modified_on, model.created_on, last_transaction_on),
+        fn.COALESCE(last_transaction_on, model.created_on, model.last_modified_on),
     )
 
 
