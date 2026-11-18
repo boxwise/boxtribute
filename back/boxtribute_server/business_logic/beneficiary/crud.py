@@ -279,11 +279,16 @@ def _get_beneficiaries_page(
     Head = Beneficiary.alias("head")  # the beneficiary's family head, if any
 
     last_active_on = compute_beneficiary_last_active_on(B)
+    # Explicitly cast to an integer: depending on the MySQL column types involved
+    # (e.g. if days_to_keep_inactive_beneficiaries ever ends up as a DECIMAL/NUMERIC
+    # in production), the raw comparison/COALESCE result may otherwise be returned
+    # to the client (and reported by the DB driver) as a Decimal instead of a 0/1
+    # integer, which the GraphQL Boolean scalar then refuses to serialize
     soon_to_be_deactivated = fn.COALESCE(
         fn.DATEDIFF(today.strftime("%Y-%m-%d"), last_active_on)
         > (Base.days_to_keep_inactive_beneficiaries - 14),
         False,
-    )
+    ).cast("unsigned")
     family_head_last_name = fn.COALESCE(Head.last_name, B.last_name)
 
     rows = (

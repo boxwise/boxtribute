@@ -43,3 +43,11 @@ def resolve_beneficiary_rows(*_, base_id, options=None):
 def resolve_beneficiary_row_tag_ids(row, _):
     tag_ids = row["tag_ids"]
     return [int(i) for i in tag_ids.split(",")] if tag_ids else []
+
+
+@beneficiary_row.field("soonToBeDeactivated")
+def resolve_beneficiary_row_soon_to_be_deactivated(row, _):
+    # Some DB drivers may return the underlying SQL comparison as a Decimal (or
+    # other numeric type) instead of a plain 0/1 integer, which the GraphQL Boolean
+    # scalar cannot serialize directly
+    return bool(row["soon_to_be_deactivated"])
