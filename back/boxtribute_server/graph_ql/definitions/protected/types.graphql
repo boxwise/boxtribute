@@ -59,6 +59,8 @@ type BeneficiaryRow {
   age: Int
   " null for family heads "
   familyHeadId: Int
+  " Last name of the family head; for family heads, it's their own last name "
+  familyHeadLastName: String!
   groupIdentifier: String!
   " Sum of all transactions that the beneficiary was involved in "
   tokens: Int

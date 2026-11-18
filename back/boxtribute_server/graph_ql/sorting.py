@@ -97,7 +97,6 @@ def derive_beneficiary_sorting(selection, sort_by):
     The joined tables are aliased in order to avoid clashes with joins that are added
     when filters are derived.
     """
-    sort_field = Beneficiary.last_name
     if sort_by == BeneficiarySortField.FirstName:
         sort_field = Beneficiary.first_name
     elif sort_by == BeneficiarySortField.Gender:
@@ -128,4 +127,17 @@ def derive_beneficiary_sorting(selection, sort_by):
         sort_field = fn.COALESCE(fn.SUM(sort_transaction.tokens), 0)
     elif sort_by == BeneficiarySortField.LastActiveOn:
         sort_field = compute_beneficiary_last_active_on(Beneficiary)
+    else:
+        # Default (BeneficiarySortField.LastName): sort by the last name of the
+        # family head, or the beneficiary's own last name if they're a family head
+        # themselves. This intentionally groups family members near their family
+        # head, without guaranteeing that an entire family ends up on the same page
+        sort_head = Beneficiary.alias("sort_head")
+        selection = selection.join(
+            sort_head,
+            JOIN.LEFT_OUTER,
+            on=(sort_head.id == Beneficiary.family_head),
+            src=Beneficiary,
+        )
+        sort_field = fn.COALESCE(sort_head.last_name, Beneficiary.last_name)
     return selection, sort_field

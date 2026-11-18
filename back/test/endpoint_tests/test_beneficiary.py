@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from unittest import mock
 
 import pytest
@@ -693,8 +693,9 @@ def test_beneficiaries_filtered_query(client, filters, number):
 
 
 def test_beneficiary_rows_query(client):
-    # Base 1 holds 5 beneficiaries, one of which (#2) is deactivated and hence
-    # excluded, leaving #1, #3, #5, #6
+    # Base 1 holds 5 beneficiaries (#1, #2, #3, #5, #6). Deactivated beneficiaries
+    # (here: #2) are included by default; this is controlled via
+    # FilterBeneficiaryInput.deactivated only
     query = """query { beneficiaryRows(baseId: 1) {
             totalNumberOfBeneficiaries
             page {
@@ -704,6 +705,7 @@ def test_beneficiary_rows_query(client):
                 gender
                 age
                 familyHeadId
+                familyHeadLastName
                 groupIdentifier
                 tokens
                 tagIds
@@ -720,11 +722,21 @@ def test_beneficiary_rows_query(client):
                 signed
                 } } }"""
     result = assert_successful_request(client, query)
-    assert result["totalNumberOfBeneficiaries"] == 4
-    # Default sort: LastName ascending. Heads #1 and #6 (both "Body") precede #3
-    # ("One"); ties are resolved by ascending ID. Member #5 is listed right after
-    # its family head #1
-    assert [row["id"] for row in result["page"]] == ["1", "5", "6", "3"]
+    assert result["totalNumberOfBeneficiaries"] == 5
+    # Default sort: LastName ascending, i.e. by the last name of the family head (or
+    # the beneficiary's own last name for heads). Heads #1 and #6, and members #2 and
+    # #5 (all "Body") precede head #3 ("One"); ties are resolved by ascending ID
+    assert [row["id"] for row in result["page"]] == ["1", "2", "5", "6", "3"]
+    family_head_last_names = {
+        row["id"]: row["familyHeadLastName"] for row in result["page"]
+    }
+    assert family_head_last_names == {
+        "1": "Body",
+        "2": "Body",
+        "5": "Body",
+        "6": "Body",
+        "3": "One",
+    }
 
     for page in [-1, 0]:
         query = f"""query {{ beneficiaryRows(baseId: 1, options: {{ page: {page} }}) {{
@@ -732,14 +744,14 @@ def test_beneficiary_rows_query(client):
                 page {{ id }}
                 }} }}"""
         result = assert_successful_request(client, query)
-        assert result["totalNumberOfBeneficiaries"] == 4
-        assert len(result["page"]) == 4
+        assert result["totalNumberOfBeneficiaries"] == 5
+        assert len(result["page"]) == 5
 
 
 def test_beneficiary_rows_filtering(client):
-    # Beneficiaries #1 and #6 carry tag 1; #1 also carries tag 3. Totals always
-    # reflect the number of filtered beneficiaries, never families: member #5 is
-    # included in the page (as family member of head #1) but not counted in the total
+    # Beneficiaries #1 and #6 carry tag 1; #1 also carries tag 3. Filtering is applied
+    # per beneficiary row, not per family: member #5 (also part of head #1's family)
+    # does not carry the tag and is hence excluded
     query = """query { beneficiaryRows(baseId: 1,
                 options: { filters: { tagIds: [1] } }) {
             totalNumberOfBeneficiaries
@@ -747,7 +759,7 @@ def test_beneficiary_rows_filtering(client):
             } }"""
     result = assert_successful_request(client, query)
     assert result["totalNumberOfBeneficiaries"] == 2
-    assert [row["id"] for row in result["page"]] == ["1", "5", "6"]
+    assert [row["id"] for row in result["page"]] == ["1", "6"]
 
     # Only beneficiary #3 is Female
     query = """query { beneficiaryRows(baseId: 1,
@@ -796,9 +808,15 @@ def test_beneficiary_rows_sorting(client, sort_by, field, descending):
             custom_text_field_2=f"text-{beneficiary_id}",
         ).where(Beneficiary.id == beneficiary_id).execute()
 
+    # Exclude deactivated beneficiary #2 to keep the comparison restricted to the
+    # diversified beneficiaries #1, #3, #5, #6
     query = f"""query {{ beneficiaryRows(
             baseId: 1,
-            options: {{ sortBy: {sort_by}, descending: {str(descending).lower()} }}
+            options: {{
+                sortBy: {sort_by},
+                descending: {str(descending).lower()},
+                filters: {{ deactivated: false }}
+            }}
         ) {{ page {{ id {field} }} }} }}"""
     page = assert_successful_request(client, query, field="beneficiaryRows")["page"]
     assert len(page) == 4
@@ -821,12 +839,14 @@ def test_beneficiary_rows_sorting(client, sort_by, field, descending):
 
 
 def test_beneficiary_rows_paging(client):
-    # For any sort field other than LastName, a page consists of exactly
-    # `pageSize` beneficiaries
+    # For any sort field, a page always consists of exactly `pageSize` beneficiaries
     def query_page(page, page_size, sort_by="CreatedOn"):
         query = f"""query {{ beneficiaryRows(
                 baseId: 1,
-                options: {{ page: {page}, pageSize: {page_size}, sortBy: {sort_by} }}
+                options: {{
+                    page: {page}, pageSize: {page_size}, sortBy: {sort_by},
+                    filters: {{ deactivated: false }}
+                }}
             ) {{ totalNumberOfBeneficiaries page {{ id }} }} }}"""
         return assert_successful_request(client, query, field="beneficiaryRows")
 
@@ -848,37 +868,62 @@ def test_beneficiary_rows_paging(client):
     assert result["page"] == []
     assert result["totalNumberOfBeneficiaries"] == 4
 
-    # For the default sort field (LastName), a page consists of `pageSize` family
-    # heads plus all of their family members, so the number of rows returned can
-    # exceed `pageSize`. Heads, ordered ascending by last name, are #1, #6, #3.
-    # Head #1 has one family member (#5)
+    # For the default sort field (LastName), beneficiaries (deactivated ones
+    # included, since no deactivated-filter is applied here) are sorted by the last
+    # name of their family head (or their own last name, for heads). A page always
+    # consists of exactly `pageSize` rows, even if this splits a family across pages:
+    # head #1's family (members #2, #5) spans the first two pages below
     def query_last_name_page(page, page_size=1):
         query = f"""query {{ beneficiaryRows(
                 baseId: 1, options: {{ page: {page}, pageSize: {page_size} }}
             ) {{ totalNumberOfBeneficiaries page {{ id }} }} }}"""
         return assert_successful_request(client, query, field="beneficiaryRows")
 
-    result = query_last_name_page(1)
-    assert [row["id"] for row in result["page"]] == ["1", "5"]  # head + member
-    assert result["totalNumberOfBeneficiaries"] == 4
+    # Full order: 1, 2, 5 (all family of head #1, "Body"), 6 ("Body"), 3 ("One")
+    result = query_last_name_page(1, page_size=2)
+    assert [row["id"] for row in result["page"]] == ["1", "2"]
+    assert result["totalNumberOfBeneficiaries"] == 5
 
-    result = query_last_name_page(2)
-    assert [row["id"] for row in result["page"]] == ["6"]
-    assert result["totalNumberOfBeneficiaries"] == 4
+    result = query_last_name_page(2, page_size=2)
+    assert [row["id"] for row in result["page"]] == ["5", "6"]  # family split here
+    assert result["totalNumberOfBeneficiaries"] == 5
 
-    result = query_last_name_page(3)
+    result = query_last_name_page(3, page_size=2)
     assert [row["id"] for row in result["page"]] == ["3"]
-    assert result["totalNumberOfBeneficiaries"] == 4
+    assert result["totalNumberOfBeneficiaries"] == 5
 
-    result = query_last_name_page(4)
+    result = query_last_name_page(4, page_size=2)
     assert result["page"] == []
-    assert result["totalNumberOfBeneficiaries"] == 4
+    assert result["totalNumberOfBeneficiaries"] == 5
+
+
+@pytest.mark.parametrize(
+    ["days_since_last_active", "expected"],
+    [
+        # Base 1's days_to_keep_inactive_beneficiaries is 60, so the threshold is at
+        # 60 - 14 = 46 days
+        (46, False),
+        (47, True),
+    ],
+)
+def test_beneficiary_rows_soon_to_be_deactivated_boundary(
+    client, days_since_last_active, expected
+):
+    last_active_on = date.today() - timedelta(days=days_since_last_active)
+    Beneficiary.update(created_on=last_active_on, last_modified_on=None).where(
+        Beneficiary.id == 1
+    ).execute()
+
+    query = """query { beneficiaryRows(baseId: 1,
+                options: { filters: { deactivated: false } }) {
+            page { id soonToBeDeactivated } } }"""
+    page = assert_successful_request(client, query, field="beneficiaryRows")["page"]
+    row = next(row for row in page if row["id"] == "1")
+    assert row["soonToBeDeactivated"] is expected
 
     # Additional tests deemed relevant but not implemented here:
-    # - combining sortBy with filters in the LastName paging mode (verifying that
-    #   total_number_of_beneficiaries and family-member inclusion behave correctly
-    #   together)
-    # - soonToBeDeactivated boundary test around the
-    #   (Base.daysToKeepInactiveBeneficiaries - 14) threshold
+    # - combining sortBy=LastName with filters (verifying that
+    #   total_number_of_beneficiaries reflects per-row filtering, independent of
+    #   family-head/member relationships, under the single-query paging mode)
     # - permission-scoped tag_relation/transaction checks beyond the generic
     #   base/beneficiary read-permission tests already added to test_permissions.py
