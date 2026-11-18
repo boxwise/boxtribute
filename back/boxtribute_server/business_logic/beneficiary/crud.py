@@ -224,10 +224,6 @@ def _get_beneficiaries_page(
     (ties are broken by ascending ID, purely to make pagination deterministic). This
     intentionally groups a family's members near their family head without
     guaranteeing that the whole family ends up on the same page.
-
-    Whether deactivated (soft-deleted) beneficiaries are included is controlled
-    exclusively via FilterBeneficiaryInput.deactivated (cf. derive_beneficiary_filter);
-    no implicit exclusion is applied here.
     """
     sort_by = sort_by or BeneficiarySortField.LastName
 

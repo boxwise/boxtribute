@@ -130,8 +130,7 @@ def derive_beneficiary_sorting(selection, sort_by):
     else:
         # Default (BeneficiarySortField.LastName): sort by the last name of the
         # family head, or the beneficiary's own last name if they're a family head
-        # themselves. This intentionally groups family members near their family
-        # head, without guaranteeing that an entire family ends up on the same page
+        # themselves
         sort_head = Beneficiary.alias("sort_head")
         selection = selection.join(
             sort_head,

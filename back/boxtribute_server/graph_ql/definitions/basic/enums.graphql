@@ -159,6 +159,7 @@ enum BoxSortField {
 }
 
 enum BeneficiarySortField {
+  " The last name of the family head, or of the beneficiary if they're a family head themselves "
   LastName
   FirstName
   Gender
