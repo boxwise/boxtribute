@@ -55,15 +55,16 @@ type BeneficiaryRow {
   firstName: String!
   lastName: String!
   gender: HumanGender
-  age: Int # in days
+  " In days. "
+  age: Int
   " null for family heads "
   familyHeadId: Int
   groupIdentifier: String!
   " Sum of all transactions that the beneficiary was involved in "
   tokens: Int
-  tagIds: [Int!]
+  tagIds: [ID!]
   comment: String
-  " Date of the creation, last transaction (that family head was involved in; because transactions are always associated with family head), last modification, last tag assignment, or last service assignment "
+  " Date of the creation, last transaction (that family head was involved in; because transactions are always associated with family head), or last modification "
   lastActiveOn: Date
   createdOn: Date
   email: String
@@ -459,7 +460,7 @@ type Beneficiary {
   customTextField1: String
   customTextField2: String
   customNumberField: Int
-  customDateField: String
+  customDateField: Date
   signature: String
   dateOfSignature: Date
   " Number of tokens the beneficiary holds (sum of all transaction values) "

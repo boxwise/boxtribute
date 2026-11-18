@@ -225,13 +225,10 @@ def _get_beneficiaries_page(
     """
     sort_by = sort_by or BeneficiarySortField.LastName
 
-    base_selection = Beneficiary.select(Beneficiary.id)
-    conditions, base_selection = derive_beneficiary_filter(filters, base_selection)
-    base_selection = base_selection.where(
-        Beneficiary.base == base_id,
-        (Beneficiary.deleted_on.is_null() | (Beneficiary.deleted_on == 0)),
-        *conditions,
+    conditions, base_selection = derive_beneficiary_filter(
+        filters, Beneficiary.select(Beneficiary.id)
     )
+    base_selection = base_selection.where(Beneficiary.base == base_id, *conditions)
 
     # The total always reflects the number of filtered beneficiaries, never families,
     # independent of the page_ids/sort_key_by_id computed below
@@ -242,7 +239,6 @@ def _get_beneficiaries_page(
     )
 
     def order(field):
-        # Unlike BoxRowOptions, descending order is not the default here
         is_descending = bool(descending)
         if sort_by == BeneficiarySortField.Age:
             # smallest (earliest) date of birth means largest age
@@ -356,7 +352,7 @@ def _get_beneficiaries_page(
         .join(Base, on=(Base.id == Beneficiary.base))
         .where(Beneficiary.id << ids)
         .dicts()
-        .execute()
+        .iterator()
     )
     rows = sorted(rows, key=lambda row: sort_key_by_id[row["id"]])
 
