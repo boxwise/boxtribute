@@ -940,10 +940,3 @@ def test_beneficiary_rows_last_active_on_with_missing_dates(client):
     assert rows["1"]["soonToBeDeactivated"] is False
     assert rows["6"]["lastActiveOn"] is None
     assert rows["6"]["soonToBeDeactivated"] is False
-
-    # Additional tests deemed relevant but not implemented here:
-    # - combining sortBy=LastName with filters (verifying that
-    #   total_number_of_beneficiaries reflects per-row filtering, independent of
-    #   family-head/member relationships, under the single-query paging mode)
-    # - permission-scoped tag_relation/transaction checks beyond the generic
-    #   base/beneficiary read-permission tests already added to test_permissions.py
