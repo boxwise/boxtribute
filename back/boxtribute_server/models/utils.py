@@ -84,6 +84,8 @@ def compute_age_in_days(date_of_birth):
     if date_of_birth is None:
         return
 
+    today = date.today()
+
     if isinstance(date_of_birth, DateField):
         # https://dev.mysql.com/doc/refman/8.0/en/date-calculations.html
         return fn.DATEDIFF(today.strftime("%Y-%m-%d"), date_of_birth)

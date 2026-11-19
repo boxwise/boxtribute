@@ -24,7 +24,6 @@ from ...models.utils import (
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
-    today,
     utcnow,
 )
 
@@ -285,7 +284,7 @@ def _get_beneficiaries_page(
     # to the client (and reported by the DB driver) as a Decimal instead of a 0/1
     # integer, which the GraphQL Boolean scalar then refuses to serialize
     soon_to_be_deactivated = fn.COALESCE(
-        fn.DATEDIFF(today.strftime("%Y-%m-%d"), last_active_on)
+        fn.DATEDIFF(fn.CURDATE(), last_active_on)
         > (Base.days_to_keep_inactive_beneficiaries - 14),
         False,
     ).cast("unsigned")
