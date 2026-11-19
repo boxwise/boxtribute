@@ -3,6 +3,7 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
+import { configure } from "@testing-library/react";
 import { cache } from "queries/cache";
 import { beforeEach, vi } from "vitest";
 import "regenerator-runtime/runtime";
@@ -19,6 +20,9 @@ vi.mock("framer-motion", async () => {
     AnimatePresence: ({ children }: { children: unknown }) => children,
   };
 });
+
+// CI runs with coverage and is much slower than local runs; the default of 1000ms is too tight
+configure({ asyncUtilTimeout: 10000 });
 
 // -------- Apollo cache
 // extracting a cacheObject to reset the cache correctly later
