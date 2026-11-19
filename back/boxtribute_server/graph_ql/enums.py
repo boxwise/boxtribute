@@ -5,6 +5,7 @@ from ariadne import EnumType
 
 from ..enums import (
     BeneficiaryReachType,
+    BeneficiarySortField,
     BoxSortField,
     BoxState,
     HumanGender,
@@ -25,6 +26,7 @@ from ..enums import (
 enum_types: List[Union[EnumType, Type[Enum]]] = [
     ProductGender,
     BoxSortField,
+    BeneficiarySortField,
     BoxState,
     HumanGender,
     Language,

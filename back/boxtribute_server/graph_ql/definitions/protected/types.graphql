@@ -50,6 +50,42 @@ type BoxRowsResult {
   totalMonetaryValue: Float
 }
 
+type BeneficiaryRow {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  gender: HumanGender
+  " In days. "
+  age: Int
+  " null for family heads "
+  familyHeadId: Int
+  " Last name of the family head; for family heads, it's their own last name "
+  familyHeadLastName: String!
+  groupIdentifier: String!
+  " Sum of all transactions that the beneficiary was involved in "
+  tokens: Int
+  tagIds: [ID!]
+  comment: String
+  " Date of the creation, last transaction (that family head was involved in; because transactions are always associated with family head), or last modification "
+  lastActiveOn: Date
+  createdOn: Date
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
+  " True if days since lastActiveOn larger than (Base.daysToKeepInactiveBeneficiaries - 14) "
+  soonToBeDeactivated: Boolean!
+  signed: Boolean!
+}
+
+type BeneficiaryRowsResult {
+  page: [BeneficiaryRow!]!
+  " totals are computed based on the filters specified in the query input "
+  totalNumberOfBeneficiaries: Int
+}
+
 """
 Representation of a box storing items of a [`Product`]({{Types.Product}}) in a [`Location`]({{Types.Location}})
 """
@@ -406,7 +442,7 @@ type Beneficiary {
   firstName: String!
   lastName: String!
   dateOfBirth: Date
-  " If dateOfBirth is not set, age will be null. "
+  " In days. If dateOfBirth is not set, age will be null. "
   age: Int
   comment: String
   base: Base
@@ -426,7 +462,7 @@ type Beneficiary {
   customTextField1: String
   customTextField2: String
   customNumberField: Int
-  customDateField: String
+  customDateField: Date
   signature: String
   dateOfSignature: Date
   " Number of tokens the beneficiary holds (sum of all transaction values) "
@@ -518,8 +554,9 @@ input BeneficiaryRowOptions {
   " Size of the requested page. Default: 50. Clamped between 1 and 100. "
   pageSize: Int
   filters: FilterBeneficiaryInput
+  " Default: LastName "
   sortBy: BeneficiarySortField
-  " Sorting order. Default: true "
+  " Sorting order. Default: false (ascending) "
   descending: Boolean
 }
 

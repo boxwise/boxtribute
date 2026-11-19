@@ -13,6 +13,7 @@ from utils import assert_forbidden_request, assert_successful_request
         "base",
         # Test cases 9.1.6, 9.1.7
         "beneficiary",
+        "beneficiaryRow",
         # Test cases 8.1.16, 8.1.17
         "location",
         # Test cases 99.1.9b, 99.1.9c
@@ -53,9 +54,11 @@ def test_invalid_read_permissions(unauthorized, client, resource):
         query = "query { boxes(baseId: 1) { elements { id } } }"
     elif resources == "boxRows":
         query = "query { boxRows(baseId: 1) { page { id } } }"
+    elif resources == "beneficiaryRows":
+        query = "query { beneficiaryRows(baseId: 1) { page { id } } }"
     assert_forbidden_request(client, query, none_data=True)
 
-    if resource in ["sizeRange", "size", "box", "boxRow"]:
+    if resource in ["sizeRange", "size", "box", "boxRow", "beneficiaryRow"]:
         return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
@@ -104,6 +107,7 @@ def test_invalid_permission(unauthorized, client, query):
         """product( id: 2 ) { id }""",
         # Test case 9.1.8
         """beneficiary( id: 4 ) { id }""",
+        """beneficiaryRows( baseId: 2 ) { page { id } }""",
         # Test case 3.1.6
         """shipment( id: 5 ) { id }""",
         """beneficiaryFigures( baseId: 2 ) { averageFamilySize }""",
@@ -115,7 +119,9 @@ def test_invalid_permission_for_given_resource_id(client, query):
     specified resource (i.e. base).
     """
     assert_forbidden_request(
-        client, f"query {{ {query} }}", none_data=query.startswith(("boxes", "boxRows"))
+        client,
+        f"query {{ {query} }}",
+        none_data=query.startswith(("boxes", "boxRows", "beneficiaryRows")),
     )
 
 

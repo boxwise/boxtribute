@@ -1,9 +1,16 @@
 from collections import defaultdict
 
+from peewee import JOIN, fn
+
 from ...db import db
-from ...enums import HumanGender, TaggableObjectType
+from ...enums import BeneficiarySortField, HumanGender, TaggableObjectType
 from ...errors import DeletedBase, ResourceDoesNotExist
 from ...exceptions import InvalidBeneficiaryImport
+from ...graph_ql.filtering import derive_beneficiary_filter
+from ...graph_ql.sorting import (
+    compute_beneficiary_last_active_on,
+    derive_beneficiary_sorting,
+)
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.history import DbChangeHistory
@@ -13,6 +20,7 @@ from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import (
     BATCH_SIZE,
     HISTORY_CREATION_MESSAGE,
+    compute_age_in_days,
     safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
@@ -194,6 +202,135 @@ def create_transaction(
         created_on=utcnow(),
         created_by=user_id,
     )
+
+
+def get_beneficiaries_page(base_id, *, page=None, page_size=None, **options):
+    page = page or 1
+    page_size = max(min(50 if page_size is None else page_size, 100), 1)
+    return _get_beneficiaries_page(base_id, page=page, page_size=page_size, **options)
+
+
+def _get_beneficiaries_page(
+    base_id, *, page, page_size, filters=None, sort_by=None, descending=None
+):
+    """Internal function. Build and execute a peewee query for a page of
+    BeneficiaryRow data, taking given filters and sorting into account.
+
+    A page always consists of exactly `page_size` beneficiaries (family heads and
+    members alike). For the default sort field (LastName), beneficiaries are sorted
+    by their family head's last name (or their own last name, if they're a family
+    head themselves); within the same last name the relative order is unspecified
+    (ties are broken by ascending ID, purely to make pagination deterministic). This
+    intentionally groups a family's members near their family head without
+    guaranteeing that the whole family ends up on the same page.
+    """
+    sort_by = sort_by or BeneficiarySortField.LastName
+
+    conditions, base_selection = derive_beneficiary_filter(
+        filters, Beneficiary.select(Beneficiary.id)
+    )
+    base_selection = base_selection.where(Beneficiary.base == base_id, *conditions)
+
+    # The total always reflects the number of filtered beneficiaries
+    total_number_of_beneficiaries = (
+        Beneficiary.select(fn.COUNT(Beneficiary.id.distinct()))
+        .where(Beneficiary.id << base_selection)
+        .scalar()
+    )
+
+    def order(field):
+        is_descending = bool(descending)
+        if sort_by == BeneficiarySortField.Age:
+            # smallest (earliest) date of birth means largest age
+            return field.asc() if is_descending else field.desc()
+        return field.desc() if is_descending else field.asc()
+
+    # Inner query: sort and page on IDs only. The sort key is selected as well in
+    # order to sort the page rows of the outer query (and to be compatible with
+    # DISTINCT, which may be added to the selection while deriving filters)
+    selection, sort_field = derive_beneficiary_sorting(base_selection, sort_by)
+    page_ids = (
+        selection.columns(Beneficiary.id, sort_field.alias("sort_key"))
+        .order_by(order(sort_field), Beneficiary.id.asc())
+        .paginate(page, page_size)
+        .alias("s")
+    )
+
+    # Correlated subqueries for tag IDs and tokens, evaluated for the page_size rows
+    # only
+    tag_ids = (
+        TagsRelation.select(fn.GROUP_CONCAT(TagsRelation.tag))
+        .where(
+            TagsRelation.object_id == page_ids.c.id,
+            TagsRelation.object_type == TaggableObjectType.Beneficiary,
+            TagsRelation.deleted_on.is_null(),
+        )
+        .alias("tag_ids")
+    )
+    tokens = (
+        Transaction.select(fn.COALESCE(fn.SUM(Transaction.tokens), 0)).where(
+            Transaction.beneficiary == page_ids.c.id
+        )
+    ).alias("tokens")
+
+    # Aliases for the outer query
+    B = Beneficiary.alias("b")
+    Head = Beneficiary.alias("head")  # the beneficiary's family head, if any
+
+    last_active_on = compute_beneficiary_last_active_on(B)
+    # Explicitly cast to an integer: depending on the MySQL column types involved
+    # (e.g. if days_to_keep_inactive_beneficiaries ever ends up as a DECIMAL/NUMERIC
+    # in production), the raw comparison/COALESCE result may otherwise be returned
+    # to the client (and reported by the DB driver) as a Decimal instead of a 0/1
+    # integer, which the GraphQL Boolean scalar then refuses to serialize
+    soon_to_be_deactivated = fn.COALESCE(
+        fn.DATEDIFF(fn.CURDATE(), last_active_on)
+        > (Base.days_to_keep_inactive_beneficiaries - 14),
+        False,
+    ).cast("unsigned")
+    family_head_last_name = fn.COALESCE(Head.last_name, B.last_name)
+
+    rows = (
+        B.select(
+            B.id,
+            B.first_name.alias("first_name"),
+            B.last_name.alias("last_name"),
+            B.gender.alias("gender"),
+            fn.IF(
+                B.date_of_birth > 0,
+                compute_age_in_days(B.date_of_birth),
+                None,
+            ).alias("age"),
+            B.family_head.alias("family_head_id"),
+            family_head_last_name.alias("family_head_last_name"),
+            B.group_identifier.alias("group_identifier"),
+            tokens,
+            tag_ids,
+            B.comment.alias("comment"),
+            last_active_on.alias("last_active_on"),
+            B.created_on.alias("created_on"),
+            B.email.alias("email"),
+            B.phone_number.alias("phone_number"),
+            B.custom_text_field_1.alias("custom_text_field_1"),
+            B.custom_text_field_2.alias("custom_text_field_2"),
+            B.custom_number_field.alias("custom_number_field"),
+            B.custom_date_field.alias("custom_date_field"),
+            soon_to_be_deactivated.alias("soon_to_be_deactivated"),
+            B.signed.alias("signed"),
+        )
+        .from_(page_ids)
+        .join(B, on=(B.id == page_ids.c.id))
+        .join(Base, on=(Base.id == B.base))
+        .join(Head, JOIN.LEFT_OUTER, on=(Head.id == B.family_head))
+        .order_by(order(page_ids.c.sort_key), B.id.asc())
+        .dicts()
+        .iterator()
+    )
+
+    return {
+        "page": rows,
+        "total_number_of_beneficiaries": total_number_of_beneficiaries,
+    }
 
 
 class BeneficiariesResult(dict):

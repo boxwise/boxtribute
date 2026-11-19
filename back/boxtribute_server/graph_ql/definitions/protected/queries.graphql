@@ -15,6 +15,7 @@ type Query {
   box(labelIdentifier: String!): Box
   " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
+  " Return box data optimized for tabular display "
   boxRows(baseId: Int!, options: BoxRowOptions): BoxRowsResult!
   " Return data of all boxes (max: 100,000) in given base as base64-encoded CSV string "
   exportBoxRowsToCsv(baseId: Int!, filters: FilterBoxInput): String
@@ -45,7 +46,8 @@ type Query {
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
-  # beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
+  " Return beneficiary data optimized for tabular display "
+  beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
   " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
   tags(tagType: TagType): [Tag!]!
   " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "

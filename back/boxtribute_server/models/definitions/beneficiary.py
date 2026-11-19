@@ -103,7 +103,7 @@ class Beneficiary(Model):
     custom_number_field = IntAsCharField(
         column_name="customfield3_value", max_length=255, null=True
     )
-    custom_date_field = DateTimeField(column_name="customfield4_value", null=True)
+    custom_date_field = ZeroDateTimeField(column_name="customfield4_value", null=True)
 
     class Meta:
         table_name = "people"

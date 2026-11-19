@@ -224,7 +224,7 @@ def test_query_created_boxes(
         {
             "boxesCount": 1,
             "itemsCount": 5,
-            "createdOn": "2020-11-27T00:00:00",
+            "createdOn": "2020-11-27",
             "categoryId": 1,
             "gender": "Women",
             "productId": 1,
@@ -233,7 +233,7 @@ def test_query_created_boxes(
         {
             "boxesCount": 2,
             "itemsCount": 20,
-            "createdOn": "2020-11-27T00:00:00",
+            "createdOn": "2020-11-27",
             "categoryId": 1,
             "gender": "Women",
             "productId": 1,
@@ -242,7 +242,7 @@ def test_query_created_boxes(
         {
             "boxesCount": 7,
             "itemsCount": 70,
-            "createdOn": "2020-11-27T00:00:00",
+            "createdOn": "2020-11-27",
             "categoryId": 1,
             "gender": "Women",
             "productId": 1,
@@ -251,7 +251,7 @@ def test_query_created_boxes(
         {
             "boxesCount": 1,
             "itemsCount": 12,
-            "createdOn": "2020-11-27T00:00:00",
+            "createdOn": "2020-11-27",
             "categoryId": 1,
             "gender": "Women",
             "productId": 3,
@@ -260,7 +260,7 @@ def test_query_created_boxes(
         {
             "boxesCount": 2,
             "itemsCount": 22,
-            "createdOn": "2020-11-27T00:00:00",
+            "createdOn": "2020-11-27",
             "categoryId": 12,
             "gender": "Boy",
             "productId": 5,
@@ -269,7 +269,7 @@ def test_query_created_boxes(
         {
             "boxesCount": 1,
             "itemsCount": 10,
-            "createdOn": "2020-11-27T00:00:00",
+            "createdOn": "2020-11-27",
             "categoryId": 1,
             "gender": "Women",
             "productId": 8,
@@ -898,7 +898,7 @@ def test_statistics_after_create_box_from_box(
     created_box_facts = [
         f
         for f in data["facts"]
-        if f["createdOn"] == f"{today}T00:00:00" and f["productId"] == int(product_id)
+        if f["createdOn"] == today and f["productId"] == int(product_id)
     ]
     assert len(created_box_facts) == 1
     assert created_box_facts[0]["boxesCount"] == 1
@@ -952,7 +952,7 @@ def test_statistics_after_create_box_from_box(
     created_box_facts = [
         f
         for f in data["facts"]
-        if f["createdOn"] == f"{today}T00:00:00" and f["productId"] == int(product_id)
+        if f["createdOn"] == today and f["productId"] == int(product_id)
     ]
     assert len(created_box_facts) == 1
     # Total items should still be 100 (80 in original + 2x10 in new boxes)

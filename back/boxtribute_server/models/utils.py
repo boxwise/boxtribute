@@ -79,6 +79,21 @@ def compute_age(date_of_birth):
     )
 
 
+def compute_age_in_days(date_of_birth):
+    """Compute today's age (in days) given a person's date of birth."""
+    if date_of_birth is None:
+        return
+
+    today = date.today()
+
+    if isinstance(date_of_birth, DateField):
+        # https://dev.mysql.com/doc/refman/8.0/en/date-calculations.html
+        return fn.DATEDIFF(today.strftime("%Y-%m-%d"), date_of_birth)
+
+    # `date_of_birth` is a datetime.date instance.
+    return (today - date_of_birth).days
+
+
 def save_creation_to_history(f):
     """Utility for writing information about creating a resource to the history table,
     intended to decorate a function that creates a database resource (e.g. a box).
