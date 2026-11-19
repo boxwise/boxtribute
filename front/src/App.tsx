@@ -4,6 +4,7 @@ import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
 import Boxes from "views/Boxes/BoxesView";
+import Beneficiaries from "views/Beneficiaries/BeneficiariesView";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
@@ -166,6 +167,28 @@ function App() {
                   redirectPath={prevLocation}
                   minBeta={3}
                   requiredAbps={[["view_inventory", "view_shipments", "view_beneficiary_graph"]]}
+                />
+              }
+            />
+          </Route>
+          <Route path="beneficiaries">
+            <Route
+              index
+              element={
+                <Protected
+                  component={
+                    <ErrorBoundary
+                      fallback={
+                        <AlertWithoutAction alertText="Could not fetch beneficiaries data! Please try reloading the page." />
+                      }
+                    >
+                      <Suspense fallback={<TableSkeleton />}>
+                        <Beneficiaries />
+                      </Suspense>
+                    </ErrorBoundary>
+                  }
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_beneficiaries"]}
                 />
               }
             />

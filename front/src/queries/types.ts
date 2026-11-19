@@ -10,6 +10,10 @@ import {
   BOXES_FOR_BOXESVIEW_QUERY,
 } from "views/Boxes/BoxesView";
 import {
+  BENEFICIARIES_FOR_BENEFICIARIESVIEW_QUERY,
+  OPTIONS_FOR_BENEFICIARIESVIEW_QUERY,
+} from "views/Beneficiaries/BeneficiariesView";
+import {
   BOX_FIELDS_FRAGMENT,
   SHIPMENT_DETAIL_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
@@ -50,3 +54,11 @@ export type ProductsQuery = ResultOf<typeof PRODUCTS_QUERY>;
 
 export type CustomProductFormQueryResult = ResultOf<typeof CUSTOM_PRODUCT_FORM_OPTIONS_QUERY>;
 export type StandardProductQueryResultType = ResultOf<typeof STANDARD_PRODUCT_QUERY>;
+
+export type BeneficiariesForBeneficiariesViewQuery = ResultOf<
+  typeof BENEFICIARIES_FOR_BENEFICIARIESVIEW_QUERY
+>;
+export type BeneficiariesForBeneficiariesViewVariables = VariablesOf<
+  typeof BENEFICIARIES_FOR_BENEFICIARIESVIEW_QUERY
+>;
+export type OptionsForBeneficiariesViewQuery = ResultOf<typeof OPTIONS_FOR_BENEFICIARIESVIEW_QUERY>;

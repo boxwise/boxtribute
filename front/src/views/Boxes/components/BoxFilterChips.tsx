@@ -4,7 +4,7 @@ import { Filters } from "react-table";
 import { boxStateIds } from "utils/constants";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
 
-interface FilterChipsProps {
+interface BoxFilterChipsProps {
   filters: Filters<any>;
   productOptions: IFilterValue[];
   categoryOptions: IFilterValue[];
@@ -28,7 +28,7 @@ const FILTER_CONFIG = {
   no_tags: { label: "Exclude Tags" },
 } as const;
 
-export function FilterChips({
+export function BoxFilterChips({
   filters,
   productOptions,
   categoryOptions,
@@ -38,7 +38,7 @@ export function FilterChips({
   tagOptions,
   onRemoveFilter,
   onClearAllFilters,
-}: FilterChipsProps) {
+}: BoxFilterChipsProps) {
   // Map of filter options for lookups
   const optionsMap = useMemo(
     () => ({
