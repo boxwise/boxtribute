@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from boxtribute_server.business_logic.metrics.crud import get_time_span
+from boxtribute_server.models.utils import compute_age
 
 
 @pytest.mark.parametrize(
@@ -18,3 +19,7 @@ from boxtribute_server.business_logic.metrics.crud import get_time_span
 def test_get_time_span_with_invalid_inputs(start, end, duration):
     with pytest.raises(ValueError):
         get_time_span(start_date=start, end_date=end, duration_days=duration)
+
+
+def test_compute_age_without_date_of_birth():
+    assert compute_age(None) is None
