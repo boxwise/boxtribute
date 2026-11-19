@@ -132,8 +132,8 @@ describe("Initial load", () => {
     expect(screen.getByTestId("TableSkeleton")).toBeInTheDocument();
 
     expect(await screen.findByText("Manage Beneficiaries")).toBeInTheDocument();
-    expect(await screen.findByRole("tab", { name: "Active (4)" })).toBeInTheDocument();
-    expect(await screen.findByRole("tab", { name: "Deactivated (7)" })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "ACTIVE (4)" })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "DEACTIVATED (7)" })).toBeInTheDocument();
     expect(await screen.findByText("Select all 4 beneficiaries")).toBeInTheDocument();
   });
 
@@ -208,7 +208,7 @@ describe("Initial load", () => {
       ],
     });
     expect(await screen.findByText("No beneficiaries registered.")).toBeInTheDocument();
-    expect(await screen.findByRole("tab", { name: "Active (0)" })).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "ACTIVE (0)" })).toBeInTheDocument();
   });
 });
 
@@ -537,9 +537,9 @@ describe("Tabs", () => {
       ],
     });
     await screen.findByText("Sam");
-    await screen.findByRole("tab", { name: "Deactivated (7)" });
+    await screen.findByRole("tab", { name: "DEACTIVATED (7)" });
 
-    await user.click(screen.getByRole("tab", { name: "Deactivated (7)" }));
+    await user.click(screen.getByRole("tab", { name: "DEACTIVATED (7)" }));
     expect(await screen.findByText("Dora")).toBeInTheDocument();
     expect(currentUrl()).toBe("/bases/2/beneficiaries?tab=deactivated");
     expect(screen.queryByText("Sam")).not.toBeInTheDocument();
@@ -547,7 +547,7 @@ describe("Tabs", () => {
     // No reduced opacity in the deactivated tab
     expect(rowOf("Dora")).not.toHaveStyle("opacity: 0.5");
 
-    await user.click(screen.getByRole("tab", { name: "Active (4)" }));
+    await user.click(screen.getByRole("tab", { name: "ACTIVE (4)" }));
     expect(await screen.findByText("Sam")).toBeInTheDocument();
   });
 
@@ -569,8 +569,8 @@ describe("Tabs", () => {
       ],
     });
     expect(await screen.findByText("Dora")).toBeInTheDocument();
-    expect(await screen.findByRole("tab", { name: "Active (12)" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "Deactivated (1)" })).toHaveAttribute(
+    expect(await screen.findByRole("tab", { name: "ACTIVE (12)" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "DEACTIVATED (1)" })).toHaveAttribute(
       "aria-selected",
       "true",
     );

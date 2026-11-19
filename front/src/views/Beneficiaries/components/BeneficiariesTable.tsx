@@ -62,8 +62,8 @@ interface IBeneficiariesTableProps {
 }
 
 const TAB_TITLES: Record<BeneficiariesTab, string> = {
-  active: "Active",
-  deactivated: "Deactivated",
+  active: "ACTIVE",
+  deactivated: "DEACTIVATED",
 };
 
 function BeneficiariesTable({
@@ -400,7 +400,9 @@ function BeneficiariesTable({
       >
         <TabList flex="none">
           {TABS.map((t) => (
-            <Tab key={t}>{tabTitle(t)}</Tab>
+            <Tab flex={1} fontWeight={t == tab ? "bold" : "inherit"} key={t}>
+              {tabTitle(t)}
+            </Tab>
           ))}
         </TabList>
         <TabPanels flex="1" minHeight={0}>
