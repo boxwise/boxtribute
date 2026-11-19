@@ -101,7 +101,7 @@ const MAX_INT = 2147483647;
 const knownStateIds = Object.values(boxStateIds);
 const knownGenderIds = Object.values(genderIds);
 
-function parseIds(param: string | null): string[] {
+export function parseIds(param: string | null): string[] {
   if (!param) return [];
   const ids = param
     .split(",")
@@ -128,7 +128,7 @@ export function normalizeSearch(search: string | null | undefined): string {
   return search?.trim() ? search : "";
 }
 
-function parsePage(param: string | null): number {
+export function parsePage(param: string | null): number {
   if (!param || !/^\d+$/.test(param)) return 1;
   const page = Number(param);
   return page >= 1 ? Math.min(page, MAX_INT) : 1;

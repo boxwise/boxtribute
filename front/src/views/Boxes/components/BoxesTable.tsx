@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useCallback, useRef, useState } from "react";
-import { ChevronRightIcon, ChevronLeftIcon } from "@chakra-ui/icons";
 import {
   Skeleton,
   Table,
@@ -9,7 +8,6 @@ import {
   Spacer,
   Flex,
   Text,
-  IconButton,
   HStack,
   Box,
   useDisclosure,
@@ -34,6 +32,9 @@ import { boxesRawDataToTableDataTransformer } from "./transformers";
 import { ActionOptionsForBoxesViewQuery } from "queries/types";
 import ColumnSelector from "components/Table/ColumnSelector";
 import { GlobalFilter } from "components/Table/GlobalFilter";
+import { PaginationControls } from "components/Table/PaginationControls";
+import { SelectAll } from "components/Table/SelectAll";
+import { SkeletonRows } from "components/Table/SkeletonRows";
 import useBoxesActions from "../hooks/useBoxesActions";
 import { useBoxRows } from "../hooks/useBoxRows";
 import { useBoxesViewUrlState } from "../hooks/useBoxesViewUrlState";
@@ -47,7 +48,7 @@ import BoxesActions from "./BoxesActions";
 import { IDropdownOption } from "components/Form/SelectField";
 import { BoxesFilter } from "./BoxesFilter";
 import type { IFilterValue } from "@boxtribute/shared-components/statviz/components/filter/MultiSelectFilter";
-import { FilterChips } from "./FilterChips";
+import { BoxFilterChips } from "./BoxFilterChips";
 import { FilterPanel } from "@boxtribute/shared-components/filter/FilterPanel";
 import { removeFilter, formatWeight, formatMonetaryValue } from "utils/helpers";
 import { useAuthorization } from "hooks/useAuthorization";
@@ -379,7 +380,7 @@ function BoxesTable({
           </FilterPanel>
         </HStack>
       </Flex>
-      <FilterChips
+      <BoxFilterChips
         filters={filters}
         productOptions={productOptions}
         categoryOptions={categoryOptions}
@@ -430,42 +431,17 @@ function BoxesTable({
           </HStack>
         )}
       </Box>
-      <Flex alignItems="center" mb={2} data-testid="selected-boxes-counter">
-        {selectedCount > 0 && (
-          <HStack spacing={5} bg="blue.100" px={4} py={2}>
-            <Text as="span" fontWeight="bold" color="black">
-              {selectedCount} {selectedCount === 1 ? "Box" : "Boxes"} selected
-            </Text>{" "}
-            <Text as="span" color="black" cursor="pointer" onClick={resetSelection}>
-              Clear all
-            </Text>
-          </HStack>
-        )}
-        {selectedCount > 0 && !isSelectAll && (
-          <Box as="span" color="gray.400" ml={4}>
-            |
-          </Box>
-        )}
-        {isLoading || totals === null ? (
-          <HStack spacing={2}>
-            <Skeleton height={5} width={20} />
-          </HStack>
-        ) : (
-          !isSelectAll && (
-            <Text
-              mx={4}
-              py={2}
-              cursor={totalNumberOfBoxes === 0 ? "default" : "pointer"}
-              color={totalNumberOfBoxes === 0 ? "gray.400" : "black"}
-              onClick={() => {
-                if (totalNumberOfBoxes > 0) setIsSelectAll(true);
-              }}
-            >
-              Select all {totalNumberOfBoxes} {totalNumberOfBoxes === 1 ? "box" : "boxes"}
-            </Text>
-          )
-        )}
-      </Flex>
+      <SelectAll
+        testId="selected-boxes-counter"
+        selectedCount={selectedCount}
+        isSelectAll={isSelectAll}
+        isLoading={isLoading || totals === null}
+        totalCount={totalNumberOfBoxes}
+        selectedText={`${selectedCount} ${selectedCount === 1 ? "Box" : "Boxes"} selected`}
+        selectAllText={`Select all ${totalNumberOfBoxes} ${totalNumberOfBoxes === 1 ? "box" : "boxes"}`}
+        onSelectAll={() => setIsSelectAll(true)}
+        onClear={resetSelection}
+      />
       <Table key="boxes-table">
         <FilteringSortingTableHeader
           headerGroups={headerGroups}
@@ -473,20 +449,7 @@ function BoxesTable({
           onSortColumn={handleSortColumn}
         />
         <Tbody>
-          {isLoading && (
-            <>
-              <Tr key="loading1">
-                <Td colSpan={columnCount}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-              <Tr key="loading2">
-                <Td colSpan={columnCount}>
-                  <Skeleton height={5} />
-                </Td>
-              </Tr>
-            </>
-          )}
+          {isLoading && <SkeletonRows columnCount={columnCount} />}
 
           {!isLoading &&
             page.map((row) => {
@@ -518,42 +481,13 @@ function BoxesTable({
             })}
         </Tbody>
       </Table>
-      <Flex justifyContent="center" alignItems="center" key="pagination" flex="none">
-        <Flex>
-          <IconButton
-            aria-label="Previous Page"
-            onClick={() => setPage(currentPage - 1)}
-            isDisabled={currentPage <= 1}
-            icon={<ChevronLeftIcon h={6} w={6} />}
-          />
-        </Flex>
-
-        <Flex justifyContent="center" m={4}>
-          <Text as="span" data-testid="page-indicator">
-            Page{" "}
-            <Text fontWeight="bold" as="span">
-              {currentPage}
-            </Text>{" "}
-            of{" "}
-            {totals === null ? (
-              <Skeleton height={5} width={10} mr={2} />
-            ) : (
-              <Text fontWeight="bold" as="span">
-                {maxPage}
-              </Text>
-            )}
-          </Text>
-        </Flex>
-
-        <Flex>
-          <IconButton
-            aria-label="Next Page"
-            onClick={() => setPage(currentPage + 1)}
-            isDisabled={isLoading || isPrefetching || currentPage >= maxPage}
-            icon={<ChevronRightIcon h={6} w={6} />}
-          />
-        </Flex>
-      </Flex>
+      <PaginationControls
+        currentPage={currentPage}
+        maxPage={maxPage}
+        isMaxPageLoading={totals === null}
+        onPageChange={setPage}
+        isNextDisabled={isLoading || isPrefetching}
+      />
     </Flex>
   );
 }
