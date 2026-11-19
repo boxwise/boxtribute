@@ -108,6 +108,9 @@ export function useBeneficiaryRows({
           totalNumberOfBeneficiaries: totalNumberOfBeneficiaries ?? 0,
           pages: { ...(previous.viewKey === viewKey ? previous.pages : {}), ...newPages },
         }));
+      } catch (e) {
+        if (latestViewKey.current !== viewKey) return;
+        throw e;
       } finally {
         inFlight.current.delete(requestId);
       }

@@ -42,6 +42,7 @@ export function BeneficiaryDateCell({ value }: CellProps<BeneficiaryRow, Date | 
             day: "2-digit",
             month: "short",
             year: "numeric",
+            timeZone: "UTC",
           })
         : ""}
     </chakra.span>
