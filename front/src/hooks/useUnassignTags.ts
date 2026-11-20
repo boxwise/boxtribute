@@ -14,6 +14,7 @@ export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
     unassignTagsFromBoxes(
       updateInput: { labelIdentifiers: $labelIdentifiers, filters: $filters, tagIds: $tagIds }
     ) {
+      __typename
       ... on BoxesTagsOperationResult {
         updatedBoxes {
           labelIdentifier
@@ -33,6 +34,9 @@ export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
             __typename
           }
         }
+      }
+      ... on InsufficientPermissionError {
+        name
       }
     }
   }
@@ -61,6 +65,17 @@ export const useUnassignTags = () => {
       })
         .then(({ data, errors }) => {
           const result = data?.unassignTagsFromBoxes;
+
+          if (result?.__typename === "InsufficientPermissionError") {
+            setIsLoading(false);
+            if (showToasts) {
+              triggerError({
+                message: "You don't have the permissions to unassign tags from these boxes.",
+              });
+            }
+            return false;
+          }
+
           const boxesResult = result && "updatedBoxes" in result ? result : undefined;
           const successfulBoxes = boxesResult?.updatedBoxes;
           const tagErrorInfoArray = boxesResult?.tagErrorInfo;
