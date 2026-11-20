@@ -27,6 +27,7 @@ BASE_AGNOSTIC_RESOURCES = (
     "organisation",
     "product_category",
     "qr",
+    "services_relation",
     "shipment_detail",
     "size",
     "size_range",
