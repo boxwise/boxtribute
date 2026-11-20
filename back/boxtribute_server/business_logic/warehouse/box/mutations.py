@@ -260,7 +260,6 @@ def resolve_move_boxes_to_location(*_, update_input):
 
 @handle_unauthorized
 def authorize_tag(tag):
-    authorize(permission="tags_relation:write")
     authorize(permission="tag:read", base_id=tag.base_id)
     authorize(permission="stock:write", base_id=tag.base_id)
 
@@ -345,7 +344,10 @@ def _validate_tags(tag_ids, for_unassigning=False):
 
 
 @mutation.field("assignTagsToBoxes")
+@handle_unauthorized
 def resolve_assign_tags_to_boxes(*_, update_input):
+    authorize(permission="tags_relation:write")
+
     label_identifiers = update_input.get("label_identifiers")
     filters = update_input.get("filters")
     if not _is_valid_selection(label_identifiers, filters):
@@ -406,6 +408,8 @@ def resolve_assign_tags_to_boxes(*_, update_input):
 @mutation.field("unassignTagsFromBoxes")
 @handle_unauthorized
 def resolve_unassign_tags_from_boxes(*_, update_input):
+    authorize(permission="tags_relation:write")
+
     label_identifiers = update_input.get("label_identifiers")
     filters = update_input.get("filters")
     if not _is_valid_selection(label_identifiers, filters):
