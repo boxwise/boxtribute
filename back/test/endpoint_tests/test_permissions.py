@@ -591,15 +591,15 @@ def test_invalid_permission_for_user_read(client, default_product, default_user)
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on InsufficientPermissionError { name } } } }",  # noqa
-            {"tagErrorInfo": [{"error": {"name": "tags_relation:write"}, "id": "2"}]},
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
         ],
         # Test case 8.2.24e
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on InsufficientPermissionError { name } } } }",  # noqa
-            {"tagErrorInfo": [{"error": {"name": "tags_relation:write"}, "id": "2"}]},
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
         ],
         # Test case 12.2.4
         [

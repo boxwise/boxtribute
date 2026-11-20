@@ -100,7 +100,7 @@ def resolve_stock_overview(*_, base_id):
         "location",
         "product",
         "product_category",
-        "tag_relation",
+        "tags_relation",
         base_id=base_id,
     )
     return compute_stock_overview(base_id)
