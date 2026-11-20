@@ -2,7 +2,7 @@ import { Button, Flex } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import SelectField from "components/Form/SelectField";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { BsFillCheckCircleFill } from "react-icons/bs";
 import { FaWarehouse } from "react-icons/fa";
 import { z } from "zod";
@@ -57,7 +57,6 @@ export function ReceiveLocationForm({
   // react-hook-form
   const {
     control,
-    watch,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -65,7 +64,7 @@ export function ReceiveLocationForm({
     defaultValues,
   });
 
-  const locationId = watch("locationId");
+  const locationId = useWatch({ control, name: "locationId" });
 
   useEffect(() => {
     if (
