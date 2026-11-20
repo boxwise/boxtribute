@@ -115,7 +115,6 @@ def _create_jwt_payload(
             f"{base_prefix}/beneficiary:delete",
             f"{base_prefix}/beneficiary:edit",
             f"{base_prefix}/beneficiary:read",
-            f"{base_prefix}/beneficiary_language:assign",
             f"{base_prefix}/history:read",
             f"{base_prefix}/location:read",
             f"{base_prefix}/organisation:read",

@@ -25,7 +25,6 @@ def test_base_specific_permissions(client, mocker):
             "stock:write",
             "base_3/beneficiary:create",
             "base_3/tag:read",
-            "beneficiary_language:assign",
             "tags_relation:write",
         ],
     )

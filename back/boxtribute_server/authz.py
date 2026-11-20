@@ -21,7 +21,6 @@ from .utils import convert_pascal_to_snake_case
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
-    "beneficiary_language",
     "gender",
     "history",
     "language",
