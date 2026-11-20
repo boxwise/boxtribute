@@ -63,7 +63,6 @@ An RBP refers to a resource in the database, and the methods that the user who w
 - edit: `UPDATE`
 - write: `INSERT`, `UPDATE`
 - delete: `DELETE`
-- assign: `INSERT` into cross-reference table
 
 The naming convention for RBP is a singular noun (the resource; multi-word nouns concatenated by underscore), and a method name, separated by colon: `user:edit`, `beneficiary:create`, `tags_relation:read`, etc.
 
