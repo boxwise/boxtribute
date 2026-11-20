@@ -32,7 +32,7 @@ BASE_AGNOSTIC_RESOURCES = (
     "size",
     "size_range",
     "standard_product",
-    "tag_relation",
+    "tags_relation",
     "transaction",
     "unit",
     "user",

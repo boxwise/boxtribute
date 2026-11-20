@@ -59,7 +59,7 @@ def resolve_create_box(*_, creation_input):
     requested_product = Product.get_by_id(creation_input.pop("product_id"))
     authorize(permission="product:read", base_id=requested_product.base_id)
 
-    authorize(permission="tag_relation:assign")
+    authorize(permission="tags_relation:write")
     tag_ids = creation_input.pop("tag_ids", [])
     tags = list(Tag.select().where(Tag.id << tag_ids))
     for tag in tags:
@@ -130,7 +130,7 @@ def resolve_update_box(*_, update_input):
         requested_product = Product.get_by_id(product_id)
         authorize(permission="product:read", base_id=requested_product.base_id)
 
-    authorize(permission="tag_relation:assign")
+    authorize(permission="tags_relation:write")
     tag_ids = update_input.pop("tag_ids", None)
     tags = None
     if tag_ids is not None:
@@ -260,7 +260,7 @@ def resolve_move_boxes_to_location(*_, update_input):
 
 @handle_unauthorized
 def authorize_tag(tag):
-    authorize(permission="tag_relation:assign")
+    authorize(permission="tags_relation:write")
     authorize(permission="tag:read", base_id=tag.base_id)
     authorize(permission="stock:write", base_id=tag.base_id)
 

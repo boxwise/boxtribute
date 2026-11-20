@@ -65,9 +65,9 @@ An RBP refers to a resource in the database, and the methods that the user who w
 - delete: `DELETE`
 - assign: `INSERT` into cross-reference table
 
-The naming convention for RBP is a singular noun (the resource; multi-word nouns concatenated by underscore), and a method name, separated by colon: `user:edit`, `beneficiary:create`, `tag_relation:read`, etc.
+The naming convention for RBP is a singular noun (the resource; multi-word nouns concatenated by underscore), and a method name, separated by colon: `user:edit`, `beneficiary:create`, `tags_relation:read`, etc.
 
-Every ABP comprises one or more RBP, e.g. the ABP `manage_tags` stands for `tag:write`, `stock:read`, `tag_relation:read`, and `beneficiary:read`.
+Every ABP comprises one or more RBP, e.g. the ABP `manage_tags` stands for `tag:write`, `stock:read`, `tags_relation:read`, and `beneficiary:read`.
 
 The ground truth for permissions management are the Auth0 Action scripts. Any updates to the scripts are downloaded to the [System Management repository](https://github.com/boxwise/system-management). The links to the Auth0 scripts are found in [this document](https://docs.google.com/spreadsheets/d/1W4YWcc59wUFUWgReumdH6DQ4zU7JcTgvf6WEbdqaGHQ/edit#gid=0), along with other information about RBPs, ABPs, and dropapp menues.
 

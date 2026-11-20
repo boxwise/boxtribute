@@ -729,7 +729,7 @@ def create_boxes(*, user_id, data):
     # Authorization guards
     base_id = list(base_ids)[0]
     authorize(permission="stock:write", base_id=base_id)
-    authorize(permission="tag_relation:assign")
+    authorize(permission="tags_relation:write")
 
     # Validation: base must not be deleted
     base = Base.select(Base.deleted_on, Base.name).where(Base.id == base_id).get()

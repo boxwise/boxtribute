@@ -846,7 +846,7 @@ def test_authorization(client, mocker):
     assert_forbidden_request(client, query)
 
     # User lacks 'beneficiary:read' permission
-    mock_user_for_request(mocker, permissions=["tag_relation:read"])
+    mock_user_for_request(mocker, permissions=["tags_relation:read"])
     query = "query { beneficiaryDemographics(baseId: 1) { facts { age } } }"
     assert_forbidden_request(client, query)
 
