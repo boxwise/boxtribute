@@ -825,8 +825,8 @@ type InvalidFilterInputError {
 }
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | InvalidFilterInputError
-union AssignTagsToBoxesResult = BoxesTagsOperationResult | InvalidFilterInputError
-union UnassignTagsFromBoxesResult = BoxesTagsOperationResult | InvalidFilterInputError
+union AssignTagsToBoxesResult = BoxesTagsOperationResult | InsufficientPermissionError | InvalidFilterInputError
+union UnassignTagsFromBoxesResult = BoxesTagsOperationResult | InsufficientPermissionError | InvalidFilterInputError
 union DeleteBoxesResult = BoxesResult | InsufficientPermissionError | InvalidFilterInputError
 union CreateBoxFromBoxResult = Box | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | DeletedBoxError | InvalidBoxStateError | InvalidNumberOfItemsError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError

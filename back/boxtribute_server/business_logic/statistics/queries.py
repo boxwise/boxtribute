@@ -26,7 +26,7 @@ public_query = QueryType()
 def resolve_beneficiary_demographics(*_, base_id):
     # No cross-organisational access for beneficiary-related data
     authorize(permission="beneficiary:read", base_id=base_id)
-    authorize(permission="tag_relation:read")
+    authorize(permission="tags_relation:read")
     return compute_beneficiary_demographics(base_id)
 
 
@@ -35,7 +35,7 @@ def resolve_beneficiary_demographics(*_, base_id):
 def resolve_beneficiary_reach(*_, base_id):
     # No cross-organisational access for beneficiary-related data
     authorize(permission="beneficiary:read", base_id=base_id)
-    authorize(permission="tag_relation:read")
+    authorize(permission="tags_relation:read")
     return compute_beneficiary_reach(base_id)
 
 
@@ -100,7 +100,7 @@ def resolve_stock_overview(*_, base_id):
         "location",
         "product",
         "product_category",
-        "tag_relation",
+        "tags_relation",
         base_id=base_id,
     )
     return compute_stock_overview(base_id)

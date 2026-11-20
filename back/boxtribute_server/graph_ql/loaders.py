@@ -720,7 +720,7 @@ class ShipmentDetailAutoMatchingLoader(DataLoader):
 
 class ResourcesForTagLoader(DataLoader):
     async def batch_load_fn(self, tag_ids):
-        authorize(permission="tag_relation:read")
+        authorize(permission="tags_relation:read")
 
         # Get all tag relations and resources for the requested tags
         relations = (
@@ -764,7 +764,7 @@ class ResourcesForTagLoader(DataLoader):
 
 class TagLastUsedOnLoader(DataLoader):
     async def batch_load_fn(self, tag_ids):
-        authorize(permission="tag_relation:read")
+        authorize(permission="tags_relation:read")
 
         relations = (
             TagsRelation.select(

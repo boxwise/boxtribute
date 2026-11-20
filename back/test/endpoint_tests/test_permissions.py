@@ -289,7 +289,7 @@ def test_invalid_permission_when_mutating_box(client, mutation):
 
 def test_invalid_permission_when_creating_box_with_tags(client, mocker):
     # Test case 8.2.11
-    # Verify missing tag_relation:assign permission
+    # Verify missing tags_relation:write permission
     mock_user_for_request(
         mocker, permissions=["location:read", "stock:write", "product:read"]
     )
@@ -349,7 +349,7 @@ def test_invalid_permission_for_qr_code_box(
             "qr:read",
             "stock:read",
             "tag:read",
-            "tag_relation:read",
+            "tags_relation:read",
             "beneficiary:read",
         ],
         base_ids=[1],
@@ -403,7 +403,7 @@ def test_invalid_permission_for_base_locations(client, mocker):
 
 def test_invalid_permission_for_tag_resources(client, mocker, tags):
     # Test case 4.1.7
-    # verify missing tag_relation:read permission
+    # verify missing tags_relation:read permission
     mock_user_for_request(mocker, permissions=["tag:read"])
     id = tags[0]["id"]
     query = f"query {{ tag(id: {id}) {{ taggedResources {{ ...on Box {{ id }} }} }} }}"
@@ -591,15 +591,15 @@ def test_invalid_permission_for_user_read(client, default_product, default_user)
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on InsufficientPermissionError { name } } } }",  # noqa
-            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
         ],
         # Test case 8.2.24e
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on InsufficientPermissionError { name } } } }",  # noqa
-            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
         ],
         # Test case 12.2.4
         [

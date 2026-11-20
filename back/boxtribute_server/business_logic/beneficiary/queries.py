@@ -34,7 +34,7 @@ def resolve_beneficiary_rows(*_, base_id, options=None):
     authorize(permission="base:read", base_id=base_id)
     authorize(permission="beneficiary:read", base_id=base_id)
     authorize(permission="tag:read", base_id=base_id)
-    authorize(permission="tag_relation:read")
+    authorize(permission="tags_relation:read")
     authorize(permission="transaction:read")
     return get_beneficiaries_page(base_id, **(options or {}))
 

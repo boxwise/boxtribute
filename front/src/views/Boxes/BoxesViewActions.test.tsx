@@ -138,32 +138,48 @@ const assignTagsMutation = ({
 const unassignTagsMutation = ({
   labelIdentifiers = ["123"],
   tagIds = [1],
+  filters,
   networkError = false,
   graphQlError = false,
+  insufficientPermissionError = false,
+}: {
+  labelIdentifiers?: string[];
+  tagIds?: number[];
+  filters?: { states: string[]; locationIds: number[] };
+  networkError?: boolean;
+  graphQlError?: boolean;
+  insufficientPermissionError?: boolean;
 }) => ({
   request: {
     query: UNASSIGN_TAGS_FROM_BOXES,
-    variables: { labelIdentifiers, tagIds },
+    variables: filters ? { filters, tagIds } : { labelIdentifiers, tagIds },
   },
   result: networkError
     ? undefined
     : {
-        data: graphQlError
-          ? null
-          : {
+        data: insufficientPermissionError
+          ? {
               unassignTagsFromBoxes: {
-                __typename: "BoxesTagsOperationResult",
-                updatedBoxes: labelIdentifiers.map((label) => ({
-                  __typename: "Box",
-                  labelIdentifier: label,
-                  lastModifiedOn: new Date().toISOString(),
-                  lastModifiedBy: { id: "2", name: "coordinator" },
-                  tags: [],
-                })),
-                invalidBoxLabelIdentifiers: [],
-                tagErrorInfo: [],
+                __typename: "InsufficientPermissionError",
+                name: "InsufficientPermissionError",
               },
-            },
+            }
+          : graphQlError
+            ? null
+            : {
+                unassignTagsFromBoxes: {
+                  __typename: "BoxesTagsOperationResult",
+                  updatedBoxes: labelIdentifiers.map((label) => ({
+                    __typename: "Box",
+                    labelIdentifier: label,
+                    lastModifiedOn: new Date().toISOString(),
+                    lastModifiedBy: { id: "2", name: "coordinator" },
+                    tags: [],
+                  })),
+                  invalidBoxLabelIdentifiers: [],
+                  tagErrorInfo: [],
+                },
+              },
         errors: graphQlError ? [new FakeGraphQLError()] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,
@@ -785,6 +801,70 @@ boxesViewActionsTests.forEach(
     );
   },
 );
+
+it("keeps select-all active when unassigning tags is denied", async () => {
+  const user = userEvent.setup();
+  const rowsOptions = firstRequestOptions({ states: ["InStock"] });
+  const row = toBoxRow(generateMockBox({ labelIdentifier: "123", state: "InStock", tags: [tag2] }));
+  const rowsMock = boxRowsMock({
+    baseId: 1,
+    options: rowsOptions,
+    rows: [row],
+    totalNumberOfBoxes: 150,
+  });
+  const refetchMock = boxRowsMock({
+    baseId: 1,
+    options: rowsOptions,
+    rows: [row],
+    totalNumberOfBoxes: 150,
+  });
+  const refetchResult = vi.fn(() => refetchMock.result);
+  const filters = { states: ["InStock"], locationIds: [Number(location1.id)] };
+
+  render(
+    <ErrorBoundary fallback={<AlertWithoutAction alertText="Could not fetch boxes data!" />}>
+      <Suspense fallback={<TableSkeleton />}>
+        <Boxes />
+      </Suspense>
+    </ErrorBoundary>,
+    {
+      routePath: "/bases/:baseId/boxes",
+      initialUrl: "/bases/1/boxes?state_ids=1",
+      addTypename: true,
+      mocks: [
+        rowsMock,
+        actionsQuery({ tags: [tag1, tag2] }),
+        unassignTagsMutation({
+          filters,
+          tagIds: [parseInt(tag2.id, 10)],
+          insufficientPermissionError: true,
+        }),
+        { ...refetchMock, result: refetchResult },
+      ],
+      cache,
+    },
+  );
+
+  await user.click(await screen.findByText("Select all 150 boxes", {}, { timeout: 15000 }));
+  await user.click(await screen.findByTestId("remove-tags-button", {}, { timeout: 10000 }));
+
+  const selectContainer = await screen.findByTestId("remove-tags-select-container");
+  const selectInput = within(selectContainer).getByRole("combobox");
+  await user.click(selectInput);
+  await user.click(await screen.findByLabelText(/remove test tag/i));
+  await user.click(await screen.findByTestId("apply-remove-tags-button"));
+
+  await waitFor(() =>
+    expect(mockedTriggerError).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringMatching(/permissions to unassign tags/i),
+      }),
+    ),
+  );
+  await waitFor(() =>
+    expect(screen.getByTestId("selected-boxes-counter")).toHaveTextContent("150 Boxes selected"),
+  );
+}, 40000);
 
 it("4.8.11 - Bulk mutation with active select-all sends the filters of the view", async () => {
   const user = userEvent.setup();
