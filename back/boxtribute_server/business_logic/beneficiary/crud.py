@@ -143,17 +143,12 @@ def create_beneficiary(
     with db.database.atomic():
         new_beneficiary = Beneficiary.create(**data)
 
-        if language_ids := languages:
+        if languages:
             XBeneficiaryLanguage.insert_many(
-                [
-                    {"language": i, "beneficiary": new_beneficiary.id}
-                    for i in language_ids
-                ]
+                [{"language": i, "beneficiary": new_beneficiary.id} for i in languages]
             ).execute()
 
         if tag_ids:
-            # Don't use assign_tag() because it requires an existing Beneficiary object,
-            # however the Beneficiary creation has not yet been committed to the DB
             tags_relations = [
                 {
                     "object_id": new_beneficiary.id,
@@ -214,9 +209,9 @@ def update_beneficiary(
     now,
     **data,
 ):
-    """Look up an existing Beneficiary given an ID, and update all requested fields,
-    including the language and tag cross-references. The family head is only updated if
-    specified (None turns the beneficiary into an individual).
+    """Update fields of existing beneficiary, including the language and tag
+    cross-references. The family head is only updated if specified (None turns the
+    beneficiary into an individual).
     When a beneficiary that has not been part of a family joins one, their credit is
     transferred to the new family head.
     The caller must ensure that the update is valid.

@@ -46,6 +46,12 @@ mutation = MutationType()
 @handle_unauthorized
 def resolve_create_beneficiary(*_, creation_input):
     base_id = creation_input["base_id"]
+    # Authorize first before disclosing any non-existent resources
+    authorize(permission="beneficiary:create", base_id=base_id)
+    authorize(permission="tag:read", base_id=base_id)
+    authorize(permission="tags_relation:write")
+    if Base.get_or_none(Base.id == base_id) is None:
+        return ResourceDoesNotExist(name="Base", id=base_id)
 
     # Check existence
     family_head, tags, error = fetch_family_head_and_tags(
@@ -53,13 +59,6 @@ def resolve_create_beneficiary(*_, creation_input):
     )
     if error is not None:
         return error
-
-    # Authorize
-    authorize(permission="beneficiary:create", base_id=base_id)
-    authorize(permission="tag:read", base_id=base_id)
-    authorize(permission="tags_relation:write")
-    if Base.get_or_none(Base.id == base_id) is None:
-        return ResourceDoesNotExist(name="Base", id=base_id)
 
     # Validate
     data = strip_text_fields(creation_input)
@@ -93,16 +92,17 @@ def resolve_update_beneficiary(*_, update_input):
     beneficiary = Beneficiary.get_or_none(Beneficiary.id == beneficiary_id)
     if beneficiary is None:
         return ResourceDoesNotExist(name="Beneficiary", id=beneficiary_id)
+
+    # Authorize as early as possible before disclosing any non-existent resources
+    authorize(permission="beneficiary:edit", base_id=beneficiary.base_id)
+    authorize(permission="tag:read", base_id=beneficiary.base_id)
+    authorize(permission="tags_relation:write")
+
     family_head, tags, error = fetch_family_head_and_tags(
         update_input.get("family_head_id"), update_input.get("tag_ids")
     )
     if error is not None:
         return error
-
-    # Authorize
-    authorize(permission="beneficiary:edit", base_id=beneficiary.base_id)
-    authorize(permission="tag:read", base_id=beneficiary.base_id)
-    authorize(permission="tags_relation:write")
 
     # Validate
     data = strip_text_fields(update_input)
