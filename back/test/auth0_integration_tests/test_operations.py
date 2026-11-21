@@ -168,14 +168,14 @@ def test_mutations(auth0_client_with_rollback, mocker):
                     gender: Female,
                     isVolunteer: false,
                     registered: false
-                }) { id firstName } }"""
+                }) { ...on Beneficiary { id firstName } } }"""
     response = assert_successful_request(auth0_client, mutation)
     beneficiary_id = response.pop("id")
     assert response == {"firstName": "Any"}
 
     mutation = f"""mutation {{ updateBeneficiary(updateInput: {{
                     id: {beneficiary_id}, firstName: "Some"
-                    }}) {{ firstName }} }}"""
+                    }}) {{ ...on Beneficiary {{ firstName }} }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"firstName": "Some"}
 
