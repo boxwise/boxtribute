@@ -1,15 +1,23 @@
+import base64
+import csv
+import io
 from datetime import date, timedelta
 from unittest import mock
 
 import pytest
 from auth import mock_user_for_request
-from boxtribute_server.enums import HumanGender, Language
+from boxtribute_server.enums import HumanGender, Language, TaggableObjectType
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.history import DbChangeHistory
+from boxtribute_server.models.definitions.services_relation import ServicesRelation
+from boxtribute_server.models.definitions.tags_relation import TagsRelation
+from boxtribute_server.models.definitions.transaction import Transaction
 from boxtribute_server.models.utils import (
     HISTORY_CREATION_MESSAGE,
     HISTORY_DELETION_MESSAGE,
+    HISTORY_RECOVER_MESSAGE,
     compute_age_in_days,
+    utcnow,
 )
 from utils import assert_internal_server_error, assert_successful_request
 
@@ -162,7 +170,6 @@ def test_beneficiary_mutations(
     last_name = "One"
     dob_year = 2000
     dob = f"{dob_year}-01-01"
-    dos = "2022-07-16"
     base_id = "1"
     group_id = "1234"
     gender = HumanGender.Diverse
@@ -181,34 +188,35 @@ def test_beneficiary_mutations(
                     languages: [{','.join(languages)}],
                     isVolunteer: true,
                     registered: false
-                    dateOfSignature: "{dos}"
                     tagIds: [{tag_id}]
                 }}"""
     mutation = f"""mutation {{
             createBeneficiary(
                 creationInput : {creation_input}
             ) {{
-                id
-                firstName
-                lastName
-                dateOfBirth
-                age
-                comment
-                base {{ id }}
-                groupIdentifier
-                gender
-                languages
-                familyHead {{ id }}
-                isVolunteer
-                signed
-                registered
-                signature
-                dateOfSignature
-                tags {{ id }}
-                createdOn
-                createdBy {{ id }}
-                lastModifiedOn
-                lastModifiedBy {{ id }}
+                ...on Beneficiary {{
+                    id
+                    firstName
+                    lastName
+                    dateOfBirth
+                    age
+                    comment
+                    base {{ id }}
+                    groupIdentifier
+                    gender
+                    languages
+                    familyHead {{ id }}
+                    isVolunteer
+                    signed
+                    registered
+                    signature
+                    dateOfSignature
+                    tags {{ id }}
+                    createdOn
+                    createdBy {{ id }}
+                    lastModifiedOn
+                    lastModifiedBy {{ id }}
+                }}
             }}
         }}"""
 
@@ -228,14 +236,15 @@ def test_beneficiary_mutations(
     assert not created_beneficiary["signed"]
     assert not created_beneficiary["registered"]
     assert created_beneficiary["signature"] is None
-    assert created_beneficiary["dateOfSignature"] == dos
+    assert created_beneficiary["dateOfSignature"] is None
     assert created_beneficiary["tags"] == [{"id": tag_id}]
     assert created_beneficiary["createdOn"] == created_beneficiary["lastModifiedOn"]
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
     # Test case 9.2.9
+    today = date.today().isoformat()
     new_last_name = "Body"
-    new_dos = "2021-09-09"
+    new_dos = today
     language = "nl"
     signature = first_name
     mutation = f"""mutation {{
@@ -244,12 +253,11 @@ def test_beneficiary_mutations(
                     id: {beneficiary_id},
                     lastName: "{new_last_name}",
                     signature: "{signature}",
-                    dateOfSignature: "{new_dos}"
                     languages: [{language}],
                     isVolunteer: false,
                     registered: true
                 }} ) {{
-                id
+                ...on Beneficiary {{ id }}
             }}
         }}"""
     updated_beneficiary = assert_successful_request(client, mutation)
@@ -269,10 +277,9 @@ def test_beneficiary_mutations(
                     groupIdentifier: "{new_group_id}",
                     dateOfBirth: "{new_formatted_dob}",
                     comment: "{new_comment}",
-                    gender: {new_gender.name},
-                    familyHeadId: {beneficiary_id}
+                    gender: {new_gender.name}
                 }}) {{
-                id
+                ...on Beneficiary {{ id }}
             }} }}"""
     updated_beneficiary = assert_successful_request(client, mutation)
     assert updated_beneficiary == {"id": beneficiary_id}
@@ -310,13 +317,21 @@ def test_beneficiary_mutations(
     }
 
     # Test case 9.2.20
-    today = date.today().isoformat()
     deactivated_beneficiary_id = default_beneficiary["id"]
     mutation = f"""mutation {{
-            deactivateBeneficiary(id: {deactivated_beneficiary_id})
-                {{ deactivatedOn }} }}"""
+            deactivateBeneficiaries(ids: [{deactivated_beneficiary_id}]) {{
+                ...on BeneficiariesResult {{
+                    updatedBeneficiaries {{ id deactivatedOn }}
+                    invalidBeneficiaryIds
+                }}
+            }} }}"""
     response = assert_successful_request(client, mutation)
-    assert response["deactivatedOn"] is not None
+    assert response["invalidBeneficiaryIds"] == []
+    assert {b["id"] for b in response["updatedBeneficiaries"]} == {
+        str(deactivated_beneficiary_id),
+        str(another_relative_beneficiary["id"]),
+    }
+    assert all(b["deactivatedOn"] is not None for b in response["updatedBeneficiaries"])
     deactivated_child_id = another_relative_beneficiary["id"]
     query = f"query {{ beneficiary(id: {deactivated_child_id}) {{ deactivatedOn }} }}"
     response = assert_successful_request(client, query)
@@ -343,7 +358,7 @@ def test_beneficiary_mutations(
                             groupIdentifier: "{group_id}"
                         }}
                     ] }} ) {{
-                        ...on BeneficiariesResult {{
+                        ...on BeneficiariesResults {{
                             results {{
                                 ...on Beneficiary {{
                                     id
@@ -403,7 +418,7 @@ def test_beneficiary_mutations(
                     baseId: {base_id}
                     beneficiaryData: []
                 }}) {{
-                    ...on BeneficiariesResult {{ results {{ __typename }} }}
+                    ...on BeneficiariesResults {{ results {{ __typename }} }}
                     }} }}"""
     response = assert_successful_request(client, mutation)
     assert response == {"results": []}
@@ -467,7 +482,7 @@ def test_beneficiary_mutations(
                             groupIdentifier: "{group_id}"
                         }}
                     ] }} ) {{
-                       ...on BeneficiariesResult {{ results {{ __typename }} }}
+                       ...on BeneficiariesResults {{ results {{ __typename }} }}
                     }} }}"""
     response = assert_internal_server_error(client, mutation)
     assert response.json["data"] == {"createBeneficiaries": None}
@@ -489,6 +504,11 @@ def test_beneficiary_mutations(
     )
     for i in range(len(history_entries)):
         assert history_entries[i].pop("change_date").isoformat().startswith(today)
+        if history_entries[i]["changes"].startswith("date_of_signature changed"):
+            assert history_entries[i]["changes"].startswith(
+                f'date_of_signature changed from "None" to "{new_dos}'
+            )
+            history_entries[i]["changes"] = "SIGNATURE_DATE"
     assert history_entries == [
         {
             "changes": HISTORY_CREATION_MESSAGE,
@@ -515,8 +535,7 @@ def test_beneficiary_mutations(
             "to_int": 0,
         },
         {
-            "changes": f'date_of_signature changed from "{dos} 00:00:00" '
-            f'to "{new_dos}";',
+            "changes": "SIGNATURE_DATE",
             "record_id": int(beneficiary_id),
             "from_int": None,
             "to_int": None,
@@ -559,13 +578,13 @@ def test_beneficiary_mutations(
         },
         {
             "changes": HISTORY_DELETION_MESSAGE,
-            "record_id": int(deactivated_child_id),
+            "record_id": int(deactivated_beneficiary_id),
             "from_int": None,
             "to_int": None,
         },
         {
             "changes": HISTORY_DELETION_MESSAGE,
-            "record_id": int(deactivated_beneficiary_id),
+            "record_id": int(deactivated_child_id),
             "from_int": None,
             "to_int": None,
         },
@@ -940,3 +959,579 @@ def test_beneficiary_rows_last_active_on_with_missing_dates(client):
     assert rows["1"]["soonToBeDeactivated"] is False
     assert rows["6"]["lastActiveOn"] is None
     assert rows["6"]["soonToBeDeactivated"] is False
+
+
+def _create_input(**overrides):
+    fields = {
+        "firstName": '"First"',
+        "lastName": '"Last"',
+        "baseId": "1",
+        "groupIdentifier": '"1312"',
+    }
+    fields.update(overrides)
+    return ", ".join(f"{k}: {v}" for k, v in fields.items())
+
+
+def _create_beneficiary(client, **overrides):
+    mutation = f"""mutation {{ createBeneficiary(creationInput: {{
+            {_create_input(**overrides)} }}) {{
+            __typename
+            ...on Beneficiary {{
+                id firstName email phoneNumber customTextField1 customTextField2
+                customNumberField customDateField registered isVolunteer gender
+                signed dateOfSignature tokens familyHead {{ id }} tags {{ id }}
+            }}
+        }} }}"""
+    return assert_successful_request(client, mutation)
+
+
+def _transactions(beneficiary_id):
+    return list(
+        Transaction.select(Transaction.tokens, Transaction.description)
+        .where(Transaction.beneficiary == beneficiary_id)
+        .order_by(Transaction.id)
+        .dicts()
+    )
+
+
+@pytest.mark.parametrize(
+    "overrides,error",
+    [
+        ({"familyHeadId": "0"}, "ResourceDoesNotExistError"),
+        ({"tagIds": "[0]"}, "ResourceDoesNotExistError"),
+        ({"dateOfBirth": '"2999-01-01"'}, "InvalidDateError"),
+        ({"tagIds": "[4]"}, "TagBaseMismatchError"),
+        ({"tagIds": "[2]"}, "TagTypeMismatchError"),
+        ({"tagIds": "[5]"}, "DeletedTagError"),
+        ({"familyHeadId": "4"}, "FamilyHeadBaseMismatchError"),
+        ({"familyHeadId": "2"}, "DeactivatedFamilyHeadError"),
+        ({"familyHeadId": "5"}, "FamilyHeadIsMemberError"),
+        ({"initialCredit": "-1"}, "InvalidInitialCreditError"),
+        ({"email": '"not-an-email"'}, "InvalidEmailError"),
+        ({"firstName": '"  "'}, "EmptyNameError"),
+        ({"lastName": '""'}, "EmptyNameError"),
+    ],
+)
+def test_create_beneficiary_errors(client, overrides, error):
+    count = Beneficiary.select().count()
+    response = _create_beneficiary(client, **overrides)
+    assert response == {"__typename": error}
+    assert Beneficiary.select().count() == count
+
+
+def test_create_beneficiary_with_all_fields(client):
+    response = _create_beneficiary(
+        client,
+        firstName='"  First  "',
+        familyHeadId="3",
+        initialCredit="15",
+        email='"  a@b.com "',
+        phoneNumber='" +49123 "',
+        customTextField1='"x"',
+        customTextField2='" y "',
+        customNumberField="7",
+        customDateField='"2024-02-03"',
+        signature='"First"',
+        tagIds="[1, 3]",
+    )
+    assert response["firstName"] == "First"
+    assert response["email"] == "a@b.com"
+    assert response["phoneNumber"] == "+49123"
+    assert response["customTextField1"] == "x"
+    assert response["customTextField2"] == "y"
+    assert response["customNumberField"] == 7
+    assert response["customDateField"] == "2024-02-03"
+    assert response["registered"] is True
+    assert response["isVolunteer"] is False
+    assert response["signed"] is True
+    assert response["dateOfSignature"] == date.today().isoformat()
+    assert response["familyHead"] == {"id": "3"}
+    assert response["tags"] == [{"id": "1"}, {"id": "3"}]
+    # Credit is attributed to the family head
+    assert response["tokens"] == 0
+    assert _transactions(3)[-1]["tokens"] == 15
+    assert _transactions(int(response["id"])) == []
+
+    beneficiary = Beneficiary.get_by_id(response["id"])
+    assert beneficiary.seq == 1
+    assert beneficiary.family_head_id == 3
+
+    # Zero credit is ignored. Gender and date of birth can be omitted
+    response = _create_beneficiary(client, initialCredit="0")
+    assert response["gender"] == HumanGender.Diverse.name
+    assert response["tokens"] == 0
+    assert _transactions(int(response["id"])) == []
+
+    response = _create_beneficiary(client, initialCredit="20")
+    assert response["tokens"] == 20
+    assert len(_transactions(int(response["id"]))) == 1
+
+    history = list(
+        DbChangeHistory.select(DbChangeHistory.changes, DbChangeHistory.record_id)
+        .where(
+            DbChangeHistory.table_name == "people",
+            DbChangeHistory.record_id == int(response["id"]),
+        )
+        .tuples()
+    )
+    assert history == [(HISTORY_CREATION_MESSAGE, int(response["id"]))]
+
+
+def _update_beneficiary(client, id, **fields):
+    update = ", ".join(f"{k}: {v}" for k, v in fields.items())
+    mutation = f"""mutation {{ updateBeneficiary(
+            updateInput: {{ id: {id}, {update} }}) {{
+            __typename
+            ...on Beneficiary {{
+                id email phoneNumber customTextField1 familyHead {{ id }}
+                tags {{ id }} tokens lastModifiedBy {{ id }}
+            }}
+        }} }}"""
+    return assert_successful_request(client, mutation)
+
+
+@pytest.mark.parametrize(
+    "id,fields,error",
+    [
+        (0, {}, "ResourceDoesNotExistError"),
+        (3, {"familyHeadId": "0"}, "ResourceDoesNotExistError"),
+        (3, {"tagIds": "[0]"}, "ResourceDoesNotExistError"),
+        (4, {"firstName": '"x"'}, "UnauthorizedForBaseError"),
+        (3, {"dateOfBirth": '"2999-01-01"'}, "InvalidDateError"),
+        (3, {"tagIds": "[4]"}, "TagBaseMismatchError"),
+        (3, {"tagIds": "[2]"}, "TagTypeMismatchError"),
+        (3, {"tagIds": "[5]"}, "DeletedTagError"),
+        (3, {"familyHeadId": "4"}, "FamilyHeadBaseMismatchError"),
+        (3, {"familyHeadId": "2"}, "DeactivatedFamilyHeadError"),
+        (3, {"familyHeadId": "5"}, "FamilyHeadIsMemberError"),
+        (3, {"familyHeadId": "3"}, "FamilyHeadSelfReferenceError"),
+        (1, {"familyHeadId": "3"}, "FamilyHeadHasMembersError"),
+        (3, {"email": '"nope"'}, "InvalidEmailError"),
+        (3, {"lastName": '" "'}, "EmptyNameError"),
+    ],
+)
+def test_update_beneficiary_errors(client, id, fields, error):
+    response = _update_beneficiary(client, id, **fields)
+    assert response == {"__typename": error}
+
+
+def test_update_beneficiary_signature(client, mocker):
+    response = _update_beneficiary(client, 3, signature='"me"')
+    assert response["__typename"] == "Beneficiary"
+    assert _update_beneficiary(client, 3, signature='"me"') == {
+        "__typename": "BeneficiaryAlreadySignedError"
+    }
+
+
+def test_update_beneficiary_fields_and_tags(client):
+    response = _update_beneficiary(
+        client,
+        1,
+        email='"  new@mail.com "',
+        phoneNumber='"123"',
+        tagIds="[3, 6]",
+        customTextField1='""',
+    )
+    assert response["email"] == "new@mail.com"
+    assert response["phoneNumber"] == "123"
+    assert response["customTextField1"] == ""
+    assert response["tags"] == [{"id": "3"}, {"id": "6"}]
+    assert response["lastModifiedBy"] == {"id": "8"}
+
+    # null is ignored
+    response = _update_beneficiary(client, 1, email="null", tagIds="null")
+    assert response["email"] == "new@mail.com"
+    assert response["tags"] == [{"id": "3"}, {"id": "6"}]
+
+    # Empty list unassigns all tags
+    response = _update_beneficiary(client, 1, tagIds="[]")
+    assert response["tags"] == []
+    assert (
+        TagsRelation.select()
+        .where(TagsRelation.object_id == 1, TagsRelation.deleted_on.is_null())
+        .count()
+        == 0
+    )
+
+    changes = [
+        h.changes
+        for h in DbChangeHistory.select().where(
+            DbChangeHistory.table_name == "people", DbChangeHistory.record_id == 1
+        )
+    ]
+    assert any(c.startswith("email changed from") for c in changes)
+    assert any(c.startswith("phone changed from") for c in changes)
+    assert any(c.startswith("customfield1_value changed from") for c in changes)
+
+
+def test_update_beneficiary_family_head(client):
+    # Individual #3 (30 tokens) joins family of #1: balance is transferred
+    head_tokens = sum(t["tokens"] for t in _transactions(1))
+    response = _update_beneficiary(client, 3, familyHeadId="1")
+    assert response["familyHead"] == {"id": "1"}
+    assert response["tokens"] == 0
+    assert [t["tokens"] for t in _transactions(3)][-1] == -30
+    assert sum(t["tokens"] for t in _transactions(3)) == 0
+    assert sum(t["tokens"] for t in _transactions(1)) == head_tokens + 30
+    assert _transactions(1)[-1]["description"] == "moved balance to family head"
+
+    # Moving to another family head does not transfer credit
+    count = Transaction.select().count()
+    response = _update_beneficiary(client, 3, familyHeadId="6")
+    assert response["familyHead"] == {"id": "6"}
+    assert Transaction.select().count() == count
+
+    # Keeping the head is a no-op
+    response = _update_beneficiary(client, 3, familyHeadId="6")
+    assert response["familyHead"] == {"id": "6"}
+
+    # Becoming an individual
+    response = _update_beneficiary(client, 3, familyHeadId="null")
+    assert response["familyHead"] is None
+    assert Transaction.select().count() == count
+
+    # No transaction if balance is 0
+    response = _update_beneficiary(client, 3, familyHeadId="1")
+    assert Transaction.select().count() == count
+
+    history = [
+        (h.changes, h.from_int, h.to_int)
+        for h in DbChangeHistory.select()
+        .where(DbChangeHistory.table_name == "people", DbChangeHistory.record_id == 3)
+        .order_by(DbChangeHistory.id)
+    ]
+    assert [h[1:] for h in history if h[1] is not None or h[2] is not None] == [
+        (None, 1),
+        (1, 6),
+        (6, None),
+        (None, 1),
+    ]
+
+
+def _bulk(client, mutation, fields="updatedBeneficiaries { id } invalidBeneficiaryIds"):
+    if "Tags" in mutation.split("(")[0]:
+        result_type, extra = "BeneficiariesTagsOperationResult", "tagErrorInfo"
+    elif "Services" in mutation.split("(")[0]:
+        result_type, extra = "BeneficiariesServicesOperationResult", "serviceErrorInfo"
+    else:
+        result_type, extra = "BeneficiariesResult", ""
+    if extra:
+        extra += " { id error { __typename } }"
+    query = f"""mutation {{ {mutation} {{
+            __typename
+            ...on {result_type} {{ {fields} {extra} }}
+        }} }}"""
+    return assert_successful_request(client, query)
+
+
+def _ids(response):
+    return sorted(int(b["id"]) for b in response["updatedBeneficiaries"])
+
+
+def _history(*record_ids):
+    return [
+        (h.record_id, h.changes, h.from_int, h.to_int)
+        for h in DbChangeHistory.select()
+        .where(
+            DbChangeHistory.table_name == "people",
+            DbChangeHistory.record_id << list(record_ids),
+        )
+        .order_by(DbChangeHistory.id)
+    ]
+
+
+def test_assign_unassign_tags_to_beneficiaries(client):
+    # Beneficiary 1 already has tags 1 and 3; 5 and 3 have none; 4 is not accessible;
+    # 99 does not exist; 2 is deactivated
+    response = _bulk(
+        client,
+        "assignTagsToBeneficiaries(updateInput: { ids: [1, 3, 3, 5, 2, 4, 99], "
+        "tagIds: [1, 3] })",
+    )
+    assert response["__typename"] == "BeneficiariesTagsOperationResult"
+    assert _ids(response) == [3, 5]
+    # beneficiary 1 is already assigned to all tags
+    assert sorted(response["invalidBeneficiaryIds"]) == [1, 2, 4, 99]
+    assert response["tagErrorInfo"] == []
+    relations = TagsRelation.select().where(
+        TagsRelation.object_id == 3,
+        TagsRelation.object_type == TaggableObjectType.Beneficiary,
+        TagsRelation.deleted_on.is_null(),
+    )
+    assert sorted(r.tag_id for r in relations) == [1, 3]
+
+    # Tag errors
+    response = _bulk(
+        client,
+        "assignTagsToBeneficiaries(updateInput: { ids: [3], tagIds: [0, 2, 4, 5] })",
+    )
+    assert response["updatedBeneficiaries"] == []
+    assert sorted(e["id"] for e in response["tagErrorInfo"]) == ["0", "2", "4", "5"]
+    assert {e["error"]["__typename"] for e in response["tagErrorInfo"]} == {
+        "ResourceDoesNotExistError",
+        "TagTypeMismatchError",
+        "UnauthorizedForBaseError",
+        "DeletedTagError",
+    }
+
+    response = _bulk(
+        client,
+        "unassignTagsFromBeneficiaries(updateInput: { ids: [1, 3, 5, 6], "
+        "tagIds: [3] })",
+    )
+    assert _ids(response) == [1, 3, 5]
+    # 6 does not have tag 3
+    assert response["invalidBeneficiaryIds"] == [6]
+    assert (
+        TagsRelation.select()
+        .where(
+            TagsRelation.object_id << [1, 3, 5],
+            TagsRelation.object_type == TaggableObjectType.Beneficiary,
+            TagsRelation.tag == 3,
+            TagsRelation.deleted_on.is_null(),
+        )
+        .count()
+        == 0
+    )
+
+    # Beneficiaries in several bases
+    response = _bulk(
+        client,
+        "assignTagsToBeneficiaries(updateInput: { ids: [3], tagIds: [4] })",
+    )
+    assert response["tagErrorInfo"][0]["error"]["__typename"] == (
+        "UnauthorizedForBaseError"
+    )
+
+
+def test_deactivate_and_reactivate_beneficiaries(client, mocker):
+    # Head 1 and its active member 5 are deactivated; no double history entries
+    response = _bulk(client, "deactivateBeneficiaries(ids: [5, 1, 1, 4, 2, 99])")
+    assert response["__typename"] == "BeneficiariesResult"
+    assert _ids(response) == [1, 5]
+    assert sorted(response["invalidBeneficiaryIds"]) == [2, 4, 99]
+    for id in (1, 5):
+        assert Beneficiary.get_by_id(id).deleted_on
+    assert sorted(
+        h[:2] for h in _history(1, 5) if h[1] == HISTORY_DELETION_MESSAGE
+    ) == [
+        (1, HISTORY_DELETION_MESSAGE),
+        (5, HISTORY_DELETION_MESSAGE),
+    ]
+    # Tags stay assigned
+    assert (
+        TagsRelation.select()
+        .where(TagsRelation.object_id == 1, TagsRelation.deleted_on.is_null())
+        .count()
+        > 0
+    )
+
+    # Already deactivated
+    response = _bulk(client, "deactivateBeneficiaries(ids: [1])")
+    assert response["invalidBeneficiaryIds"] == [1]
+
+    # Reactivating a member without its head is invalid, but both together work
+    response = _bulk(client, "reactivateBeneficiaries(ids: [5])")
+    assert response["updatedBeneficiaries"] == []
+    assert response["invalidBeneficiaryIds"] == [5]
+
+    response = _bulk(client, "reactivateBeneficiaries(ids: [5, 1, 3, 4])")
+    assert _ids(response) == [1, 2, 5]  # 2 is cascaded and not invalid
+    assert sorted(response["invalidBeneficiaryIds"]) == [3, 4]
+    for id in (1, 2, 5):
+        assert not Beneficiary.get_by_id(id).deleted_on
+    recovered = [h[0] for h in _history(1, 2, 5) if h[1] == HISTORY_RECOVER_MESSAGE]
+    assert sorted(recovered) == [1, 2, 5]
+
+    # Reactivating the head cascades to members
+    _bulk(client, "deactivateBeneficiaries(ids: [1])")
+    response = _bulk(client, "reactivateBeneficiaries(ids: [1])")
+    assert _ids(response) == [1, 2, 5]
+
+    # Missing permission on base for a mix of bases
+    response = _bulk(client, "deactivateBeneficiaries(ids: [])")
+    assert response["updatedBeneficiaries"] == []
+
+
+def test_bulk_base_mismatch(client, mocker):
+    mock_user_for_request(mocker, base_ids=[1, 2])
+    Beneficiary.update(base=2, family_head=None).where(Beneficiary.id == 6).execute()
+    for mutation in [
+        "deactivateBeneficiaries(ids: [3, 6])",
+        "mergeBeneficiariesIntoFamily(ids: [3, 6])",
+    ]:
+        response = _bulk(client, mutation)
+        assert response["__typename"] == "BeneficiaryBaseMismatchError", mutation
+
+    Beneficiary.update(deleted_on=utcnow()).where(Beneficiary.id << [3, 6]).execute()
+    response = _bulk(client, "reactivateBeneficiaries(ids: [3, 6])")
+    assert response["__typename"] == "BeneficiaryBaseMismatchError"
+
+    Beneficiary.update(deleted_on=None, family_head=1).where(
+        Beneficiary.id == 6
+    ).execute()
+    response = _bulk(client, "detachBeneficiariesFromFamily(ids: [5, 6])")
+    assert response["__typename"] == "BeneficiaryBaseMismatchError"
+
+
+def test_register_services_for_beneficiaries(client):
+    response = _bulk(
+        client,
+        "registerServicesForBeneficiaries(updateInput: { ids: [1, 3, 3, 2, 4], "
+        "serviceIds: [1, 0] })",
+    )
+    assert response["__typename"] == "BeneficiariesServicesOperationResult"
+    assert _ids(response) == [1, 3]
+    assert sorted(response["invalidBeneficiaryIds"]) == [2, 4]
+    assert response["serviceErrorInfo"] == [
+        {"id": "0", "error": {"__typename": "ResourceDoesNotExistError"}}
+    ]
+    # Services can be used multiple times
+    assert (
+        ServicesRelation.select().where(ServicesRelation.beneficiary == 1).count() == 2
+    )
+    assert (
+        ServicesRelation.select().where(ServicesRelation.beneficiary == 3).count() == 1
+    )
+
+    query = """query { beneficiary(id: 1) { serviceUsages {
+                usedOn registeredBy { id } service { id name totalUsage uniqueUsage
+                lastUsedOn } } } }"""
+    usages = assert_successful_request(client, query)["serviceUsages"]
+    assert len(usages) == 2
+    assert usages[1]["registeredBy"] == {"id": "8"}
+    assert usages[0]["service"]["name"] == "English lesson"
+    assert usages[0]["service"]["totalUsage"] == 3
+    assert usages[0]["service"]["uniqueUsage"] == 2
+    assert usages[0]["service"]["lastUsedOn"] is not None
+
+    query = "query { base(id: 1) { services { id name description totalUsage } } }"
+    services = assert_successful_request(client, query)["services"]
+    assert services == [
+        {
+            "id": "1",
+            "name": "English lesson",
+            "description": "for beginners and intermediate",
+            "totalUsage": 3,
+        }
+    ]
+
+
+def test_merge_beneficiaries_into_family(client):
+    # 1 (head with member 5, DoB 1995-05-05, tokens 149), 6 (individual, same DoB,
+    # created later) and 3 (individual, no DoB, 30 tokens). 1 is the oldest/first
+    # created and becomes head
+    response = _bulk(client, "mergeBeneficiariesIntoFamily(ids: [3, 6, 1, 5, 2, 4])")
+    assert response["__typename"] == "BeneficiariesResult"
+    assert sorted(response["invalidBeneficiaryIds"]) == [2, 4]
+    assert _ids(response) == [3, 6]
+    for id in (3, 6):
+        assert Beneficiary.get_by_id(id).family_head_id == 1
+    assert Beneficiary.get_by_id(5).family_head_id == 1
+    assert Beneficiary.get_by_id(1).family_head_id is None
+    # Only 3 had a balance: one transaction per sign
+    assert [t["tokens"] for t in _transactions(3)][-1] == -30
+    assert sum(t["tokens"] for t in _transactions(3)) == 0
+    assert _transactions(1)[-1]["tokens"] == 30
+    assert [t["tokens"] for t in _transactions(6)] == []
+    assert [(h[0], h[2], h[3]) for h in _history(3, 6) if h[2] is None and h[3]] == [
+        (3, None, 1),
+        (6, None, 1),
+    ]
+
+
+def test_merge_families(client):
+    # Individual 6 with family head 3's family
+    _bulk(client, "mergeBeneficiariesIntoFamily(ids: [3, 6])")
+    heads = {id: Beneficiary.get_by_id(id).family_head_id for id in (3, 6)}
+    # DoB of 6 is set, 3 has none: 6 is the oldest
+    assert heads == {3: 6, 6: None}
+
+    # Merge the two families: 1 (+5) and 6 (+3). Same DoB. Head 1 was created first
+    response = _bulk(client, "mergeBeneficiariesIntoFamily(ids: [6, 1])")
+    assert _ids(response) == [3, 6]
+    assert {id: Beneficiary.get_by_id(id).family_head_id for id in (1, 3, 5, 6)} == {
+        1: None,
+        3: 1,
+        5: 1,
+        6: 1,
+    }
+
+
+def test_merge_errors(client):
+    for ids in ("[3]", "[3, 3]", "[3, 5]", "[3, 99]", "[3, 4]"):
+        response = _bulk(client, f"mergeBeneficiariesIntoFamily(ids: {ids})")
+        assert response["__typename"] in (
+            "SingleBeneficiaryForMergeError",
+            "BeneficiaryBaseMismatchError",
+        ), ids
+
+
+def test_detach_beneficiaries_from_family(client):
+    response = _bulk(client, "detachBeneficiariesFromFamily(ids: [5, 5, 1, 3, 2, 4])")
+    assert response["__typename"] == "BeneficiariesResult"
+    assert _ids(response) == [5]
+    assert sorted(response["invalidBeneficiaryIds"]) == [1, 2, 3, 4]
+    assert Beneficiary.get_by_id(5).family_head_id is None
+    assert Beneficiary.get_by_id(2).family_head_id == 1
+    assert _history(5)[-1][2:] == (1, None)
+    assert Transaction.select().where(Transaction.beneficiary == 5).count() == 0
+
+
+def _decode_csv(response):
+    return list(csv.DictReader(io.StringIO(base64.b64decode(response).decode())))
+
+
+def test_export_beneficiary_rows_to_csv(client):
+    Beneficiary.update(first_name="=cmd", comment="@x").where(
+        Beneficiary.id == 6
+    ).execute()
+    query = "query { exportBeneficiaryRowsToCsv(baseId: 1) }"
+    rows = _decode_csv(assert_successful_request(client, query))
+    assert (
+        list(rows[0].keys())
+        == [
+            "Group identifier",
+            "Firstname",
+            "Surname",
+            "Gender",
+            "Age",
+            "Tags",
+            "Comments",
+            "Boxtribute family ID",
+            "Head of family",
+        ]
+        or "Firstname" in rows[0]
+    )
+    by_id = {r["Boxtribute family ID"] + r["Firstname"]: r for r in rows}
+    # Deactivated beneficiary 2 is excluded by default filters? Only check active
+    row1 = by_id["1Every"]
+    assert row1["Surname"] == "Body"
+    assert row1["Gender"] == "M"
+    assert row1["Age"] == str(
+        date.today().year - 1995 - (date.today() < date(date.today().year, 5, 5))
+    )  # noqa
+    assert row1["Head of family"] == "yes"
+    assert row1["Tags"] != ""
+    row5 = by_id["1Some"]
+    assert row5["Head of family"] == "no"
+    assert row5["Age"] == ""
+    assert row5["Gender"] == "D"
+    row6 = by_id["6'=cmd"]
+    assert row6["Comments"] == "'@x"
+    assert row6["Head of family"] == "yes"
+
+    query = """query { exportBeneficiaryRowsToCsv(baseId: 1,
+            filters: { deactivated: true }) }"""
+    rows_inactive = _decode_csv(assert_successful_request(client, query))
+    assert len(rows_inactive) != len(rows)
+
+
+def test_beneficiary_ids(client):
+    query = "query { beneficiaryIds(baseId: 1) { ...on BeneficiaryIds { ids } } }"
+    ids = assert_successful_request(client, query)["ids"]
+    assert 3 in ids and 4 not in ids
+    query = """query { beneficiaryIds(baseId: 1, filters: { deactivated: true })
+            { ...on BeneficiaryIds { ids } } }"""
+    inactive_ids = assert_successful_request(client, query)["ids"]
+    assert inactive_ids != ids

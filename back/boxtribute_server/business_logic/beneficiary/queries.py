@@ -1,10 +1,14 @@
 from ariadne import ObjectType, QueryType
 
-from ...authz import authorize, authorized_bases_filter
+from ...authz import authorize, authorized_bases_filter, handle_unauthorized
 from ...graph_ql.filtering import derive_beneficiary_filter
 from ...graph_ql.pagination import load_into_page
 from ...models.definitions.beneficiary import Beneficiary
-from .crud import get_beneficiaries_page
+from .crud import (
+    export_beneficiary_rows_to_csv,
+    get_beneficiaries_page,
+    get_beneficiary_ids,
+)
 
 query = QueryType()
 beneficiary_row = ObjectType("BeneficiaryRow")
@@ -37,6 +41,21 @@ def resolve_beneficiary_rows(*_, base_id, options=None):
     authorize(permission="tags_relation:read")
     authorize(permission="transaction:read")
     return get_beneficiaries_page(base_id, **(options or {}))
+
+
+@query.field("beneficiaryIds")
+@handle_unauthorized
+def resolve_beneficiary_ids(*_, base_id, filters=None):
+    authorize(permission="beneficiary:read", base_id=base_id)
+    return get_beneficiary_ids(base_id, filters)
+
+
+@query.field("exportBeneficiaryRowsToCsv")
+def resolve_export_beneficiary_rows_to_csv(*_, base_id, filters=None):
+    authorize(permission="beneficiary:read", base_id=base_id)
+    authorize(permission="tag:read", base_id=base_id)
+    authorize(permission="tags_relation:read")
+    return export_beneficiary_rows_to_csv(base_id, filters)
 
 
 @beneficiary_row.field("tagIds")

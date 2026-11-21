@@ -9,7 +9,7 @@ from ..auth import CurrentUser
 from ..business_logic.beneficiary.crud import (
     create_beneficiary,
     create_transaction,
-    deactivate_beneficiary,
+    deactivate_beneficiaries,
     update_beneficiary,
 )
 from ..business_logic.box_transfer.agreement.crud import (
@@ -468,7 +468,11 @@ class Generator:
             for beneficiary in self.fake.random_elements(
                 beneficiaries, length=round(0.03 * len(beneficiaries)), unique=True
             ):
-                deactivate_beneficiary(beneficiary=beneficiary)
+                deactivate_beneficiaries(
+                    user_id=self._user_id(b),
+                    beneficiaries=[beneficiary],
+                    now=utcnow(),
+                )
 
             self.beneficiaries[b] = beneficiaries
 

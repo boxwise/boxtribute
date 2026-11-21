@@ -3,7 +3,6 @@ from typing import Any
 
 from ariadne import MutationType
 from flask import g
-from sentry_sdk import capture_message as emit_sentry_message
 
 from ....authz import (
     authorize,
@@ -15,11 +14,8 @@ from ....db import execute_sql
 from ....enums import TaggableObjectType, TagType
 from ....errors import (
     DeletedLocation,
-    DeletedTag,
     InvalidFilterInput,
     ResourceDoesNotExist,
-    TagBaseMismatch,
-    TagTypeMismatch,
 )
 from ....graph_ql.filtering import derive_box_filter
 from ....models.definitions.box import Box
@@ -27,6 +23,8 @@ from ....models.definitions.location import Location
 from ....models.definitions.product import Product
 from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
+from ...tag.crud import unassign_tags_from_resources
+from ...tag.validation import validate_tags
 from .crud import (
     WAREHOUSE_BOX_STATES,
     BoxesResult,
@@ -36,7 +34,6 @@ from .crud import (
     create_boxes,
     delete_boxes,
     move_boxes_to_location,
-    unassign_tags_from_boxes,
     update_box,
     update_marked_for_shipment_box,
 )
@@ -258,89 +255,13 @@ def resolve_move_boxes_to_location(*_, update_input):
     )
 
 
-@handle_unauthorized
-def authorize_tag(tag):
-    authorize(permission="tag:read", base_id=tag.base_id)
-    authorize(permission="stock:write", base_id=tag.base_id)
-
-
 def _validate_tags(tag_ids, for_unassigning=False):
-    """Validate tags for given IDs.
-    Return tuple consisting of:
-    - list of IDs of valid tags
-    - list of info about erroneous tags (non-existing, unauthorized for, deleted, or
-      mismatching type)
-    - ID of common base of all tags, if there's a single base, otherwise None
-    """
-    tag_errors = []
-    valid_tags = []
-    for tag_id in tag_ids:
-        if (tag := Tag.get_or_none(tag_id)) is None:
-            tag_errors.append(
-                {"id": tag_id, "error": ResourceDoesNotExist(name="Tag", id=tag_id)}
-            )
-            continue
-
-        if (error := authorize_tag(tag)) is not None:
-            tag_errors.append({"id": tag_id, "error": error})
-            continue
-
-        if for_unassigning:
-            # For unassigning it's valid to operate with deleted or type-mismatched tags
-            valid_tags.append(tag)
-            continue
-
-        if tag.deleted_on is not None:
-            tag_errors.append({"id": tag_id, "error": DeletedTag(name=tag.name)})
-            continue
-
-        if tag.type == TagType.Beneficiary:
-            tag_errors.append(
-                {"id": tag_id, "error": TagTypeMismatch(expected_type=TagType.Box)}
-            )
-            continue
-
-        valid_tags.append(tag)
-
-    tag_base_ids = {tag.base_id for tag in valid_tags}
-    # All requested tags must be registered in the same base
-    if len(tag_base_ids) > 1:
-        # None of the tags is valid; return errors for all of them
-        return (
-            [],
-            tag_errors
-            + [{"id": tag_id, "error": TagBaseMismatch()} for tag_id in tag_ids],
-            None,
-        )
-    elif len(tag_base_ids) == 1:
-        tags_base_id = list(tag_base_ids)[0]
-    else:
-        tags_base_id = None
-
-    if for_unassigning:
-        for tag in valid_tags:
-            if tag.deleted_on is not None:
-                # When a tag is deleted, it is also unassigned from any resource, hence
-                # in theory unassigning a deleted tag should not happen. However we have
-                # to deal with legacy data (there are 1.3k boxes assigned to deleted
-                # tags) and want to be notified about it.
-                emit_sentry_message(
-                    "User unassigned deleted tag from boxes",
-                    level="warning",
-                    extras={"tag_id": tag.id},
-                )
-            if tag.type == TagType.Beneficiary:
-                # When a tag type changes, it is also unassigned from any resource,
-                # hence in theory boxes assigned with a Beneficiary tag should not
-                # occur. However we have to deal with legacy data and want to be
-                # notified about it.
-                emit_sentry_message(
-                    "User unassigned Beneficiary-type tag from boxes",
-                    level="warning",
-                    extras={"tag_id": tag.id},
-                )
-
-    return [tag.id for tag in valid_tags], tag_errors, tags_base_id
+    return validate_tags(
+        tag_ids,
+        expected_type=TagType.Box,
+        permission="stock:write",
+        for_unassigning=for_unassigning,
+    )
 
 
 @mutation.field("assignTagsToBoxes")
@@ -449,11 +370,16 @@ def resolve_unassign_tags_from_boxes(*_, update_input):
         conditions.append(Box.label_identifier << label_identifiers)
 
     boxes = selection.where(*conditions).order_by(Box.id)
+    valid_box_ids = {box.id for box in boxes}
     valid_box_label_identifiers = {box.label_identifier for box in boxes}
 
     return BoxesTagsOperationResult(
-        updated_boxes=unassign_tags_from_boxes(
-            user_id=g.user.id, boxes=boxes, tag_ids=valid_tag_ids
+        updated_boxes=unassign_tags_from_resources(
+            user_id=g.user.id,
+            model=Box,
+            object_type=TaggableObjectType.Box,
+            resource_ids=valid_box_ids,
+            tag_ids=valid_tag_ids,
         ),
         invalid_box_label_identifiers=sorted(
             label_identifiers.difference(valid_box_label_identifiers)
