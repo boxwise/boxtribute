@@ -14,21 +14,33 @@ type Mutation {
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
   " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
   assignTagsToBoxes(updateInput: BoxesTagsOperationInput): AssignTagsToBoxesResult
-  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
+  " Any boxes that are non-existing, deleted, without any of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): UnassignTagsFromBoxesResult
   " Create boxes by importing raw data. Prototypical! "
   createBoxes(creationInput: [BoxBulkCreationInput!]): CreateBoxesResult
   " Create box in a location by taking out items from an existing box "
   createBoxFromBox(creationInput: BoxFromBoxCreationInput!): CreateBoxFromBoxResult
 
-  " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
-  createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
+  " Create a new beneficiary in a base, using at least first/last name, and group identifier "
+  createBeneficiary(creationInput: BeneficiaryCreationInput): CreateBeneficiaryResult
   " Update one or more properties of a beneficiary with specified ID. "
-  updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
-  " Deactivate beneficiary with specified ID. "
-  deactivateBeneficiary(id: ID!): Beneficiary
+  updateBeneficiary(updateInput: BeneficiaryUpdateInput): UpdateBeneficiaryResult
   " Create multiple beneficiaries at once in one base. "
   createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
+  " Assign one or more tags to beneficiaries. Any beneficiaries that are non-existing, deactivated, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BeneficiariesTagsOperationResult.invalidBeneficiaryIds` list. Errors about tags are listed in `BeneficiariesTagsOperationResult.tagErrorInfo`. "
+  assignTagsToBeneficiaries(updateInput: BeneficiariesTagsOperationInput!): AssignTagsToBeneficiariesResult
+  " Un-assign one or more tags from beneficiaries. Any beneficiaries that are non-existing, deactivated, without any of the requested tags, and/or in a base that's different from the tags' base are returned in the `BeneficiariesTagsOperationResult.invalidBeneficiaryIds` list. Errors about tags are listed in `BeneficiariesTagsOperationResult.tagErrorInfo`. "
+  unassignTagsFromBeneficiaries(updateInput: BeneficiariesTagsOperationInput!): UnassignTagsFromBeneficiariesResult
+  " Deactivate one or more beneficiaries (from the same base). Any beneficiaries that are non-existing, already deactivated and/or in a base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. When deactivating a family head, all their family members are deactivated, too. "
+  deactivateBeneficiaries(ids: [Int!]!): DeactivateBeneficiariesResult
+  " Reactivate one or more beneficiaries (from the same base). Any beneficiaries that are non-existing, already reactivated, without an active parent, and/or in a base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. When reactivating a family head, all their deactivated family members are reactivated, too. "
+  reactivateBeneficiaries(ids: [Int!]!): ReactivateBeneficiariesResult
+  " Register beneficiaries for one or more services. Any beneficiaries that are non-existing, deactivated, and/or in a base that's different from the services' base are returned in the `BeneficiariesServicesOperationResult.invalidBeneficiaryIds` list. Errors about services are listed in `BeneficiariesServicesOperationResult.serviceErrorInfo`. "
+  registerServicesForBeneficiaries(updateInput: BeneficiariesServicesOperationInput!): RegisterBeneficiariesForServicesResult
+  " Merge two or more beneficiaries (family heads or individuals without family; in the same base) into a family. The oldest family head or individual (by date of birth. If all DoBs missing, the beneficiary who was created first. If tied, the first of the input list) becomes the family head. All members whose family head is in the input are moved under the new head (and returned in `BeneficiariesResult.updatedBeneficiaries`), and all credit balance of the new members is transferred to the new head. Any beneficiaries that are non-existing, deactivated, part of a family whose head is not in the input list, and/or in base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. "
+  mergeBeneficiariesIntoFamily(ids: [Int!]!): MergeBeneficiariesResult
+  " Detach one or more family members (in the same base) from their resp. families. No credit balance is transferred. Any beneficiaries that are non-existing, deactivated, already individuals or family heads, and/or in base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. "
+  detachBeneficiariesFromFamily(ids: [Int!]!): DetachBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
   createTag(creationInput: TagCreationInput): CreateTagResult

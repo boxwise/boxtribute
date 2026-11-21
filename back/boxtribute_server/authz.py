@@ -404,7 +404,13 @@ MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6] + (
 MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[7] + (
     "createBeneficiary",
     "updateBeneficiary",
-    "deactivateBeneficiary",
+    "assignTagsToBeneficiaries",
+    "unassignTagsFromBeneficiaries",
+    "deactivateBeneficiaries",
+    "reactivateBeneficiaries",
+    "registerServicesForBeneficiaries",
+    "mergeBeneficiariesIntoFamily",
+    "detachBeneficiariesFromFamily",
 )
 
 # ### BETA-LEVEL 99 ###

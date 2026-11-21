@@ -23,6 +23,7 @@ RANDOM_SEQUENCE_GENERATION_ATTEMPTS = 10
 
 HISTORY_CREATION_MESSAGE = "Record created"
 HISTORY_DELETION_MESSAGE = "Record deleted"
+HISTORY_RECOVER_MESSAGE = "Record recovered"
 
 
 def utcnow():
@@ -184,18 +185,20 @@ def save_update_to_history(*, id_field_name="id", fields):
             else:
                 now = utcnow()
                 kwargs["now"] = now
-            result = f(*args, **kwargs)
-            # Skip creating history entry if e.g. UserError returned
-            if not isinstance(result, Model):
-                return result
 
-            entries = create_history_entries(
-                old_resource=old_resource,
-                new_resource=result,
-                fields=fields,
-                change_date=now,
-            )
+            # Prevent partial writes if f or the history creation fails
             with DbChangeHistory._meta.database.atomic():
+                result = f(*args, **kwargs)
+                # Skip creating history entry if e.g. UserError returned
+                if not isinstance(result, Model):
+                    return result
+
+                entries = create_history_entries(
+                    old_resource=old_resource,
+                    new_resource=result,
+                    fields=fields,
+                    change_date=now,
+                )
                 DbChangeHistory.bulk_create(entries, batch_size=BATCH_SIZE)
                 if entries:
                     result.last_modified_on = now

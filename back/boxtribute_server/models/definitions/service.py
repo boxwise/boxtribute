@@ -15,6 +15,7 @@ class Service(Model):
         model=Base,
         on_delete="RESTRICT",
         on_update="CASCADE",
+        object_id_name="base_id",
     )
     deleted_on = DateTimeField(column_name="deleted", null=True)
     deleted_by = UIntForeignKeyField(

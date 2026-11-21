@@ -1,7 +1,11 @@
 from collections import defaultdict
+from dataclasses import dataclass
+from datetime import date, datetime, time
+from typing import Any
 
-from peewee import JOIN, fn
+from peewee import JOIN, SQL, chunked, fn
 
+from ...authz import authorized_bases_filter
 from ...db import db
 from ...enums import BeneficiarySortField, HumanGender, TaggableObjectType
 from ...errors import DeletedBase, ResourceDoesNotExist
@@ -14,18 +18,56 @@ from ...graph_ql.sorting import (
 from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.definitions.history import DbChangeHistory
+from ...models.definitions.services_relation import ServicesRelation
+from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
 from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ...models.utils import (
     BATCH_SIZE,
     HISTORY_CREATION_MESSAGE,
+    HISTORY_DELETION_MESSAGE,
+    HISTORY_RECOVER_MESSAGE,
     compute_age_in_days,
-    safely_handle_deletion,
     save_creation_to_history,
     save_update_to_history,
     utcnow,
 )
+from ..export import rows_to_csv_base64
+from ..tag.crud import unassign_tags_from_resources
+
+# Marker to distinguish a field that is not passed from an explicit null
+UNSET = object()
+
+TOKEN_TRANSFER_DESCRIPTION = "moved balance to family head"
+INITIAL_CREDIT_DESCRIPTION = "initial credit"
+ZERO_DATETIME = SQL("'0000-00-00 00:00:00'")
+# By default, the 'deleted_on' DateTimeField is '0000-00-00 00:00:00' which evaluates
+# to both NULL and NOT NULL
+IS_ACTIVE = Beneficiary.deleted_on.is_null() | ~Beneficiary.deleted_on
+IS_DEACTIVATED = Beneficiary.deleted_on > 0
+MAX_EXPORT_SIZE = 100_000
+
+
+@dataclass(kw_only=True)
+class BeneficiariesResult:
+    updated_beneficiaries: list[Beneficiary]
+    invalid_beneficiary_ids: list[int]
+
+
+@dataclass(kw_only=True)
+class BeneficiariesTagsOperationResult(BeneficiariesResult):
+    tag_error_info: list[dict[str, Any]]
+
+
+@dataclass(kw_only=True)
+class BeneficiariesServicesOperationResult(BeneficiariesResult):
+    service_error_info: list[dict[str, Any]]
+
+
+@dataclass(kw_only=True)
+class BeneficiaryIds:
+    ids: list[int]
 
 
 @save_creation_to_history
@@ -36,20 +78,28 @@ def create_beneficiary(
     last_name,
     base_id,
     group_identifier,
-    date_of_birth,
-    gender,
-    is_volunteer,
-    registered,
+    date_of_birth=None,
+    gender=None,
+    is_volunteer=False,
+    registered=True,
     comment="",
     languages=None,
     family_head_id=None,
     signature=None,
-    date_of_signature=None,
     tag_ids=None,
+    initial_credit=None,
+    email=None,
+    phone_number=None,
+    custom_text_field_1=None,
+    custom_text_field_2=None,
+    custom_number_field=None,
+    custom_date_field=None,
     now,
 ):
     """Insert information for a new Beneficiary in the database. Update the
-    languages in the corresponding cross-reference table.
+    languages and tags in the corresponding cross-reference tables. If an initial
+    credit is given, create a Transaction for it (attributed to the family head if the
+    beneficiary is a family member).
     """
     data = dict(
         first_name=first_name,
@@ -57,34 +107,49 @@ def create_beneficiary(
         base=base_id,
         group_identifier=group_identifier,
         date_of_birth=date_of_birth,
-        gender=gender,
-        is_volunteer=is_volunteer,
-        not_registered=not registered,
+        gender=gender or HumanGender.Diverse,  # stored as "" on DB level
+        is_volunteer=bool(is_volunteer),
+        not_registered=registered is not None and not registered,
         signed=signature is not None,  # set depending on signature
         comment=comment,
-        family_head=None,
+        family_head=family_head_id,
         created_on=now,
         created_by=user_id,
         last_modified_on=now,
         last_modified_by=user_id,
-        # This is only required for compatibility with legacy DB
-        seq=1 if family_head_id is None else 2,
+        # This is only required for compatibility with legacy DB. Never updated
+        seq=1,
         # These fields are required acc. to model definition
         family_id=0,
         bicycle_ban_comment="",
         workshop_ban_comment="",
     )
-    if date_of_signature is not None:
+    if signature is not None:
+        data["signature"] = signature
         # Work-around because the DB default 0000-00-00 is not a Python date
-        data["date_of_signature"] = date_of_signature
+        data["date_of_signature"] = now
+
+    # Don't insert None for the optional fields: some of the DB columns are not nullable
+    optional_data = dict(
+        email=email,
+        phone_number=phone_number,
+        custom_text_field_1=custom_text_field_1,
+        custom_text_field_2=custom_text_field_2,
+        custom_number_field=custom_number_field,
+        custom_date_field=custom_date_field,
+    )
+    data.update({k: v for k, v in optional_data.items() if v is not None})
 
     with db.database.atomic():
         new_beneficiary = Beneficiary.create(**data)
 
-        language_ids = languages or []
-        XBeneficiaryLanguage.insert_many(
-            [{"language": i, "beneficiary": new_beneficiary.id} for i in language_ids]
-        ).execute()
+        if language_ids := languages:
+            XBeneficiaryLanguage.insert_many(
+                [
+                    {"language": i, "beneficiary": new_beneficiary.id}
+                    for i in language_ids
+                ]
+            ).execute()
 
         if tag_ids:
             # Don't use assign_tag() because it requires an existing Beneficiary object,
@@ -100,6 +165,16 @@ def create_beneficiary(
                 for tag_id in set(tag_ids)
             ]
             TagsRelation.insert_many(tags_relations).execute()
+
+        if initial_credit:
+            # Transactions are always attributed to family heads/individuals
+            create_transaction(
+                beneficiary_id=new_beneficiary.family_head_id or new_beneficiary.id,
+                tokens=initial_credit,
+                description=INITIAL_CREDIT_DESCRIPTION,
+                user_id=user_id,
+                now=now,
+            )
 
     return new_beneficiary
 
@@ -117,7 +192,12 @@ def create_beneficiary(
         Beneficiary.gender,
         Beneficiary.signed,
         Beneficiary.family_head_id,  # type: ignore[attr-defined]
+        Beneficiary.email,
         Beneficiary.phone_number,
+        Beneficiary.custom_text_field_1,
+        Beneficiary.custom_text_field_2,
+        Beneficiary.custom_number_field,
+        Beneficiary.custom_date_field,
     ],
 )
 def update_beneficiary(
@@ -127,23 +207,24 @@ def update_beneficiary(
     id,
     gender=None,
     languages=None,
-    family_head_id=None,
+    family_head_id=UNSET,
     registered=None,
     signature=None,
+    tag_ids=None,
     now,
     **data,
 ):
     """Look up an existing Beneficiary given an ID, and update all requested fields,
-    including the language cross-reference.
+    including the language and tag cross-references. The family head is only updated if
+    specified (None turns the beneficiary into an individual).
+    When a beneficiary that has not been part of a family joins one, their credit is
+    transferred to the new family head.
+    The caller must ensure that the update is valid.
     Insert timestamp for modification and return the beneficiary.
     """
     # Handle any items with keys not matching the Model fields
     if gender is not None:
         beneficiary.gender = gender
-
-    if family_head_id is not None:
-        beneficiary.family_head = None
-    beneficiary.seq = 1 if family_head_id is None else 2
 
     if registered is not None:
         beneficiary.not_registered = not registered
@@ -151,36 +232,103 @@ def update_beneficiary(
     if signature is not None:
         beneficiary.signed = True
         beneficiary.signature = signature
+        beneficiary.date_of_signature = now
 
     # Set first_name, last_name, group_identifier, date_of_birth, comment, is_volunteer,
-    # date_of_signature if specified via GraphQL input
+    # email, phone_number, custom fields if specified via GraphQL input. Only the
+    # (nullable) date of birth and comment can be set to None
     for field, value in data.items():
+        if value is None and field not in ("date_of_birth", "comment"):
+            continue
+        if field == "custom_date_field":
+            value = datetime.combine(value, time.min)
         setattr(beneficiary, field, value)
 
+    if family_head_id is not UNSET and family_head_id != beneficiary.family_head_id:
+        if family_head_id is not None and beneficiary.family_head_id is None:
+            transfer_balances(
+                user_id=user_id,
+                source_ids=[beneficiary.id],
+                target_id=family_head_id,
+                now=now,
+            )
+        beneficiary.family_head = family_head_id
+
     with db.database.atomic():
-        language_ids = languages or []
-        if language_ids:
+        if languages is not None:
             XBeneficiaryLanguage.delete().where(
                 XBeneficiaryLanguage.beneficiary == id
             ).execute()
-            XBeneficiaryLanguage.insert_many(
-                [{"language": lid, "beneficiary": id} for lid in language_ids]
-            ).execute()
+            if languages:
+                XBeneficiaryLanguage.insert_many(
+                    [{"language": lid, "beneficiary": id} for lid in languages]
+                ).execute()
+
+        if tag_ids is not None and _update_tags(
+            user_id=user_id,
+            beneficiary_id=beneficiary.id,
+            tag_ids=set(tag_ids),
+            now=now,
+        ):
+            beneficiary.last_modified_on = now
+            beneficiary.last_modified_by = user_id
 
     return beneficiary
 
 
-@safely_handle_deletion
-def deactivate_beneficiary(*, beneficiary, **_):
-    if beneficiary.family_head_id is None:
-        # Deactivate all children of a parent
-        children = Beneficiary.select().where(
-            Beneficiary.family_head == beneficiary.id,
-            (Beneficiary.deleted_on.is_null() | ~Beneficiary.deleted_on),
+def _update_tags(*, user_id, beneficiary_id, tag_ids, now):
+    """Compare the beneficiary's assigned tags and the given tag IDs. Un-assign tags
+    that are not in the given set, and assign tags that are not yet assigned.
+    Return True if any tags were changed.
+    """
+    assigned_tag_ids = _assigned_tag_ids([beneficiary_id])[beneficiary_id]
+    removed = assigned_tag_ids - tag_ids
+    added = tag_ids - assigned_tag_ids
+
+    if removed:
+        unassign_tags_from_resources(
+            user_id=user_id,
+            model=Beneficiary,
+            object_type=TaggableObjectType.Beneficiary,
+            resource_ids=[beneficiary_id],
+            tag_ids=removed,
+            now=now,
         )
-        for child in children:
-            deactivate_beneficiary(beneficiary=child)
-    return beneficiary
+    if added:
+        TagsRelation.insert_many(
+            [
+                {
+                    "object_id": beneficiary_id,
+                    "object_type": TaggableObjectType.Beneficiary,
+                    "tag": tag_id,
+                    "created_on": now,
+                    "created_by": user_id,
+                }
+                for tag_id in sorted(added)
+            ]
+        ).execute()
+    return bool(removed or added)
+
+
+def _assigned_tag_ids(beneficiary_ids, tag_ids=None):
+    """Return mapping of beneficiary IDs to the set of IDs of their assigned tags
+    (optionally restricted to the given tag IDs).
+    """
+    conditions = [
+        TagsRelation.object_id << list(beneficiary_ids),
+        TagsRelation.object_type == TaggableObjectType.Beneficiary,
+        TagsRelation.deleted_on.is_null(),
+    ]
+    if tag_ids is not None:
+        conditions.append(TagsRelation.tag << list(tag_ids))
+
+    assigned = defaultdict(set)
+    relations = TagsRelation.select(TagsRelation.object_id, TagsRelation.tag).where(
+        *conditions
+    )
+    for object_id, tag_id in relations.tuples():
+        assigned[object_id].add(tag_id)
+    return assigned
 
 
 def create_transaction(
@@ -191,6 +339,7 @@ def create_transaction(
     product_id=None,
     tokens=0,
     user_id,
+    now=None,
 ):
     """Insert information for a new Transaction in the database."""
     return Transaction.create(
@@ -199,9 +348,387 @@ def create_transaction(
         description=description,
         tokens=tokens,
         product=product_id,
-        created_on=utcnow(),
+        created_on=now or utcnow(),
         created_by=user_id,
     )
+
+
+def transfer_balances(*, user_id, source_ids, target_id, now):
+    """Move the token balance of the source beneficiaries to the target beneficiary.
+    A Transaction with negative value is created for every source, and a single
+    Transaction with the positive total value for the target. Nothing is created for
+    sources with balance 0.
+    """
+    balances = {
+        beneficiary_id: int(total)
+        for beneficiary_id, total in Transaction.select(
+            Transaction.beneficiary, fn.SUM(Transaction.tokens)
+        )
+        .where(Transaction.beneficiary << list(source_ids))
+        .group_by(Transaction.beneficiary)
+        .tuples()
+        if total
+    }
+
+    def transaction(beneficiary_id, tokens):
+        return dict(
+            beneficiary=beneficiary_id,
+            count=0,
+            description=TOKEN_TRANSFER_DESCRIPTION,
+            tokens=tokens,
+            product=None,
+            created_on=now,
+            created_by=user_id,
+        )
+
+    transactions = [
+        transaction(beneficiary_id, -balance)
+        for beneficiary_id, balance in sorted(balances.items())
+    ]
+    if total := sum(balances.values()):
+        transactions.append(transaction(target_id, total))
+
+    for chunk in chunked(transactions, BATCH_SIZE):
+        Transaction.insert_many(chunk).execute()
+
+
+def find_beneficiaries(ids, *conditions):
+    """Select the (non-deactivated if no other conditions given) beneficiaries with
+    given IDs that the user is allowed to access, and match the given conditions.
+    Return the list of beneficiaries sorted by ID, and the sorted list of IDs that
+    could not be found.
+    """
+    ids = set(ids)
+    if not ids:
+        return [], []
+
+    beneficiaries = list(
+        Beneficiary.select()
+        .where(
+            Beneficiary.id << ids,
+            authorized_bases_filter(Beneficiary),
+            *(conditions or [IS_ACTIVE]),
+        )
+        .order_by(Beneficiary.id)
+    )
+    return beneficiaries, sorted(ids.difference(b.id for b in beneficiaries))
+
+
+def _refetch_beneficiaries(ids):
+    # Re-fetch updated data because the passed objects would be outdated
+    ids = list(ids)
+    if not ids:
+        return []
+    return list(
+        Beneficiary.select().where(Beneficiary.id << ids).order_by(Beneficiary.id)
+    )
+
+
+def _update_beneficiaries(ids, *, user_id, now, **fields):
+    for chunk in chunked(sorted(ids), BATCH_SIZE):
+        Beneficiary.update(
+            last_modified_on=now, last_modified_by=user_id, **fields
+        ).where(Beneficiary.id << chunk).execute()
+
+
+def _history_entries(ids, *, changes, user_id, now):
+    return [
+        DbChangeHistory(
+            changes=changes,
+            table_name=Beneficiary._meta.table_name,
+            record_id=beneficiary_id,
+            user=user_id,
+            change_date=now,
+        )
+        for beneficiary_id in sorted(ids)
+    ]
+
+
+def _family_head_history_entries(beneficiaries, *, new_head_id, user_id, now):
+    return [
+        DbChangeHistory(
+            changes=Beneficiary.family_head.column_name,
+            table_name=Beneficiary._meta.table_name,
+            record_id=beneficiary.id,
+            user=user_id,
+            change_date=now,
+            from_int=beneficiary.family_head_id,
+            to_int=new_head_id,
+        )
+        for beneficiary in beneficiaries
+    ]
+
+
+def missing_tag_ids(beneficiary_ids, tag_ids):
+    """Return mapping of beneficiary IDs to the set of IDs of those of the given tags
+    that are not yet assigned to the beneficiary.
+    """
+    assigned = _assigned_tag_ids(beneficiary_ids, tag_ids)
+    return {i: set(tag_ids) - assigned[i] for i in beneficiary_ids}
+
+
+def assigned_tag_ids(beneficiary_ids, tag_ids):
+    """Return mapping of beneficiary IDs to the set of IDs of those of the given tags
+    that are assigned to the beneficiary.
+    """
+    assigned = _assigned_tag_ids(beneficiary_ids, tag_ids)
+    return {i: assigned[i] for i in beneficiary_ids}
+
+
+def assign_tags_to_beneficiaries(*, user_id, beneficiary_ids, tag_ids, now):
+    """Assign the given tags to the beneficiaries. Tags that a beneficiary is already
+    assigned to are skipped. Return the list of updated beneficiaries.
+    """
+    beneficiary_ids = sorted(beneficiary_ids)
+    assigned = _assigned_tag_ids(beneficiary_ids, tag_ids)
+    relations = [
+        {
+            "object_id": beneficiary_id,
+            "object_type": TaggableObjectType.Beneficiary,
+            "tag": tag_id,
+            "created_on": now,
+            "created_by": user_id,
+        }
+        for beneficiary_id in beneficiary_ids
+        for tag_id in sorted(tag_ids)
+        if tag_id not in assigned[beneficiary_id]
+    ]
+    with db.database.atomic():
+        for chunk in chunked(relations, BATCH_SIZE):
+            TagsRelation.insert_many(chunk).execute()
+        _update_beneficiaries(beneficiary_ids, user_id=user_id, now=now)
+    return _refetch_beneficiaries(beneficiary_ids)
+
+
+def deactivate_beneficiaries(*, user_id, beneficiaries, now):
+    """Soft-delete the given beneficiaries by setting the `deleted_on` field. All
+    (active) family members of any family head in the list are deactivated, too. Log
+    every deactivation in the history table.
+    Return the list of deactivated beneficiaries (including the family members).
+    """
+    ids = {b.id for b in beneficiaries}
+    if not ids:
+        return []
+
+    members = Beneficiary.select(Beneficiary.id).where(
+        Beneficiary.family_head << list(ids), IS_ACTIVE
+    )
+    ids.update(member.id for member in members)
+
+    with db.database.atomic():
+        _update_beneficiaries(ids, user_id=user_id, now=now, deleted_on=now)
+        history_entries = _history_entries(
+            ids, changes=HISTORY_DELETION_MESSAGE, user_id=user_id, now=now
+        )
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+    return _refetch_beneficiaries(ids)
+
+
+def reactivate_beneficiaries(*, user_id, beneficiaries, now):
+    """Reactivate the given (deactivated) beneficiaries in two passes: family heads and
+    individuals first, then the family members. All deactivated family members of any
+    family head in the list are reactivated, too. Log every reactivation in the
+    history table.
+    Return the list of reactivated beneficiaries (including the family members).
+    """
+    head_ids = {b.id for b in beneficiaries if b.family_head_id is None}
+    member_ids = {b.id for b in beneficiaries if b.family_head_id is not None}
+    if head_ids:
+        cascaded_members = Beneficiary.select(Beneficiary.id).where(
+            Beneficiary.family_head << list(head_ids), IS_DEACTIVATED
+        )
+        member_ids.update(member.id for member in cascaded_members)
+
+    with db.database.atomic():
+        for ids in (head_ids, member_ids):
+            if not ids:
+                continue
+            _update_beneficiaries(
+                ids, user_id=user_id, now=now, deleted_on=ZERO_DATETIME
+            )
+            history_entries = _history_entries(
+                ids, changes=HISTORY_RECOVER_MESSAGE, user_id=user_id, now=now
+            )
+            DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+    return _refetch_beneficiaries(head_ids | member_ids)
+
+
+def register_services_for_beneficiaries(*, user_id, beneficiary_ids, service_ids, now):
+    """Create a ServicesRelation for each pair of beneficiary and service. A
+    beneficiary may use a service multiple times.
+    Return the list of beneficiaries.
+    """
+    beneficiary_ids = sorted(beneficiary_ids)
+    relations = [
+        {
+            "beneficiary": beneficiary_id,
+            "service": service_id,
+            "created_on": now,
+            "created_by": user_id,
+        }
+        for beneficiary_id in beneficiary_ids
+        for service_id in sorted(service_ids)
+    ]
+    with db.database.atomic():
+        for chunk in chunked(relations, BATCH_SIZE):
+            ServicesRelation.insert_many(chunk).execute()
+    return _refetch_beneficiaries(beneficiary_ids)
+
+
+def merge_beneficiaries_into_family(*, user_id, beneficiaries, now):
+    """Merge the given family heads/individuals (sorted in input order) into a family.
+    The oldest one (by date of birth; beneficiaries without date of birth come last;
+    then by creation date, then by input order) becomes the new family head. All
+    members of the other beneficiaries are moved under the new head, too. The credit of
+    the other beneficiaries is transferred to the new head.
+    Return the list of beneficiaries whose family head was updated.
+    """
+    _, new_head = min(
+        enumerate(beneficiaries),
+        key=lambda item: (
+            item[1].date_of_birth is None,
+            item[1].date_of_birth or date.max,
+            item[1].created_on or datetime.max,
+            item[0],
+        ),
+    )
+    others = [b for b in beneficiaries if b.id != new_head.id]
+    other_ids = [b.id for b in others]
+    members = list(Beneficiary.select().where(Beneficiary.family_head << other_ids))
+    moved = others + members
+    moved_ids = {b.id for b in moved}
+
+    with db.database.atomic():
+        transfer_balances(
+            user_id=user_id, source_ids=other_ids, target_id=new_head.id, now=now
+        )
+        _update_beneficiaries(
+            moved_ids, user_id=user_id, now=now, family_head=new_head.id
+        )
+        _update_beneficiaries([new_head.id], user_id=user_id, now=now)
+        history_entries = _family_head_history_entries(
+            moved, new_head_id=new_head.id, user_id=user_id, now=now
+        )
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+    return _refetch_beneficiaries(moved_ids)
+
+
+def detach_beneficiaries_from_family(*, user_id, beneficiaries, now):
+    """Remove the given family members from their families, turning them into
+    individuals. No credit is transferred.
+    Return the list of detached beneficiaries.
+    """
+    ids = {b.id for b in beneficiaries}
+    with db.database.atomic():
+        _update_beneficiaries(ids, user_id=user_id, now=now, family_head=None)
+        history_entries = _family_head_history_entries(
+            beneficiaries, new_head_id=None, user_id=user_id, now=now
+        )
+        DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
+    return _refetch_beneficiaries(ids)
+
+
+def get_beneficiary_ids(base_id, filters=None):
+    """Return IDs of all beneficiaries in the given base (max. 100,000), taking filters
+    into account.
+    """
+    conditions, selection = derive_beneficiary_filter(
+        filters, Beneficiary.select(Beneficiary.id)
+    )
+    beneficiaries = (
+        selection.where(Beneficiary.base == base_id, *conditions)
+        .order_by(Beneficiary.id)
+        .limit(MAX_EXPORT_SIZE)
+    )
+    return BeneficiaryIds(ids=[b.id for b in beneficiaries])
+
+
+def _protect_against_formula_injection(value):
+    """Prefix values that spreadsheet software interprets as formula."""
+    if isinstance(value, str) and value.startswith(("=", "+", "-", "@")):
+        return f"'{value}"
+    return value
+
+
+def export_beneficiary_rows_to_csv(base_id, filters=None):
+    """Serialize data of all beneficiaries in the given base (max. 100,000) as CSV,
+    taking filters into account.
+    """
+    base = Base.get_by_id(base_id)
+    tags = {
+        tag.id: tag.name
+        for tag in Tag.select(Tag.id, Tag.name).where(Tag.base == base_id)
+    }
+
+    conditions, selection = derive_beneficiary_filter(
+        filters, Beneficiary.select(Beneficiary.id)
+    )
+    selected_ids = selection.where(Beneficiary.base == base_id, *conditions)
+    tag_ids = (
+        TagsRelation.select(fn.GROUP_CONCAT(TagsRelation.tag))
+        .where(
+            TagsRelation.object_id == Beneficiary.id,
+            TagsRelation.object_type == TaggableObjectType.Beneficiary,
+            TagsRelation.deleted_on.is_null(),
+        )
+        .alias("tag_ids")
+    )
+    age = fn.IF(
+        Beneficiary.date_of_birth > 0,
+        fn.TIMESTAMPDIFF(SQL("YEAR"), Beneficiary.date_of_birth, fn.CURDATE()),
+        None,
+    ).alias("age")
+    raw_beneficiaries = (
+        Beneficiary.select(
+            Beneficiary.id,
+            Beneficiary.group_identifier,
+            Beneficiary.first_name,
+            Beneficiary.last_name,
+            Beneficiary.gender,
+            age,
+            Beneficiary.family_head,
+            Beneficiary.comment,
+            tag_ids,
+        )
+        .where(Beneficiary.id << selected_ids)
+        .order_by(Beneficiary.id)
+        .limit(MAX_EXPORT_SIZE)
+        .dicts()
+        .iterator()
+    )
+
+    group_identifier_header = base.group_identifier or "Group identifier"
+    fieldnames = [
+        group_identifier_header,
+        "Firstname",
+        "Surname",
+        "Gender",
+        "Age",
+        "Tags",
+        "Comments",
+        "Boxtribute family ID",
+        "Head of family",
+    ]
+    protect = _protect_against_formula_injection
+    rows = (
+        {
+            group_identifier_header: protect(b["group_identifier"]),
+            "Firstname": protect(b["first_name"]),
+            "Surname": protect(b["last_name"]),
+            "Gender": b["gender"].value if b["gender"] else "",
+            "Age": b["age"],
+            "Tags": protect(
+                ",".join(tags[int(i)] for i in b["tag_ids"].split(","))
+                if b["tag_ids"]
+                else ""
+            ),
+            "Comments": protect(b["comment"]),
+            "Boxtribute family ID": b["family_head"] or b["id"],
+            "Head of family": "no" if b["family_head"] else "yes",
+        }
+        for b in raw_beneficiaries
+    )
+    return rows_to_csv_base64(fieldnames, rows)
 
 
 def get_beneficiaries_page(base_id, *, page=None, page_size=None, **options):
@@ -333,7 +860,7 @@ def _get_beneficiaries_page(
     }
 
 
-class BeneficiariesResult(dict):
+class BeneficiariesResults(dict):
     pass
 
 
@@ -395,11 +922,11 @@ def create_beneficiaries(
 ):
     """Insert multiple beneficiaries and their tags into the database."""
     if len(beneficiary_data) == 0:
-        return BeneficiariesResult({"results": []})
+        return BeneficiariesResults({"results": []})
 
     # If the base doesn't exist, the authz checks in the parent resolver will fail.
     # But let's check again anyways in case this function is called elsewhere
-    base = Base.get_or_none(base_id)
+    base = Base.get_or_none(Base.id == base_id)
     if base is None:
         return ResourceDoesNotExist(name="Base", id=base_id)
     if base.deleted_on is not None:
@@ -464,4 +991,4 @@ def create_beneficiaries(
         ]
         TagsRelation.insert_many(tags_relations).execute()
 
-        return BeneficiariesResult({"results": beneficiaries})
+        return BeneficiariesResults({"results": beneficiaries})

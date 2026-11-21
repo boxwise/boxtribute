@@ -72,6 +72,16 @@ input BoxBulkCreationInput {
   boxLabelIdentifierForMerge: String
 }
 
+input BeneficiariesTagsOperationInput {
+  ids: [Int!]!
+  tagIds: [Int!]!
+}
+
+input BeneficiariesServicesOperationInput {
+  ids: [Int!]!
+  serviceIds: [Int!]!
+}
+
 input CustomProductCreationInput {
   name: String!
   categoryId: Int!
@@ -121,16 +131,27 @@ input BeneficiaryCreationInput {
   lastName: String!
   baseId: Int!
   groupIdentifier: String!
-  dateOfBirth: Date!
+  " Default: null. The resulting age is also null. "
+  dateOfBirth: Date
   comment: String
-  gender: HumanGender!
+  " Default: null "
+  gender: HumanGender
   languages: [Language!]
   familyHeadId: Int
-  isVolunteer: Boolean!
-  registered: Boolean!
+  " Default: false "
+  isVolunteer: Boolean
+  " Default: true "
+  registered: Boolean
   signature: String
-  dateOfSignature: Date
   tagIds: [Int!]
+  " If the beneficiary is a family member, this is attributed with the family head. 0 is silently ignored. "
+  initialCredit: Int
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiaryUpdateInput {
@@ -142,11 +163,19 @@ input BeneficiaryUpdateInput {
   comment: String
   gender: HumanGender
   languages: [Language!]
+  " If the beneficiary didn't belong to a family before, all their credit is transferred to the new family head. Passing null resets (i.e. makes the beneficiary an individual). Pass the current family head ID if it should be kept "
   familyHeadId: Int
   isVolunteer: Boolean
   registered: Boolean
   signature: String
-  dateOfSignature: Date
+  " Pass full set of assigned tags (internally, old and new tag sets are compared, removed tags are unassigned, and only added ones are assigned). Passing an empty list unassigns all tags, passing null ignores tag updates. "
+  tagIds: [Int!]
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiariesCreationInput {
