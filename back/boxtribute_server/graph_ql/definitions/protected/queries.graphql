@@ -48,6 +48,10 @@ type Query {
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   " Return beneficiary data optimized for tabular display "
   beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
+  " Return IDs of all beneficiaries in the given base (max: 100,000), taking into account filters. This is a utility method for enabling a defined input for beneficiary bulk operations "
+  beneficiaryIds(baseId: Int!, filters: FilterBeneficiaryInput): BeneficiaryIdsResult!
+  " Return data of all beneficiaries (max: 100,000) in given base as base64-encoded CSV string, taking into account filters "
+  exportBeneficiaryRowsToCsv(baseId: Int!, filters: FilterBeneficiaryInput): String
   " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
   tags(tagType: TagType): [Tag!]!
   " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "

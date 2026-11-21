@@ -36,6 +36,13 @@ def resolve_beneficiary_transactions(beneficiary_obj, info):
     return info.context["transactions_for_beneficiary_loader"].load(beneficiary_obj.id)
 
 
+@beneficiary.field("serviceUsages")
+def resolve_beneficiary_service_usages(beneficiary_obj, info):
+    return info.context["service_usages_for_beneficiary_loader"].load(
+        beneficiary_obj.id
+    )
+
+
 @beneficiary.field("registered")
 def resolve_beneficiary_registered(beneficiary_obj, _):
     return not beneficiary_obj.not_registered

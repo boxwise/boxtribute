@@ -14,6 +14,7 @@ class ServicesRelation(Model):
         model=Beneficiary,
         on_delete="RESTRICT",
         on_update="CASCADE",
+        object_id_name="beneficiary_id",
     )
     service = UIntForeignKeyField(
         column_name="service_id",

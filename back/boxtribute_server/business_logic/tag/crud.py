@@ -158,3 +158,32 @@ def delete_tags(*, user_id, tags):
 
     # Re-fetch tags to return updated objects
     return list(Tag.select().where(Tag.id << tag_ids))
+
+
+def unassign_tags_from_resources(
+    *, user_id, model, object_type, resource_ids, tag_ids, now=None
+):
+    """Soft-delete TagsRelation rows containing the given resources (instances of
+    `model`, e.g. Box or Beneficiary, with corresponding `object_type`) and tag IDs.
+    Already deleted TagsRelations are ignored.
+
+    Update last_modified_* fields of the affected resources.
+    Return the list of updated resources.
+    """
+    resource_ids = set(resource_ids)
+    if not resource_ids:
+        return []
+
+    now = now or utcnow()
+    with db.database.atomic():
+        model.update(last_modified_on=now, last_modified_by=user_id).where(
+            model.id << resource_ids
+        ).execute()
+        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
+            TagsRelation.tag << tag_ids,
+            TagsRelation.object_id << resource_ids,
+            TagsRelation.object_type == object_type,
+            TagsRelation.deleted_on.is_null(),
+        ).execute()
+
+    return list(model.select().where(model.id << resource_ids))

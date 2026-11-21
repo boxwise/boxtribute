@@ -22,6 +22,9 @@ from .loaders import (
     ProductLoader,
     QrCodeLoader,
     ResourcesForTagLoader,
+    ServiceLoader,
+    ServicesForBaseLoader,
+    ServiceUsagesForBeneficiaryLoader,
     ShipmentDetailAutoMatchingLoader,
     ShipmentDetailForBoxLoader,
     ShipmentDetailsForShipmentLoader,
@@ -42,6 +45,7 @@ from .loaders import (
     TransferItemsCountForProductLoader,
     UnitLoader,
     UnitsForDimensionLoader,
+    UsageStatisticsForServiceLoader,
     UserLoader,
 )
 
@@ -86,6 +90,9 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             "product_loader": ProductLoader(),
             "qr_code_loader": QrCodeLoader(),
             "resources_for_tag_loader": ResourcesForTagLoader(),
+            "service_loader": ServiceLoader(),
+            "service_usages_for_beneficiary_loader": ServiceUsagesForBeneficiaryLoader(),  # noqa
+            "services_for_base_loader": ServicesForBaseLoader(),
             "shipment_detail_auto_matching_loader": ShipmentDetailAutoMatchingLoader(),
             "shipment_detail_for_box_loader": ShipmentDetailForBoxLoader(),
             "shipment_details_for_shipment_loader": ShipmentDetailsForShipmentLoader(),
@@ -105,6 +112,7 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             "transfer_agreement_loader": TransferAgreementLoader(),
             "units_for_dimension_loader": UnitsForDimensionLoader(),
             "unit_loader": UnitLoader(),
+            "usage_statistics_for_service_loader": UsageStatisticsForServiceLoader(),  # noqa
             "user_loader": UserLoader(),
             # fmt: on
         }

@@ -49,6 +49,11 @@ def resolve_base_tags(base_obj, _, resource_type=None):
     )
 
 
+@base.field("services")
+def resolve_base_services(base_obj, info):
+    return info.context["services_for_base_loader"].load(base_obj.id)
+
+
 @base.field("beneficiaries")
 def resolve_base_beneficiaries(base_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="beneficiary:read", base_id=base_obj.id)

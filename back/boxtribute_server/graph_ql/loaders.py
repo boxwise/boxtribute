@@ -20,6 +20,8 @@ from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
+from ..models.definitions.service import Service
+from ..models.definitions.services_relation import ServicesRelation
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
@@ -806,6 +808,69 @@ class TransactionsForBeneficiaryLoader(DataLoader):
         ):
             transactions[ta.beneficiary_id].append(ta)
         return [transactions.get(i, []) for i in beneficiary_ids]
+
+
+class ServicesForBaseLoader(DataLoader):
+    async def batch_load_fn(self, base_ids):
+        services = defaultdict(list)
+        for service in (
+            Service.select()
+            .where(
+                Service.base << base_ids,
+                authorized_bases_filter(Service),
+                Service.deleted_on.is_null(),
+            )
+            .order_by(Service.id)
+        ):
+            services[service.base_id].append(service)
+        return [services.get(i, []) for i in base_ids]
+
+
+class ServiceLoader(DataLoader):
+    async def batch_load_fn(self, service_ids):
+        services = {
+            service.id: service
+            for service in Service.select().where(
+                Service.id << service_ids, authorized_bases_filter(Service)
+            )
+        }
+        return [services.get(i) for i in service_ids]
+
+
+class ServiceUsagesForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        authorize(permission="services_relation:read")
+        usages = defaultdict(list)
+        for usage in (
+            ServicesRelation.select()
+            .where(ServicesRelation.beneficiary << beneficiary_ids)
+            .order_by(ServicesRelation.created_on, ServicesRelation.id)
+        ):
+            usages[usage.beneficiary_id].append(usage)
+        return [usages.get(i, []) for i in beneficiary_ids]
+
+
+class UsageStatisticsForServiceLoader(DataLoader):
+    """Load total usage, unique usage (number of distinct beneficiaries), and date of
+    last usage for each service.
+    """
+
+    async def batch_load_fn(self, service_ids):
+        authorize(permission="services_relation:read")
+        statistics = {
+            row["service"]: row
+            for row in ServicesRelation.select(
+                ServicesRelation.service,
+                fn.COUNT(ServicesRelation.id).alias("total_usage"),
+                fn.COUNT(ServicesRelation.beneficiary.distinct()).alias("unique_usage"),
+                fn.MAX(ServicesRelation.created_on).alias("last_used_on"),
+            )
+            .where(ServicesRelation.service << service_ids)
+            .group_by(ServicesRelation.service)
+            .dicts()
+        }
+        empty = {"total_usage": 0, "unique_usage": 0, "last_used_on": None}
+        return [statistics.get(i, empty) for i in service_ids]
 
 
 class FamilyHeadForBeneficiaryLoader(DataLoader):
