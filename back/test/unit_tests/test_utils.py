@@ -1,7 +1,9 @@
 from datetime import date, datetime, timedelta
 
 import pytest
+from boxtribute_server.business_logic.beneficiary.crud import _lock_beneficiaries
 from boxtribute_server.business_logic.metrics.crud import get_time_span
+from boxtribute_server.business_logic.tag.crud import _is_valid_hex_color
 from boxtribute_server.models.utils import compute_age, compute_age_in_days
 
 
@@ -40,3 +42,12 @@ def test_compute_age_in_days_uses_current_date(monkeypatch):
 
     MockDate.current_date = date(2025, 1, 2)
     assert compute_age_in_days(date_of_birth) == 2
+
+
+def test_lock_beneficiaries():
+    assert _lock_beneficiaries([]) == []
+    assert _lock_beneficiaries([None]) == []
+
+
+def test_is_valid_hex_color():
+    assert _is_valid_hex_color(None) is False

@@ -252,24 +252,23 @@ def update_beneficiary(
             )
         beneficiary.family_head = family_head_id
 
-    with db.database.atomic():
-        if languages is not None:
-            XBeneficiaryLanguage.delete().where(
-                XBeneficiaryLanguage.beneficiary == id
+    if languages is not None:
+        XBeneficiaryLanguage.delete().where(
+            XBeneficiaryLanguage.beneficiary == id
+        ).execute()
+        if languages:
+            XBeneficiaryLanguage.insert_many(
+                [{"language": lid, "beneficiary": id} for lid in languages]
             ).execute()
-            if languages:
-                XBeneficiaryLanguage.insert_many(
-                    [{"language": lid, "beneficiary": id} for lid in languages]
-                ).execute()
 
-        if tag_ids is not None and _update_tags(
-            user_id=user_id,
-            beneficiary_id=beneficiary.id,
-            tag_ids=set(tag_ids),
-            now=now,
-        ):
-            beneficiary.last_modified_on = now
-            beneficiary.last_modified_by = user_id
+    if tag_ids is not None and _update_tags(
+        user_id=user_id,
+        beneficiary_id=beneficiary.id,
+        tag_ids=set(tag_ids),
+        now=now,
+    ):
+        beneficiary.last_modified_on = now
+        beneficiary.last_modified_by = user_id
 
     return beneficiary
 

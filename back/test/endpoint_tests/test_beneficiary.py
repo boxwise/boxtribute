@@ -258,6 +258,7 @@ def test_beneficiary_mutations(
                     signature: "{signature}",
                     languages: [{language}],
                     isVolunteer: false,
+                    tagIds: [{tag_id}],
                     registered: true
                 }} ) {{
                 ...on Beneficiary {{ id }}
@@ -279,6 +280,7 @@ def test_beneficiary_mutations(
                     firstName: "{new_first_name}",
                     groupIdentifier: "{new_group_id}",
                     dateOfBirth: "{new_formatted_dob}",
+                    languages: [],
                     comment: "{new_comment}",
                     gender: {new_gender.name}
                 }}) {{
@@ -298,7 +300,7 @@ def test_beneficiary_mutations(
         "base": {"id": base_id},
         "groupIdentifier": new_group_id,
         "gender": new_gender.name,
-        "languages": [language],
+        "languages": [],
         "familyHead": None,
         "familyMembers": [],
         "isVolunteer": False,
@@ -1087,7 +1089,8 @@ def _update_beneficiary(client, id, **fields):
             __typename
             ...on Beneficiary {{
                 id email phoneNumber customTextField1 familyHead {{ id }}
-                tags {{ id }} tokens lastModifiedBy {{ id }}
+                customDateField tags {{ id }} tokens lastModifiedBy {{ id }}
+                signed
             }}
         }} }}"""
     return assert_successful_request(client, mutation)
@@ -1118,9 +1121,10 @@ def test_update_beneficiary_errors(client, id, fields, error):
     assert response == {"__typename": error}
 
 
-def test_update_beneficiary_signature(client, mocker):
+def test_update_beneficiary_signature(client):
     response = _update_beneficiary(client, 3, signature='"me"')
     assert response["__typename"] == "Beneficiary"
+    assert response["signed"]
     assert _update_beneficiary(client, 3, signature='"me"') == {
         "__typename": "BeneficiaryAlreadySignedError"
     }
@@ -1134,12 +1138,14 @@ def test_update_beneficiary_fields_and_tags(client):
         phoneNumber='"123"',
         tagIds="[3, 6]",
         customTextField1='""',
+        customDateField='"2024-10-31"',
     )
     assert response["email"] == "new@mail.com"
     assert response["phoneNumber"] == "123"
     assert response["customTextField1"] == ""
     assert response["tags"] == [{"id": "3"}, {"id": "6"}]
     assert response["lastModifiedBy"] == {"id": "8"}
+    assert response["customDateField"] == "2024-10-31"
 
     # null is ignored
     response = _update_beneficiary(client, 1, email="null", tagIds="null")
@@ -1165,6 +1171,7 @@ def test_update_beneficiary_fields_and_tags(client):
     assert any(c.startswith("email changed from") for c in changes)
     assert any(c.startswith("phone changed from") for c in changes)
     assert any(c.startswith("customfield1_value changed from") for c in changes)
+    assert any(c.startswith("customfield4_value changed from") for c in changes)
 
 
 def test_update_beneficiary_family_head(client):
@@ -1262,6 +1269,14 @@ def test_assign_unassign_tags_to_beneficiaries(client):
         TagsRelation.deleted_on.is_null(),
     )
     assert sorted(r.tag_id for r in relations) == [1, 3]
+
+    response = _bulk(
+        client,
+        "assignTagsToBeneficiaries(updateInput: { ids: [1], " "tagIds: [1, 3] })",
+    )
+    assert response["__typename"] == "BeneficiariesTagsOperationResult"
+    assert _ids(response) == []
+    assert sorted(response["invalidBeneficiaryIds"]) == [1]
 
     # Tag errors
     response = _bulk(
@@ -1377,7 +1392,7 @@ def test_bulk_base_mismatch(client, mocker):
     assert response["__typename"] == "BeneficiaryBaseMismatchError"
 
 
-def test_register_services_for_beneficiaries(client):
+def test_register_services_for_beneficiaries(client, mocker):
     response = _bulk(
         client,
         "registerServicesForBeneficiaries(updateInput: { ids: [1, 3, 3, 2, 4], "
@@ -1396,6 +1411,20 @@ def test_register_services_for_beneficiaries(client):
     assert (
         ServicesRelation.select().where(ServicesRelation.beneficiary == 3).count() == 1
     )
+
+    # Service 2 is in unauthorized base, service 3 is deleted
+    response = _bulk(
+        client,
+        "registerServicesForBeneficiaries(updateInput: { ids: [1], "
+        "serviceIds: [2, 3] })",
+    )
+    assert response["__typename"] == "BeneficiariesServicesOperationResult"
+    assert _ids(response) == []
+    assert sorted(response["invalidBeneficiaryIds"]) == []
+    assert response["serviceErrorInfo"] == [
+        {"id": "2", "error": {"__typename": "UnauthorizedForBaseError"}},
+        {"id": "3", "error": {"__typename": "DeletedServiceError"}},
+    ]
 
     query = """query { beneficiary(id: 1) { serviceUsages {
                 usedOn registeredBy { id } service { id name totalUsage uniqueUsage
@@ -1417,6 +1446,21 @@ def test_register_services_for_beneficiaries(client):
             "description": "for beginners and intermediate",
             "totalUsage": 3,
         }
+    ]
+
+    mock_user_for_request(mocker, base_ids=[1, 2])
+    # Services 1 and 2 are in different bases (that user is authorized for)
+    response = _bulk(
+        client,
+        "registerServicesForBeneficiaries(updateInput: { ids: [1], "
+        "serviceIds: [1, 2] })",
+    )
+    assert response["__typename"] == "BeneficiariesServicesOperationResult"
+    assert _ids(response) == []
+    assert sorted(response["invalidBeneficiaryIds"]) == []
+    assert response["serviceErrorInfo"] == [
+        {"id": "1", "error": {"__typename": "ServiceBaseMismatchError"}},
+        {"id": "2", "error": {"__typename": "ServiceBaseMismatchError"}},
     ]
 
 

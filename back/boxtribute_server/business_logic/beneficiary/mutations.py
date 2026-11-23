@@ -8,7 +8,6 @@ from ...errors import (
     ResourceDoesNotExist,
     SingleBeneficiaryForMerge,
 )
-from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.utils import utcnow
 from ..tag.crud import unassign_tags_from_resources
@@ -51,8 +50,6 @@ def resolve_create_beneficiary(*_, creation_input):
     authorize(permission="tag:read", base_id=base_id)
     authorize(permission="tags_relation:write")
     authorize(permission="transaction:create")
-    if Base.get_or_none(Base.id == base_id) is None:
-        return ResourceDoesNotExist(name="Base", id=base_id)
 
     # Check existence
     family_head, tags, error = fetch_family_head_and_tags(
@@ -145,7 +142,6 @@ def _authorize_single_base(beneficiaries, permission):
 
 def _tags_operation(update_input, *, unassign):
     authorize(permission="tags_relation:write")
-    _require_permission("beneficiary:edit")
 
     ids = _unique(update_input["ids"])
     tag_ids = set(update_input["tag_ids"])
@@ -162,6 +158,7 @@ def _tags_operation(update_input, *, unassign):
             tag_error_info=tag_errors,
         )
 
+    authorize(permission="beneficiary:edit", base_id=tags_base_id)
     # Beneficiaries in a base different from the tags' base are invalid
     beneficiaries, _ = find_beneficiaries(
         ids, IS_ACTIVE, Beneficiary.base == tags_base_id
@@ -175,9 +172,6 @@ def _tags_operation(update_input, *, unassign):
         # Beneficiaries that already have all of the requested tags are invalid
         missing = missing_tag_ids(beneficiary_ids, valid_tag_ids)
         beneficiaries = [b for b in beneficiaries if missing[b.id]]
-
-    if error := _authorize_single_base(beneficiaries, "beneficiary:edit"):
-        return error
 
     valid_ids = {b.id for b in beneficiaries}
     if unassign:
@@ -282,7 +276,6 @@ def resolve_reactivate_beneficiaries(*_, ids):
 @handle_unauthorized
 def resolve_register_services_for_beneficiaries(*_, update_input):
     authorize(permission="services_relation:create")
-    _require_permission("beneficiary:edit")
 
     ids = _unique(update_input["ids"])
     valid_service_ids, service_errors, services_base_id = validate_services(
@@ -295,12 +288,11 @@ def resolve_register_services_for_beneficiaries(*_, update_input):
             service_error_info=service_errors,
         )
 
+    authorize(permission="beneficiary:edit", base_id=services_base_id)
     # Beneficiaries in a base different from the services' base are invalid
     beneficiaries, invalid_ids = find_beneficiaries(
         ids, IS_ACTIVE, Beneficiary.base == services_base_id
     )
-    if error := _authorize_single_base(beneficiaries, "beneficiary:edit"):
-        return error
 
     updated_beneficiaries = (
         register_services_for_beneficiaries(
