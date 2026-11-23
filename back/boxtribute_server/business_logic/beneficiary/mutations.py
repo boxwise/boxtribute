@@ -50,6 +50,7 @@ def resolve_create_beneficiary(*_, creation_input):
     authorize(permission="beneficiary:create", base_id=base_id)
     authorize(permission="tag:read", base_id=base_id)
     authorize(permission="tags_relation:write")
+    authorize(permission="transaction:create")
     if Base.get_or_none(Base.id == base_id) is None:
         return ResourceDoesNotExist(name="Base", id=base_id)
 
@@ -97,6 +98,7 @@ def resolve_update_beneficiary(*_, update_input):
     authorize(permission="beneficiary:edit", base_id=beneficiary.base_id)
     authorize(permission="tag:read", base_id=beneficiary.base_id)
     authorize(permission="tags_relation:write")
+    authorize(permission="transaction:create")
 
     family_head, tags, error = fetch_family_head_and_tags(
         update_input.get("family_head_id"), update_input.get("tag_ids")
@@ -322,6 +324,7 @@ def resolve_register_services_for_beneficiaries(*_, update_input):
 def resolve_merge_beneficiaries_into_family(*_, ids):
     permission = "beneficiary:edit"
     _require_permission(permission)
+    authorize(permission="transaction:create")
 
     ids = _unique(ids)
     if len(ids) < 2:

@@ -748,7 +748,9 @@ def export_beneficiary_rows_to_csv(base_id, filters=None):
             "Gender": b["gender"].value if b["gender"] else "",
             "Age": b["age"],
             "Tags": protect(
-                ",".join(tags[int(i)] for i in b["tag_ids"].split(","))
+                ",".join(
+                    tags[int(i)] for i in b["tag_ids"].split(",") if int(i) in tags
+                )
                 if b["tag_ids"]
                 else ""
             ),

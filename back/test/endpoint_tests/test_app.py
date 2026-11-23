@@ -26,6 +26,7 @@ def test_base_specific_permissions(client, mocker):
             "base_3/beneficiary:create",
             "base_3/tag:read",
             "tags_relation:write",
+            "transaction:create",
         ],
     )
 
