@@ -240,6 +240,9 @@ def update_beneficiary(
         setattr(beneficiary, field, value)
 
     if family_head_id is not UNSET and family_head_id != beneficiary.family_head_id:
+        _lock_beneficiaries(
+            [beneficiary.id, beneficiary.family_head_id, family_head_id]
+        )
         if family_head_id is not None and beneficiary.family_head_id is None:
             transfer_balances(
                 user_id=user_id,
@@ -271,11 +274,29 @@ def update_beneficiary(
     return beneficiary
 
 
+def _lock_beneficiaries(ids):
+    """Lock the rows of the given beneficiaries until the surrounding transaction ends,
+    and return their current state. This serializes concurrent changes to their tokens,
+    family and tags. Rows are locked in ascending ID order to avoid deadlocks.
+    Must be called inside `db.database.atomic()`.
+    """
+    ids = sorted({i for i in ids if i is not None})
+    if not ids:
+        return []
+    return list(
+        Beneficiary.select()
+        .where(Beneficiary.id << ids)
+        .order_by(Beneficiary.id)
+        .for_update()
+    )
+
+
 def _update_tags(*, user_id, beneficiary_id, tag_ids, now):
     """Compare the beneficiary's assigned tags and the given tag IDs. Un-assign tags
     that are not in the given set, and assign tags that are not yet assigned.
     Return True if any tags were changed.
     """
+    _lock_beneficiaries([beneficiary_id])
     assigned_tag_ids = _assigned_tag_ids([beneficiary_id])[beneficiary_id]
     removed = assigned_tag_ids - tag_ids
     added = tag_ids - assigned_tag_ids
@@ -337,15 +358,17 @@ def create_transaction(
     now=None,
 ):
     """Insert information for a new Transaction in the database."""
-    return Transaction.create(
-        beneficiary=beneficiary_id,
-        count=count,
-        description=description,
-        tokens=tokens,
-        product=product_id,
-        created_on=now or utcnow(),
-        created_by=user_id,
-    )
+    with db.database.atomic():
+        _lock_beneficiaries([beneficiary_id])
+        return Transaction.create(
+            beneficiary=beneficiary_id,
+            count=count,
+            description=description,
+            tokens=tokens,
+            product=product_id,
+            created_on=now or utcnow(),
+            created_by=user_id,
+        )
 
 
 def transfer_balances(*, user_id, source_ids, target_id, now):
@@ -354,37 +377,41 @@ def transfer_balances(*, user_id, source_ids, target_id, now):
     Transaction with the positive total value for the target. Nothing is created for
     sources with balance 0.
     """
-    balances = {
-        beneficiary_id: int(total)
-        for beneficiary_id, total in Transaction.select(
-            Transaction.beneficiary, fn.SUM(Transaction.tokens)
-        )
-        .where(Transaction.beneficiary << list(source_ids))
-        .group_by(Transaction.beneficiary)
-        .tuples()
-        if total
-    }
+    with db.database.atomic():
+        _lock_beneficiaries([*source_ids, target_id])
+        # Locking read so that the sums include all committed transactions
+        balances = {
+            beneficiary_id: int(total)
+            for beneficiary_id, total in Transaction.select(
+                Transaction.beneficiary, fn.SUM(Transaction.tokens)
+            )
+            .where(Transaction.beneficiary << list(source_ids))
+            .group_by(Transaction.beneficiary)
+            .for_update()
+            .tuples()
+            if total
+        }
 
-    def transaction(beneficiary_id, tokens):
-        return dict(
-            beneficiary=beneficiary_id,
-            count=0,
-            description=TOKEN_TRANSFER_DESCRIPTION,
-            tokens=tokens,
-            product=None,
-            created_on=now,
-            created_by=user_id,
-        )
+        def transaction(beneficiary_id, tokens):
+            return dict(
+                beneficiary=beneficiary_id,
+                count=0,
+                description=TOKEN_TRANSFER_DESCRIPTION,
+                tokens=tokens,
+                product=None,
+                created_on=now,
+                created_by=user_id,
+            )
 
-    transactions = [
-        transaction(beneficiary_id, -balance)
-        for beneficiary_id, balance in sorted(balances.items())
-    ]
-    if total := sum(balances.values()):
-        transactions.append(transaction(target_id, total))
+        transactions = [
+            transaction(beneficiary_id, -balance)
+            for beneficiary_id, balance in sorted(balances.items())
+        ]
+        if total := sum(balances.values()):
+            transactions.append(transaction(target_id, total))
 
-    for chunk in chunked(transactions, BATCH_SIZE):
-        Transaction.insert_many(chunk).execute()
+        for chunk in chunked(transactions, BATCH_SIZE):
+            Transaction.insert_many(chunk).execute()
 
 
 def find_beneficiaries(ids, *conditions):
@@ -475,20 +502,21 @@ def assign_tags_to_beneficiaries(*, user_id, beneficiary_ids, tag_ids, now):
     assigned to are skipped. Return the list of updated beneficiaries.
     """
     beneficiary_ids = sorted(beneficiary_ids)
-    assigned = _assigned_tag_ids(beneficiary_ids, tag_ids)
-    relations = [
-        {
-            "object_id": beneficiary_id,
-            "object_type": TaggableObjectType.Beneficiary,
-            "tag": tag_id,
-            "created_on": now,
-            "created_by": user_id,
-        }
-        for beneficiary_id in beneficiary_ids
-        for tag_id in sorted(tag_ids)
-        if tag_id not in assigned[beneficiary_id]
-    ]
     with db.database.atomic():
+        _lock_beneficiaries(beneficiary_ids)
+        assigned = _assigned_tag_ids(beneficiary_ids, tag_ids)
+        relations = [
+            {
+                "object_id": beneficiary_id,
+                "object_type": TaggableObjectType.Beneficiary,
+                "tag": tag_id,
+                "created_on": now,
+                "created_by": user_id,
+            }
+            for beneficiary_id in beneficiary_ids
+            for tag_id in sorted(tag_ids)
+            if tag_id not in assigned[beneficiary_id]
+        ]
         for chunk in chunked(relations, BATCH_SIZE):
             TagsRelation.insert_many(chunk).execute()
         _update_beneficiaries(beneficiary_ids, user_id=user_id, now=now)
@@ -589,11 +617,14 @@ def merge_beneficiaries_into_family(*, user_id, beneficiaries, now):
     )
     others = [b for b in beneficiaries if b.id != new_head.id]
     other_ids = [b.id for b in others]
-    members = list(Beneficiary.select().where(Beneficiary.family_head << other_ids))
-    moved = others + members
-    moved_ids = {b.id for b in moved}
 
     with db.database.atomic():
+        _lock_beneficiaries([b.id for b in beneficiaries])
+        # Read the members under lock so that concurrent family changes are not missed
+        members = list(Beneficiary.select().where(Beneficiary.family_head << other_ids))
+        moved = others + members
+        moved_ids = {b.id for b in moved}
+
         transfer_balances(
             user_id=user_id, source_ids=other_ids, target_id=new_head.id, now=now
         )
@@ -613,11 +644,15 @@ def detach_beneficiaries_from_family(*, user_id, beneficiaries, now):
     individuals. No credit is transferred.
     Return the list of detached beneficiaries.
     """
-    ids = {b.id for b in beneficiaries}
     with db.database.atomic():
+        # Use the rows as locked in the database because their family head may have
+        # been changed concurrently. The old heads are locked as well
+        locked = _lock_beneficiaries(b.id for b in beneficiaries)
+        _lock_beneficiaries(b.family_head_id for b in locked)
+        ids = {b.id for b in locked}
         _update_beneficiaries(ids, user_id=user_id, now=now, family_head=None)
         history_entries = _family_head_history_entries(
-            beneficiaries, new_head_id=None, user_id=user_id, now=now
+            locked, new_head_id=None, user_id=user_id, now=now
         )
         DbChangeHistory.bulk_create(history_entries, batch_size=BATCH_SIZE)
     return _refetch_beneficiaries(ids)

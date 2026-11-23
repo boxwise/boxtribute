@@ -4,8 +4,10 @@ import io
 from datetime import date, timedelta
 from unittest import mock
 
+import pymysql
 import pytest
 from auth import mock_user_for_request
+from boxtribute_server.business_logic.beneficiary.crud import transfer_balances
 from boxtribute_server.enums import HumanGender, Language, TaggableObjectType
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.history import DbChangeHistory
@@ -19,6 +21,7 @@ from boxtribute_server.models.utils import (
     compute_age_in_days,
     utcnow,
 )
+from peewee import OperationalError
 from utils import assert_internal_server_error, assert_successful_request
 
 
@@ -1535,3 +1538,33 @@ def test_beneficiary_ids(client):
             { ...on BeneficiaryIds { ids } } }"""
     inactive_ids = assert_successful_request(client, query)["ids"]
     assert inactive_ids != ids
+
+
+def test_transfer_balances_waits_for_beneficiary_lock(client, setup_testing_database):
+    source_id, target_id = [
+        b.id for b in Beneficiary.select().order_by(Beneficiary.id).limit(2)
+    ]
+    # Simulate a concurrent transaction that holds a shared lock on the beneficiary. It
+    # blocks the explicit exclusive lock but not the implicit foreign key checks
+    other_connection = pymysql.connect(
+        **setup_testing_database.connect_params,
+        database=setup_testing_database.database,
+    )
+    try:
+        with other_connection.cursor() as cursor:
+            cursor.execute(
+                f"SELECT id FROM {Beneficiary._meta.table_name} WHERE id = %s"
+                " LOCK IN SHARE MODE",
+                (source_id,),
+            )
+        setup_testing_database.execute_sql("SET SESSION innodb_lock_wait_timeout = 1")
+        with pytest.raises(OperationalError, match="Lock wait timeout"):
+            transfer_balances(
+                user_id=1, source_ids=[source_id], target_id=target_id, now=utcnow()
+            )
+    finally:
+        setup_testing_database.execute_sql(
+            "SET SESSION innodb_lock_wait_timeout = DEFAULT"
+        )
+        other_connection.rollback()
+        other_connection.close()
