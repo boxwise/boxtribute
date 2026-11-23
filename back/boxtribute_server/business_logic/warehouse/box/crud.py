@@ -1,6 +1,3 @@
-import base64
-import csv
-import io
 import random
 import re
 from collections import defaultdict
@@ -66,6 +63,7 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
+from ...export import rows_to_csv_base64
 from ...tag.crud import create_tag
 
 WAREHOUSE_BOX_STATES = {
@@ -654,32 +652,6 @@ def assign_missing_tags_to_boxes(*, user_id, boxes):
     return list(Box.select().where(Box.id << box_ids))
 
 
-def unassign_tags_from_boxes(*, user_id, boxes, tag_ids):
-    """Soft-delete TagsRelation rows containing the given boxes and tag IDs. Already
-    deleted TagsRelations are ignored.
-
-    Update last_modified_* fields of the affected boxes.
-    Return the list of updated boxes.
-    """
-    if not boxes:
-        return []
-
-    box_ids = {box.id for box in boxes}
-    now = utcnow()
-    with db.database.atomic():
-        Box.update(last_modified_on=now, last_modified_by=user_id).where(
-            Box.id << box_ids
-        ).execute()
-        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
-            TagsRelation.tag << tag_ids,
-            TagsRelation.object_id << box_ids,
-            TagsRelation.object_type == TaggableObjectType.Box,
-            TagsRelation.deleted_on.is_null(),
-        ).execute()
-
-    return list(Box.select().where(Box.id << box_ids))
-
-
 def sanitize_input(data, new_tag_ids):
     sanitized_data = []
     all_tag_ids = []
@@ -1129,31 +1101,28 @@ def export_box_rows_to_csv(base_id, filters=None):
         "Last Modified By",
         "Created By",
     ]
-    output = io.StringIO()
-    writer = csv.DictWriter(output, fieldnames=fieldnames)
-    writer.writeheader()
-    for box in raw_boxes["page"]:
-        writer.writerow(
-            {
-                "Box Number": box["label_identifier"],
-                "Product": box["product_name"],
-                "Product Category": box["product_category_name"],
-                "Gender": ProductGender(box["product_gender"]).name,
-                "Size": box["size_name"],
-                "Number of items": box["number_of_items"],
-                "State": BoxState(box["state"]).name,
-                "Location": box["location_name"],
-                "Tags": ",".join(
-                    [tags[int(i)] for i in box["tag_ids"].split(",")]
-                    if box["tag_ids"]
-                    else []
-                ),
-                "Shipment": box["shipment_id"],
-                "Comment": box["comment"],
-                "Age at Export": box["age"],
-                "Last Modified (UTC time)": box["last_modified_on"],
-                "Last Modified By": box["last_modified_by_name"],
-                "Created By": box["created_by_name"],
-            }
-        )
-    return base64.b64encode(output.getvalue().encode()).decode()
+    rows = (
+        {
+            "Box Number": box["label_identifier"],
+            "Product": box["product_name"],
+            "Product Category": box["product_category_name"],
+            "Gender": ProductGender(box["product_gender"]).name,
+            "Size": box["size_name"],
+            "Number of items": box["number_of_items"],
+            "State": BoxState(box["state"]).name,
+            "Location": box["location_name"],
+            "Tags": ",".join(
+                [tags[int(i)] for i in box["tag_ids"].split(",")]
+                if box["tag_ids"]
+                else []
+            ),
+            "Shipment": box["shipment_id"],
+            "Comment": box["comment"],
+            "Age at Export": box["age"],
+            "Last Modified (UTC time)": box["last_modified_on"],
+            "Last Modified By": box["last_modified_by_name"],
+            "Created By": box["created_by_name"],
+        }
+        for box in raw_boxes["page"]
+    )
+    return rows_to_csv_base64(fieldnames, rows)

@@ -33,6 +33,7 @@ from ..business_logic.core.size_range.queries import query as size_range_query
 from ..business_logic.metrics.fields import metrics
 from ..business_logic.metrics.queries import public_query as metrics_public_query
 from ..business_logic.metrics.queries import query as metrics_query
+from ..business_logic.service.fields import service, service_usage
 from ..business_logic.statistics.fields import resolved_link
 from ..business_logic.statistics.mutations import mutation as statistics_mutation
 from ..business_logic.statistics.queries import public_query as shareable_link_query
@@ -112,6 +113,8 @@ object_types = (
     product,
     product_category,
     qr_code,
+    service,
+    service_usage,
     shipment,
     shipment_detail,
     size,
@@ -168,6 +171,16 @@ union_types = (
     UnionType("DeleteTagsResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiariesResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiaryResult", resolve_type_by_class_name),
+    UnionType("UpdateBeneficiaryResult", resolve_type_by_class_name),
+    UnionType("AssignTagsToBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("UnassignTagsFromBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("DeactivateBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("ReactivateBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("RegisterBeneficiariesForServicesResult", resolve_type_by_class_name),
+    UnionType("MergeBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("DetachBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("BeneficiaryIdsResult", resolve_type_by_class_name),
+    UnionType("ServiceError", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

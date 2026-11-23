@@ -26,6 +26,7 @@ def test_base_specific_permissions(client, mocker):
             "base_3/beneficiary:create",
             "base_3/tag:read",
             "tags_relation:write",
+            "transaction:create",
         ],
     )
 
@@ -41,7 +42,9 @@ def test_base_specific_permissions(client, mocker):
                     isVolunteer: true,
                     registered: false
                 }) {
-                id
+                __typename
+                ...on Beneficiary { id }
+                ...on UnauthorizedForBaseError { id }
             }"""
     create_beneficiary_for_base3_mutation = (
         create_beneficiary_for_base2_mutation.replace("baseId: 2", "baseId: 3")
@@ -53,11 +56,12 @@ def test_base_specific_permissions(client, mocker):
 
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
-    assert response.json["data"]["bene2"] is None
-    assert response.json["data"]["bene3"] is not None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-    assert response.json["errors"][0]["path"] == ["bene2"]
+    assert response.json["data"]["bene2"] == {
+        "__typename": "UnauthorizedForBaseError",
+        "id": "2",
+    }
+    assert response.json["data"]["bene3"]["__typename"] == "Beneficiary"
+    assert "errors" not in response.json
 
     data = {"query": """mutation {
             qr2: createQrCode { code }
@@ -150,11 +154,10 @@ def test_beta_level_check(client, mocker, mutation):
         "markShipmentAsLost",
         "sendShipment",
         "startReceivingShipment",
-        "deactivateBeneficiary",
     ],
 )
 def test_mutation_non_existent_resource(client, operation):
-    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b, 9.2.23
+    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b
     mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
@@ -165,8 +168,6 @@ def test_mutation_non_existent_resource(client, operation):
     [
         # Test case 8.2.20
         ["updateBox", """updateInput: { labelIdentifier: "xxx" }""", "id"],
-        # Test case 9.2.14
-        ["updateBeneficiary", "updateInput: { id: 0 }", "id"],
         # Test case 3.2.21
         ["addBoxesToShipment", "updateInput: { id: 0 }", "id"],
         ["updateShipmentWhenReceiving", "updateInput: { id: 0 }", "id"],
@@ -315,6 +316,13 @@ def test_update_non_existent_resource(client, operation, mutation_input, field):
             "creationInput: { baseId: 0, beneficiaryData: [] }",
             "...on UnauthorizedForBaseError { id name organisationName }",
             {"id": "0", "name": "", "organisationName": ""},
+        ],
+        # Test case 9.2.14
+        [
+            "updateBeneficiary",
+            "updateInput: { id: 0 }",
+            "...on ResourceDoesNotExistError { name id }",
+            {"name": "Beneficiary", "id": "0"},
         ],
         # Test case 4.2.5
         [

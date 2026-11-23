@@ -457,6 +457,16 @@ input BoxBulkCreationInput {
   boxLabelIdentifierForMerge: String
 }
 
+input BeneficiariesTagsOperationInput {
+  ids: [Int!]!
+  tagIds: [Int!]!
+}
+
+input BeneficiariesServicesOperationInput {
+  ids: [Int!]!
+  serviceIds: [Int!]!
+}
+
 input CustomProductCreationInput {
   name: String!
   categoryId: Int!
@@ -506,16 +516,27 @@ input BeneficiaryCreationInput {
   lastName: String!
   baseId: Int!
   groupIdentifier: String!
-  dateOfBirth: Date!
+  " Default: null. The resulting age is also null. "
+  dateOfBirth: Date
   comment: String
-  gender: HumanGender!
+  " Default: null "
+  gender: HumanGender
   languages: [Language!]
   familyHeadId: Int
-  isVolunteer: Boolean!
-  registered: Boolean!
+  " Default: false "
+  isVolunteer: Boolean
+  " Default: true "
+  registered: Boolean
   signature: String
-  dateOfSignature: Date
   tagIds: [Int!]
+  " If the beneficiary is a family member, this is attributed with the family head. 0 is silently ignored. "
+  initialCredit: Int
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiaryUpdateInput {
@@ -527,11 +548,19 @@ input BeneficiaryUpdateInput {
   comment: String
   gender: HumanGender
   languages: [Language!]
+  " If the beneficiary didn't belong to a family before, all their credit is transferred to the new family head. Passing null resets (i.e. makes the beneficiary an individual). Pass the current family head ID if it should be kept "
   familyHeadId: Int
   isVolunteer: Boolean
   registered: Boolean
   signature: String
-  dateOfSignature: Date
+  " Pass full set of assigned tags (internally, old and new tag sets are compared, removed tags are unassigned, and only added ones are assigned). Passing an empty list unassigns all tags, passing null ignores tag updates. "
+  tagIds: [Int!]
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiariesCreationInput {
@@ -635,21 +664,33 @@ type Mutation {
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
   " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
   assignTagsToBoxes(updateInput: BoxesTagsOperationInput): AssignTagsToBoxesResult
-  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
+  " Any boxes that are non-existing, deleted, without any of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
   unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): UnassignTagsFromBoxesResult
   " Create boxes by importing raw data. Prototypical! "
   createBoxes(creationInput: [BoxBulkCreationInput!]): CreateBoxesResult
   " Create box in a location by taking out items from an existing box "
   createBoxFromBox(creationInput: BoxFromBoxCreationInput!): CreateBoxFromBoxResult
 
-  " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
-  createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
+  " Create a new beneficiary in a base, using at least first/last name, and group identifier "
+  createBeneficiary(creationInput: BeneficiaryCreationInput): CreateBeneficiaryResult
   " Update one or more properties of a beneficiary with specified ID. "
-  updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
-  " Deactivate beneficiary with specified ID. "
-  deactivateBeneficiary(id: ID!): Beneficiary
+  updateBeneficiary(updateInput: BeneficiaryUpdateInput): UpdateBeneficiaryResult
   " Create multiple beneficiaries at once in one base. "
   createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
+  " Assign one or more tags to beneficiaries. Any beneficiaries that are non-existing, deactivated, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BeneficiariesTagsOperationResult.invalidBeneficiaryIds` list. Errors about tags are listed in `BeneficiariesTagsOperationResult.tagErrorInfo`. "
+  assignTagsToBeneficiaries(updateInput: BeneficiariesTagsOperationInput!): AssignTagsToBeneficiariesResult
+  " Un-assign one or more tags from beneficiaries. Any beneficiaries that are non-existing, deactivated, without any of the requested tags, and/or in a base that's different from the tags' base are returned in the `BeneficiariesTagsOperationResult.invalidBeneficiaryIds` list. Errors about tags are listed in `BeneficiariesTagsOperationResult.tagErrorInfo`. "
+  unassignTagsFromBeneficiaries(updateInput: BeneficiariesTagsOperationInput!): UnassignTagsFromBeneficiariesResult
+  " Deactivate one or more beneficiaries (from the same base). Any beneficiaries that are non-existing, already deactivated and/or in a base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. When deactivating a family head, all their family members are deactivated, too. "
+  deactivateBeneficiaries(ids: [Int!]!): DeactivateBeneficiariesResult
+  " Reactivate one or more beneficiaries (from the same base). Any beneficiaries that are non-existing, already reactivated, without an active parent, and/or in a base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. When reactivating a family head, all their deactivated family members are reactivated, too. "
+  reactivateBeneficiaries(ids: [Int!]!): ReactivateBeneficiariesResult
+  " Register beneficiaries for one or more services. Any beneficiaries that are non-existing, deactivated, and/or in a base that's different from the services' base are returned in the `BeneficiariesServicesOperationResult.invalidBeneficiaryIds` list. Errors about services are listed in `BeneficiariesServicesOperationResult.serviceErrorInfo`. "
+  registerServicesForBeneficiaries(updateInput: BeneficiariesServicesOperationInput!): RegisterBeneficiariesForServicesResult
+  " Merge two or more beneficiaries (family heads or individuals without family; in the same base) into a family. The oldest family head or individual (by date of birth. If all DoBs missing, the beneficiary who was created first. If tied, the first of the input list) becomes the family head. All members whose family head is in the input are moved under the new head (and returned in `BeneficiariesResult.updatedBeneficiaries`), and all credit balance of the new members is transferred to the new head. Any beneficiaries that are non-existing, deactivated, part of a family whose head is not in the input list, and/or in base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. "
+  mergeBeneficiariesIntoFamily(ids: [Int!]!): MergeBeneficiariesResult
+  " Detach one or more family members (in the same base) from their resp. families. No credit balance is transferred. Any beneficiaries that are non-existing, deactivated, already individuals or family heads, and/or in base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. "
+  detachBeneficiariesFromFamily(ids: [Int!]!): DetachBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
   createTag(creationInput: TagCreationInput): CreateTagResult
@@ -756,6 +797,10 @@ type Query {
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
   " Return beneficiary data optimized for tabular display "
   beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
+  " Return IDs of all beneficiaries in the given base (max: 100,000), taking into account filters. This is a utility method for enabling a defined input for beneficiary bulk operations "
+  beneficiaryIds(baseId: Int!, filters: FilterBeneficiaryInput): BeneficiaryIdsResult!
+  " Return data of all beneficiaries (max: 100,000) in given base as base64-encoded CSV string, taking into account filters "
+  exportBeneficiaryRowsToCsv(baseId: Int!, filters: FilterBeneficiaryInput): String
   " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
   tags(tagType: TagType): [Tag!]!
   " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "
@@ -1128,11 +1173,13 @@ type TagsResult {
   invalidTagIds: [ID!]!
 }
 
-type BeneficiariesResult {
+type BeneficiariesResults {
   results: [CreateBeneficiaryResult!]!
 }
 
-union CreateBeneficiaryResult = Beneficiary | ResourceDoesNotExistError #FamilyHeadDoesNotExist
+type BeneficiaryIds {
+  ids: [Int!]!
+}
 
 """
 Representation of a base.
@@ -1155,6 +1202,8 @@ type Base {
   products(filterInput: FilterProductInput): [Product!]!
   " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
+  " List of all non-deleted [`Services`]({{Types.Service}}) registered in this base "
+  services: [Service!]
   " Number of all non-deleted InStock boxes in the base. "
   instockBoxesCount: Int!
   " Number of items of all non-deleted InStock boxes in the base. "
@@ -1255,8 +1304,10 @@ type Beneficiary {
   dateOfSignature: Date
   " Number of tokens the beneficiary holds (sum of all transaction values) "
   tokens: Int
-  " List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed "
+  " List of all [`Transactions`]({{Types.Transaction}}) that are attributed to this beneficiary "
   transactions: [Transaction!]
+  " List of all [`Services`]({{Types.Service}}) that the beneficiary has used "
+  serviceUsages: [ServiceUsage!]
   createdBy: User
   createdOn: Datetime
   lastModifiedBy: User
@@ -1278,19 +1329,42 @@ type BeneficiaryFigures {
   percentageWithoutFreeshopVisitLast90Days: Float!
 }
 """
-Representation of a transaction executed by a beneficiary (spending or receiving tokens).
+Representation of a transaction attributed to a beneficiary (purchase or receiving credit).
 """
 type Transaction {
   id: ID!
   beneficiary: Beneficiary!
+  " null when receiving credit "
   product: Product
-  " Number of transferred products "
+  " Number of transferred products. 0 when receiving credit "
   count: Int
-  " Value of the transaction "
+  " Value of the transaction. Positive for credit, negative or 0 for purchase "
   tokens: Int
   description: String
   createdBy: User
   createdOn: Datetime!
+}
+
+"""
+Representation of a service that can be used by a beneficiary. Services can be used multiple times by beneficiaries
+"""
+type Service {
+  id: ID!
+  name: String!
+  description: String!
+  totalUsage: Int!
+  uniqueUsage: Int!
+  createdOn: Datetime
+  lastUsedOn: Datetime
+}
+
+"""
+Report for when a beneficiary used a service.
+"""
+type ServiceUsage {
+  service: Service!
+  usedOn: Datetime!
+  registeredBy: User
 }
 
 """
@@ -1524,6 +1598,40 @@ type BoxesTagsOperationResult {
   tagErrorInfo: [TagErrorInfo!]
 }
 
+"""
+Utility response type for beneficiary bulk-mutations, containing both updated beneficiaries and invalid beneficiaries (ignored due to e.g. being deactivated, in prohibited base, and/or non-existing).
+"""
+type BeneficiariesResult {
+  updatedBeneficiaries: [Beneficiary!]!
+  invalidBeneficiaryIds: [Int!]!
+}
+
+"""
+Utility response type for beneficiary bulk tag-mutations, containing both updated beneficiaries and invalid beneficiaries (ignored due to e.g. being deactivated, in base different from tags' base, and/or non-existing) as well as optional info about erroneous tags (due to e.g. being deleted, in prohibited base, of wrong type, and/or non-existing).
+"""
+type BeneficiariesTagsOperationResult {
+  updatedBeneficiaries: [Beneficiary!]!
+  invalidBeneficiaryIds: [Int!]!
+  tagErrorInfo: [TagErrorInfo!]
+}
+
+"""
+Utility response type for registering beneficiaries for services, containing both updated beneficiaries and invalid beneficiaries (ignored due to e.g. being deactivated, in base different from services' base, and/or non-existing) as well as optional info about erroneous services (due to e.g. being deleted, in prohibited base, and/or non-existing).
+"""
+type BeneficiariesServicesOperationResult {
+  updatedBeneficiaries: [Beneficiary!]!
+  invalidBeneficiaryIds: [Int!]!
+  serviceErrorInfo: [ServiceErrorInfo!]
+}
+
+""" Error info about service with specified ID. """
+type ServiceErrorInfo {
+  id: ID!
+  error: ServiceError!
+}
+
+union ServiceError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | ServiceBaseMismatchError | DeletedServiceError
+
 """ Error info about tag with specified ID. """
 type TagErrorInfo {
   id: ID!
@@ -1611,6 +1719,42 @@ type InvalidBaseError {
 type InvalidFilterInputError {
   _: Boolean
 }
+type ServiceBaseMismatchError {
+  _: Boolean
+}
+type DeletedServiceError {
+  name: String!
+}
+type FamilyHeadBaseMismatchError {
+  _: Boolean
+}
+type BeneficiaryBaseMismatchError {
+  _: Boolean
+}
+type SingleBeneficiaryForMergeError {
+  _: Boolean
+}
+type DeactivatedFamilyHeadError {
+  id: ID!
+}
+type FamilyHeadHasMembersError {
+  _: Boolean
+}
+type FamilyHeadIsMemberError {
+  id: ID!
+}
+type FamilyHeadSelfReferenceError {
+  _: Boolean
+}
+type BeneficiaryAlreadySignedError {
+  _: Boolean
+}
+type InvalidInitialCreditError {
+  initialCredit: Int!
+}
+type InvalidEmailError {
+  email: String!
+}
 
 union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | InvalidFilterInputError
 union AssignTagsToBoxesResult = BoxesTagsOperationResult | InsufficientPermissionError | InvalidFilterInputError
@@ -1628,7 +1772,17 @@ union EnableStandardProductResult = Product | InsufficientPermissionError | Reso
 union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError | DeletedProductError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
-union CreateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ResourceDoesNotExistError
+union CreateBeneficiariesResult = BeneficiariesResults | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ResourceDoesNotExistError
+union CreateBeneficiaryResult = Beneficiary | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidDateError | TagBaseMismatchError | TagTypeMismatchError | DeletedTagError | FamilyHeadBaseMismatchError | DeactivatedFamilyHeadError | FamilyHeadIsMemberError | InvalidInitialCreditError | InvalidEmailError | EmptyNameError
+union UpdateBeneficiaryResult = Beneficiary | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidDateError | TagBaseMismatchError | TagTypeMismatchError | DeletedTagError | FamilyHeadBaseMismatchError | DeactivatedFamilyHeadError | FamilyHeadIsMemberError | FamilyHeadSelfReferenceError | FamilyHeadHasMembersError | BeneficiaryAlreadySignedError | InvalidEmailError | EmptyNameError
+union AssignTagsToBeneficiariesResult = BeneficiariesTagsOperationResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union UnassignTagsFromBeneficiariesResult = BeneficiariesTagsOperationResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union DeactivateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union ReactivateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union RegisterBeneficiariesForServicesResult = BeneficiariesServicesOperationResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union MergeBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError | SingleBeneficiaryForMergeError
+union DetachBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union BeneficiaryIdsResult = BeneficiaryIds | InsufficientPermissionError | UnauthorizedForBaseError
 union CreateBoxesResult = BoxesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ProductLocationBaseMismatchError | InvalidBaseError
 
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError

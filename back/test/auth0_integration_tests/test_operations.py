@@ -137,6 +137,7 @@ def test_mutations(auth0_client_with_rollback, mocker):
         "coordinator@coordinator.co"
     )
     user_id = "100000001"
+    today = date.today().isoformat()
 
     mutation = "mutation { createQrCode { id } }"
     response = assert_successful_request(auth0_client, mutation, field="createQrCode")
@@ -168,16 +169,29 @@ def test_mutations(auth0_client_with_rollback, mocker):
                     gender: Female,
                     isVolunteer: false,
                     registered: false
-                }) { id firstName } }"""
+                }) { ...on Beneficiary { id firstName } } }"""
     response = assert_successful_request(auth0_client, mutation)
     beneficiary_id = response.pop("id")
     assert response == {"firstName": "Any"}
 
     mutation = f"""mutation {{ updateBeneficiary(updateInput: {{
                     id: {beneficiary_id}, firstName: "Some"
-                    }}) {{ firstName }} }}"""
+                    }}) {{ ...on Beneficiary {{ firstName }} }} }}"""
     response = assert_successful_request(auth0_client, mutation)
     assert response == {"firstName": "Some"}
+
+    mutation = f"""mutation {{ deactivateBeneficiaries(ids: [{beneficiary_id}]) {{
+    ...on BeneficiariesResult {{ updatedBeneficiaries {{ id deactivatedOn }} }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response["updatedBeneficiaries"][0].pop("deactivatedOn").startswith(today)
+    assert response["updatedBeneficiaries"] == [{"id": beneficiary_id}]
+
+    mutation = f"""mutation {{ reactivateBeneficiaries(ids: [{beneficiary_id}]) {{
+    ...on BeneficiariesResult {{ updatedBeneficiaries {{ id deactivatedOn }} }} }} }}"""
+    response = assert_successful_request(auth0_client, mutation)
+    assert response["updatedBeneficiaries"] == [
+        {"id": beneficiary_id, "deactivatedOn": None}
+    ]
 
     def create_shipment():
         mutation = """mutation { createShipment(creationInput: {
@@ -291,7 +305,6 @@ def test_mutations(auth0_client_with_rollback, mocker):
     mutation = f"""mutation {{ deleteProduct(id: {product_id}) {{
                 ...on Product {{ deletedOn }} }} }}"""
     response = assert_successful_request(auth0_client, mutation)
-    today = date.today().isoformat()
     assert response["deletedOn"].startswith(today)
 
     mutation = """mutation { enableStandardProduct(enableInput: {
