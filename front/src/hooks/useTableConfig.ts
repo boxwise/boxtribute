@@ -58,8 +58,7 @@ export const useTableConfig = ({
 
   function setGlobalFilter(globalFilter: string | undefined) {
     const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.globalFilter = globalFilter;
-    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsState.set(tableConfigKey, { ...tableConfig, globalFilter });
     tableConfigsVar(tableConfigsState);
   }
 
@@ -77,15 +76,13 @@ export const useTableConfig = ({
 
   function setSortBy(sortBy: SortingRule<any>[]) {
     const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.sortBy = sortBy;
-    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsState.set(tableConfigKey, { ...tableConfig, sortBy });
     tableConfigsVar(tableConfigsState);
   }
 
   function setHiddenColumns(hiddenColumns: string[] | undefined) {
     const tableConfig = tableConfigsState.get(tableConfigKey) || defaultTableConfig;
-    tableConfig.hiddenColumns = hiddenColumns;
-    tableConfigsState.set(tableConfigKey, tableConfig);
+    tableConfigsState.set(tableConfigKey, { ...tableConfig, hiddenColumns });
     tableConfigsVar(tableConfigsState);
   }
 

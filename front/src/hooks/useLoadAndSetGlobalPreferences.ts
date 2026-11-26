@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLazyQuery } from "@apollo/client";
@@ -17,7 +17,7 @@ export const useLoadAndSetGlobalPreferences = () => {
   const { user } = useAuth0();
   const authorize = useAuthorization();
   const location = useLocation();
-  const [error, setError] = useState<string>();
+  // const [error, setError] = useState<string>();
   const setOrganisation = useSetAtom(organisationAtom);
   const [selectedBase, setSelectedBase] = useAtom(selectedBaseAtom);
   const [availableBases, setAvailableBases] = useAtom(availableBasesAtom);
@@ -33,13 +33,54 @@ export const useLoadAndSetGlobalPreferences = () => {
   );
 
   // validate if base Ids are set in auth0 id token
-  if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length))
-    setError("You do not have access to any bases.");
+  // if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length))
+  //   setError("You do not have access to any bases.");
 
   const [
     runOrganisationAndBasesQuery,
     { loading: isOrganisationAndBasesQueryLoading, data: organisationAndBaseData },
   ] = useLazyQuery(ORGANISATION_AND_BASES_QUERY);
+
+  const error = useMemo(() => {
+    if (!user || (!isGod && !user[JWT_AVAILABLE_BASES]?.length)) {
+      return "You do not have access to any bases.";
+    } else {
+      const urlBaseIdInput = location.pathname.match(/\/bases\/(\d+)(\/)?/);
+      const urlBaseId = urlBaseIdInput?.length && urlBaseIdInput[1];
+      if (urlBaseId && !isGod && !user[JWT_AVAILABLE_BASES].map(String).includes(urlBaseId)) {
+        return "The requested base is not available to you.";
+      }
+
+      if (!isOrganisationAndBasesQueryLoading && organisationAndBaseData !== undefined) {
+        const basesWithOrgData = organisationAndBaseData.bases;
+        const bases = basesWithOrgData.map((base) => ({
+          id: base.id,
+          name: base.name,
+        }));
+
+        if (bases.length <= 0) {
+          return "There are no available bases.";
+        } else {
+          if (selectedBase?.id) {
+            const matchingBase = basesWithOrgData.find((base) => base.id === selectedBase.id);
+
+            if (!matchingBase) {
+              return "The requested base is not available to you.";
+            }
+          }
+        }
+      }
+    }
+
+    return undefined;
+  }, [
+    isGod,
+    isOrganisationAndBasesQueryLoading,
+    location.pathname,
+    organisationAndBaseData,
+    selectedBase,
+    user,
+  ]);
 
   // run query only if
   // - the access token is in the request header from the apollo client and
@@ -74,9 +115,10 @@ export const useLoadAndSetGlobalPreferences = () => {
             // only overwrite the selected base ID if the id is different from the existing one.
             setSelectedBase({ id: urlBaseId });
           }
-        } else {
-          setError("The requested base is not available to you.");
         }
+        // } else {
+        //   setError("The requested base is not available to you.");
+        // }
       }
     }
   }, [
@@ -110,15 +152,17 @@ export const useLoadAndSetGlobalPreferences = () => {
             setSelectedBase({ id: matchingBase.id, name: matchingBase.name });
             // set organisation for selected base
             setOrganisation(matchingBase.organisation);
-          } else {
-            // this error is set if the requested base is not part of the available bases
-            setError("The requested base is not available to you.");
           }
+          // } else {
+          //   // this error is set if the requested base is not part of the available bases
+          //   setError("The requested base is not available to you.");
+          // }
         }
-      } else {
-        // this error is set if the bases query returned an empty array for bases
-        setError("There are no available bases.");
       }
+      // } else {
+      //   // this error is set if the bases query returned an empty array for bases
+      //   setError("There are no available bases.");
+      // }
     }
   }, [
     isOrganisationAndBasesQueryLoading,

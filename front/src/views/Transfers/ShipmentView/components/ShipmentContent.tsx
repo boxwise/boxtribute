@@ -202,7 +202,7 @@ function ShipmentContent({
                       }}
                       onClick={
                         !isExpanded && !isLoadingMutation
-                          ? () => onBulkRemoveBox(item.boxes.map((b) => b?.labelIdentifier!))
+                          ? () => onBulkRemoveBox(item.boxes.map((b) => b?.labelIdentifier ?? ""))
                           : undefined
                       }
                     />

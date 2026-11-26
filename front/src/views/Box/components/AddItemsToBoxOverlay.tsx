@@ -10,7 +10,7 @@ import {
   ModalOverlay,
   Spacer,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { IChangeNumberOfItemsBoxData } from "../BoxView";
 import { NumberField } from "@boxtribute/shared-components";
 
@@ -30,14 +30,13 @@ function AddItemsToBoxOverlay({
   const {
     control,
     handleSubmit,
-    watch,
     formState: { isSubmitting, errors },
   } = useForm<IChangeNumberOfItemsBoxData>({
     defaultValues: {
       numberOfItems: 1,
     },
   });
-  const numberOfItems = watch("numberOfItems");
+  const numberOfItems = useWatch({ control, name: "numberOfItems" });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

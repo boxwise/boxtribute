@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { VStack, Button, SimpleGrid, Box, Input, FormLabel, HStack } from "@chakra-ui/react";
 import MultiSelectFilter from "./MultiSelectFilter";
 import TabbedTagDropdown from "./TabbedTagDropdown";
@@ -36,13 +36,22 @@ export function MovementFilters({
   onApply,
   direction,
 }: MovementFiltersProps) {
+  const [prevAppliedFilters, setPrevAppliedFilters] = useState(appliedFilters);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
   const [staged, setStaged] = useState<MovementAppliedFilters>(appliedFilters);
 
-  useEffect(() => {
+  if (
+    isOpen !== prevIsOpen ||
+    JSON.stringify(appliedFilters) !== JSON.stringify(prevAppliedFilters)
+  ) {
+    setPrevIsOpen(isOpen);
+    setPrevAppliedFilters(appliedFilters);
+
     if (isOpen) {
       setStaged(appliedFilters);
     }
-  }, [isOpen, appliedFilters]);
+  }
 
   const productOptions = toProductFilterValues(products);
   const categoryOptions = toFilterValues(categories);

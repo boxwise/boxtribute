@@ -9,7 +9,14 @@ import {
   STOCK_OVERVIEW_FRAGMENT,
   USER_FRAGMENT,
 } from "./fragments";
-import { CREATED_BOXES_QUERY, STOCK_QUERY, MOVED_BOXES_QUERY, DEMOGRAPHIC_QUERY, BENEFICIARY_FIGURES_QUERY, BENEFICIARY_REACH_QUERY } from "../shared-components/statviz/queries/queries";
+import {
+  CREATED_BOXES_QUERY,
+  STOCK_QUERY,
+  MOVED_BOXES_QUERY,
+  DEMOGRAPHIC_QUERY,
+  BENEFICIARY_FIGURES_QUERY,
+  BENEFICIARY_REACH_QUERY,
+} from "../shared-components/statviz/queries/queries";
 
 /** @todo Make a fragment to infer this type. */
 export type TargetType = introspection_types["TargetType"]["enumValues"];

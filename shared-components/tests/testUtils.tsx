@@ -1,4 +1,3 @@
-/* eslint-disable import/export */
 // TODO: Investigate possible render function overload.
 
 import React from "react";
