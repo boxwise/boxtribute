@@ -257,7 +257,36 @@ const createdBoxesMock = {
 // Render helper
 // ---------------------------------------------------------------------------
 
-function renderStockOverview(urlSuffix = "") {
+function stockMockWithSizeLessFact() {
+  return {
+    ...stockMock,
+    result: {
+      ...stockMock.result,
+      data: {
+        ...stockMock.result.data,
+        stockOverview: {
+          ...stockMock.result.data.stockOverview,
+          facts: [
+            ...stockMock.result.data.stockOverview.facts,
+            {
+              productName: "rice",
+              categoryId: 3,
+              gender: null,
+              boxesCount: 4,
+              itemsCount: 8,
+              sizeId: null,
+              tagIds: [],
+              boxState: "InStock",
+              locationId: 3,
+            },
+          ],
+        },
+      },
+    },
+  } as typeof stockMock;
+}
+
+function renderStockOverview(urlSuffix = "", stockQueryMock = stockMock) {
   return render(
     <Accordion defaultIndex={[0]}>
       <StockOverview
@@ -271,7 +300,7 @@ function renderStockOverview(urlSuffix = "") {
     {
       routePath: "/bases/:baseId/",
       initialUrl: `/bases/1/${urlSuffix}`,
-      mocks: [stockMock, createdBoxesMock],
+      mocks: [stockQueryMock, createdBoxesMock],
     },
   );
 }
@@ -296,6 +325,18 @@ describe("StockOverview", () => {
       expect(screen.getByText("Accessories: 7")).toBeInTheDocument();
       // Exactly 3 slices – proves non-InStock data is not rendered as extra slices
       expect(screen.getAllByTestId("pie-slice")).toHaveLength(3);
+    });
+
+    it("includes measure-product facts without a size dimension", async () => {
+      renderStockOverview("", stockMockWithSizeLessFact());
+
+      expect(await screen.findByText("Accessories: 11")).toBeInTheDocument();
+    });
+
+    it("labels size-less facts safely when grouping by size", async () => {
+      renderStockOverview("?srg=s", stockMockWithSizeLessFact());
+
+      expect(await screen.findByText("N/A: 4")).toBeInTheDocument();
     });
 
     it("bar chart shows only InStock categories (3 categories, Donated/Lost excluded)", async () => {

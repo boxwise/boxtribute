@@ -131,12 +131,13 @@ Commit and push the changes to the `init.sql` file, and copy them over to dropap
 #### ORM
 
 From the Python side of the application we use an Object Relational Mapper (ORM) to interact with the database. An ORM provides a convenient abstraction interface since it leverages Python's language features and is more secure compared to using raw SQL queries.
-It was [decided](../docs/adr/Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `back/boxtribute_server/models/` as abstraction of the MySQL database tables.
+It was [decided](../docs/adr/adr_Python-ORM.md) to settle with [peewee](https://docs.peewee-orm.com/en/latest/index.html) as ORM solution. It builds on models (see `back/boxtribute_server/models/` as abstraction of the MySQL database tables.
 
 Mind the following perks of peewee:
 
 1. When creating a model instance referencing another model via a foreign key, use the ID of the FK model instance instead of a model instance, e.g. `Location(base=1)`.
 1. If you want to retrieve only the ID of a foreign key field, access it with the "magic" suffix `_id`, e.g. `location.base_id`. This avoids overhead of an additional select query issued by peewee when using `location.base.id`.
+1. peewee caches the results of a select operation, leading to large memory consumption for large result sets. This can be avoided by attaching `.iterator()` to the select call. See [docs for more info](http://docs.peewee-orm.com/en/latest/peewee/querying.html#iterating-over-large-result-sets) and also this [insightful question](https://stackoverflow.com/questions/77564291/debug-peewee-cache-hits/77571546#77571546)
 1. You can activate peewee's logging to gain insight into the generated SQL queries:
 
 ```python

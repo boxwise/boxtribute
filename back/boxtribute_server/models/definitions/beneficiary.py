@@ -1,8 +1,9 @@
-from peewee import SQL, CharField, DateField, DateTimeField, IntegerField, TextField
+from peewee import SQL, CharField, DateTimeField, IntegerField, TextField
 
 from ...enums import HumanGender
 from ..fields import (
     EnumCharField,
+    IntAsCharField,
     UIntForeignKeyField,
     ZeroDateField,
     ZeroDateTimeField,
@@ -35,13 +36,6 @@ class HumanGenderField(EnumCharField):
 
 class Beneficiary(Model):
     signed = IntegerField(column_name="approvalsigned", constraints=[SQL("DEFAULT 0")])
-    bicycle_ban = DateField(column_name="bicycleban", null=True)
-    bicycle_ban_comment = TextField(
-        column_name="bicyclebancomment",
-    )
-    bicycle_training = IntegerField(
-        column_name="bicycletraining", constraints=[SQL("DEFAULT 0")]
-    )
     base = UIntForeignKeyField(
         column_name="camp_id",
         field="id",
@@ -68,18 +62,10 @@ class Beneficiary(Model):
     )
     deleted_on = ZeroDateTimeField(column_name="deleted")
     email = CharField(constraints=[SQL("DEFAULT ''")])
-    extra_portion = IntegerField(
-        column_name="extraportion", constraints=[SQL("DEFAULT 0")]
-    )
     family_id = IntegerField()
     first_name = CharField(column_name="firstname", constraints=[SQL("DEFAULT ''")])
     gender = HumanGenderField(constraints=[SQL("DEFAULT ''")])
-    language = IntegerField(constraints=[SQL("DEFAULT 5")])
     last_name = CharField(column_name="lastname", constraints=[SQL("DEFAULT ''")])
-    laundry_block = IntegerField(
-        column_name="laundryblock", constraints=[SQL("DEFAULT 0")]
-    )
-    laundry_comment = CharField(column_name="laundrycomment", null=True)
     last_modified_on = DateTimeField(column_name="modified", null=True)
     last_modified_by = UIntForeignKeyField(
         model=User,
@@ -102,27 +88,22 @@ class Beneficiary(Model):
         on_update="CASCADE",
         object_id_name="family_head_id",
     )
-    pass_ = CharField(column_name="pass", constraints=[SQL("DEFAULT ''")])
     phone_number = CharField(column_name="phone", null=True)
-    reset_password = CharField(column_name="resetpassword", null=True)
     seq = IntegerField()
     signature = TextField(column_name="signaturefield", null=True)
-    tent = CharField(constraints=[SQL("DEFAULT ''")])
-    url = IntegerField(null=True)
-    visible = IntegerField(constraints=[SQL("DEFAULT 1")], default=True)
     is_volunteer = IntegerField(
         column_name="volunteer", constraints=[SQL("DEFAULT 0")], default=False
     )
-    workshop_ban = DateField(column_name="workshopban", null=True)
-    workshop_ban_comment = TextField(
-        column_name="workshopbancomment",
+    custom_text_field_1 = CharField(
+        column_name="customfield1_value", max_length=255, null=True
     )
-    workshop_supervisor = IntegerField(
-        column_name="workshopsupervisor", constraints=[SQL("DEFAULT 0")]
+    custom_text_field_2 = CharField(
+        column_name="customfield2_value", max_length=255, null=True
     )
-    workshop_training = IntegerField(
-        column_name="workshoptraining", constraints=[SQL("DEFAULT 0")]
+    custom_number_field = IntAsCharField(
+        column_name="customfield3_value", max_length=255, null=True
     )
+    custom_date_field = ZeroDateTimeField(column_name="customfield4_value", null=True)
 
     class Meta:
         table_name = "people"

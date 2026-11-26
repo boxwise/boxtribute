@@ -77,6 +77,15 @@ enum Language {
   de
   ar
   ckb
+  ur
+  ku
+  fa
+  ps
+  ti
+  am
+  ln
+  so
+  prs
 }
 
 enum TransferAgreementState {
@@ -133,34 +142,36 @@ enum BeneficiaryReachType {
   Checkout
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
-enum DistributionEventState {
-  Planning
-  Packing
-  OnDistro
-  ReturnedFromDistribution
-  ReturnTrackingInProgress
-  Completed
+enum BoxSortField {
+  LabelIdentifier
+  LastModifiedOn
+  State
+  ProductName
+  CategoryName
+  ProductGender
+  SizeName
+  NumberOfItems
+  Weight
+  MonetaryValue
+  LocationName
+  Comment
+  Age
 }
 
-enum DistributionEventTrackingFlowDirection {
-  In
-  Out
-  # Internal
-  BackToBox
-}
-
-enum DistributionEventsTrackingGroupState {
-  InProgress
-  Completed
-}
-
-enum PackingListEntryState {
-  NotStarted
-  PackingInProgress
-  Packed
+enum BeneficiarySortField {
+  " The last name of the family head, or of the beneficiary if they're a family head themselves "
+  LastName
+  FirstName
+  Gender
+  Age
+  GroupIdentifier
+  Tokens
+  LastActiveOn
+  CreatedOn
+  Email
+  Phone
+  CustomTextField1
+  CustomTextField2
 }
 scalar Datetime
 scalar Date
@@ -420,12 +431,16 @@ input BoxFromBoxCreationInput {
 }
 
 input BoxMoveInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to move "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   locationId: Int!
 }
 
 input BoxesTagsOperationInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to (un)assign tags to/from "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   tagIds: [Int!]!
 }
 
@@ -440,6 +455,16 @@ input BoxBulkCreationInput {
   newTagNames: [String!]
   " If set, add numberOfItems to the existing box with this label identifier instead of creating a new box. Other BoxBulkCreationInput fields are ignored "
   boxLabelIdentifierForMerge: String
+}
+
+input BeneficiariesTagsOperationInput {
+  ids: [Int!]!
+  tagIds: [Int!]!
+}
+
+input BeneficiariesServicesOperationInput {
+  ids: [Int!]!
+  serviceIds: [Int!]!
 }
 
 input CustomProductCreationInput {
@@ -491,16 +516,27 @@ input BeneficiaryCreationInput {
   lastName: String!
   baseId: Int!
   groupIdentifier: String!
-  dateOfBirth: Date!
+  " Default: null. The resulting age is also null. "
+  dateOfBirth: Date
   comment: String
-  gender: HumanGender!
+  " Default: null "
+  gender: HumanGender
   languages: [Language!]
   familyHeadId: Int
-  isVolunteer: Boolean!
-  registered: Boolean!
+  " Default: false "
+  isVolunteer: Boolean
+  " Default: true "
+  registered: Boolean
   signature: String
-  dateOfSignature: Date
   tagIds: [Int!]
+  " If the beneficiary is a family member, this is attributed with the family head. 0 is silently ignored. "
+  initialCredit: Int
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiaryUpdateInput {
@@ -512,11 +548,19 @@ input BeneficiaryUpdateInput {
   comment: String
   gender: HumanGender
   languages: [Language!]
+  " If the beneficiary didn't belong to a family before, all their credit is transferred to the new family head. Passing null resets (i.e. makes the beneficiary an individual). Pass the current family head ID if it should be kept "
   familyHeadId: Int
   isVolunteer: Boolean
   registered: Boolean
   signature: String
-  dateOfSignature: Date
+  " Pass full set of assigned tags (internally, old and new tag sets are compared, removed tags are unassigned, and only added ones are assigned). Passing an empty list unassigns all tags, passing null ignores tag updates. "
+  tagIds: [Int!]
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiariesCreationInput {
@@ -558,28 +602,11 @@ input ShipmentCreationInput {
   transferAgreementId: Int
 }
 
-input DistributionSpotCreationInput {
-  baseId: Int!
-  name: String
-  comment: String!
-  latitude: Float
-  longitude: Float
-}
-
-input DistributionEventCreationInput {
-  distributionSpotId: Int!
-  name: String
-  plannedStartDateTime: Datetime!
-  plannedEndDateTime: Datetime
-}
-
-input ShipmentWhenPreparingUpdateInput {
+input BoxesShipmentAddInput {
   id: ID!
-  targetBaseId: Int
-  # label identifiers of boxes prepared for shipment
-  preparedBoxLabelIdentifiers: [String!]
-  # label identifiers of prepared boxes to be moved back to stock
-  removedBoxLabelIdentifiers: [String!]
+  " Specify either label identifiers OR filters to find boxes to add "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
 }
 
 input ShipmentWhenReceivingUpdateInput {
@@ -598,13 +625,6 @@ input ShipmentDetailUpdateInput {
   targetQuantity: Int!
 }
 
-input PackingListEntryInput {
-  distributionEventId: ID!
-  productId: Int!
-  sizeId: Int!
-  numberOfItems: Int!
-}
-
 input TagCreationInput {
   name: String!
   description: String
@@ -619,12 +639,6 @@ input TagUpdateInput {
   description: String
   color: String
   type: TagType
-}
-
-input TagOperationInput {
-  id: ID!
-  resourceId: ID!
-  resourceType: TaggableResourceType!
 }
 
 input LinkCreationInput {
@@ -644,27 +658,39 @@ type Mutation {
   " Update one or more properties of a box with specified label identifier. "
   updateBox(updateInput: BoxUpdateInput): Box
   updateMarkedForShipmentBox(updateInput: MarkedForShipmentBoxUpdateInput): Box
-  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
-  deleteBoxes(labelIdentifiers: [String!]!): DeleteBoxesResult
-  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. "
+  " Any boxes that are non-existing, already deleted, in a non-warehouse [`BoxState`]({{Types.BoxState}}) (MarkedForShipment, InTransit, Receiving, NotDelivered) and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. Specify either label identifiers OR additional filters to find boxes for deletion. "
+  deleteBoxes(labelIdentifiers: [String!], filters: FilterBoxInput): DeleteBoxesResult
+  " Any boxes that are non-existing, already inside the requested location, inside a different base other than the one of the requested location, and/or in a base that the user must not access are returned in the `BoxesResult.invalidBoxLabelIdentifiers` list. Specify either label identifiers OR additional filters to find boxes to move. "
   moveBoxesToLocation(updateInput: BoxMoveInput): MoveBoxesResult
-  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
-  assignTagsToBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
-  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. "
-  unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): BoxesTagsOperationResult
+  " Any boxes that are non-existing, deleted, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
+  assignTagsToBoxes(updateInput: BoxesTagsOperationInput): AssignTagsToBoxesResult
+  " Any boxes that are non-existing, deleted, without any of the requested tags, and/or in a base that's different from the tags' base are returned in the `BoxesTagsOperationResult.invalidBoxLabelIdentifiers` list. Errors about tags are listed in `BoxesTagsOperationResult.tagErrorInfo`. Specify either label identifiers OR additional filters to find boxes. "
+  unassignTagsFromBoxes(updateInput: BoxesTagsOperationInput): UnassignTagsFromBoxesResult
   " Create boxes by importing raw data. Prototypical! "
   createBoxes(creationInput: [BoxBulkCreationInput!]): CreateBoxesResult
   " Create box in a location by taking out items from an existing box "
   createBoxFromBox(creationInput: BoxFromBoxCreationInput!): CreateBoxFromBoxResult
 
-  " Create a new beneficiary in a base, using first/last name, date of birth, and group identifier. Optionally pass tags to assign to the beneficiary. "
-  createBeneficiary(creationInput: BeneficiaryCreationInput): Beneficiary
+  " Create a new beneficiary in a base, using at least first/last name, and group identifier "
+  createBeneficiary(creationInput: BeneficiaryCreationInput): CreateBeneficiaryResult
   " Update one or more properties of a beneficiary with specified ID. "
-  updateBeneficiary(updateInput: BeneficiaryUpdateInput): Beneficiary
-  " Deactivate beneficiary with specified ID. "
-  deactivateBeneficiary(id: ID!): Beneficiary
+  updateBeneficiary(updateInput: BeneficiaryUpdateInput): UpdateBeneficiaryResult
   " Create multiple beneficiaries at once in one base. "
   createBeneficiaries(creationInput: BeneficiariesCreationInput): CreateBeneficiariesResult
+  " Assign one or more tags to beneficiaries. Any beneficiaries that are non-existing, deactivated, already assigned to all of the requested tags, and/or in a base that's different from the tags' base are returned in the `BeneficiariesTagsOperationResult.invalidBeneficiaryIds` list. Errors about tags are listed in `BeneficiariesTagsOperationResult.tagErrorInfo`. "
+  assignTagsToBeneficiaries(updateInput: BeneficiariesTagsOperationInput!): AssignTagsToBeneficiariesResult
+  " Un-assign one or more tags from beneficiaries. Any beneficiaries that are non-existing, deactivated, without any of the requested tags, and/or in a base that's different from the tags' base are returned in the `BeneficiariesTagsOperationResult.invalidBeneficiaryIds` list. Errors about tags are listed in `BeneficiariesTagsOperationResult.tagErrorInfo`. "
+  unassignTagsFromBeneficiaries(updateInput: BeneficiariesTagsOperationInput!): UnassignTagsFromBeneficiariesResult
+  " Deactivate one or more beneficiaries (from the same base). Any beneficiaries that are non-existing, already deactivated and/or in a base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. When deactivating a family head, all their family members are deactivated, too. "
+  deactivateBeneficiaries(ids: [Int!]!): DeactivateBeneficiariesResult
+  " Reactivate one or more beneficiaries (from the same base). Any beneficiaries that are non-existing, already reactivated, without an active parent, and/or in a base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. When reactivating a family head, all their deactivated family members are reactivated, too. "
+  reactivateBeneficiaries(ids: [Int!]!): ReactivateBeneficiariesResult
+  " Register beneficiaries for one or more services. Any beneficiaries that are non-existing, deactivated, and/or in a base that's different from the services' base are returned in the `BeneficiariesServicesOperationResult.invalidBeneficiaryIds` list. Errors about services are listed in `BeneficiariesServicesOperationResult.serviceErrorInfo`. "
+  registerServicesForBeneficiaries(updateInput: BeneficiariesServicesOperationInput!): RegisterBeneficiariesForServicesResult
+  " Merge two or more beneficiaries (family heads or individuals without family; in the same base) into a family. The oldest family head or individual (by date of birth. If all DoBs missing, the beneficiary who was created first. If tied, the first of the input list) becomes the family head. All members whose family head is in the input are moved under the new head (and returned in `BeneficiariesResult.updatedBeneficiaries`), and all credit balance of the new members is transferred to the new head. Any beneficiaries that are non-existing, deactivated, part of a family whose head is not in the input list, and/or in base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. "
+  mergeBeneficiariesIntoFamily(ids: [Int!]!): MergeBeneficiariesResult
+  " Detach one or more family members (in the same base) from their resp. families. No credit balance is transferred. Any beneficiaries that are non-existing, deactivated, already individuals or family heads, and/or in base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. "
+  detachBeneficiariesFromFamily(ids: [Int!]!): DetachBeneficiariesResult
 
   " Create a new tag for a base, described by name, color and type. "
   createTag(creationInput: TagCreationInput): CreateTagResult
@@ -672,10 +698,6 @@ type Mutation {
   updateTag(updateInput: TagUpdateInput): UpdateTagResult
   " Soft-delete tag with specified ID. "
   deleteTag(id: ID!): DeleteTagResult
-  " Assign a tag to a resource (box or beneficiary). If the resource already has this tag assigned, do nothing "
-  assignTag(assignmentInput: TagOperationInput): TaggableResource
-  " Remove a tag from a resource (box or beneficiary). If the resource does not have this tag assigned, do nothing "
-  unassignTag(unassignmentInput: TagOperationInput): TaggableResource
   " Any tags that are non-existing, already deleted, and/or in a base that the user must not access are returned in the `TagsResult.invalidTagIds` list. "
   deleteTags(ids: [Int!]!): DeleteTagsResult
 
@@ -690,8 +712,10 @@ type Mutation {
 
   " Create a new shipment between two bases. The specified transfer agreement must be in `Accepted` state. The client must be member of the specified source base. "
   createShipment(creationInput: ShipmentCreationInput): Shipment
-  " Add boxes to or remove boxes from the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. "
-  updateShipmentWhenPreparing(updateInput: ShipmentWhenPreparingUpdateInput): Shipment
+  " Add boxes to the shipment during preparation on the source side. Only valid if shipment is in `Preparing` state. The client must be member of the shipment source base. Specify either label identifiers OR filters to find boxes. Any boxes that are not in the shipment's source base, deleted, or non-InStock are silently discarded."
+  addBoxesToShipment(updateInput: BoxesShipmentAddInput): Shipment
+  " Remove boxes from shipment(s) during preparation on the source side. Specify either label identifiers OR filters to find boxes. Any boxes that are not in `Preparing` shipments, non-MarkedForShipment, or in a base that the user is not authorized for are silently discarded. "
+  removeBoxesFromShipments(labelIdentifiers: [String!], filters: FilterBoxInput): [Box!]
   " Reconcile boxes or mark them as lost during shipment receival on the target side. Only valid if shipment is in `Receiving` state. If all boxes are reconciled, the state automatically updates to `Completed`. The client must be member of the shipment target base. "
   updateShipmentWhenReceiving(updateInput: ShipmentWhenReceivingUpdateInput): Shipment
   " Change state of specified shipment to `Canceled`. Only valid for shipments in `Preparing` state. Any boxes marked for shipment are moved back into stock. The client must be member of either source or target base of the shipment. "
@@ -722,65 +746,6 @@ type Mutation {
 
   " Create a link that can be publicly shared and resolved. "
   createShareableLink(creationInput: LinkCreationInput): ShareableLinkCreationResult
-
-  # Undocumented mutations of the mobile-distribution feature
-  createDistributionSpot(creationInput: DistributionSpotCreationInput): DistributionSpot
-  createDistributionEvent(creationInput: DistributionEventCreationInput): DistributionEvent
-
-  addPackingListEntryToDistributionEvent(creationInput: PackingListEntryInput!): PackingListEntry
-  removePackingListEntryFromDistributionEvent(packingListEntryId: ID!): DistributionEvent
-  removeAllPackingListEntriesFromDistributionEventForProduct(
-    distributionEventId: ID!
-    productId: ID!
-  ): Boolean
-  updatePackingListEntry(packingListEntryId: ID!, numberOfItems: Int!): PackingListEntry
-  updateSelectedProductsForDistributionEventPackingList(
-    distributionEventId: ID!
-    productIdsToAdd: [ID!]!
-    productIdsToRemove: [ID!]!
-  ): DistributionEvent
-
-  changeDistributionEventState(
-    distributionEventId: ID!
-    newState: DistributionEventState!
-  ): DistributionEvent
-
-  assignBoxToDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
-  unassignBoxFromDistributionEvent(boxLabelIdentifier: ID!, distributionEventId: ID!): Box
-  moveItemsFromBoxToDistributionEvent(
-    boxLabelIdentifier: ID!
-    distributionEventId: ID!
-    numberOfItems: Int!
-  ): UnboxedItemsCollection
-  removeItemsFromUnboxedItemsCollection(
-    id: ID!
-    numberOfItems: Int!
-  ): UnboxedItemsCollection
-
-  startDistributionEventsTrackingGroup(
-    distributionEventIds: [ID!]!,
-    baseId: ID!,
-    # returnedToLocationId: ID
-  ): DistributionEventsTrackingGroup
-
-  setReturnedNumberOfItemsForDistributionEventsTrackingGroup(
-    distributionEventsTrackingGroupId: ID!
-    productId: ID!
-    sizeId: ID!
-    numberOfItems: Int!
-  ): DistributionEventsTrackingEntry
-
-  moveItemsFromReturnTrackingGroupToBox(
-    distributionEventsTrackingGroupId: ID!
-    productId: ID!
-    sizeId: ID!
-    numberOfItems: Int!
-    targetBoxLabelIdentifier: ID!
-  ): DistributionEventsTrackingEntry
-
-  completeDistributionEventsTrackingGroup(
-    id: ID!
-  ): DistributionEventsTrackingGroup
 }
 type Query {
   " Return all non-deleted [`Bases`]({{Types.Base}}) that the client is authorized to view. "
@@ -799,6 +764,10 @@ type Query {
   box(labelIdentifier: String!): Box
   " Return page of non-deleted [`Boxes`]({{Types.Box}}) in base with specified ID. Optionally pass filters "
   boxes(baseId: ID!, paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage!
+  " Return box data optimized for tabular display "
+  boxRows(baseId: Int!, options: BoxRowOptions): BoxRowsResult!
+  " Return data of all boxes (max: 100,000) in given base as base64-encoded CSV string "
+  exportBoxRowsToCsv(baseId: Int!, filters: FilterBoxInput): String
   " Return [`QrCode`]({{Types.QrCode}}) with specified code (an MD5 hash in hex format of length 32), or an error in case of insufficient permission or missing resource. "
   qrCode(code: String!): QrCodeResult!
   qrExists(code: String): Boolean
@@ -820,10 +789,18 @@ type Query {
   productCategories: [ProductCategory!]!
   " Return all [`SizeRanges`]({{Types.SizeRange}}). "
   sizeRanges: [SizeRange!]!
+  " Return all [`Sizes`]({{Types.Size}}). "
+  sizes: [Size!]!
   " Return [`Beneficiary`]({{Types.Beneficiary}}) with specified ID. Accessible for clients who are members of the beneficiary's base "
   beneficiary(id: ID!): Beneficiary
   " Return all [`Beneficiaries`]({{Types.Beneficiary}}) that the client is authorized to view. Optionally pass filter. "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage!
+  " Return beneficiary data optimized for tabular display "
+  beneficiaryRows(baseId: Int!, options: BeneficiaryRowOptions): BeneficiaryRowsResult!
+  " Return IDs of all beneficiaries in the given base (max: 100,000), taking into account filters. This is a utility method for enabling a defined input for beneficiary bulk operations "
+  beneficiaryIds(baseId: Int!, filters: FilterBeneficiaryInput): BeneficiaryIdsResult!
+  " Return data of all beneficiaries (max: 100,000) in given base as base64-encoded CSV string, taking into account filters "
+  exportBeneficiaryRowsToCsv(baseId: Int!, filters: FilterBeneficiaryInput): String
   " Return all non-deleted [`Tags`]({{Types.Tag}}) that the client is authorized to view. Optionally filter for tags of certain type. "
   tags(tagType: TagType): [Tag!]!
   " Return [`Tag`]({{Types.Tag}}) with specified ID. Accessible for clients who are members of the tag's base "
@@ -853,13 +830,6 @@ type Query {
   topProductsDonated(baseId: Int!): TopProductsDonatedData
   movedBoxes(baseId: Int!): MovedBoxesData
   stockOverview(baseId: Int!): StockOverviewData
-
-  # Undocumented queries of the mobile-distribution feature
-  distributionSpots: [DistributionSpot!]!
-  distributionSpot(id: ID!): DistributionSpot
-  distributionEvent(id: ID!): DistributionEvent
-  packingListEntry(id: ID!): PackingListEntry
-  distributionEventsTrackingGroup(id: ID!): DistributionEventsTrackingGroup
 }
 # GraphQL basic types as returned by queries and mutations, and input types for queries.
 
@@ -869,17 +839,84 @@ interface ItemsCollection {
   size: Size
   numberOfItems: Int
   location: Location
-  distributionEvent: DistributionEvent
 }
 
-type UnboxedItemsCollection implements ItemsCollection {
+type BoxRow {
   id: ID!
-  product: Product
-  size: Size
+  labelIdentifier: String!
   numberOfItems: Int
-  label: String
-  location: Location
-  distributionEvent: DistributionEvent
+  comment: String
+  weight: Float
+  monetaryValue: Float
+  weightUnitSymbol: String
+  createdOn: Datetime
+  " Time since creation in days. "
+  age: Int
+  lastModifiedOn: Datetime
+  createdById: ID
+  createdByName: String
+  lastModifiedById: ID
+  lastModifiedByName: String
+  state: BoxState
+  productId: ID
+  productName: String
+  productGender: ProductGender
+  containsStandardProduct: Boolean
+  productCategoryId: ID
+  productCategoryName: String
+  sizeId: ID
+  sizeName: String
+  locationId: ID
+  locationName: String
+  shipmentId: ID
+  hasQrCode: Boolean
+  tagIds: [ID!]!
+}
+
+type BoxRowsResult {
+  " The page containing BoxRow data "
+  page: [BoxRow!]!
+  " All totals are computed based on the filters specified in the query input "
+  totalNumberOfBoxes: Int
+  totalNumberOfItems: Int
+  totalWeight: Float
+  totalMonetaryValue: Float
+}
+
+type BeneficiaryRow {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  gender: HumanGender
+  " In days. "
+  age: Int
+  " null for family heads "
+  familyHeadId: Int
+  " Last name of the family head; for family heads, it's their own last name "
+  familyHeadLastName: String!
+  groupIdentifier: String!
+  " Sum of all transactions that the beneficiary was involved in "
+  tokens: Int
+  tagIds: [ID!]
+  comment: String
+  " Date of the creation, last transaction (that family head was involved in; because transactions are always associated with family head), or last modification "
+  lastActiveOn: Date
+  createdOn: Date
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
+  " True if days since lastActiveOn larger than (Base.daysToKeepInactiveBeneficiaries - 14) "
+  soonToBeDeactivated: Boolean!
+  signed: Boolean!
+}
+
+type BeneficiaryRowsResult {
+  page: [BeneficiaryRow!]!
+  " totals are computed based on the filters specified in the query input "
+  totalNumberOfBeneficiaries: Int
 }
 
 """
@@ -891,7 +928,6 @@ type Box implements ItemsCollection {
   labelIdentifier: String!
   " If the client is not authorized to access the location's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   location: Location
-  distributionEvent: DistributionEvent
   numberOfItems: Int
   " If the client is not authorized to access the product's base, return `null` instead of raising an authorization error. This enables the target side of a shipment to scan boxes that are not yet reconciliated into their stock (but still registered at the source side) "
   product: Product
@@ -1137,11 +1173,13 @@ type TagsResult {
   invalidTagIds: [ID!]!
 }
 
-type BeneficiariesResult {
+type BeneficiariesResults {
   results: [CreateBeneficiaryResult!]!
 }
 
-union CreateBeneficiaryResult = Beneficiary | ResourceDoesNotExistError #FamilyHeadDoesNotExist
+type BeneficiaryIds {
+  ids: [Int!]!
+}
 
 """
 Representation of a base.
@@ -1164,20 +1202,34 @@ type Base {
   products(filterInput: FilterProductInput): [Product!]!
   " List of all non-deleted [`Tags`]({{Types.Tag}}) registered in this base. Optionally filter for a [`resource type`]({{Types.TaggableResourceType}}) "
   tags(resourceType: TaggableResourceType): [Tag!]
-  distributionSpots: [DistributionSpot!]!
-  distributionEvents(states: [DistributionEventState!]): [DistributionEvent!]!
-
-  # TODO: rethink these queries once the prototype testing is over
-  # probably better to have filter parameters and only one query operation
-  distributionEventsBeforeReturnedFromDistributionState: [DistributionEvent!]!
-  distributionEventsInReturnedFromDistributionState: [DistributionEvent!]!
-
-  distributionEventsTrackingGroups(states: [DistributionEventsTrackingGroupState!]): [DistributionEventsTrackingGroup!]!
-  distributionEventsStatistics: [DistributionEventsStatistics!]!
+  " List of all non-deleted [`Services`]({{Types.Service}}) registered in this base "
+  services: [Service!]
   " Number of all non-deleted InStock boxes in the base. "
   instockBoxesCount: Int!
   " Number of items of all non-deleted InStock boxes in the base. "
   instockItemsCount: Int!
+  " Identifier for beneficiary families (e.g. UNHCR ID) "
+  groupIdentifier: String!
+  " Beneficiary adult age in years "
+  adultAge: Int!
+  " Beneficiaries without activity (modification, transaction) will be automatically deactivated after this time span. "
+  daysToKeepInactiveBeneficiaries: Int!
+  " Number of tokens assigned per adult beneficiary "
+  tokensPerAdult: Int!
+  " Number of tokens assigned per child beneficiary "
+  tokensPerChild: Int!
+  trackingRegisteredBeneficiariesEnabled: Boolean!
+  beneficiariesAsVolunteersEnabled: Boolean!
+  beneficiaryEmailEnabled: Boolean!
+  beneficiaryPhoneEnabled: Boolean!
+  beneficiaryCustomTextField1Enabled: Boolean!
+  beneficiaryCustomTextField2Enabled: Boolean!
+  beneficiaryCustomNumberFieldEnabled: Boolean!
+  beneficiaryCustomDateFieldEnabled: Boolean!
+  beneficiaryCustomTextField1Name: String
+  beneficiaryCustomTextField2Name: String
+  beneficiaryCustomNumberFieldName: String
+  beneficiaryCustomDateFieldName: String
 }
 
 """
@@ -1188,79 +1240,6 @@ type Organisation {
   name: String!
   " List of all non-deleted [`Bases`]({{Types.Base}}) managed by this organisation. Accessible for any authenticated user "
   bases(filterInput: FilterBaseInput): [Base!]
-}
-
-type DistributionEventsStatistics {
-  productName: String!
-  genderLabel: String!
-  categoryLabel: String!
-  sizeLabel: String!
-  inflow: Int!
-  outflow: Int!
-  earliestPossibleDistroDate: String!
-  latestPossibleDistroDate: String!
-  potentiallyInvolvedDistributionSpots: String!
-  involvedDistributionEventIds: String!
-  distroEventTrackingGroupId: String!
-  productId: String!
-  sizeId: String!
-}
-
-type DistributionEvent {
-  id: ID!
-  distributionSpot: DistributionSpot
-  name: String
-  state: DistributionEventState!
-
-  plannedStartDateTime: Datetime!
-  plannedEndDateTime: Datetime!
-  packingListEntries: [PackingListEntry!]!
-
-  # TODO: Consider to also add field "itemsCollections" to this type
-  # It would return both boxes as well as unboxed items collections
-  boxes: [Box!]!
-  unboxedItemsCollections: [UnboxedItemsCollection!]!
-
-  distributionEventsTrackingGroup: DistributionEventsTrackingGroup
-}
-
-type DistributionEventsTrackingEntry {
-  id: ID!
-  product: Product!
-  size: Size!
-  numberOfItems: Int!
-  distributionEventsTrackingGroup: DistributionEventsTrackingGroup!
-  dateTimeOfTracking: Datetime!
-  flowDirection: DistributionEventTrackingFlowDirection!
-}
-
-type DistributionEventsTrackingGroup {
-  id: ID!
-  state: DistributionEventsTrackingGroupState!
-  distributionEvents: [DistributionEvent!]!
-  distributionEventsTrackingEntries: [DistributionEventsTrackingEntry!]!
-  createdOn: Datetime!
-}
-
-type PackingListEntry {
-  id: ID!
-  product: Product
-  size: Size
-  numberOfItems: Int!
-  matchingPackedItemsCollections: [ItemsCollection!]!
-  state: PackingListEntryState!
-}
-
-type DistributionSpot implements Location {
-  id: ID!
-  name: String
-  base: Base
-  " Not implemented, only for compatibility with Location interface "
-  boxes(paginationInput: PaginationInput, filterInput: FilterBoxInput): BoxPage
-  comment: String!
-  latitude: Float
-  longitude: Float
-  distributionEvents: [DistributionEvent!]!
 }
 
 """
@@ -1300,7 +1279,7 @@ type Beneficiary {
   firstName: String!
   lastName: String!
   dateOfBirth: Date
-  " If dateOfBirth is not set, age will be null. "
+  " In days. If dateOfBirth is not set, age will be null. "
   age: Int
   comment: String
   base: Base
@@ -1308,23 +1287,32 @@ type Beneficiary {
   groupIdentifier: String!
   gender: HumanGender
   languages: [Language!]
+  " The other members that share the same family head "
+  familyMembers: [Beneficiary!]
   " Null if this beneficiary is the family head "
   familyHead: Beneficiary
-  active: Boolean!
   isVolunteer: Boolean!
   signed: Boolean!
   registered: Boolean!
+  email: String
   phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
   signature: String
   dateOfSignature: Date
   " Number of tokens the beneficiary holds (sum of all transaction values) "
   tokens: Int
-  " List of all [`Transactions`]({{Types.Transaction}}) that this beneficiary executed "
+  " List of all [`Transactions`]({{Types.Transaction}}) that are attributed to this beneficiary "
   transactions: [Transaction!]
+  " List of all [`Services`]({{Types.Service}}) that the beneficiary has used "
+  serviceUsages: [ServiceUsage!]
   createdBy: User
   createdOn: Datetime
   lastModifiedBy: User
   lastModifiedOn: Datetime
+  deactivatedOn: Datetime
   tags: [Tag!]
 }
 
@@ -1341,19 +1329,42 @@ type BeneficiaryFigures {
   percentageWithoutFreeshopVisitLast90Days: Float!
 }
 """
-Representation of a transaction executed by a beneficiary (spending or receiving tokens).
+Representation of a transaction attributed to a beneficiary (purchase or receiving credit).
 """
 type Transaction {
   id: ID!
   beneficiary: Beneficiary!
+  " null when receiving credit "
   product: Product
-  " Number of transferred products "
+  " Number of transferred products. 0 when receiving credit "
   count: Int
-  " Value of the transaction "
+  " Value of the transaction. Positive for credit, negative or 0 for purchase "
   tokens: Int
   description: String
   createdBy: User
   createdOn: Datetime!
+}
+
+"""
+Representation of a service that can be used by a beneficiary. Services can be used multiple times by beneficiaries
+"""
+type Service {
+  id: ID!
+  name: String!
+  description: String!
+  totalUsage: Int!
+  uniqueUsage: Int!
+  createdOn: Datetime
+  lastUsedOn: Datetime
+}
+
+"""
+Report for when a beneficiary used a service.
+"""
+type ServiceUsage {
+  service: Service!
+  usedOn: Datetime!
+  registeredBy: User
 }
 
 """
@@ -1384,13 +1395,42 @@ input FilterBeneficiaryInput {
   createdFrom: Date
   " Filter for all beneficiaries who were created on this date (incl.), or earlier. "
   createdUntil: Date
-  active: Boolean
+  genders: [HumanGender!]
+  " Filter for all beneficiaries that have *at least one* of the specified tags. "
+  tagIds: [Int!]
+  " Filter for all beneficiaries that have *none* of the specified tags. "
+  excludedTagIds: [Int!]
   isVolunteer: Boolean
   registered: Boolean
+  signed: Boolean
+  deactivated: Boolean
   """
-  Filter for all beneficiaries where pattern is (case-insensitive) part of first name, last name, or comment, or where pattern matches the group identifier
+  Filter for all beneficiaries where pattern is (case-insensitive) part of first name, last name, comment, email, phone number, additional text fields, or where pattern matches the group identifier
   """
   pattern: String
+}
+
+input BeneficiaryRowOptions {
+  " Index of the page requested, starting at 1 "
+  page: Int
+  " Size of the requested page. Default: 50. Clamped between 1 and 100. "
+  pageSize: Int
+  filters: FilterBeneficiaryInput
+  " Default: LastName "
+  sortBy: BeneficiarySortField
+  " Sorting order. Default: false (ascending) "
+  descending: Boolean
+}
+
+input BoxRowOptions {
+  " Index of the page requested, starting at 1 "
+  page: Int
+  " Size of the requested page. Default: 50. Clamped between 1 and 100. "
+  pageSize: Int
+  filters: FilterBoxInput
+  sortBy: BoxSortField
+  " Sorting order. Default: true "
+  descending: Boolean
 }
 
 """
@@ -1400,9 +1440,13 @@ If several fields are defined (not null/empty), they are combined into a filter 
 input FilterBoxInput {
   " Filter for all boxes that have *one* of the specified states. "
   states: [BoxState!]
-  " Filter for all boxes that who were last modified on this date (incl.), or later. "
+  " Filter for all boxes that were created on this date (incl.), or later. "
+  createdFrom: Date
+  " Filter for all boxes that were created on this date (incl.), or earlier. "
+  createdUntil: Date
+  " Filter for all boxes that were last modified on this date (incl.), or later. "
   lastModifiedFrom: Date
-  " Filter for all boxes that who were last modified on this date (incl.), or earlier. "
+  " Filter for all boxes that were last modified on this date (incl.), or earlier. "
   lastModifiedUntil: Date
   productGender: ProductGender
   " Filter for all boxes that have *one* of the specified product genders. "
@@ -1414,10 +1458,16 @@ input FilterBoxInput {
   " Filter for all boxes that have *one* of the specified products. "
   productIds: [Int!]
   sizeId: Int
+  " Filter for all boxes that have *one* of the specified sizes. "
+  sizeIds: [Int!]
   " Filter for all boxes that have *at least one* of the specified tags. "
   tagIds: [Int!]
+  " Filter for all boxes that have *none* of the specified tags. "
+  excludedTagIds: [Int!]
   " Filter for all boxes that are in *one* of the specified locations. "
   locationIds: [Int!]
+  " Filter for all boxes with comment, product name, or label identifier containing this pattern (case-insensitive). "
+  pattern: String
 }
 
 input FilterProductInput {
@@ -1548,6 +1598,40 @@ type BoxesTagsOperationResult {
   tagErrorInfo: [TagErrorInfo!]
 }
 
+"""
+Utility response type for beneficiary bulk-mutations, containing both updated beneficiaries and invalid beneficiaries (ignored due to e.g. being deactivated, in prohibited base, and/or non-existing).
+"""
+type BeneficiariesResult {
+  updatedBeneficiaries: [Beneficiary!]!
+  invalidBeneficiaryIds: [Int!]!
+}
+
+"""
+Utility response type for beneficiary bulk tag-mutations, containing both updated beneficiaries and invalid beneficiaries (ignored due to e.g. being deactivated, in base different from tags' base, and/or non-existing) as well as optional info about erroneous tags (due to e.g. being deleted, in prohibited base, of wrong type, and/or non-existing).
+"""
+type BeneficiariesTagsOperationResult {
+  updatedBeneficiaries: [Beneficiary!]!
+  invalidBeneficiaryIds: [Int!]!
+  tagErrorInfo: [TagErrorInfo!]
+}
+
+"""
+Utility response type for registering beneficiaries for services, containing both updated beneficiaries and invalid beneficiaries (ignored due to e.g. being deactivated, in base different from services' base, and/or non-existing) as well as optional info about erroneous services (due to e.g. being deleted, in prohibited base, and/or non-existing).
+"""
+type BeneficiariesServicesOperationResult {
+  updatedBeneficiaries: [Beneficiary!]!
+  invalidBeneficiaryIds: [Int!]!
+  serviceErrorInfo: [ServiceErrorInfo!]
+}
+
+""" Error info about service with specified ID. """
+type ServiceErrorInfo {
+  id: ID!
+  error: ServiceError!
+}
+
+union ServiceError = InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | ServiceBaseMismatchError | DeletedServiceError
+
 """ Error info about tag with specified ID. """
 type TagErrorInfo {
   id: ID!
@@ -1632,9 +1716,50 @@ type InvalidNumberOfItemsError {
 type InvalidBaseError {
   ids: [Int!]!
 }
+type InvalidFilterInputError {
+  _: Boolean
+}
+type ServiceBaseMismatchError {
+  _: Boolean
+}
+type DeletedServiceError {
+  name: String!
+}
+type FamilyHeadBaseMismatchError {
+  _: Boolean
+}
+type BeneficiaryBaseMismatchError {
+  _: Boolean
+}
+type SingleBeneficiaryForMergeError {
+  _: Boolean
+}
+type DeactivatedFamilyHeadError {
+  id: ID!
+}
+type FamilyHeadHasMembersError {
+  _: Boolean
+}
+type FamilyHeadIsMemberError {
+  id: ID!
+}
+type FamilyHeadSelfReferenceError {
+  _: Boolean
+}
+type BeneficiaryAlreadySignedError {
+  _: Boolean
+}
+type InvalidInitialCreditError {
+  initialCredit: Int!
+}
+type InvalidEmailError {
+  email: String!
+}
 
-union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError
-union DeleteBoxesResult = BoxesResult | InsufficientPermissionError
+union MoveBoxesResult = BoxesResult | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | InvalidFilterInputError
+union AssignTagsToBoxesResult = BoxesTagsOperationResult | InsufficientPermissionError | InvalidFilterInputError
+union UnassignTagsFromBoxesResult = BoxesTagsOperationResult | InsufficientPermissionError | InvalidFilterInputError
+union DeleteBoxesResult = BoxesResult | InsufficientPermissionError | InvalidFilterInputError
 union CreateBoxFromBoxResult = Box | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | DeletedLocationError | DeletedBoxError | InvalidBoxStateError | InvalidNumberOfItemsError
 union CreateTagResult = Tag | InsufficientPermissionError | UnauthorizedForBaseError | InvalidColorError
 union UpdateTagResult = Tag | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | EmptyNameError | DeletedTagError | InvalidColorError
@@ -1647,7 +1772,17 @@ union EnableStandardProductResult = Product | InsufficientPermissionError | Reso
 union EnableStandardProductsResult = ProductsResult | InsufficientPermissionError | UnauthorizedForBaseError
 union EditStandardProductInstantiationResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidPriceError | ProductTypeMismatchError | DeletedProductError
 union DisableStandardProductResult = Product | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | BoxesStillAssignedToProductError | ProductTypeMismatchError
-union CreateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ResourceDoesNotExistError
+union CreateBeneficiariesResult = BeneficiariesResults | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ResourceDoesNotExistError
+union CreateBeneficiaryResult = Beneficiary | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidDateError | TagBaseMismatchError | TagTypeMismatchError | DeletedTagError | FamilyHeadBaseMismatchError | DeactivatedFamilyHeadError | FamilyHeadIsMemberError | InvalidInitialCreditError | InvalidEmailError | EmptyNameError
+union UpdateBeneficiaryResult = Beneficiary | InsufficientPermissionError | ResourceDoesNotExistError | UnauthorizedForBaseError | InvalidDateError | TagBaseMismatchError | TagTypeMismatchError | DeletedTagError | FamilyHeadBaseMismatchError | DeactivatedFamilyHeadError | FamilyHeadIsMemberError | FamilyHeadSelfReferenceError | FamilyHeadHasMembersError | BeneficiaryAlreadySignedError | InvalidEmailError | EmptyNameError
+union AssignTagsToBeneficiariesResult = BeneficiariesTagsOperationResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union UnassignTagsFromBeneficiariesResult = BeneficiariesTagsOperationResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union DeactivateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union ReactivateBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union RegisterBeneficiariesForServicesResult = BeneficiariesServicesOperationResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union MergeBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError | SingleBeneficiaryForMergeError
+union DetachBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union BeneficiaryIdsResult = BeneficiaryIds | InsufficientPermissionError | UnauthorizedForBaseError
 union CreateBoxesResult = BoxesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ProductLocationBaseMismatchError | InvalidBaseError
 
 union StandardProductResult = StandardProduct | InsufficientPermissionError | ResourceDoesNotExistError

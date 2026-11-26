@@ -1,47 +1,46 @@
 from ariadne import ObjectType
-from peewee import fn
 
 from ...authz import authorize
-from ...enums import TaggableObjectType
-from ...models.definitions.tag import Tag
-from ...models.definitions.tags_relation import TagsRelation
-from ...models.definitions.transaction import Transaction
-from ...models.definitions.x_beneficiary_language import XBeneficiaryLanguage
-from ...models.utils import compute_age
+from ...models.utils import compute_age_in_days
 
 beneficiary = ObjectType("Beneficiary")
 
 
-@beneficiary.field("tags")
-def resolve_beneficiary_tags(beneficiary_obj, _):
-    authorize(permission="tag:read", base_id=beneficiary_obj.base_id)
-    return (
-        Tag.select()
-        .join(TagsRelation)
-        .where(
-            (TagsRelation.object_id == beneficiary_obj.id)
-            & (TagsRelation.object_type == TaggableObjectType.Beneficiary)
-            & (TagsRelation.deleted_on.is_null())
-        )
+@beneficiary.field("familyHead")
+def resolve_beneficiary_family_head(beneficiary_obj, info):
+    return info.context["family_heads_for_beneficiary_loader"].load(
+        beneficiary_obj.family_head_id
     )
+
+
+@beneficiary.field("familyMembers")
+def resolve_beneficiary_family_members(beneficiary_obj, info):
+    return info.context["family_members_for_beneficiary_loader"].load(
+        beneficiary_obj.id
+    )
+
+
+@beneficiary.field("tags")
+def resolve_beneficiary_tags(beneficiary_obj, info):
+    authorize(permission="tag:read", base_id=beneficiary_obj.base_id)
+    return info.context["tags_for_beneficiary_loader"].load(beneficiary_obj.id)
 
 
 @beneficiary.field("tokens")
-def resolve_beneficiary_tokens(beneficiary_obj, _):
-    authorize(permission="transaction:read")
-    # If the beneficiary has no transactions yet, the select query returns None
-    return (
-        Transaction.select(fn.sum(Transaction.tokens))
-        .where(Transaction.beneficiary == beneficiary_obj.id)
-        .scalar()
-        or 0
-    )
+def resolve_beneficiary_tokens(beneficiary_obj, info):
+    return info.context["tokens_for_beneficiary_loader"].load(beneficiary_obj.id)
 
 
 @beneficiary.field("transactions")
-def resolve_beneficiary_transactions(beneficiary_obj, _):
-    authorize(permission="transaction:read")
-    return Transaction.select().where(Transaction.beneficiary == beneficiary_obj.id)
+def resolve_beneficiary_transactions(beneficiary_obj, info):
+    return info.context["transactions_for_beneficiary_loader"].load(beneficiary_obj.id)
+
+
+@beneficiary.field("serviceUsages")
+def resolve_beneficiary_service_usages(beneficiary_obj, info):
+    return info.context["service_usages_for_beneficiary_loader"].load(
+        beneficiary_obj.id
+    )
 
 
 @beneficiary.field("registered")
@@ -50,23 +49,18 @@ def resolve_beneficiary_registered(beneficiary_obj, _):
 
 
 @beneficiary.field("languages")
-def resolve_beneficiary_languages(beneficiary_obj, _):
-    return [
-        x.language.id
-        for x in XBeneficiaryLanguage.select().where(
-            XBeneficiaryLanguage.beneficiary == beneficiary_obj.id
-        )
-    ]
+def resolve_beneficiary_languages(beneficiary_obj, info):
+    return info.context["languages_for_beneficiary_loader"].load(beneficiary_obj.id)
 
 
 @beneficiary.field("age")
 def resolve_beneficiary_age(beneficiary_obj, _):
-    return compute_age(beneficiary_obj.date_of_birth)
+    return compute_age_in_days(beneficiary_obj.date_of_birth)
 
 
-@beneficiary.field("active")
+@beneficiary.field("deactivatedOn")
 def resolve_beneficiary_active(beneficiary_obj, _):
-    return beneficiary_obj.deleted_on is None  # ZeroDateTimeField
+    return beneficiary_obj.deleted_on
 
 
 @beneficiary.field("base")

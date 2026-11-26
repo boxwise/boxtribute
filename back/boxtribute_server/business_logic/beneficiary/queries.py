@@ -1,11 +1,17 @@
-from ariadne import QueryType
+from ariadne import ObjectType, QueryType
 
-from ...authz import authorize, authorized_bases_filter
+from ...authz import authorize, authorized_bases_filter, handle_unauthorized
 from ...graph_ql.filtering import derive_beneficiary_filter
 from ...graph_ql.pagination import load_into_page
 from ...models.definitions.beneficiary import Beneficiary
+from .crud import (
+    export_beneficiary_rows_to_csv,
+    get_beneficiaries_page,
+    get_beneficiary_ids,
+)
 
 query = QueryType()
+beneficiary_row = ObjectType("BeneficiaryRow")
 
 
 @query.field("beneficiary")
@@ -17,9 +23,42 @@ def resolve_beneficiary(*_, id):
 
 @query.field("beneficiaries")
 def resolve_beneficiaries(*_, pagination_input=None, filter_input=None):
-    filter_condition = derive_beneficiary_filter(filter_input)
+    conditions, selection = derive_beneficiary_filter(filter_input)
     return load_into_page(
         Beneficiary,
-        authorized_bases_filter(Beneficiary) & filter_condition,
+        authorized_bases_filter(Beneficiary),
+        *conditions,
+        selection=selection,
         pagination_input=pagination_input,
     )
+
+
+@query.field("beneficiaryRows")
+def resolve_beneficiary_rows(*_, base_id, options=None):
+    authorize(permission="base:read", base_id=base_id)
+    authorize(permission="beneficiary:read", base_id=base_id)
+    authorize(permission="tag:read", base_id=base_id)
+    authorize(permission="tags_relation:read")
+    authorize(permission="transaction:read")
+    return get_beneficiaries_page(base_id, **(options or {}))
+
+
+@query.field("beneficiaryIds")
+@handle_unauthorized
+def resolve_beneficiary_ids(*_, base_id, filters=None):
+    authorize(permission="beneficiary:read", base_id=base_id)
+    return get_beneficiary_ids(base_id, filters)
+
+
+@query.field("exportBeneficiaryRowsToCsv")
+def resolve_export_beneficiary_rows_to_csv(*_, base_id, filters=None):
+    authorize(permission="beneficiary:read", base_id=base_id)
+    authorize(permission="tag:read", base_id=base_id)
+    authorize(permission="tags_relation:read")
+    return export_beneficiary_rows_to_csv(base_id, filters)
+
+
+@beneficiary_row.field("tagIds")
+def resolve_beneficiary_row_tag_ids(row, _):
+    tag_ids = row["tag_ids"]
+    return [int(i) for i in tag_ids.split(",")] if tag_ids else []

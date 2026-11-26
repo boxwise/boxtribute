@@ -82,7 +82,7 @@ const mockAssignToShipmentMutation = ({
   result: networkError
     ? undefined
     : {
-        data: graphQlError ? null : { updateShipmentWhenPreparing: generateMockShipment({}) },
+        data: graphQlError ? null : { addBoxesToShipment: generateMockShipment({}) },
         errors: graphQlError ? [new FakeGraphQLError(errorCode)] : undefined,
       },
   error: networkError ? new FakeGraphQLNetworkError() : undefined,

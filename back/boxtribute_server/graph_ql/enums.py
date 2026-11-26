@@ -5,13 +5,11 @@ from ariadne import EnumType
 
 from ..enums import (
     BeneficiaryReachType,
+    BeneficiarySortField,
+    BoxSortField,
     BoxState,
-    DistributionEventState,
-    DistributionEventsTrackingGroupState,
-    DistributionEventTrackingFlowDirection,
     HumanGender,
     Language,
-    PackingListEntryState,
     ProductGender,
     ProductType,
     ProductTypeFilter,
@@ -27,10 +25,11 @@ from ..enums import (
 
 enum_types: List[Union[EnumType, Type[Enum]]] = [
     ProductGender,
+    BoxSortField,
+    BeneficiarySortField,
     BoxState,
     HumanGender,
     Language,
-    PackingListEntryState,
     ShareableView,
     ShipmentDirection,
     ShipmentState,
@@ -42,7 +41,4 @@ enum_types: List[Union[EnumType, Type[Enum]]] = [
     TransferAgreementType,
     ProductType,
     ProductTypeFilter,
-    DistributionEventState,
-    DistributionEventsTrackingGroupState,
-    DistributionEventTrackingFlowDirection,
 ]

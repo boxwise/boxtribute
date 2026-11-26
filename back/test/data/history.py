@@ -3,10 +3,13 @@ from datetime import datetime
 import pytest
 from boxtribute_server.enums import BoxState
 from boxtribute_server.models.definitions.history import DbChangeHistory
-from boxtribute_server.models.utils import HISTORY_CREATION_MESSAGE
+from boxtribute_server.models.utils import (
+    HISTORY_CREATION_MESSAGE,
+    HISTORY_DELETION_MESSAGE,
+)
 
 from .beneficiary import data as beneficiary_data
-from .box import another_marked_for_shipment_box_data
+from .box import another_donated_box_data, another_marked_for_shipment_box_data
 from .box import data as box_data
 from .box import donated_boxes_data, lost_box_data
 from .user import default_user_data
@@ -88,6 +91,16 @@ def data():
                 "to_int": BoxState.Lost,
                 "record_id": lost_box_data()["id"],
                 "change_date": datetime(2023, 2, 1),
+                "table_name": "stock",
+                "user": USER_ID,
+            },
+            {
+                "id": 112,
+                "changes": HISTORY_DELETION_MESSAGE,
+                "from_int": None,
+                "to_int": None,
+                "record_id": another_donated_box_data()["id"],
+                "change_date": another_donated_box_data()["deleted_on"],
                 "table_name": "stock",
                 "user": USER_ID,
             },

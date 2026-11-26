@@ -1,0 +1,104 @@
+EXPLORER_HTML = """\
+<!--
+ *  Copyright (c) 2025 GraphQL Contributors
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the license found in the
+ *  LICENSE file in the root directory of this source tree.
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>boxtribute API</title>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #graphiql {
+        height: 100dvh;
+      }
+
+      .loading {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+      }
+    </style>
+    <!--
+     * Note:
+     * The ?standalone flag bundles the module along with all of its `dependencies`, excluding `peerDependencies`, into a single JavaScript file.
+     * `@emotion/is-prop-valid` is a shim to remove the console error ` module "@emotion /is-prop-valid" not found`. Upstream issue: https://github.com/motiondivision/motion/issues/3126
+    -->
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@19.1.0",
+          "react/": "https://esm.sh/react@19.1.0/",
+
+          "react-dom": "https://esm.sh/react-dom@19.1.0",
+          "react-dom/": "https://esm.sh/react-dom@19.1.0/",
+
+          "graphiql": "https://esm.sh/graphiql@5.2.2?standalone&external=react,react-dom,@graphiql/react,graphql",
+          "graphiql/": "https://esm.sh/graphiql@5.2.2/",
+          "@graphiql/plugin-explorer": "https://esm.sh/@graphiql/plugin-explorer@5.1.1?standalone&external=react,@graphiql/react,graphql",
+          "@graphiql/react": "https://esm.sh/@graphiql/react@0.37.3?standalone&external=react,react-dom,graphql,@graphiql/toolkit,@emotion/is-prop-valid",
+
+          "@graphiql/toolkit": "https://esm.sh/@graphiql/toolkit@0.11.3?standalone&external=graphql",
+          "graphql": "https://esm.sh/graphql@16.11.0",
+          "@emotion/is-prop-valid": "data:text/javascript,"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://esm.sh/graphiql@5.2.2/dist/style.css" crossorigin="anonymous" />
+
+    <link rel="modulepreload" href="https://esm.sh/react@19.1.0" crossorigin="anonymous" />
+    <link rel="modulepreload" href="https://esm.sh/react-dom@19.1.0" crossorigin="anonymous" />
+    <link rel="modulepreload" href="https://esm.sh/react-dom@19.1.0/client" crossorigin="anonymous" />
+    <link rel="modulepreload" href="https://esm.sh/graphiql@5.2.2?standalone&external=react,react-dom,@graphiql/react,graphql" crossorigin="anonymous" />
+    <link rel="modulepreload" href="https://esm.sh/@graphiql/react@0.37.3?standalone&external=react,react-dom,graphql,@graphiql/toolkit,@emotion/is-prop-valid" crossorigin="anonymous" />
+    <link rel="modulepreload" href="https://esm.sh/@graphiql/toolkit@0.11.3?standalone&external=graphql" crossorigin="anonymous" />
+    <link rel="modulepreload" href="https://esm.sh/graphql@16.11.0" crossorigin="anonymous" />
+    <link rel="modulepreload" href="https://esm.sh/graphiql@5.2.2/setup-workers/esm.sh" crossorigin="anonymous" />
+
+    <script type="module">
+      import React from 'react';
+      import ReactDOM from 'react-dom/client';
+      import { GraphiQL } from 'graphiql';
+      import { createGraphiQLFetcher } from '@graphiql/toolkit';
+
+      import 'graphiql/setup-workers/esm.sh';
+
+      const fetcher = createGraphiQLFetcher({
+        url: window.location.href,
+
+        subscriptionUrl: (window.location.protocol === "https:" ? "wss" : "ws") + "://" + window.location.host + window.location.pathname,
+
+      });
+
+
+      function AriadneGraphiQL() {
+        return React.createElement(GraphiQL, {
+          fetcher,
+
+          defaultEditorToolsVisibility: true,
+          initialQuery: '# GraphiQL is an in-browser tool for writing, validating, and testing GraphQL queries.',
+        });
+      }
+
+      const container = document.getElementById('graphiql');
+      const root = ReactDOM.createRoot(container);
+      root.render(React.createElement(AriadneGraphiQL));
+    </script>
+  </head>
+  <body>
+    <div id="graphiql">
+      <div class="loading">Loading boxtribute API…</div>
+    </div>
+  </body>
+</html>
+    """

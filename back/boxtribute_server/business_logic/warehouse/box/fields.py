@@ -4,7 +4,6 @@ from ....authz import authorize
 from ....exceptions import Forbidden
 
 box = ObjectType("Box")
-unboxed_items_collection = ObjectType("UnboxedItemsCollection")
 history_entry = ObjectType("HistoryEntry")
 
 
@@ -25,7 +24,6 @@ def resolve_box_history(box_obj, info):
 
 
 @box.field("product")
-@unboxed_items_collection.field("product")
 async def resolve_box_product(box_obj, info):
     product = await info.context["product_loader"].load(box_obj.product_id)
     # In the context of a shipment, if the target party wants to access a box that is

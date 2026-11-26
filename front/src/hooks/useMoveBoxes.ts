@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { graphql } from "../../../graphql/graphql";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
+import { FilterBoxInput } from "queries/types";
 
 export enum IMoveBoxesResultKind {
   SUCCESS = "success",
@@ -25,9 +26,17 @@ export interface IMoveBoxesResult {
 }
 
 export const MOVE_BOXES_TO_LOCATION = graphql(`
-  mutation MoveBoxesToLocation($labelIdentifiers: [String!]!, $locationId: Int!) {
+  mutation MoveBoxesToLocation(
+    $labelIdentifiers: [String!]
+    $filters: FilterBoxInput
+    $locationId: Int!
+  ) {
     moveBoxesToLocation(
-      updateInput: { labelIdentifiers: $labelIdentifiers, locationId: $locationId }
+      updateInput: {
+        labelIdentifiers: $labelIdentifiers
+        filters: $filters
+        locationId: $locationId
+      }
     ) {
       __typename
       ... on BoxesResult {
@@ -67,6 +76,7 @@ export interface IUseMoveBoxesReturnType {
     newLocationId: number,
     showToasts?: boolean,
     showErrors?: boolean,
+    filters?: FilterBoxInput,
   ) => IMoveBoxesResult | Promise<IMoveBoxesResult>;
   isLoading: boolean;
 }
@@ -84,11 +94,12 @@ export const useMoveBoxes = () => {
       newLocationId: number,
       showToasts: boolean = true,
       showErrors: boolean = true,
+      filters?: FilterBoxInput,
     ) => {
       setIsLoading(true);
 
-      // no Boxes were passed
-      if (labelIdentifiers.length === 0) {
+      // no Boxes were passed. Boxes specified by filters are resolved by the backend
+      if (!filters && labelIdentifiers.length === 0) {
         setIsLoading(false);
         return Promise.resolve({
           kind: IMoveBoxesResultKind.BAD_USER_INPUT,
@@ -99,7 +110,7 @@ export const useMoveBoxes = () => {
       // execute mutation
       return moveBoxesMutation({
         variables: {
-          labelIdentifiers,
+          ...(filters ? { filters } : { labelIdentifiers }),
           locationId: newLocationId,
         },
       })

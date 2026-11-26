@@ -46,12 +46,16 @@ input BoxFromBoxCreationInput {
 }
 
 input BoxMoveInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to move "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   locationId: Int!
 }
 
 input BoxesTagsOperationInput {
-  labelIdentifiers: [String!]!
+  " Specify either label identifiers OR filters to find boxes to (un)assign tags to/from "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
   tagIds: [Int!]!
 }
 
@@ -66,6 +70,16 @@ input BoxBulkCreationInput {
   newTagNames: [String!]
   " If set, add numberOfItems to the existing box with this label identifier instead of creating a new box. Other BoxBulkCreationInput fields are ignored "
   boxLabelIdentifierForMerge: String
+}
+
+input BeneficiariesTagsOperationInput {
+  ids: [Int!]!
+  tagIds: [Int!]!
+}
+
+input BeneficiariesServicesOperationInput {
+  ids: [Int!]!
+  serviceIds: [Int!]!
 }
 
 input CustomProductCreationInput {
@@ -117,16 +131,27 @@ input BeneficiaryCreationInput {
   lastName: String!
   baseId: Int!
   groupIdentifier: String!
-  dateOfBirth: Date!
+  " Default: null. The resulting age is also null. "
+  dateOfBirth: Date
   comment: String
-  gender: HumanGender!
+  " Default: null "
+  gender: HumanGender
   languages: [Language!]
   familyHeadId: Int
-  isVolunteer: Boolean!
-  registered: Boolean!
+  " Default: false "
+  isVolunteer: Boolean
+  " Default: true "
+  registered: Boolean
   signature: String
-  dateOfSignature: Date
   tagIds: [Int!]
+  " If the beneficiary is a family member, this is attributed with the family head. 0 is silently ignored. "
+  initialCredit: Int
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiaryUpdateInput {
@@ -138,11 +163,19 @@ input BeneficiaryUpdateInput {
   comment: String
   gender: HumanGender
   languages: [Language!]
+  " If the beneficiary didn't belong to a family before, all their credit is transferred to the new family head. Passing null resets (i.e. makes the beneficiary an individual). Pass the current family head ID if it should be kept "
   familyHeadId: Int
   isVolunteer: Boolean
   registered: Boolean
   signature: String
-  dateOfSignature: Date
+  " Pass full set of assigned tags (internally, old and new tag sets are compared, removed tags are unassigned, and only added ones are assigned). Passing an empty list unassigns all tags, passing null ignores tag updates. "
+  tagIds: [Int!]
+  email: String
+  phoneNumber: String
+  customTextField1: String
+  customTextField2: String
+  customNumberField: Int
+  customDateField: Date
 }
 
 input BeneficiariesCreationInput {
@@ -184,28 +217,11 @@ input ShipmentCreationInput {
   transferAgreementId: Int
 }
 
-input DistributionSpotCreationInput {
-  baseId: Int!
-  name: String
-  comment: String!
-  latitude: Float
-  longitude: Float
-}
-
-input DistributionEventCreationInput {
-  distributionSpotId: Int!
-  name: String
-  plannedStartDateTime: Datetime!
-  plannedEndDateTime: Datetime
-}
-
-input ShipmentWhenPreparingUpdateInput {
+input BoxesShipmentAddInput {
   id: ID!
-  targetBaseId: Int
-  # label identifiers of boxes prepared for shipment
-  preparedBoxLabelIdentifiers: [String!]
-  # label identifiers of prepared boxes to be moved back to stock
-  removedBoxLabelIdentifiers: [String!]
+  " Specify either label identifiers OR filters to find boxes to add "
+  labelIdentifiers: [String!]
+  filters: FilterBoxInput
 }
 
 input ShipmentWhenReceivingUpdateInput {
@@ -224,13 +240,6 @@ input ShipmentDetailUpdateInput {
   targetQuantity: Int!
 }
 
-input PackingListEntryInput {
-  distributionEventId: ID!
-  productId: Int!
-  sizeId: Int!
-  numberOfItems: Int!
-}
-
 input TagCreationInput {
   name: String!
   description: String
@@ -245,12 +254,6 @@ input TagUpdateInput {
   description: String
   color: String
   type: TagType
-}
-
-input TagOperationInput {
-  id: ID!
-  resourceId: ID!
-  resourceType: TaggableResourceType!
 }
 
 input LinkCreationInput {

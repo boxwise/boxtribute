@@ -5,10 +5,16 @@ import {
   CUSTOM_PRODUCT_FORM_OPTIONS_QUERY,
   STANDARD_PRODUCT_QUERY,
 } from "./queries";
-import { BOXES_FOR_BOXESVIEW_QUERY } from "views/Boxes/BoxesView";
+import {
+  ACTION_OPTIONS_FOR_BOXESVIEW_QUERY,
+  BOXES_FOR_BOXESVIEW_QUERY,
+} from "views/Boxes/BoxesView";
+import {
+  BENEFICIARIES_FOR_BENEFICIARIESVIEW_QUERY,
+  OPTIONS_FOR_BENEFICIARIESVIEW_QUERY,
+} from "views/Beneficiaries/BeneficiariesView";
 import {
   BOX_FIELDS_FRAGMENT,
-  DISTRO_EVENT_FIELDS_FRAGMENT,
   SHIPMENT_DETAIL_FIELDS_FRAGMENT,
   SHIPMENT_FIELDS_FRAGMENT,
   TRANSFER_AGREEMENT_FIELDS_FRAGMENT,
@@ -17,7 +23,6 @@ import {
 import { PRODUCTS_QUERY } from "views/Products/components/ProductsContainer";
 import { STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY } from "views/Products/components/StandardProductsContainer";
 
-export type DistributionEventState = FragmentOf<typeof DISTRO_EVENT_FIELDS_FRAGMENT>["state"];
 export type BoxState = FragmentOf<typeof BOX_FIELDS_FRAGMENT>["state"];
 export type ShipmentState = Shipment["state"];
 
@@ -35,6 +40,10 @@ export type ShipmentDetailWithAutomatchProduct = FragmentOf<
 export type TransferAgreements = FragmentOf<typeof TRANSFER_AGREEMENT_FIELDS_FRAGMENT>;
 export type BoxesForBoxesViewQuery = ResultOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
 export type BoxesForBoxesViewVariables = VariablesOf<typeof BOXES_FOR_BOXESVIEW_QUERY>;
+export type FilterBoxInput = NonNullable<
+  NonNullable<BoxesForBoxesViewVariables["options"]>["filters"]
+>;
+export type ActionOptionsForBoxesViewQuery = ResultOf<typeof ACTION_OPTIONS_FOR_BOXESVIEW_QUERY>;
 export type StandardProductsforProductsViewQuery = ResultOf<
   typeof STANDARD_PRODUCTS_FOR_PRODUCTVIEW_QUERY
 >;
@@ -45,3 +54,11 @@ export type ProductsQuery = ResultOf<typeof PRODUCTS_QUERY>;
 
 export type CustomProductFormQueryResult = ResultOf<typeof CUSTOM_PRODUCT_FORM_OPTIONS_QUERY>;
 export type StandardProductQueryResultType = ResultOf<typeof STANDARD_PRODUCT_QUERY>;
+
+export type BeneficiariesForBeneficiariesViewQuery = ResultOf<
+  typeof BENEFICIARIES_FOR_BENEFICIARIESVIEW_QUERY
+>;
+export type BeneficiariesForBeneficiariesViewVariables = VariablesOf<
+  typeof BENEFICIARIES_FOR_BENEFICIARIESVIEW_QUERY
+>;
+export type OptionsForBeneficiariesViewQuery = ResultOf<typeof OPTIONS_FOR_BENEFICIARIESVIEW_QUERY>;

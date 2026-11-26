@@ -1,14 +1,9 @@
 import random
 import re
 
-from peewee import JOIN
-
 from ...db import db
 from ...enums import TaggableObjectType, TagType
 from ...errors import DeletedTag, EmptyName, InvalidColor
-from ...exceptions import IncompatibleTagTypeAndResourceType
-from ...models.definitions.beneficiary import Beneficiary
-from ...models.definitions.box import Box
 from ...models.definitions.history import DbChangeHistory
 from ...models.definitions.tag import Tag
 from ...models.definitions.tags_relation import TagsRelation
@@ -165,76 +160,30 @@ def delete_tags(*, user_id, tags):
     return list(Tag.select().where(Tag.id << tag_ids))
 
 
-def assign_tag(*, user_id, id, resource_id, resource_type, tag=None):
-    """Create TagsRelation entry as cross reference of the tag given by ID, and the
-    given resource (a box or a beneficiary). Insert timestamp for modification in
-    resource model.
-    Validate that tag type and resource type are compatible.
-    If the requested tag is already assigned to the resource, return the unmodified
-    resource immediately.
-    Return the resource.
+def unassign_tags_from_resources(
+    *, user_id, model, object_type, resource_ids, tag_ids, now=None
+):
+    """Soft-delete TagsRelation rows containing the given resources (instances of
+    `model`, e.g. Box or Beneficiary, with corresponding `object_type`) and tag IDs.
+    Already deleted TagsRelations are ignored.
+
+    Update last_modified_* fields of the affected resources.
+    Return the list of updated resources.
     """
-    tag = Tag.get_by_id(id) if tag is None else tag
-    if (
-        (tag.type == TagType.Beneficiary) and (resource_type == TaggableObjectType.Box)
-    ) or (
-        (tag.type == TagType.Box) and (resource_type == TaggableObjectType.Beneficiary)
-    ):
-        raise IncompatibleTagTypeAndResourceType(tag=tag, resource_type=resource_type)
+    resource_ids = set(resource_ids)
+    if not resource_ids:
+        return []
 
-    model = Box if resource_type == TaggableObjectType.Box else Beneficiary
-    resource = (
-        model.select(model, TagsRelation.tag)
-        .join(
-            TagsRelation,
-            JOIN.LEFT_OUTER,
-            on=(
-                (TagsRelation.object_id == model.id)
-                & (TagsRelation.object_type == resource_type)
-                & (TagsRelation.tag == tag.id)
-                & TagsRelation.deleted_on.is_null()
-            ),
-        )
-        .where(model.id == resource_id)
-        .objects()  # make .tag a direct attribute of resource
-        .get()
-    )
-    if resource.tag is not None:
-        return resource
-
-    now = utcnow()
-    resource.last_modified_by = user_id
-    resource.last_modified_on = now
-
+    now = now or utcnow()
     with db.database.atomic():
-        TagsRelation.create(
-            object_id=resource_id,
-            object_type=resource_type,
-            tag=id,
-            created_on=now,
-            created_by=user_id,
-        )
-        resource.save()
-    return resource
-
-
-def unassign_tag(*, user_id, id, resource_id, resource_type):
-    """Soft-delete TagsRelation entry defined by given tag ID, resource ID, and resource
-    type. Insert timestamp for modification in resource model.
-    Return the resource that the tag was unassigned from.
-    """
-    now = utcnow()
-    model = Box if resource_type == TaggableObjectType.Box else Beneficiary
-    resource = model.get_by_id(resource_id)
-    resource.last_modified_by = user_id
-    resource.last_modified_on = now
-
-    with db.database.atomic():
+        model.update(last_modified_on=now, last_modified_by=user_id).where(
+            model.id << resource_ids
+        ).execute()
         TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
-            TagsRelation.tag == id,
-            TagsRelation.object_id == resource_id,
-            TagsRelation.object_type == resource_type,
+            TagsRelation.tag << tag_ids,
+            TagsRelation.object_id << resource_ids,
+            TagsRelation.object_type == object_type,
             TagsRelation.deleted_on.is_null(),
         ).execute()
-        resource.save()
-    return resource
+
+    return list(model.select().where(model.id << resource_ids))

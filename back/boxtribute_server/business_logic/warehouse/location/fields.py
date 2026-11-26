@@ -17,12 +17,12 @@ def resolve_location_default_box_state(location_obj, _):
 @classic_location.field("boxes")
 def resolve_location_boxes(location_obj, _, pagination_input=None, filter_input=None):
     authorize(permission="stock:read", base_id=location_obj.base_id)
-    filter_condition, selection = derive_box_filter(filter_input)
+    conditions, selection = derive_box_filter(filter_input)
 
     return load_into_page(
         Box,
         Box.location == location_obj.id,
-        filter_condition,
+        *conditions,
         selection=selection,
         pagination_input=pagination_input,
     )

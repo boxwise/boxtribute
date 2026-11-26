@@ -5,6 +5,7 @@ import { IBoxBasicFields } from "types/graphql-local-only";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
 import { SHIPMENT_FIELDS_FRAGMENT } from "queries/fragments";
+import { FilterBoxInput } from "queries/types";
 
 export enum IAssignBoxToShipmentResultKind {
   BAD_USER_INPUT = "badUserInput", // no Boxes InStock were passed to the function
@@ -19,6 +20,7 @@ export enum IAssignBoxToShipmentResultKind {
 export interface IAssignBoxToShipmentResult {
   kind: IAssignBoxToShipmentResultKind;
   notInStockBoxes?: IBoxBasicFields[];
+  notMarkedForShipmentBoxes?: IBoxBasicFields[];
   requestedBoxes: IBoxBasicFields[];
   assignedBoxes?: IBoxBasicFields[];
   unassignedBoxes?: IBoxBasicFields[];
@@ -28,13 +30,13 @@ export interface IAssignBoxToShipmentResult {
 
 export const ASSIGN_BOXES_TO_SHIPMENT = graphql(
   `
-    mutation AssignBoxesToShipment($id: ID!, $labelIdentifiers: [String!]) {
-      updateShipmentWhenPreparing(
-        updateInput: {
-          id: $id
-          preparedBoxLabelIdentifiers: $labelIdentifiers
-          removedBoxLabelIdentifiers: []
-        }
+    mutation AssignBoxesToShipment(
+      $id: ID!
+      $labelIdentifiers: [String!]
+      $filters: FilterBoxInput
+    ) {
+      addBoxesToShipment(
+        updateInput: { id: $id, labelIdentifiers: $labelIdentifiers, filters: $filters }
       ) {
         ...ShipmentFields
       }
@@ -43,22 +45,22 @@ export const ASSIGN_BOXES_TO_SHIPMENT = graphql(
   [SHIPMENT_FIELDS_FRAGMENT],
 );
 
-export const UNASSIGN_BOX_FROM_SHIPMENT = graphql(
-  `
-    mutation UnassignBoxesFromShipment($id: ID!, $labelIdentifiers: [String!]) {
-      updateShipmentWhenPreparing(
-        updateInput: {
-          id: $id
-          preparedBoxLabelIdentifiers: []
-          removedBoxLabelIdentifiers: $labelIdentifiers
-        }
-      ) {
-        ...ShipmentFields
+export const UNASSIGN_BOXES_FROM_SHIPMENTS = graphql(`
+  mutation UnassignBoxesFromShipments($labelIdentifiers: [String!], $filters: FilterBoxInput) {
+    removeBoxesFromShipments(labelIdentifiers: $labelIdentifiers, filters: $filters) {
+      labelIdentifier
+      state
+      shipmentDetail {
+        id
+      }
+      lastModifiedOn
+      lastModifiedBy {
+        id
+        name
       }
     }
-  `,
-  [SHIPMENT_FIELDS_FRAGMENT],
-);
+  }
+`);
 
 export const useAssignBoxesToShipment = () => {
   const { triggerError } = useErrorHandling();
@@ -67,7 +69,7 @@ export const useAssignBoxesToShipment = () => {
 
   const [assignBoxesToShipmentMutation] = useMutation(ASSIGN_BOXES_TO_SHIPMENT);
 
-  const [unassignBoxesFromShipmentMutation] = useMutation(UNASSIGN_BOX_FROM_SHIPMENT);
+  const [unassignBoxesFromShipmentsMutation] = useMutation(UNASSIGN_BOXES_FROM_SHIPMENTS);
 
   const assignBoxesToShipment = useCallback(
     (
@@ -75,13 +77,15 @@ export const useAssignBoxesToShipment = () => {
       boxes: IBoxBasicFields[],
       showToasts: boolean = true,
       showErrors: boolean = true,
+      filters?: FilterBoxInput,
     ) => {
       setIsLoading(true);
-      const inStockBoxes = boxes.filter((box) => box.state === "InStock");
-      const notInStockBoxes = boxes.filter((box) => box.state !== "InStock");
+      // Boxes specified by filters are resolved (and restricted to InStock boxes) by the backend
+      const inStockBoxes = filters ? [] : boxes.filter((box) => box.state === "InStock");
+      const notInStockBoxes = filters ? [] : boxes.filter((box) => box.state !== "InStock");
 
       // no Boxes InStock were passed
-      if (inStockBoxes.length === 0) {
+      if (!filters && inStockBoxes.length === 0) {
         setIsLoading(false);
         return Promise.resolve({
           kind: IAssignBoxToShipmentResultKind.BAD_USER_INPUT,
@@ -93,7 +97,9 @@ export const useAssignBoxesToShipment = () => {
       return assignBoxesToShipmentMutation({
         variables: {
           id: shipmentId,
-          labelIdentifiers: inStockBoxes.map((box) => box.labelIdentifier),
+          ...(filters
+            ? { filters }
+            : { labelIdentifiers: inStockBoxes.map((box) => box.labelIdentifier) }),
         },
       })
         .then(({ data, errors }) => {
@@ -141,8 +147,18 @@ export const useAssignBoxesToShipment = () => {
               error: errors ? errors[0] : undefined,
             } as IAssignBoxToShipmentResult;
           }
+          if (filters) {
+            if (showToasts)
+              createToast({ message: "The boxes were successfully assigned to the shipment." });
+            return {
+              kind: IAssignBoxToShipmentResultKind.SUCCESS,
+              requestedBoxes: boxes,
+              assignedBoxes: [],
+              notInStockBoxes,
+            } as IAssignBoxToShipmentResult;
+          }
           const boxesInShipment: IBoxBasicFields[] =
-            data?.updateShipmentWhenPreparing?.details
+            data?.addBoxesToShipment?.details
               .filter((detail) => detail.removedOn === null)
               .filter((detail) => detail.box.state === "MarkedForShipment")
               .map((detail) => detail.box as IBoxBasicFields) ?? [];
@@ -205,20 +221,32 @@ export const useAssignBoxesToShipment = () => {
     [assignBoxesToShipmentMutation, createToast, triggerError],
   );
 
-  const unassignBoxesFromShipment = useCallback(
-    (shipmentId: string, boxes: IBoxBasicFields[], showToastMessage: boolean = true) => {
+  const unassignBoxesFromShipments = useCallback(
+    (boxes: IBoxBasicFields[], showToastMessage: boolean = true, filters?: FilterBoxInput) => {
       setIsLoading(true);
-      const inStockLabelIdentifiers = boxes
-        .filter(
-          (box) =>
-            box.state === "MarkedForShipment" && box.shipmentDetail?.shipment.id === shipmentId,
-        )
-        .map((box) => box.labelIdentifier);
-      return unassignBoxesFromShipmentMutation({
-        variables: {
-          id: shipmentId,
-          labelIdentifiers: inStockLabelIdentifiers,
-        },
+      // Boxes specified by filters are resolved (and restricted to MarkedForShipment boxes) by the
+      // backend
+      const markedForShipmentBoxes = filters
+        ? []
+        : boxes.filter((box) => box.state === "MarkedForShipment");
+      const notMarkedForShipmentBoxes = filters
+        ? []
+        : boxes.filter((box) => box.state !== "MarkedForShipment");
+
+      // no Boxes MarkedForShipment were passed
+      if (!filters && markedForShipmentBoxes.length === 0) {
+        setIsLoading(false);
+        return Promise.resolve({
+          kind: IAssignBoxToShipmentResultKind.BAD_USER_INPUT,
+          requestedBoxes: boxes,
+          notMarkedForShipmentBoxes,
+        } as IAssignBoxToShipmentResult);
+      }
+
+      return unassignBoxesFromShipmentsMutation({
+        variables: filters
+          ? { filters }
+          : { labelIdentifiers: markedForShipmentBoxes.map((box) => box.labelIdentifier) },
       })
         .then(({ data, errors }) => {
           setIsLoading(false);
@@ -233,6 +261,8 @@ export const useAssignBoxesToShipment = () => {
               return {
                 kind: IAssignBoxToShipmentResultKind.NOT_AUTHORIZED,
                 requestedBoxes: boxes,
+                notMarkedForShipmentBoxes,
+                failedBoxes: markedForShipmentBoxes,
                 error: errors ? errors[0] : undefined,
               } as IAssignBoxToShipmentResult;
             }
@@ -245,6 +275,8 @@ export const useAssignBoxesToShipment = () => {
               return {
                 kind: IAssignBoxToShipmentResultKind.WRONG_SHIPMENT_STATE,
                 requestedBoxes: boxes,
+                notMarkedForShipmentBoxes,
+                failedBoxes: markedForShipmentBoxes,
                 error: errors ? errors[0] : undefined,
               } as IAssignBoxToShipmentResult;
             }
@@ -256,25 +288,25 @@ export const useAssignBoxesToShipment = () => {
             return {
               kind: IAssignBoxToShipmentResultKind.FAIL,
               requestedBoxes: boxes,
+              notMarkedForShipmentBoxes,
+              failedBoxes: markedForShipmentBoxes,
               error: errors ? errors[0] : undefined,
             } as IAssignBoxToShipmentResult;
           }
-          const boxesInShipment =
-            (data?.updateShipmentWhenPreparing?.details
-              .filter((detail) => detail.removedOn === null)
-              .filter((detail) => detail.box.state === "MarkedForShipment")
-              .map((detail) => detail.box) as IBoxBasicFields[]) ?? [];
+          const removedBoxes = data?.removeBoxesFromShipments ?? [];
 
-          const failedBoxes: IBoxBasicFields[] = boxes.filter((box) =>
-            boxesInShipment.some(
-              (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
-            ),
-          );
+          const unassignedBoxes: IBoxBasicFields[] = filters
+            ? (removedBoxes as IBoxBasicFields[])
+            : markedForShipmentBoxes.filter((box) =>
+                removedBoxes.some(
+                  (removedBox) => removedBox.labelIdentifier === box.labelIdentifier,
+                ),
+              );
 
-          const unassignedBoxes: IBoxBasicFields[] = boxes.filter(
+          const failedBoxes: IBoxBasicFields[] = markedForShipmentBoxes.filter(
             (box) =>
-              !boxesInShipment.some(
-                (boxInShipment) => boxInShipment.labelIdentifier === box.labelIdentifier,
+              !removedBoxes.some(
+                (removedBox) => removedBox.labelIdentifier === box.labelIdentifier,
               ),
           );
 
@@ -285,7 +317,7 @@ export const useAssignBoxesToShipment = () => {
                   unassignedBoxes.length === 1
                     ? "A Box was"
                     : `${unassignedBoxes.length} Boxes were`
-                } successfully removed from the shipment.`,
+                } successfully unassigned from the corresponding shipment.`,
               });
           }
           // Not all Boxes were unassigned
@@ -295,6 +327,7 @@ export const useAssignBoxesToShipment = () => {
               requestedBoxes: boxes,
               unassignedBoxes,
               failedBoxes,
+              notMarkedForShipmentBoxes,
             } as IAssignBoxToShipmentResult;
           }
           // all Boxes were unassigned
@@ -302,6 +335,7 @@ export const useAssignBoxesToShipment = () => {
             kind: IAssignBoxToShipmentResultKind.SUCCESS,
             requestedBoxes: boxes,
             unassignedBoxes,
+            notMarkedForShipmentBoxes,
             error: errors ? errors[0] : undefined,
           } as IAssignBoxToShipmentResult;
         })
@@ -316,17 +350,19 @@ export const useAssignBoxesToShipment = () => {
             return {
               kind: IAssignBoxToShipmentResultKind.NETWORK_FAIL,
               requestedBoxes: boxes,
+              notMarkedForShipmentBoxes,
+              failedBoxes: markedForShipmentBoxes,
               error: err,
             } as IAssignBoxToShipmentResult;
           },
         );
     },
-    [unassignBoxesFromShipmentMutation, createToast, triggerError],
+    [unassignBoxesFromShipmentsMutation, createToast, triggerError],
   );
 
   return {
     assignBoxesToShipment,
-    unassignBoxesFromShipment,
+    unassignBoxesFromShipments,
     isLoading,
   };
 };

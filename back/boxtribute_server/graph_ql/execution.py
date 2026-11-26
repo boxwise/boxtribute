@@ -10,15 +10,21 @@ from ..exceptions import format_database_errors
 from .loaders import (
     BaseLoader,
     BoxLoader,
+    FamilyHeadForBeneficiaryLoader,
+    FamilyMembersForBeneficiaryLoader,
     HistoryForBoxLoader,
     InstockCountForBaseLoader,
     InstockItemsCountForProductLoader,
+    LanguagesForBeneficiaryLoader,
     LocationLoader,
     OrganisationLoader,
     ProductCategoryLoader,
     ProductLoader,
     QrCodeLoader,
     ResourcesForTagLoader,
+    ServiceLoader,
+    ServicesForBaseLoader,
+    ServiceUsagesForBeneficiaryLoader,
     ShipmentDetailAutoMatchingLoader,
     ShipmentDetailForBoxLoader,
     ShipmentDetailsForShipmentLoader,
@@ -30,12 +36,16 @@ from .loaders import (
     SourceBasesForAgreementLoader,
     StandardProductLoader,
     TagLastUsedOnLoader,
+    TagsForBeneficiaryLoader,
     TagsForBoxLoader,
     TargetBasesForAgreementLoader,
+    TokensForBeneficiaryLoader,
+    TransactionsForBeneficiaryLoader,
     TransferAgreementLoader,
     TransferItemsCountForProductLoader,
     UnitLoader,
     UnitsForDimensionLoader,
+    UsageStatisticsForServiceLoader,
     UserLoader,
 )
 
@@ -66,17 +76,23 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             # fmt: off
             "base_loader": BaseLoader(),
             "box_loader": BoxLoader(),
+            "family_heads_for_beneficiary_loader": FamilyHeadForBeneficiaryLoader(),
+            "family_members_for_beneficiary_loader": FamilyMembersForBeneficiaryLoader(),  # noqa
             "history_for_box_loader": HistoryForBoxLoader(),
             "instock_boxes_count_for_base_loader": InstockCountForBaseLoader(),
             "instock_items_count_for_base_loader": InstockCountForBaseLoader(count_boxes=False),  # noqa
             "instock_items_count_for_product_loader": InstockItemsCountForProductLoader(),  # noqa
             "transfer_items_count_for_product_loader": TransferItemsCountForProductLoader(),  # noqa
+            "languages_for_beneficiary_loader": LanguagesForBeneficiaryLoader(),
             "location_loader": LocationLoader(),
             "organisation_loader": OrganisationLoader(),
             "product_category_loader": ProductCategoryLoader(),
             "product_loader": ProductLoader(),
             "qr_code_loader": QrCodeLoader(),
             "resources_for_tag_loader": ResourcesForTagLoader(),
+            "service_loader": ServiceLoader(),
+            "service_usages_for_beneficiary_loader": ServiceUsagesForBeneficiaryLoader(),  # noqa
+            "services_for_base_loader": ServicesForBaseLoader(),
             "shipment_detail_auto_matching_loader": ShipmentDetailAutoMatchingLoader(),
             "shipment_detail_for_box_loader": ShipmentDetailForBoxLoader(),
             "shipment_details_for_shipment_loader": ShipmentDetailsForShipmentLoader(),
@@ -89,10 +105,14 @@ def execute_async(*, schema, introspection=None, data=None, check_beta_level=Fal
             "standard_product_loader": StandardProductLoader(),
             "tag_last_used_on_loader": TagLastUsedOnLoader(),
             "tags_for_box_loader": TagsForBoxLoader(),
+            "tags_for_beneficiary_loader": TagsForBeneficiaryLoader(),
             "target_bases_for_agreement_loader": TargetBasesForAgreementLoader(),
+            "tokens_for_beneficiary_loader": TokensForBeneficiaryLoader(),
+            "transactions_for_beneficiary_loader": TransactionsForBeneficiaryLoader(),
             "transfer_agreement_loader": TransferAgreementLoader(),
             "units_for_dimension_loader": UnitsForDimensionLoader(),
             "unit_loader": UnitLoader(),
+            "usage_statistics_for_service_loader": UsageStatisticsForServiceLoader(),  # noqa
             "user_loader": UserLoader(),
             # fmt: on
         }

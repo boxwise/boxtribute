@@ -1,9 +1,10 @@
 import "regenerator-runtime/runtime";
-import { ReactElement, Suspense, useEffect, useMemo, useRef } from "react";
+import { ReactElement, Suspense, useEffect, useMemo } from "react";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { useLoadAndSetGlobalPreferences } from "hooks/useLoadAndSetGlobalPreferences";
 import Layout from "components/Layout";
 import Boxes from "views/Boxes/BoxesView";
+import Beneficiaries from "views/Beneficiaries/BeneficiariesView";
 import BTBox from "views/Box/BoxView";
 import BoxEditView from "views/BoxEdit/BoxEditView";
 import BoxCreateView from "views/BoxCreate/BoxCreateView";
@@ -112,9 +113,6 @@ function App() {
   const organisation = useAtomValue(organisationAtom);
   const roles: string[] = user?.[JWT_ROLE] ?? [];
   const location = useLocation();
-  // For BoxesView to reduce number of expensive Boxes queries
-  // when navigating between boxes and other views.
-  const hasExecutedInitialFetchOfBoxes = useRef(false);
 
   useEffect(() => {
     const userId = user?.sub?.replace(/^auth0\|/, ""); // strip prefix
@@ -173,6 +171,28 @@ function App() {
               }
             />
           </Route>
+          <Route path="beneficiaries">
+            <Route
+              index
+              element={
+                <Protected
+                  component={
+                    <ErrorBoundary
+                      fallback={
+                        <AlertWithoutAction alertText="Could not fetch beneficiaries data! Please try reloading the page." />
+                      }
+                    >
+                      <Suspense fallback={<TableSkeleton />}>
+                        <Beneficiaries />
+                      </Suspense>
+                    </ErrorBoundary>
+                  }
+                  redirectPath={prevLocation}
+                  requiredAbps={["manage_beneficiaries"]}
+                />
+              }
+            />
+          </Route>
           <Route path="boxes">
             <Route
               index
@@ -185,7 +205,7 @@ function App() {
                       }
                     >
                       <Suspense fallback={<TableSkeleton />}>
-                        <Boxes hasExecutedInitialFetchOfBoxes={hasExecutedInitialFetchOfBoxes} />
+                        <Boxes />
                       </Suspense>
                     </ErrorBoundary>
                   }

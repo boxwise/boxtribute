@@ -17,6 +17,8 @@ def serialize_datetime(value):
 @date_scalar.serializer
 def serialize_date(value):
     # Return date value in format YYYY-MM-DD
+    if isinstance(value, datetime):
+        value = value.date()
     return value.isoformat()
 
 

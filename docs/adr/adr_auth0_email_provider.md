@@ -8,7 +8,7 @@ proposed, implemented as quick fix
 
 ## Context or Problem Statement
 
-We need to select an email provider that integrates with Auth0 for sending transactional emails (sign-up verifications, password resets, etc.). Auth0 itselfs can send emails, but does not allow to customize their emails in their case and is only recommended for dev and test tennant.
+We need to select an email provider that integrates with Auth0 for sending transactional emails (sign-up verifications, password resets, etc.). Auth0 itself can send emails, but does not allow to customize their emails in their case and is only recommended for dev and test tenant.
 Until now we used sendgrid and signed up to it via Google cloud marketplace. Unfortunately, our account was put on "under review" without warning and no emails were sent anymore. The reason was inactivity (no emails were tracked in the sendgrid stats) even though each day there were a few emails sent out via the Email API. Sendgrid was not able to remove the "Under review" state and asked us to create a new account.
 
 ## Decision Drivers

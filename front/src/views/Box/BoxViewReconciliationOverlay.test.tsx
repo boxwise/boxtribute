@@ -41,7 +41,6 @@ const initialQueryForBoxInReceivingState = {
         id: "1",
         qrCode: null,
         comment: null,
-        distributionEvent: null,
         history: [],
         labelIdentifier: "123",
         location: null,

@@ -65,14 +65,6 @@ def distribution_spot_data():
     return data
 
 
-def another_distribution_spot_data():
-    data = default_location_data()
-    data["id"] = 6
-    data["base"] = base_data()[2]["id"]
-    data["type"] = LocationType.DistributionSpot
-    return data
-
-
 def deleted_location_data():
     data = default_location_data()
     data["id"] = 7
@@ -156,7 +148,6 @@ def create():
             null_box_state_location_data(),
             non_default_box_state_location_data(),
             distribution_spot_data(),
-            another_distribution_spot_data(),
             deleted_location_data(),
             yet_another_location_data(),
             location_in_deleted_base_data(),

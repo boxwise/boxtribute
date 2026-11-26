@@ -3,27 +3,40 @@ import { graphql } from "../../../graphql/graphql";
 import { useCallback, useState } from "react";
 import { useErrorHandling } from "./useErrorHandling";
 import { useNotification } from "./useNotification";
+import { FilterBoxInput } from "queries/types";
 
 export const UNASSIGN_TAGS_FROM_BOXES = graphql(`
-  mutation UnassignTagsFromBoxes($labelIdentifiers: [String!]!, $tagIds: [Int!]!) {
-    unassignTagsFromBoxes(updateInput: { labelIdentifiers: $labelIdentifiers, tagIds: $tagIds }) {
-      updatedBoxes {
-        labelIdentifier
-        tags {
-          id
+  mutation UnassignTagsFromBoxes(
+    $labelIdentifiers: [String!]
+    $filters: FilterBoxInput
+    $tagIds: [Int!]!
+  ) {
+    unassignTagsFromBoxes(
+      updateInput: { labelIdentifiers: $labelIdentifiers, filters: $filters, tagIds: $tagIds }
+    ) {
+      __typename
+      ... on BoxesTagsOperationResult {
+        updatedBoxes {
+          labelIdentifier
+          tags {
+            id
+          }
+          lastModifiedOn
+          lastModifiedBy {
+            id
+            name
+          }
         }
-        lastModifiedOn
-        lastModifiedBy {
+        invalidBoxLabelIdentifiers
+        tagErrorInfo {
           id
-          name
+          error {
+            __typename
+          }
         }
       }
-      invalidBoxLabelIdentifiers
-      tagErrorInfo {
-        id
-        error {
-          __typename
-        }
+      ... on InsufficientPermissionError {
+        name
       }
     }
   }
@@ -36,18 +49,36 @@ export const useUnassignTags = () => {
   const [unassignTagsMutation] = useMutation(UNASSIGN_TAGS_FROM_BOXES);
 
   const unassignTags = useCallback(
-    (labelIdentifiers: string[], tagIds: number[], showToasts: boolean = true) => {
+    (
+      labelIdentifiers: string[],
+      tagIds: number[],
+      showToasts: boolean = true,
+      filters?: FilterBoxInput,
+    ) => {
       setIsLoading(true);
 
       return unassignTagsMutation({
         variables: {
-          labelIdentifiers,
+          ...(filters ? { filters } : { labelIdentifiers }),
           tagIds,
         },
       })
         .then(({ data, errors }) => {
-          const successfulBoxes = data?.unassignTagsFromBoxes?.updatedBoxes;
-          const tagErrorInfoArray = data?.unassignTagsFromBoxes?.tagErrorInfo;
+          const result = data?.unassignTagsFromBoxes;
+
+          if (result?.__typename === "InsufficientPermissionError") {
+            setIsLoading(false);
+            if (showToasts) {
+              triggerError({
+                message: "You don't have the permissions to unassign tags from these boxes.",
+              });
+            }
+            return false;
+          }
+
+          const boxesResult = result && "updatedBoxes" in result ? result : undefined;
+          const successfulBoxes = boxesResult?.updatedBoxes;
+          const tagErrorInfoArray = boxesResult?.tagErrorInfo;
 
           setIsLoading(false);
 
@@ -72,6 +103,8 @@ export const useUnassignTags = () => {
               } successfully unassigned tags.`,
             });
           }
+
+          return !errors?.length && !tagErrorInfoArray?.length;
         })
         .catch((err) => {
           setIsLoading(false);
@@ -80,6 +113,7 @@ export const useUnassignTags = () => {
               message: err + "Could not unassign tags from boxes. Try again?",
             });
           }
+          return false;
         });
     },
     [unassignTagsMutation, triggerError, createToast],

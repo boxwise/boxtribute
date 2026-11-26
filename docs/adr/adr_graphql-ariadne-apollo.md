@@ -33,7 +33,7 @@ Boxwise is in the middle of a planned migration from the old PHP-based Dropapp, 
 
 ### Client
 - **[Apollo Client](https://www.apollographql.com/docs/react/):** Well-supported industry leader. Extensive documentation, sophisticated caching solution. Large footprint. Previously considered hard to set up and configure due to sophistication, but now has [Apollo Boost](https://www.npmjs.com/package/apollo-boost) package to make things super simple and speedy.
-- **[urql](https://github.com/FormidableLabs/urql):** A lightweight tiny client solution intended to make graphQL simple. However, it lacks one of the major benefits of the Apollo client, which is cacheing. Supported by a medium-size dev shop. Younger than Apollo Client as well as all of the server options.
+- **[urql](https://github.com/FormidableLabs/urql):** A lightweight tiny client solution intended to make graphQL simple. However, it lacks one of the major benefits of the Apollo client, which is caching. Supported by a medium-size dev shop. Younger than Apollo Client as well as all of the server options.
 
 
 ## Decision

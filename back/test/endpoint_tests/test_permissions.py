@@ -8,10 +8,12 @@ from utils import assert_forbidden_request, assert_successful_request
     [
         # Test case 8.1.6b
         "box",
+        "boxRow",
         # Test cases 99.1.4, 99.1.6
         "base",
         # Test cases 9.1.6, 9.1.7
         "beneficiary",
+        "beneficiaryRow",
         # Test cases 8.1.16, 8.1.17
         "location",
         # Test cases 99.1.9b, 99.1.9c
@@ -22,6 +24,8 @@ from utils import assert_forbidden_request, assert_successful_request
         "productCategory",
         # Test case 99.1.16
         "sizeRange",
+        # Test case 99.1.18
+        "size",
         # Test cases 3.1.4, 3.1.5
         "shipment",
         # Test cases 4.1.4, 4.1.6
@@ -48,9 +52,13 @@ def test_invalid_read_permissions(unauthorized, client, resource):
         query = "query { products { elements { id } } }"
     elif resources == "boxes":
         query = "query { boxes(baseId: 1) { elements { id } } }"
+    elif resources == "boxRows":
+        query = "query { boxRows(baseId: 1) { page { id } } }"
+    elif resources == "beneficiaryRows":
+        query = "query { beneficiaryRows(baseId: 1) { page { id } } }"
     assert_forbidden_request(client, query, none_data=True)
 
-    if resource == "sizeRange" or resource == "box":
+    if resource in ["sizeRange", "size", "box", "boxRow", "beneficiaryRow"]:
         return
 
     query = f"""query {{ {resource}(id: 2) {{ id }} }}"""
@@ -71,6 +79,8 @@ def operation_name(operation):
         """box( labelIdentifier: "12345678") { id }""",
         # Test case 8.1.35
         """qrExists( code: "1337beef" )""",
+        "exportBoxRowsToCsv( baseId: 1)",
+        "exportBeneficiaryRowsToCsv( baseId: 1)",
     ],
     ids=operation_name,
 )
@@ -92,11 +102,14 @@ def test_invalid_permission(unauthorized, client, query):
         """box( labelIdentifier: "34567890" ) { id }""",
         # Test case 8.1.6c
         """boxes( baseId: 2 ) { totalCount }""",
+        """boxRows( baseId: 2 ) { page { id } }""",
+        "exportBoxRowsToCsv( baseId: 2 )",
+        "exportBeneficiaryRowsToCsv( baseId: 2 )",
         # Test case 8.1.24
         """product( id: 2 ) { id }""",
         # Test case 9.1.8
         """beneficiary( id: 4 ) { id }""",
-        """packingListEntry( id: 1 ) { id }""",
+        """beneficiaryRows( baseId: 2 ) { page { id } }""",
         # Test case 3.1.6
         """shipment( id: 5 ) { id }""",
         """beneficiaryFigures( baseId: 2 ) { averageFamilySize }""",
@@ -108,38 +121,15 @@ def test_invalid_permission_for_given_resource_id(client, query):
     specified resource (i.e. base).
     """
     assert_forbidden_request(
-        client, f"query {{ {query} }}", none_data=query.startswith("boxes")
+        client,
+        f"query {{ {query} }}",
+        none_data=query.startswith(("boxes", "boxRows", "beneficiaryRows")),
     )
 
 
 @pytest.mark.parametrize(
     "mutation",
     [
-        # Test case 9.2.6
-        """createBeneficiary(
-            creationInput : {
-                firstName: "First",
-                lastName: "Last",
-                dateOfBirth: "1990-09-01",
-                baseId: 2,
-                groupIdentifier: "1312",
-                gender: Male,
-                languages: [de],
-                isVolunteer: true,
-                registered: false
-            }) {
-            id
-        }""",
-        # Test case 9.2.11
-        """updateBeneficiary(
-            updateInput : {
-                id: 3,
-                firstName: "First"
-            }) {
-            id
-        }""",
-        # Test case 9.2.21
-        """deactivateBeneficiary( id: 3 ) { id }""",
         # Test case 8.2.9
         """createBox(
             creationInput : {
@@ -177,26 +167,12 @@ def test_invalid_permission_for_given_resource_id(client, query):
                 targetBaseId: 3,
                 transferAgreementId: 1
             }) { id }""",
-        "updateShipmentWhenPreparing( updateInput : { id: 1 }) { id }",
+        "addBoxesToShipment( updateInput : { id: 1 }) { id }",
         "updateShipmentWhenReceiving( updateInput : { id: 1 }) { id }",
         "cancelShipment( id : 1 ) { id }",
         "markShipmentAsLost( id : 1 ) { id }",
         "sendShipment( id : 1 ) { id }",
         "startReceivingShipment( id : 1 ) { id }",
-        # Test case 4.2.19, 4.2.20
-        """assignTag(
-            assignmentInput: {
-                id: 1
-                resourceId: 1
-                resourceType: Box
-            }) { ...on Box { id } }""",
-        # Test case 4.2.33, 4.2.34
-        """unassignTag(
-            unassignmentInput: {
-                id: 1
-                resourceId: 1
-                resourceType: Box
-            }) { ...on Box { id } }""",
     ],
     ids=operation_name,
 )
@@ -258,16 +234,6 @@ def test_invalid_write_permission(unauthorized, client, mutation):
                 labelIdentifier: "12345678",
                 tagIds: [4]
             }) { id }""",
-        # Test case 9.2.15
-        """updateBeneficiary(
-            updateInput : {
-                id: 4,
-                firstName: "First"
-            }) {
-            id
-        }""",
-        # Test case 9.2.22
-        """deactivateBeneficiary( id: 4 ) { id }""",
         # Test case 3.2.4c
         """createShipment(
             creationInput : {
@@ -290,7 +256,7 @@ def test_invalid_permission_when_mutating_box(client, mutation):
 
 def test_invalid_permission_when_creating_box_with_tags(client, mocker):
     # Test case 8.2.11
-    # Verify missing tag_relation:assign permission
+    # Verify missing tags_relation:write permission
     mock_user_for_request(
         mocker, permissions=["location:read", "stock:write", "product:read"]
     )
@@ -350,7 +316,7 @@ def test_invalid_permission_for_qr_code_box(
             "qr:read",
             "stock:read",
             "tag:read",
-            "tag_relation:read",
+            "tags_relation:read",
             "beneficiary:read",
         ],
         base_ids=[1],
@@ -404,7 +370,7 @@ def test_invalid_permission_for_base_locations(client, mocker):
 
 def test_invalid_permission_for_tag_resources(client, mocker, tags):
     # Test case 4.1.7
-    # verify missing tag_relation:read permission
+    # verify missing tags_relation:read permission
     mock_user_for_request(mocker, permissions=["tag:read"])
     id = tags[0]["id"]
     query = f"query {{ tag(id: {id}) {{ taggedResources {{ ...on Box {{ id }} }} }} }}"
@@ -592,15 +558,15 @@ def test_invalid_permission_for_user_read(client, default_product, default_user)
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
-            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
         ],
         # Test case 8.2.24e
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [2] }',
-            "tagErrorInfo { id error { ...on InsufficientPermissionError { name } } }",
-            {"tagErrorInfo": [{"error": {"name": "tag_relation:assign"}, "id": "2"}]},
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
         ],
         # Test case 12.2.4
         [
@@ -614,6 +580,64 @@ def test_invalid_permission_for_user_read(client, default_product, default_user)
             "creationInput: { baseId: 1, beneficiaryData: []}",
             "...on InsufficientPermissionError { name }",
             {"name": "beneficiary:create"},
+        ],
+        # Test case 9.2.6
+        [
+            "createBeneficiary",
+            """creationInput: { firstName: "First", lastName: "Last", baseId: 1,
+                groupIdentifier: "1312" }""",
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:create"},
+        ],
+        # Test case 9.2.11
+        [
+            "updateBeneficiary",
+            'updateInput: { id: 3, firstName: "First" }',
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:edit"},
+        ],
+        [
+            "assignTagsToBeneficiaries",
+            "updateInput: { ids: [3], tagIds: [3] }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
+        ],
+        [
+            "unassignTagsFromBeneficiaries",
+            "updateInput: { ids: [3], tagIds: [3] }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "tags_relation:write"},
+        ],
+        # Test case 9.2.21
+        [
+            "deactivateBeneficiaries",
+            "ids: [3]",
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:delete"},
+        ],
+        [
+            "reactivateBeneficiaries",
+            "ids: [3]",
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:edit"},
+        ],
+        [
+            "registerServicesForBeneficiaries",
+            "updateInput: { ids: [3], serviceIds: [1] }",
+            "...on InsufficientPermissionError { name }",
+            {"name": "services_relation:create"},
+        ],
+        [
+            "mergeBeneficiariesIntoFamily",
+            "ids: [3, 6]",
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:edit"},
+        ],
+        [
+            "detachBeneficiariesFromFamily",
+            "ids: [5]",
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:edit"},
         ],
         # Test case 8.2.112
         [
@@ -740,14 +764,14 @@ def test_mutate_insufficient_permission(
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
-            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
         # Test case 8.2.24f
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [4] }',
-            "tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on UnauthorizedForBaseError { id } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "2"}, "id": "4"}]},
         ],
         # Test case 12.2.5
@@ -762,6 +786,45 @@ def test_mutate_insufficient_permission(
             "creationInput: { baseId: 3, beneficiaryData: []}",
             "...on UnauthorizedForBaseError { id }",
             {"id": "3"},
+        ],
+        # Test case 9.2.6
+        [
+            "createBeneficiary",
+            """creationInput: { firstName: "First", lastName: "Last", baseId: 2,
+                groupIdentifier: "1312" }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
+        ],
+        # Test case 9.2.15
+        [
+            "updateBeneficiary",
+            'updateInput: { id: 4, firstName: "First" }',
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
+        [
+            "deactivateBeneficiaries",
+            "ids: [4]",
+            "...on BeneficiariesResult { invalidBeneficiaryIds }",
+            {"invalidBeneficiaryIds": [4]},
+        ],
+        [
+            "reactivateBeneficiaries",
+            "ids: [4]",
+            "...on BeneficiariesResult { invalidBeneficiaryIds }",
+            {"invalidBeneficiaryIds": [4]},
+        ],
+        [
+            "mergeBeneficiariesIntoFamily",
+            "ids: [3, 6, 4]",
+            "...on BeneficiariesResult { invalidBeneficiaryIds }",
+            {"invalidBeneficiaryIds": [4]},
+        ],
+        [
+            "detachBeneficiariesFromFamily",
+            "ids: [4]",
+            "...on BeneficiariesResult { invalidBeneficiaryIds }",
+            {"invalidBeneficiaryIds": [4]},
         ],
         # Test case 8.2.111
         [
@@ -834,6 +897,12 @@ def test_mutate_unauthorized_for_base(
             "...on InsufficientPermissionError { name }",
             {"name": "qr:read"},
         ],
+        [
+            "beneficiaryIds",
+            "baseId: 1",
+            "...on InsufficientPermissionError { name }",
+            {"name": "beneficiary:read"},
+        ],
         # Test case 8.1.43
         [
             "standardProduct",
@@ -863,6 +932,12 @@ def test_query_insufficient_permission(
 @pytest.mark.parametrize(
     "operation,query_input,field,response",
     [
+        [
+            "beneficiaryIds",
+            "baseId: 3",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "3"},
+        ],
         # Test case 8.1.46
         [
             "standardProducts",

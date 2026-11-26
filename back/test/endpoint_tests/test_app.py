@@ -7,6 +7,7 @@ from utils import (
     assert_bad_user_input,
     assert_internal_server_error,
     assert_successful_request,
+    assert_unauthorized,
 )
 
 
@@ -24,8 +25,8 @@ def test_base_specific_permissions(client, mocker):
             "stock:write",
             "base_3/beneficiary:create",
             "base_3/tag:read",
-            "beneficiary_language:assign",
-            "tag_relation:assign",
+            "tags_relation:write",
+            "transaction:create",
         ],
     )
 
@@ -41,7 +42,9 @@ def test_base_specific_permissions(client, mocker):
                     isVolunteer: true,
                     registered: false
                 }) {
-                id
+                __typename
+                ...on Beneficiary { id }
+                ...on UnauthorizedForBaseError { id }
             }"""
     create_beneficiary_for_base3_mutation = (
         create_beneficiary_for_base2_mutation.replace("baseId: 2", "baseId: 3")
@@ -53,11 +56,12 @@ def test_base_specific_permissions(client, mocker):
 
     response = client.post("/graphql", json=data)
     assert response.status_code == 200
-    assert response.json["data"]["bene2"] is None
-    assert response.json["data"]["bene3"] is not None
-    assert len(response.json["errors"]) == 1
-    assert response.json["errors"][0]["extensions"]["code"] == "FORBIDDEN"
-    assert response.json["errors"][0]["path"] == ["bene2"]
+    assert response.json["data"]["bene2"] == {
+        "__typename": "UnauthorizedForBaseError",
+        "id": "2",
+    }
+    assert response.json["data"]["bene3"]["__typename"] == "Beneficiary"
+    assert "errors" not in response.json
 
     data = {"query": """mutation {
             qr2: createQrCode { code }
@@ -150,11 +154,10 @@ def test_beta_level_check(client, mocker, mutation):
         "markShipmentAsLost",
         "sendShipment",
         "startReceivingShipment",
-        "deactivateBeneficiary",
     ],
 )
 def test_mutation_non_existent_resource(client, operation):
-    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b, 9.2.23
+    # Test cases 2.2.4, 2.2.6, 2.2.8, 3.2.8, 3.2.12, 3.2.14b
     mutation = f"mutation {{ {operation}(id: 0) {{ id }} }}"
     response = assert_bad_user_input(client, mutation, field=operation)
     assert "SQL" not in response.json["errors"][0]["message"]
@@ -165,59 +168,9 @@ def test_mutation_non_existent_resource(client, operation):
     [
         # Test case 8.2.20
         ["updateBox", """updateInput: { labelIdentifier: "xxx" }""", "id"],
-        # Test case 9.2.14
-        ["updateBeneficiary", "updateInput: { id: 0 }", "id"],
         # Test case 3.2.21
-        ["updateShipmentWhenPreparing", "updateInput: { id: 0 }", "id"],
+        ["addBoxesToShipment", "updateInput: { id: 0 }", "id"],
         ["updateShipmentWhenReceiving", "updateInput: { id: 0 }", "id"],
-        # Test case 4.2.15
-        [
-            "assignTag",
-            "assignmentInput: { id: 0, resourceId: 2, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.16
-        [
-            "assignTag",
-            "assignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
-        # Test case 4.2.17
-        [
-            "assignTag",
-            "assignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.18
-        [
-            "assignTag",
-            "assignmentInput: { id: 1, resourceId: 0, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
-        # Test case 4.2.29
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 0, resourceId: 2, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.30
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 0, resourceId: 2, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
-        # Test case 4.2.31
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Box }",
-            "...on Box { id }",
-        ],
-        # Test case 4.2.32
-        [
-            "unassignTag",
-            "unassignmentInput: { id: 2, resourceId: 0, resourceType: Beneficiary }",
-            "...on Beneficiary { id }",
-        ],
     ],
 )
 def test_update_non_existent_resource(client, operation, mutation_input, field):
@@ -341,14 +294,14 @@ def test_update_non_existent_resource(client, operation, mutation_input, field):
         [
             "assignTagsToBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [0] }',
-            "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
         # Test case 8.2.24g
         [
             "unassignTagsFromBoxes",
             'updateInput: { labelIdentifiers: ["12345678"], tagIds: [0] }',
-            "tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } }",
+            "...on BoxesTagsOperationResult { tagErrorInfo { id error { ...on ResourceDoesNotExistError { id name } } } }",  # noqa
             {"tagErrorInfo": [{"error": {"id": "0", "name": "Tag"}, "id": "0"}]},
         ],
         # Test case 12.2.6
@@ -363,6 +316,13 @@ def test_update_non_existent_resource(client, operation, mutation_input, field):
             "creationInput: { baseId: 0, beneficiaryData: [] }",
             "...on UnauthorizedForBaseError { id name organisationName }",
             {"id": "0", "name": "", "organisationName": ""},
+        ],
+        # Test case 9.2.14
+        [
+            "updateBeneficiary",
+            "updateInput: { id: 0 }",
+            "...on ResourceDoesNotExistError { name id }",
+            {"name": "Beneficiary", "id": "0"},
         ],
         # Test case 4.2.5
         [
@@ -559,3 +519,13 @@ def test_token_endpoint_validation(client):
         response = client.post(endpoint, json={field: "x"})
         assert response.status_code == code
         assert response.json["error"] == "missing username or password"
+
+
+def test_request_as_non_existing_user(client, mocker):
+    mock_user_for_request(mocker, user_id=666)
+    query = "base(id: 1) { name }"
+    response = assert_unauthorized(client, query)
+    assert response.json == {
+        "code": "unknown_user",
+        "description": "User (ID 666) does not exist in database.",
+    }

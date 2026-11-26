@@ -77,6 +77,15 @@ enum Language {
   de
   ar
   ckb
+  ur
+  ku
+  fa
+  ps
+  ti
+  am
+  ln
+  so
+  prs
 }
 
 enum TransferAgreementState {
@@ -133,32 +142,34 @@ enum BeneficiaryReachType {
   Checkout
 }
 
-"""
-TODO: Add description here once specs are final/confirmed
-"""
-enum DistributionEventState {
-  Planning
-  Packing
-  OnDistro
-  ReturnedFromDistribution
-  ReturnTrackingInProgress
-  Completed
+enum BoxSortField {
+  LabelIdentifier
+  LastModifiedOn
+  State
+  ProductName
+  CategoryName
+  ProductGender
+  SizeName
+  NumberOfItems
+  Weight
+  MonetaryValue
+  LocationName
+  Comment
+  Age
 }
 
-enum DistributionEventTrackingFlowDirection {
-  In
-  Out
-  # Internal
-  BackToBox
-}
-
-enum DistributionEventsTrackingGroupState {
-  InProgress
-  Completed
-}
-
-enum PackingListEntryState {
-  NotStarted
-  PackingInProgress
-  Packed
+enum BeneficiarySortField {
+  " The last name of the family head, or of the beneficiary if they're a family head themselves "
+  LastName
+  FirstName
+  Gender
+  Age
+  GroupIdentifier
+  Tokens
+  LastActiveOn
+  CreatedOn
+  Email
+  Phone
+  CustomTextField1
+  CustomTextField2
 }

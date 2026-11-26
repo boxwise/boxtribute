@@ -126,3 +126,60 @@ class UnknownLink(UserError):
 class DeletedProduct(UserError):
     def __init__(self, *, name):
         self.name = name
+
+
+class InvalidFilterInput(UserError):
+    _ = None
+
+
+class ServiceBaseMismatch(UserError):
+    _ = None
+
+
+class DeletedService(UserError):
+    def __init__(self, *, name):
+        self.name = name
+
+
+class FamilyHeadBaseMismatch(UserError):
+    _ = None
+
+
+class BeneficiaryBaseMismatch(UserError):
+    _ = None
+
+
+class SingleBeneficiaryForMerge(UserError):
+    _ = None
+
+
+class DeactivatedFamilyHead(UserError):
+    def __init__(self, *, id):
+        self.id = id
+
+
+class FamilyHeadHasMembers(UserError):
+    _ = None
+
+
+class FamilyHeadIsMember(UserError):
+    def __init__(self, *, id):
+        self.id = id
+
+
+class FamilyHeadSelfReference(UserError):
+    _ = None
+
+
+class BeneficiaryAlreadySigned(UserError):
+    _ = None
+
+
+class InvalidInitialCredit(UserError):
+    def __init__(self, *, initial_credit):
+        self.initial_credit = initial_credit
+
+
+class InvalidEmail(UserError):
+    def __init__(self, *, email):
+        self.email = email

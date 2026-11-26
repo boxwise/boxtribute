@@ -38,6 +38,7 @@ def default_box_data():
         "weight_display_unit": kilogram_unit_data()["id"],
         "monetary_value": 99.9,
         "deleted_on": None,
+        "comment": None,
     }
 
 
@@ -66,6 +67,7 @@ def lost_box_data():
     data["id"] = 5
     data["label_identifier"] = "45678901"
     data["state"] = BoxState.Lost
+    data["comment"] = "not found"
     return data
 
 
@@ -84,6 +86,7 @@ def another_marked_for_shipment_box_data():
     data["product"] = product_data()[4]["id"]
     data["label_identifier"] = "67890123"
     data["last_modified_on"] = datetime(2021, 2, 2)
+    data["comment"] = "must NOT break"
     return data
 
 
@@ -129,6 +132,7 @@ def another_donated_box_data():
     data["state"] = BoxState.Donated
     data["number_of_items"] = 12
     data["product"] = product_data()[4]["id"]
+    data["deleted_on"] = datetime(2023, 1, 30)
     return data
 
 
@@ -278,6 +282,11 @@ def not_delivered_box():
 @pytest.fixture
 def another_not_delivered_box():
     return another_not_delivered_box_data()
+
+
+@pytest.fixture
+def created_in_donated_location_box():
+    return created_in_donated_location_box_data()
 
 
 @pytest.fixture
