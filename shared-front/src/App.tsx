@@ -2,7 +2,7 @@ import { ReactNode, useMemo, useEffect, useCallback } from "react";
 import type React from "react";
 import { useQuery } from "@apollo/client";
 import { useSearchParams } from "react-router-dom";
-import { Alert, AlertIcon, Flex, Heading, Skeleton, Select } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Heading, Select, Skeleton, VStack } from "@chakra-ui/react";
 
 import BoxtributeLogo from "./BoxtributeLogo";
 import StockOverviewRingFilterContainer from "@boxtribute/shared-components/statviz/components/visualizations/stock/StockOverviewRingFilterContainer";
@@ -144,7 +144,7 @@ function App() {
   }
 
   return (
-    <>
+    <VStack align="stretch" maxW="800">
       <Flex gap={8} p={2} alignItems="center" flexDirection={["column", "row"]}>
         <BoxtributeLogo alignSelf="center" w={156} backgroundSize="contain" />
         <Heading size="md">ORGANIZATION: {data.resolveLink.organisationName.toUpperCase()}</Heading>
@@ -175,7 +175,7 @@ function App() {
         appliedFilters={appliedFilters}
         boxesOrItems={boxesOrItems}
       />
-    </>
+    </VStack>
   );
 }
 

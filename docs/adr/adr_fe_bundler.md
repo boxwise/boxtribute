@@ -20,7 +20,7 @@ Additionally, create-react-app is deprecated.
 
 1. import resolution is not a problem anymore.
 2. reliability: The likelihood that the solution can handle both the conditions of a production environment without issues (data loss, user interruptions, unexpected failures) at the load we're expecting
-3. maintainability: The likelihood that the solution will remain viable in terms of security, reliability, compatibiliy, and so on with a minimum of additional effort by our team over a given period.
+3. maintainability: The likelihood that the solution will remain viable in terms of security, reliability, compatibility, and so on with a minimum of additional effort by our team over a given period.
 4. migration effort
 
 ## Considered Options
@@ -37,7 +37,7 @@ Additionally, create-react-app is deprecated.
 - Vite has a large community and is often seen as the new quasi standard for React apps, e.g. it is used under the hood in the widely used mono-repo software Nx.
   --> vite is reliable in production and well maintained over years.
 - There is a lot of documentation on migrating from create-react-app to vite.
-- Turbopack is a rather new bundler that is gaining a lot of interest.It has strong claims about being faster than vite, but the first release is only six months ago. We consider Turbopack not as established as vite, but we should definitly keep an eye on it. Especially, this might be an option when introducing a mono-repo builder like Nx or turborepo.
+- Turbopack is a rather new bundler that is gaining a lot of interest.It has strong claims about being faster than vite, but the first release is only six months ago. We consider Turbopack not as established as vite, but we should definitely keep an eye on it. Especially, this might be an option when introducing a mono-repo builder like Nx or turborepo.
 
 ## Consequences
 

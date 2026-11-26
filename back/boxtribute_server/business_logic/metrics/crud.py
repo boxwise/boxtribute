@@ -18,6 +18,8 @@ from ...models.definitions.organisation import Organisation
 from ...models.definitions.services_relation import ServicesRelation
 from ...models.definitions.tags_relation import TagsRelation
 from ...models.definitions.transaction import Transaction
+from ...models.definitions.user import User
+from ...models.definitions.usergroup import Usergroup
 from ...models.utils import HISTORY_CREATION_MESSAGE, HISTORY_DELETION_MESSAGE, utcnow
 from ...utils import in_production_environment
 
@@ -314,18 +316,15 @@ def get_time_span(
         raise ValueError("Insufficient arguments")
 
 
-def get_data_for_number_of_active_users(end_date):
+def get_data_for_number_of_logged_in_users(end_date):
     """Find users who logged in within the last two years by querying the Auth0
     management API.
-    Prepare users data and corresponding organisation data.
-    Returns:
-        tuple[list, list]: A tuple (users, org_base_info) where:
-            - `users` is a list of user dictionaries returned by Auth0, each
-              containing "last_login" (as a datetime) and "organisation_id"
-            - `org_base_info` is a list of dictionaries with organisation and base
-              information for the organisations referenced by the users.
-        On error while querying Auth0, returns empty lists to allow callers to
-        safely skip processing in that iteration without failing the cron job.
+
+    Returns a list with a single value:
+        - `users` is a list of user dictionaries returned by Auth0, each
+          containing "last_login" (as a datetime) and "organisation_id"
+    On error while querying Auth0, returns empty lists to allow callers to safely skip
+    processing in that iteration without failing the cron job.
     """
     domain = os.environ["AUTH0_MANAGEMENT_API_DOMAIN"]
     client_id = os.environ["AUTH0_MANAGEMENT_API_CLIENT_ID"]
@@ -342,9 +341,8 @@ def get_data_for_number_of_active_users(end_date):
         users = auth0_service.get_users(query=query, fields=fields)
     except Exception as e:
         emit_sentry_message(f"Error querying Auth0 user data: {e}", level="warning")
-        return [], []
+        return [[]]
 
-    org_ids = set()
     valid_users = []
     for user in users:
         last_login = user.get("last_login")
@@ -355,39 +353,42 @@ def get_data_for_number_of_active_users(end_date):
                 org_id = int(org_id)
             except (ValueError, TypeError):
                 continue
-            org_ids.add(org_id)
             valid_users.append({"last_login": last_login, "organisation_id": org_id})
 
-    # Load organisation and base data from database
-    # For multi-base organisations, it's not possible to determine the base which the
-    # user logged in onto (also, they might switch base while using the app). In this
-    # case we use all bases of the organisation that were active in the last year (the
-    # base with smallest ID serves as base_id, and the concatenated base names are
-    # base_name)
-    one_year_ago = end_date - timedelta(days=365)
-    org_base_info = (
-        Organisation.select(
-            Organisation.id.alias("organisation_id"),
-            Organisation.name.alias("organisation_name"),
-            fn.MIN(Base.id).alias("base_id"),
-            fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
-                "base_name"
-            ),
-        )
-        .left_outer_join(Base)
-        .where(
-            Organisation.id << org_ids,
-            Base.deleted_on.is_null() | (Base.deleted_on >= one_year_ago),
-            exclude_test_organisation(),
-        )
-        .group_by(Organisation.id)
-    ).dicts()
-
-    return valid_users, list(org_base_info)
+    return [valid_users]
 
 
-def number_of_active_users_between(start, end, users, org_base_info):
-    """Compute number of active users per organisation between start and end dates.
+def _get_organisation_base_info(earliest_deleted_on, org_ids):
+    """Fetch organisation and base data from database.
+
+    For multi-base organisations, the base with smallest ID serves as base_id, and
+    the concatenated base names (of bases active within the last year) are
+    base_name.
+    """
+    return {
+        row["organisation_id"]: row
+        for row in (
+            Organisation.select(
+                Organisation.id.alias("organisation_id"),
+                Organisation.name.alias("organisation_name"),
+                fn.MIN(Base.id).alias("base_id"),
+                fn.GROUP_CONCAT(NodeList((Base.name, SQL("ORDER BY"), Base.id))).alias(
+                    "base_name"
+                ),
+            )
+            .left_outer_join(Base)
+            .where(
+                Organisation.id << org_ids,
+                Base.deleted_on.is_null() | (Base.deleted_on >= earliest_deleted_on),
+                exclude_test_organisation(),
+            )
+            .group_by(Organisation.id)
+        ).dicts()
+    }
+
+
+def number_of_logged_in_users_between(start, end, users):
+    """Compute number of logged-in users per organisation between start and end dates.
 
     Returns a list of dicts with organisation ID, organisation name, base ID,
     base name, and number of users logged in.
@@ -402,13 +403,79 @@ def number_of_active_users_between(start, end, users, org_base_info):
 
     # Count users by organisation ID
     user_counts = Counter(user["organisation_id"] for user in filtered_users)
+    org_ids = list(user_counts.keys())
+
+    # Note: For multi-base organisations, it's not directly possible to determine the
+    # base that the user was logged in to.
+    one_year_ago = end - timedelta(days=365)
+    org_base_info = _get_organisation_base_info(one_year_ago, org_ids)
 
     # Build result with user counts (default to 0 for organisations not present among
     # filtered users)
     result = []
-    for row in org_base_info:
-        org_id = row["organisation_id"]
+    for org_id, row in org_base_info.items():
         result.append(row | {"number": user_counts[org_id]})
+    return result
+
+
+def number_of_active_users_between(start, end):
+    """Compute number of active users per organisation between start and end dates.
+    "Active" means creating or modifying boxes, beneficiaries, products, and other
+    entities, as logged in the history table.
+
+    Returns a list of dicts with organisation ID, organisation name, base ID,
+    base name, and number of users being active.
+
+    For multi-base organisations, it's not possible to determine the base which the
+    user was active in (see also _get_organisation_base_info docstring above).
+    """
+    ActiveUsers = (
+        DbChangeHistory.select(DbChangeHistory.user.alias("user_id"))
+        .where(
+            DbChangeHistory.user.is_null(False),
+            DbChangeHistory.change_date >= start,
+            DbChangeHistory.change_date <= end,
+        )
+        .group_by(DbChangeHistory.user)
+    )
+
+    # Step 1: count distinct active users per organisation, WITHOUT joining Base.
+    # User -> Usergroup -> Organisation is a many-to-one chain, so no fan-out occurs
+    # here and no .distinct() is required on the user count.
+    user_counts = {
+        row["organisation_id"]: row["number"]
+        for row in (
+            DbChangeHistory.select(
+                Organisation.id.alias("organisation_id"),
+                fn.COUNT(ActiveUsers.c.user_id).alias("number"),
+            )
+            .from_(ActiveUsers)
+            .left_outer_join(User, on=(User.id == ActiveUsers.c.user_id))
+            .left_outer_join(Usergroup)
+            .left_outer_join(Organisation)
+            .where(exclude_test_organisation())
+            .group_by(Organisation.id)
+        ).dicts()
+    }
+    org_ids = list(user_counts.keys())
+
+    # Step 2: fetch base info per organisation independently (no join to users), so
+    # the one-to-many Organisation -> Base relationship can't multiply user rows.
+    one_year_ago = end - timedelta(days=365)
+    org_base_info = _get_organisation_base_info(one_year_ago, org_ids)
+
+    # Step 3: merge the two results by organisation_id.
+    result = []
+    for org_id, row in org_base_info.items():
+        result.append(
+            {
+                "organisation_id": org_id,
+                "organisation_name": row.get("organisation_name"),
+                "base_id": row.get("base_id"),
+                "base_name": row.get("base_name"),
+                "number": user_counts.get(org_id, 0),
+            }
+        )
     return result
 
 

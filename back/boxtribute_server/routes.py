@@ -2,7 +2,6 @@
 
 import os
 
-from ariadne.explorer import ExplorerGraphiQL
 from flask import jsonify, request
 from flask_cors import cross_origin
 
@@ -19,6 +18,7 @@ from .blueprints import (
 from .bridges import authenticate_auth0_log_stream, send_transformed_logs_to_slack
 from .exceptions import AuthenticationFailed
 from .graph_ql.execution import execute_async
+from .graph_ql.explorer import EXPLORER_HTML
 from .graph_ql.schema import full_api_schema, public_api_schema, query_api_schema
 from .logging import (
     API_CONTEXT,
@@ -33,7 +33,6 @@ from .utils import in_development_environment
 CORS_HEADERS = ["Content-Type", "Authorization", "x-clacks-overhead"]
 
 EXPLORER_TITLE = "boxtribute API"
-EXPLORER_HTML = ExplorerGraphiQL(title=EXPLORER_TITLE).html(None)
 
 
 @api_bp.errorhandler(AuthenticationFailed)

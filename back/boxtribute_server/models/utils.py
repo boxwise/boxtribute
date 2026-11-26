@@ -23,6 +23,7 @@ RANDOM_SEQUENCE_GENERATION_ATTEMPTS = 10
 
 HISTORY_CREATION_MESSAGE = "Record created"
 HISTORY_DELETION_MESSAGE = "Record deleted"
+HISTORY_RECOVER_MESSAGE = "Record recovered"
 
 
 def utcnow():
@@ -77,6 +78,21 @@ def compute_age(date_of_birth):
         - date_of_birth.year
         - ((today.month, today.day) < (date_of_birth.month, date_of_birth.day))
     )
+
+
+def compute_age_in_days(date_of_birth):
+    """Compute today's age (in days) given a person's date of birth."""
+    if date_of_birth is None:
+        return
+
+    today = date.today()
+
+    if isinstance(date_of_birth, DateField):
+        # https://dev.mysql.com/doc/refman/8.0/en/date-calculations.html
+        return fn.DATEDIFF(today.strftime("%Y-%m-%d"), date_of_birth)
+
+    # `date_of_birth` is a datetime.date instance.
+    return (today - date_of_birth).days
 
 
 def save_creation_to_history(f):
@@ -169,18 +185,20 @@ def save_update_to_history(*, id_field_name="id", fields):
             else:
                 now = utcnow()
                 kwargs["now"] = now
-            result = f(*args, **kwargs)
-            # Skip creating history entry if e.g. UserError returned
-            if not isinstance(result, Model):
-                return result
 
-            entries = create_history_entries(
-                old_resource=old_resource,
-                new_resource=result,
-                fields=fields,
-                change_date=now,
-            )
+            # Prevent partial writes if f or the history creation fails
             with DbChangeHistory._meta.database.atomic():
+                result = f(*args, **kwargs)
+                # Skip creating history entry if e.g. UserError returned
+                if not isinstance(result, Model):
+                    return result
+
+                entries = create_history_entries(
+                    old_resource=old_resource,
+                    new_resource=result,
+                    fields=fields,
+                    change_date=now,
+                )
                 DbChangeHistory.bulk_create(entries, batch_size=BATCH_SIZE)
                 if entries:
                     result.last_modified_on = now

@@ -1,6 +1,6 @@
 # Merge boxwise-flask and boxwise-react repo to a monorepo
 
-Discusssion Participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [Hans](https://github.com/orgs/boxwise/people/HaGuesto), [James](https://github.com/orgs/boxwise/people/jamescrowley), [Katie](https://github.com/orgs/boxwise/people/mcgnly), [Matt Caswell](https://github.com/orgs/boxwise/people/mc18g13)
+Discussion Participants: [Roanna](https://github.com/orgs/boxwise/people/aerinsol), [Hans](https://github.com/orgs/boxwise/people/HaGuesto), [James](https://github.com/orgs/boxwise/people/jamescrowley), [Katie](https://github.com/orgs/boxwise/people/mcgnly), [Matt Caswell](https://github.com/orgs/boxwise/people/mc18g13)
 
 The reasoning for this ADR is mainly based on the following two medium articles regarding monorepos:
 - [Monorepo: Please don't](https://medium.com/@mattklein123/monorepos-please-dont-e9a279be011b)

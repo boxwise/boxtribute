@@ -6,6 +6,7 @@ from ariadne import InterfaceType, UnionType
 
 from ..business_logic.beneficiary.fields import beneficiary
 from ..business_logic.beneficiary.mutations import mutation as beneficiary_mutation
+from ..business_logic.beneficiary.queries import beneficiary_row
 from ..business_logic.beneficiary.queries import query as beneficiary_query
 from ..business_logic.box_transfer.agreement.fields import transfer_agreement
 from ..business_logic.box_transfer.agreement.mutations import (
@@ -32,38 +33,7 @@ from ..business_logic.core.size_range.queries import query as size_range_query
 from ..business_logic.metrics.fields import metrics
 from ..business_logic.metrics.queries import public_query as metrics_public_query
 from ..business_logic.metrics.queries import query as metrics_query
-from ..business_logic.mobile_distribution.event.fields import distribution_event
-from ..business_logic.mobile_distribution.event.mutations import (
-    mutation as distribution_event_mutation,
-)
-from ..business_logic.mobile_distribution.event.queries import (
-    query as distribution_event_query,
-)
-from ..business_logic.mobile_distribution.mutations import (
-    mutation as mobile_distribution_mutation,
-)
-from ..business_logic.mobile_distribution.packing_list_entry.fields import (
-    packing_list_entry,
-)
-from ..business_logic.mobile_distribution.packing_list_entry.mutations import (
-    mutation as packing_list_entry_mutation,
-)
-from ..business_logic.mobile_distribution.packing_list_entry.queries import (
-    query as packing_list_entry_query,
-)
-from ..business_logic.mobile_distribution.spot.fields import distribution_spot
-from ..business_logic.mobile_distribution.spot.mutations import (
-    mutation as distribution_spot_mutation,
-)
-from ..business_logic.mobile_distribution.spot.queries import (
-    query as distribution_spot_query,
-)
-from ..business_logic.mobile_distribution.tracking_group.fields import (
-    distribution_events_tracking_group,
-)
-from ..business_logic.mobile_distribution.tracking_group.queries import (
-    query as distribution_events_tracking_group_query,
-)
+from ..business_logic.service.fields import service, service_usage
 from ..business_logic.statistics.fields import resolved_link
 from ..business_logic.statistics.mutations import mutation as statistics_mutation
 from ..business_logic.statistics.queries import public_query as shareable_link_query
@@ -76,9 +46,9 @@ from ..business_logic.user.queries import query as user_query
 from ..business_logic.warehouse.box.fields import (
     box,
     history_entry,
-    unboxed_items_collection,
 )
 from ..business_logic.warehouse.box.mutations import mutation as box_mutation
+from ..business_logic.warehouse.box.queries import box_row
 from ..business_logic.warehouse.box.queries import query as box_query
 from ..business_logic.warehouse.location.fields import classic_location
 from ..business_logic.warehouse.location.queries import query as location_query
@@ -102,14 +72,10 @@ query_types = (
     base_query,
     beneficiary_query,
     box_query,
-    distribution_spot_query,
-    distribution_event_query,
-    distribution_events_tracking_group_query,
     location_query,
     metrics_query,
     transfer_agreement_query,
     organisation_query,
-    packing_list_entry_query,
     product_category_query,
     product_query,
     qr_code_query,
@@ -125,10 +91,6 @@ query_types = (
 mutation_types = (
     beneficiary_mutation,
     box_mutation,
-    distribution_spot_mutation,
-    distribution_event_mutation,
-    mobile_distribution_mutation,
-    packing_list_entry_mutation,
     product_mutation,
     qr_code_mutation,
     shipment_mutation,
@@ -141,18 +103,18 @@ mutation_types = (
 object_types = (
     base,
     beneficiary,
+    beneficiary_row,
     box,
+    box_row,
     classic_location,
-    distribution_spot,
-    distribution_event,
-    distribution_events_tracking_group,
     history_entry,
     metrics,
     organisation,
-    packing_list_entry,
     product,
     product_category,
     qr_code,
+    service,
+    service_usage,
     shipment,
     shipment_detail,
     size,
@@ -160,7 +122,6 @@ object_types = (
     standard_product,
     tag,
     transfer_agreement,
-    unboxed_items_collection,
     user,
 )
 
@@ -174,6 +135,8 @@ def resolve_type_by_class_name(obj, *_):
 
 
 def resolve_location_type(obj, *_):
+    # Note: if a DistributionSpot is about to be resolved, the type look-up deliberately
+    # fails because it does not exist in the schema anymore
     return obj.type.name
 
 
@@ -195,6 +158,8 @@ union_types = (
     UnionType("CreateBoxesResult", resolve_type_by_class_name),
     UnionType("DeleteBoxesResult", resolve_type_by_class_name),
     UnionType("MoveBoxesResult", resolve_type_by_class_name),
+    UnionType("AssignTagsToBoxesResult", resolve_type_by_class_name),
+    UnionType("UnassignTagsFromBoxesResult", resolve_type_by_class_name),
     UnionType("CreateBoxFromBoxResult", resolve_type_by_class_name),
     UnionType("QrCodeResult", resolve_type_by_class_name),
     UnionType("BoxResult", resolve_type_by_class_name),
@@ -206,6 +171,16 @@ union_types = (
     UnionType("DeleteTagsResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiariesResult", resolve_type_by_class_name),
     UnionType("CreateBeneficiaryResult", resolve_type_by_class_name),
+    UnionType("UpdateBeneficiaryResult", resolve_type_by_class_name),
+    UnionType("AssignTagsToBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("UnassignTagsFromBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("DeactivateBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("ReactivateBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("RegisterBeneficiariesForServicesResult", resolve_type_by_class_name),
+    UnionType("MergeBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("DetachBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("BeneficiaryIdsResult", resolve_type_by_class_name),
+    UnionType("ServiceError", resolve_type_by_class_name),
 )
 interface_types = (
     InterfaceType("Location", resolve_location_type),

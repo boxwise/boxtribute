@@ -4,8 +4,9 @@ from unittest.mock import MagicMock
 import pytest
 from auth import mock_user_for_request
 from boxtribute_server.business_logic.metrics.crud import (
-    get_data_for_number_of_active_users,
+    get_data_for_number_of_logged_in_users,
     number_of_active_users_between,
+    number_of_logged_in_users_between,
 )
 from boxtribute_server.cli.service import ServiceBase
 from boxtribute_server.enums import HumanGender
@@ -158,10 +159,28 @@ def test_exclude_test_organisation_in_production(client, monkeypatch, stat, coun
 
 
 def test_number_of_active_users_between(
+    client,
+    default_organisation,
+    default_bases,
+):
+    start = datetime(2021, 1, 1, tzinfo=timezone.utc)
+    end = datetime(2025, 1, 31, tzinfo=timezone.utc)
+    result = number_of_active_users_between(start, end)
+    assert result == [
+        {
+            "organisation_id": default_organisation["id"],
+            "organisation_name": default_organisation["name"],
+            "base_id": default_bases[0]["id"],
+            "base_name": ",".join([b["name"] for b in default_bases[:2]]),
+            "number": 1,
+        },
+    ]
+
+
+def test_number_of_logged_in_users_between(
     monkeypatch,
     client,
     default_organisation,
-    another_organisation,
     default_bases,
 ):
     # Mock environment variables
@@ -210,8 +229,8 @@ def test_number_of_active_users_between(
 
     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
     end = datetime(2025, 1, 31, tzinfo=timezone.utc)
-    users, org_base_info = get_data_for_number_of_active_users(end)
-    result = number_of_active_users_between(start, end, users, org_base_info)
+    users = get_data_for_number_of_logged_in_users(end)[0]
+    result = number_of_logged_in_users_between(start, end, users)
 
     # Verify service was called with correct parameters
     two_years_ago = end - timedelta(days=2 * 365)
@@ -236,29 +255,14 @@ def test_number_of_active_users_between(
     # Test the function a 2nd time to verify cache hit
     start = datetime(2023, 1, 1, tzinfo=timezone.utc)
     end = datetime(2023, 1, 31, tzinfo=timezone.utc)
-    result = number_of_active_users_between(start, end, users, org_base_info)
-    assert result == [
-        {
-            "organisation_id": default_organisation["id"],
-            "organisation_name": default_organisation["name"],
-            "base_id": default_bases[0]["id"],
-            "base_name": ",".join([b["name"] for b in default_bases[:2]]),
-            "number": 0,
-        },
-        {
-            "organisation_id": another_organisation["id"],
-            "organisation_name": another_organisation["name"],
-            "base_id": default_bases[2]["id"],
-            "base_name": ",".join([b["name"] for b in default_bases[2:4]]),
-            "number": 0,
-        },
-    ]
+    result = number_of_logged_in_users_between(start, end, users)
+    assert result == []
 
     # Verify error handling of Auth0 interface
     mock_service.reset_mock()
     mock_service.get_users.side_effect = ValueError()
     monkeypatch.setattr(ServiceBase, "connect", lambda **_: mock_service)
-    assert get_data_for_number_of_active_users(end) == ([], [])
+    assert get_data_for_number_of_logged_in_users(end) == [[]]
 
 
 def test_beneficiary_figures(client, mocker):

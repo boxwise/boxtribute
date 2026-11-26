@@ -21,18 +21,18 @@ from .utils import convert_pascal_to_snake_case
 
 BASE_AGNOSTIC_RESOURCES = (
     "box_state",
-    "beneficiary_language",
     "gender",
     "history",
     "language",
     "organisation",
     "product_category",
     "qr",
+    "services_relation",
     "shipment_detail",
     "size",
     "size_range",
     "standard_product",
-    "tag_relation",
+    "tags_relation",
     "transaction",
     "unit",
     "user",
@@ -307,7 +307,7 @@ def authorize_cross_organisation_access(
 # functionality, while each of the larger levels additively builds up on the previous
 # one. The user's maximum beta-level defines the functionality range that the user can
 # access.
-DEFAULT_MAX_BETA_LEVEL = 5  # update authz spec ADR when bumping
+DEFAULT_MAX_BETA_LEVEL = 7  # update authz spec ADR when bumping
 MUTATIONS_FOR_BETA_LEVEL: Dict[int, Tuple[str, ...]] = {
     # ### BETA-LEVEL 0 ###
     # - actions for BoxView/BoxEdit pages
@@ -331,7 +331,8 @@ MUTATIONS_FOR_BETA_LEVEL[2] = MUTATIONS_FOR_BETA_LEVEL[1] + (
     "rejectTransferAgreement",
     "cancelTransferAgreement",
     "createShipment",
-    "updateShipmentWhenPreparing",
+    "addBoxesToShipment",
+    "removeBoxesFromShipments",
     "updateShipmentWhenReceiving",
     "cancelShipment",
     "sendShipment",
@@ -388,7 +389,8 @@ MUTATIONS_FOR_BETA_LEVEL[6] = MUTATIONS_FOR_BETA_LEVEL[5] + (
 )
 
 # ### BETA-LEVEL 7 ###
-# Keep for compatibility with users who have beta-level 7 assigned
+# In addition to level 6,
+# - enable box weight/value
 MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6] + (
     "updateMarkedForShipmentBox",
 )
@@ -402,34 +404,18 @@ MUTATIONS_FOR_BETA_LEVEL[7] = MUTATIONS_FOR_BETA_LEVEL[6] + (
 MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[7] + (
     "createBeneficiary",
     "updateBeneficiary",
-    "deactivateBeneficiary",
-    "assignTag",
-    "unassignTag",
+    "assignTagsToBeneficiaries",
+    "unassignTagsFromBeneficiaries",
+    "deactivateBeneficiaries",
+    "reactivateBeneficiaries",
+    "registerServicesForBeneficiaries",
+    "mergeBeneficiariesIntoFamily",
+    "detachBeneficiariesFromFamily",
 )
 
 # ### BETA-LEVEL 99 ###
-# In addition to level 98,
-# - actions for mobile-distribution
 # THIS IS USED FOR THE TEST USER (test/auth.py) AND GOD USERS
-MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98] + (
-    # + mutations for mobile distribution pages
-    "createDistributionSpot",
-    "createDistributionEvent",
-    "addPackingListEntryToDistributionEvent",
-    "removePackingListEntryFromDistributionEvent",
-    "removeAllPackingListEntriesFromDistributionEventForProduct",
-    "updatePackingListEntry",
-    "updateSelectedProductsForDistributionEventPackingList",
-    "changeDistributionEventState",
-    "assignBoxToDistributionEvent",
-    "unassignBoxFromDistributionEvent",
-    "moveItemsFromBoxToDistributionEvent",
-    "removeItemsFromUnboxedItemsCollection",
-    "startDistributionEventsTrackingGroup",
-    "setReturnedNumberOfItemsForDistributionEventsTrackingGroup",
-    "moveItemsFromReturnTrackingGroupToBox",
-    "completeDistributionEventsTrackingGroup",
-)
+MUTATIONS_FOR_BETA_LEVEL[99] = MUTATIONS_FOR_BETA_LEVEL[98]
 
 
 def check_user_beta_level(

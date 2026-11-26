@@ -177,8 +177,14 @@ def test_usergroup_cross_organisation_permissions(
                 isVolunteer: false
                 registered: true
             }}"""
-        mutation = f"mutation {{ createBeneficiary({creation_input}) {{ id }} }}"
-        assert_forbidden_request(dev_client, mutation)
+        mutation = f"""mutation {{ createBeneficiary({creation_input}) {{
+                __typename ...on Beneficiary {{ id }}
+            }} }}"""
+        response = assert_successful_request(dev_client, mutation)
+        assert response["__typename"] in [
+            "InsufficientPermissionError",
+            "UnauthorizedForBaseError",
+        ]
 
     # Verify that user does not have edit permission to perform mutation for updating
     # beneficiary in inaccessible base
@@ -189,8 +195,14 @@ def test_usergroup_cross_organisation_permissions(
         isVolunteer: true
     }}
     """
-    mutation = f"mutation {{ updateBeneficiary({update_input}) {{ id }} }}"
-    assert_forbidden_request(dev_client, mutation)
+    mutation = f"""mutation {{ updateBeneficiary({update_input}) {{
+            __typename ...on Beneficiary {{ id }}
+        }} }}"""
+    response = assert_successful_request(dev_client, mutation)
+    assert response["__typename"] in [
+        "InsufficientPermissionError",
+        "UnauthorizedForBaseError",
+    ]
 
     # Verify base-specific permissions for user.
     # - users have read-access only to beneficiaries within their bases

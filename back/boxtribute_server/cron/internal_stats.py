@@ -7,13 +7,14 @@ from flask import current_app
 
 from ..business_logic.metrics.crud import (
     compute_total,
-    get_data_for_number_of_active_users,
+    get_data_for_number_of_logged_in_users,
     get_time_span,
     number_of_active_users_between,
     number_of_beneficiaries_reached_between,
     number_of_beneficiaries_registered_between,
     number_of_boxes_created_between,
     number_of_items_in_boxes_created_between,
+    number_of_logged_in_users_between,
 )
 from ..models.utils import utcnow
 from .formatting import format_as_table
@@ -78,6 +79,7 @@ TITLES = [
     "Newly registered beneficiaries",
     "Reached beneficiaries",
     # "Moved boxes",
+    "Unique logged-in users",
     "Unique active users",
 ]
 
@@ -95,12 +97,13 @@ def get_internal_data():
         number_of_beneficiaries_registered_between,
         number_of_beneficiaries_reached_between,
         # number_of_boxes_moved_between,
+        number_of_logged_in_users_between,
         number_of_active_users_between,
     ]
     # Some computations need data which is expensive to collect. Fetch this data only
     # once and provide it via a look-up
     data_collections = {
-        "Unique active users": get_data_for_number_of_active_users(now),
+        "Unique logged-in users": get_data_for_number_of_logged_in_users(now),
     }
 
     # "All time created boxes": two columns (box count and items sum)

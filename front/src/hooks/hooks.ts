@@ -46,32 +46,6 @@ export const useHandleLogout = () => {
   return { user, handleLogout };
 };
 
-export const useGetUrlForResourceHelpers = () => {
-  const baseId = useAtomValue(selectedBaseIdAtom);
-  if (baseId == null) {
-    throw new Error("Could not extract baseId from URL");
-  }
-
-  const getBaseRootUrlForCurrentBase = () => `/bases/${baseId}`;
-
-  const getDistroSpotDetailUrlById = (distroSpotId: string) =>
-    `/bases/${baseId}/distributions/spots/${distroSpotId}`;
-
-  const getDistroEventDetailUrlById = (distroEventId: string) =>
-    `/bases/${baseId}/distributions/events/${distroEventId}`;
-
-  const getBoxDetailViewUrlByLabelIdentifier = (labelIdentifier: string) =>
-    `/bases/${baseId}/boxes/${labelIdentifier}`;
-
-  return {
-    getBaseId: () => baseId,
-    getDistroSpotDetailUrlById,
-    getDistroEventDetailUrlById,
-    getBaseRootUrlForCurrentBase,
-    getBoxDetailViewUrlByLabelIdentifier,
-  };
-};
-
 export const useToggle = (initialValue = false) => {
   const [value, setValue] = useState(initialValue);
   const toggle = useCallback(() => {

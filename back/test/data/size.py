@@ -14,6 +14,10 @@ def mixed_size_data():
     return {"id": 3, "label": "Mixed"}
 
 
+def data():
+    return [default_size_data(), another_size_data(), mixed_size_data()]
+
+
 @pytest.fixture
 def default_size():
     return default_size_data()
@@ -29,7 +33,10 @@ def mixed_size():
     return mixed_size_data()
 
 
+@pytest.fixture
+def sizes():
+    return data()
+
+
 def create():
-    Size.create(**default_size_data())
-    Size.create(**another_size_data())
-    Size.create(**mixed_size_data())
+    Size.insert_many(data()).execute()

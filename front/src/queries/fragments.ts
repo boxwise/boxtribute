@@ -40,19 +40,6 @@ export const TAG_BASIC_FIELDS_FRAGMENT = graphql(`
   }
 `);
 
-export const DISTRO_EVENT_FIELDS_FRAGMENT = graphql(`
-  fragment DistroEventFields on DistributionEvent @_unmask {
-    id
-    state
-    name
-    distributionSpot {
-      name
-    }
-    plannedStartDateTime
-    plannedEndDateTime
-  }
-`);
-
 // fragments with references to Basic Fields
 export const BASE_ORG_FIELDS_FRAGMENT = graphql(
   `

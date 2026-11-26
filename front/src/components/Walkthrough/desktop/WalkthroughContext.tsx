@@ -1,4 +1,12 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
+import React, {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { PathId } from "./paths/types";
 import { useVisiblePaths } from "./useVisiblePaths";
@@ -21,6 +29,8 @@ interface WalkthroughContextType {
   completePath: (pathId: PathId) => void;
   backToPathSelection: () => void;
   replayPath: (pathId: PathId) => void;
+  setStepIndex: Dispatch<SetStateAction<number>>;
+  stepIndex: number;
 }
 
 const noop = () => {};
@@ -36,6 +46,8 @@ const defaultContext: WalkthroughContextType = {
   completePath: noop,
   backToPathSelection: noop,
   replayPath: noop,
+  setStepIndex: noop,
+  stepIndex: 0,
 };
 
 const WalkthroughContext = createContext<WalkthroughContextType>(defaultContext);
@@ -68,6 +80,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const userId = user?.sub ?? "anonymous";
   const visiblePaths = useVisiblePaths();
 
+  const [stepIndex, setStepIndex] = useState(0);
   const [prevUserId, setPrevUserId] = useState(userId);
 
   const [isWalkthroughActive, setIsWalkthroughActive] = useState(() => {
@@ -129,6 +142,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const startPath = useCallback((pathId: PathId) => {
     setActivePath(pathId);
     setCurrentStep("tour");
+    setStepIndex(0);
   }, []);
 
   const completePath = useCallback(
@@ -153,6 +167,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   const replayPath = useCallback((pathId: PathId) => {
     setActivePath(pathId);
     setCurrentStep("tour");
+    setStepIndex(0);
   }, []);
 
   const value = useMemo(
@@ -167,6 +182,8 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       completePath,
       backToPathSelection,
       replayPath,
+      setStepIndex,
+      stepIndex,
     }),
     [
       isWalkthroughActive,
@@ -179,6 +196,8 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       completePath,
       backToPathSelection,
       replayPath,
+      setStepIndex,
+      stepIndex,
     ],
   );
 

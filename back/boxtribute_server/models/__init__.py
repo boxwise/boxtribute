@@ -2,18 +2,10 @@ from .definitions.base import Base
 from .definitions.beneficiary import Beneficiary
 from .definitions.box import Box
 from .definitions.box_state import BoxState
-from .definitions.distribution_event import DistributionEvent
-from .definitions.distribution_event_tracking_log_entry import (
-    DistributionEventTrackingLogEntry,
-)
-from .definitions.distribution_events_tracking_group import (
-    DistributionEventsTrackingGroup,
-)
 from .definitions.history import DbChangeHistory
 from .definitions.language import Language
 from .definitions.location import Location
 from .definitions.organisation import Organisation
-from .definitions.packing_list_entry import PackingListEntry
 from .definitions.product import Product
 from .definitions.product_category import ProductCategory
 from .definitions.product_gender import ProductGender
@@ -32,9 +24,9 @@ from .definitions.tags_relation import TagsRelation
 from .definitions.transaction import Transaction
 from .definitions.transfer_agreement import TransferAgreement
 from .definitions.transfer_agreement_detail import TransferAgreementDetail
-from .definitions.unboxed_items_collection import UnboxedItemsCollection
 from .definitions.unit import Unit
 from .definitions.user import User
+from .definitions.usergroup import Usergroup
 from .definitions.x_beneficiary_language import XBeneficiaryLanguage
 
 # All Model subclasses MUST be added to this list
@@ -53,14 +45,10 @@ MODELS = (
     Beneficiary,
     Box,
     BoxState,
-    DistributionEvent,
-    DistributionEventTrackingLogEntry,
-    DistributionEventsTrackingGroup,
     DbChangeHistory,
     Language,
     Location,
     Organisation,
-    PackingListEntry,
     Product,
     ProductCategory,
     ProductGender,
@@ -79,8 +67,8 @@ MODELS = (
     Transaction,
     TransferAgreement,
     TransferAgreementDetail,
-    UnboxedItemsCollection,
     Unit,
     User,
+    Usergroup,
     XBeneficiaryLanguage,
 )

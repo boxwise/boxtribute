@@ -62,11 +62,6 @@ def test_bases_query(
 def test_base_query(
     client,
     default_base,
-    default_tracking_group,
-    distribution_spot,
-    distro_spot5_distribution_events,
-    distro_spot5_distribution_events_before_return_state,
-    distro_spot5_distribution_events_in_return_state,
     base1_active_tags,
     base1_undeleted_classic_locations,
     base1_undeleted_products,
@@ -81,12 +76,23 @@ def test_base_query(
                     locations {{ id }}
                     products(filterInput: {{ type: All }}) {{ id }}
                     tags {{ id }}
-                    distributionSpots {{ id }}
-                    distributionEvents {{ id }}
-                    distributionEventsBeforeReturnedFromDistributionState {{ id }}
-                    distributionEventsInReturnedFromDistributionState {{ id }}
-                    distributionEventsStatistics {{ productId }}
-                    distributionEventsTrackingGroups {{ id }}
+                    groupIdentifier
+                    adultAge
+                    daysToKeepInactiveBeneficiaries
+                    tokensPerAdult
+                    tokensPerChild
+                    trackingRegisteredBeneficiariesEnabled
+                    beneficiariesAsVolunteersEnabled
+                    beneficiaryEmailEnabled
+                    beneficiaryPhoneEnabled
+                    beneficiaryCustomTextField1Enabled
+                    beneficiaryCustomTextField2Enabled
+                    beneficiaryCustomNumberFieldEnabled
+                    beneficiaryCustomDateFieldEnabled
+                    beneficiaryCustomTextField1Name
+                    beneficiaryCustomTextField2Name
+                    beneficiaryCustomNumberFieldName
+                    beneficiaryCustomDateFieldName
                 }}
             }}"""
 
@@ -100,18 +106,43 @@ def test_base_query(
         "locations": [
             {"id": str(loc["id"])} for loc in base1_undeleted_classic_locations
         ],
-        "distributionSpots": [{"id": str(distribution_spot["id"])}],
-        "distributionEvents": [
-            {"id": str(event["id"])} for event in distro_spot5_distribution_events
+        "groupIdentifier": default_base["group_identifier"],
+        "adultAge": default_base["adult_age"],
+        "daysToKeepInactiveBeneficiaries": default_base[
+            "days_to_keep_inactive_beneficiaries"
         ],
-        "distributionEventsBeforeReturnedFromDistributionState": [
-            {"id": str(event["id"])}
-            for event in distro_spot5_distribution_events_before_return_state
+        "tokensPerAdult": default_base["tokens_per_adult"],
+        "tokensPerChild": default_base["tokens_per_child"],
+        "trackingRegisteredBeneficiariesEnabled": default_base[
+            "tracking_registered_beneficiaries_enabled"
         ],
-        "distributionEventsInReturnedFromDistributionState": [
-            {"id": str(event["id"])}
-            for event in distro_spot5_distribution_events_in_return_state
+        "beneficiariesAsVolunteersEnabled": default_base[
+            "beneficiaries_as_volunteers_enabled"
         ],
-        "distributionEventsStatistics": [],
-        "distributionEventsTrackingGroups": [{"id": str(default_tracking_group["id"])}],
+        "beneficiaryEmailEnabled": default_base["beneficiary_email_enabled"],
+        "beneficiaryPhoneEnabled": default_base["beneficiary_phone_enabled"],
+        "beneficiaryCustomTextField1Enabled": default_base[
+            "beneficiary_custom_text_field_1_enabled"
+        ],
+        "beneficiaryCustomTextField2Enabled": default_base[
+            "beneficiary_custom_text_field_2_enabled"
+        ],
+        "beneficiaryCustomNumberFieldEnabled": default_base[
+            "beneficiary_custom_number_field_enabled"
+        ],
+        "beneficiaryCustomDateFieldEnabled": default_base[
+            "beneficiary_custom_date_field_enabled"
+        ],
+        "beneficiaryCustomTextField1Name": default_base[
+            "beneficiary_custom_text_field_1_name"
+        ],
+        "beneficiaryCustomTextField2Name": default_base[
+            "beneficiary_custom_text_field_2_name"
+        ],
+        "beneficiaryCustomNumberFieldName": default_base[
+            "beneficiary_custom_number_field_name"
+        ],
+        "beneficiaryCustomDateFieldName": default_base[
+            "beneficiary_custom_date_field_name"
+        ],
     }

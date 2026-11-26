@@ -254,7 +254,7 @@ describe("BeneficiaryOverview", () => {
       expect(screen.getAllByTestId("pyramid-bar")).toHaveLength(2);
 
       // Summary text
-      expect(screen.getByText("10", { exact: false })).toBeInTheDocument();
+      expect(screen.getByText("10", { selector: "b" })).toBeInTheDocument();
       const summary = screen.getByText(/beneficiaries registered in total/);
       expect(summary).toHaveTextContent(
         "There were 10 beneficiaries registered in total, 7 were male and 2 were female.",

@@ -20,6 +20,8 @@ from ..models.definitions.organisation import Organisation
 from ..models.definitions.product import Product
 from ..models.definitions.product_category import ProductCategory
 from ..models.definitions.qr_code import QrCode
+from ..models.definitions.service import Service
+from ..models.definitions.services_relation import ServicesRelation
 from ..models.definitions.shipment import Shipment
 from ..models.definitions.shipment_detail import ShipmentDetail
 from ..models.definitions.size import Size
@@ -28,10 +30,12 @@ from ..models.definitions.size_range_size import SizeRangeSize
 from ..models.definitions.standard_product import StandardProduct
 from ..models.definitions.tag import Tag
 from ..models.definitions.tags_relation import TagsRelation
+from ..models.definitions.transaction import Transaction
 from ..models.definitions.transfer_agreement import TransferAgreement
 from ..models.definitions.transfer_agreement_detail import TransferAgreementDetail
 from ..models.definitions.unit import Unit
 from ..models.definitions.user import User
+from ..models.definitions.x_beneficiary_language import XBeneficiaryLanguage
 from ..models.utils import convert_ids
 from ..utils import convert_pascal_to_snake_case
 
@@ -208,28 +212,39 @@ class ShipmentsForAgreementLoader(DataLoader):
         return [shipments.get(i, []) for i in agreement_ids]
 
 
-class TagsForBoxLoader(DataLoader):
+class TagsForResourceLoader(DataLoader):
+    object_type: TaggableObjectType | None = None
+
     async def batch_load_fn(self, keys):
         tags = defaultdict(list)
-        # maybe need different join type
         for relation in (
-            TagsRelation.select(TagsRelation.object_type, TagsRelation.object_id, Tag)
+            TagsRelation.select(TagsRelation.object_id, Tag)
             .join(
                 Tag,
                 on=(
                     (TagsRelation.tag == Tag.id)
-                    & (TagsRelation.object_type == TaggableObjectType.Box)
+                    & (TagsRelation.object_type == self.object_type)
                     & (TagsRelation.object_id << keys)
                     & (TagsRelation.deleted_on.is_null())
                     & (authorized_bases_filter(Tag))
                 ),
             )
             .where(Tag.deleted_on.is_null())
+            .iterator()
         ):
             tags[relation.object_id].append(relation.tag)
 
-        # Keys are in fact box IDs. Return empty list if box has no tags assigned
+        # Keys are in fact resource (box or beneficiary) IDs. Return empty list if
+        # resource has no tags assigned
         return [sorted(tags.get(i, []), key=lambda t: t.id) for i in keys]
+
+
+class TagsForBoxLoader(TagsForResourceLoader):
+    object_type = TaggableObjectType.Box
+
+
+class TagsForBeneficiaryLoader(TagsForResourceLoader):
+    object_type = TaggableObjectType.Beneficiary
 
 
 class HistoryForBoxLoader(DataLoader):
@@ -707,7 +722,7 @@ class ShipmentDetailAutoMatchingLoader(DataLoader):
 
 class ResourcesForTagLoader(DataLoader):
     async def batch_load_fn(self, tag_ids):
-        authorize(permission="tag_relation:read")
+        authorize(permission="tags_relation:read")
 
         # Get all tag relations and resources for the requested tags
         relations = (
@@ -751,7 +766,7 @@ class ResourcesForTagLoader(DataLoader):
 
 class TagLastUsedOnLoader(DataLoader):
     async def batch_load_fn(self, tag_ids):
-        authorize(permission="tag_relation:read")
+        authorize(permission="tags_relation:read")
 
         relations = (
             TagsRelation.select(
@@ -763,3 +778,156 @@ class TagLastUsedOnLoader(DataLoader):
         )
         last_used_on_data = {r.tag_id: r.last_used_on for r in relations}
         return [last_used_on_data.get(tag_id) for tag_id in tag_ids]
+
+
+class TokensForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        authorize(permission="transaction:read")
+        tokens = {
+            ta.beneficiary_id: ta.tokens
+            for ta in Transaction.select(
+                Transaction.beneficiary, fn.SUM(Transaction.tokens).alias("tokens")
+            )
+            .where(Transaction.beneficiary << beneficiary_ids)
+            .group_by(Transaction.beneficiary)
+            .objects()  # avoid building expensive Peewee objects
+            .iterator()
+        }
+        return [tokens.get(i, 0) for i in beneficiary_ids]
+
+
+class TransactionsForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        authorize(permission="transaction:read")
+        transactions = defaultdict(list)
+        for ta in (
+            Transaction.select()
+            .where(Transaction.beneficiary << beneficiary_ids)
+            .order_by(Transaction.beneficiary)
+            .iterator()
+        ):
+            transactions[ta.beneficiary_id].append(ta)
+        return [transactions.get(i, []) for i in beneficiary_ids]
+
+
+class ServicesForBaseLoader(DataLoader):
+    async def batch_load_fn(self, base_ids):
+        services = defaultdict(list)
+        for service in (
+            Service.select()
+            .where(
+                Service.base << base_ids,
+                authorized_bases_filter(Service),
+                Service.deleted_on.is_null(),
+            )
+            .order_by(Service.id)
+        ):
+            services[service.base_id].append(service)
+        return [services.get(i, []) for i in base_ids]
+
+
+class ServiceLoader(DataLoader):
+    async def batch_load_fn(self, service_ids):
+        services = {
+            service.id: service
+            for service in Service.select().where(
+                Service.id << service_ids, authorized_bases_filter(Service)
+            )
+        }
+        return [services.get(i) for i in service_ids]
+
+
+class ServiceUsagesForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        authorize(permission="services_relation:read")
+        usages = defaultdict(list)
+        for usage in (
+            ServicesRelation.select()
+            .where(ServicesRelation.beneficiary << beneficiary_ids)
+            .order_by(ServicesRelation.created_on, ServicesRelation.id)
+        ):
+            usages[usage.beneficiary_id].append(usage)
+        return [usages.get(i, []) for i in beneficiary_ids]
+
+
+class UsageStatisticsForServiceLoader(DataLoader):
+    """Load total usage, unique usage (number of distinct beneficiaries), and date of
+    last usage for each service.
+    """
+
+    async def batch_load_fn(self, service_ids):
+        authorize(permission="services_relation:read")
+        statistics = {
+            row["service"]: row
+            for row in ServicesRelation.select(
+                ServicesRelation.service,
+                fn.COUNT(ServicesRelation.id).alias("total_usage"),
+                fn.COUNT(ServicesRelation.beneficiary.distinct()).alias("unique_usage"),
+                fn.MAX(ServicesRelation.created_on).alias("last_used_on"),
+            )
+            .where(ServicesRelation.service << service_ids)
+            .group_by(ServicesRelation.service)
+            .dicts()
+        }
+        empty = {"total_usage": 0, "unique_usage": 0, "last_used_on": None}
+        return [statistics.get(i, empty) for i in service_ids]
+
+
+class FamilyHeadForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, family_head_ids):
+        family_heads = {
+            b.id: b
+            for b in Beneficiary.select()
+            .where(
+                Beneficiary.id << family_head_ids,
+                authorized_bases_filter(Beneficiary),
+            )
+            .iterator()
+        }
+        return [family_heads.get(i) for i in family_head_ids]
+
+
+class FamilyMembersForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        family_keys = {
+            b.id: b.family_head_id or b.id
+            for b in Beneficiary.select(Beneficiary.id, Beneficiary.family_head)
+            .where(Beneficiary.id << beneficiary_ids)
+            .iterator()
+        }
+        family_head_ids = list(set(family_keys.values()))
+        FamilyMember = Beneficiary.alias()
+        members = defaultdict(list)
+        for m in (
+            FamilyMember.select()
+            .where(
+                authorized_bases_filter(FamilyMember, permission="beneficiary:read"),
+                (FamilyMember.family_head << family_head_ids)
+                | (FamilyMember.id << family_head_ids),
+            )
+            .order_by(FamilyMember.id)
+        ):
+            members[m.family_head_id or m.id].append(m)
+        return [
+            [m for m in members.get(family_keys.get(i), []) if m.id != i]
+            for i in beneficiary_ids
+        ]
+
+
+class LanguagesForBeneficiaryLoader(DataLoader):
+    async def batch_load_fn(self, beneficiary_ids):
+        languages = {}
+        for row in (
+            XBeneficiaryLanguage.select(
+                XBeneficiaryLanguage.beneficiary,
+                fn.GROUP_CONCAT(XBeneficiaryLanguage.language)
+                .python_value(convert_ids)
+                .alias("language_ids"),
+            )
+            .where(XBeneficiaryLanguage.beneficiary << beneficiary_ids)
+            .group_by(XBeneficiaryLanguage.beneficiary)
+            .objects()
+            .iterator()
+        ):
+            languages[row.beneficiary_id] = row.language_ids
+        return [languages.get(i, []) for i in beneficiary_ids]

@@ -2,7 +2,14 @@
 
 import enum
 
-from peewee import SQL, CharField, DateField, DateTimeField, ForeignKeyField
+from peewee import (
+    SQL,
+    CharField,
+    DateField,
+    DateTimeField,
+    DeferredForeignKey,
+    ForeignKeyField,
+)
 
 
 class EnumCharField(CharField):
@@ -76,6 +83,17 @@ class UIntForeignKeyField(ForeignKeyField):
     field_type = "INTEGER UNSIGNED"
 
 
+class DeferredUIntForeignKeyField(DeferredForeignKey):
+    """Equivalent to UIntForeignKeyField with deferred initialization, see comment
+    there.
+    """
+
+    def set_model(self, rel_model):
+        field = UIntForeignKeyField(rel_model, _deferred=True, **self.field_kwargs)
+        field.name = self.name
+        self.model._meta.add_field(self.name, field)
+
+
 class ZeroDateTimeField(DateTimeField):
     """Custom class to convert MySQL zero DATETIME field value into None.
     If this is not used, peewee will return the zero datetime as string, and the
@@ -96,3 +114,15 @@ class ZeroDateField(DateField):
         if value == "0000-00-00":
             return
         return super().adapt(value)
+
+
+class IntAsCharField(CharField):
+    """Custom class to store an integer value in a legacy `varchar` DB column, while
+    exposing it as an integer on the application level.
+    """
+
+    def db_value(self, value):
+        return None if value is None else str(value)
+
+    def python_value(self, value):
+        return None if (value is None or value == "") else int(value)

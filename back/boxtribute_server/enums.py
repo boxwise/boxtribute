@@ -5,37 +5,7 @@ Remember to adjust graph_ql/enums.py when adding a new class here.
 import enum
 
 
-class DistributionEventsTrackingGroupState(enum.IntEnum):
-    InProgress = 1
-    Completed = enum.auto()
-
-
-class DistributionEventState(enum.IntEnum):
-    Planning = 1
-    Packing = enum.auto()
-    OnDistro = enum.auto()
-    ReturnedFromDistribution = enum.auto()
-    ReturnTrackingInProgress = enum.auto()
-    Completed = enum.auto()
-
-
-class DistributionEventTrackingFlowDirection(enum.IntEnum):
-    In = 1
-    Out = enum.auto()
-    # Internal = enum.auto()
-    BackToBox = enum.auto()
-
-
-class PackingListEntryState(enum.IntEnum):
-    NotStarted = 1
-    PackingInProgress = enum.auto()
-    Packed = enum.auto()
-
-
 class LocationType(enum.Enum):
-    """Indiciates which concrete type (classic Location, Distribution Spot, etc)
-    a Location is."""
-
     ClassicLocation = "Warehouse"
     DistributionSpot = "MapDistroSpot"
 
@@ -108,6 +78,15 @@ class Language(enum.IntEnum):
     de = enum.auto()
     ar = enum.auto()
     ckb = enum.auto()
+    ur = 8
+    ku = enum.auto()
+    fa = enum.auto()
+    ps = enum.auto()
+    ti = enum.auto()
+    am = enum.auto()
+    ln = enum.auto()
+    so = enum.auto()
+    prs = enum.auto()
 
 
 class HumanGender(enum.Enum):
@@ -155,3 +134,34 @@ class ProductType(enum.IntEnum):
 class ShareableView(enum.IntEnum):
     StatvizDashboard = 1
     StockOverview = enum.auto()
+
+
+class BoxSortField(enum.IntEnum):
+    LabelIdentifier = 1
+    LastModifiedOn = enum.auto()
+    State = enum.auto()
+    ProductName = enum.auto()
+    CategoryName = enum.auto()
+    ProductGender = enum.auto()
+    SizeName = enum.auto()
+    NumberOfItems = enum.auto()
+    Weight = enum.auto()
+    MonetaryValue = enum.auto()
+    LocationName = enum.auto()
+    Comment = enum.auto()
+    Age = enum.auto()
+
+
+class BeneficiarySortField(enum.IntEnum):
+    LastName = 1
+    FirstName = enum.auto()
+    Gender = enum.auto()
+    Age = enum.auto()
+    GroupIdentifier = enum.auto()
+    Tokens = enum.auto()
+    LastActiveOn = enum.auto()
+    CreatedOn = enum.auto()
+    Email = enum.auto()
+    Phone = enum.auto()
+    CustomTextField1 = enum.auto()
+    CustomTextField2 = enum.auto()

@@ -157,17 +157,17 @@ function TourOverlay() {
     activePath,
     completePath,
     backToPathSelection,
+    setStepIndex,
+    stepIndex,
   } = useWalkthrough();
   const visiblePaths = useVisiblePaths();
 
-  const [stepIndex, setStepIndex] = useState(0);
   const [run, setRun] = useState(false);
 
   const isActive = isWalkthroughActive && currentStep === "tour" && activePath != null;
   const pathDef = activePath ? PATHS[activePath] : null;
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [activePath]);
+  const steps = useMemo(() => (pathDef ? buildJoyrideSteps(pathDef.steps) : []), [pathDef]);
   const totalSteps = steps.length;
 
   const isLastPath = useMemo(
@@ -227,7 +227,7 @@ function TourOverlay() {
         }
       }
     },
-    [activePath, completePath, backToPathSelection, steps.length],
+    [activePath, completePath, backToPathSelection, steps.length, setStepIndex],
   );
 
   if (!isActive || !pathDef || steps.length === 0) return null;

@@ -29,7 +29,7 @@ Please check out [**Contribution Guidelines**](CONTRIBUTING.md) before you get s
 1. [Contribution Guidelines](CONTRIBUTING.md)
 1. [Installation](#preparation-for-installation)
    1. [Basic steps](#preparation-for-installation)
-   2. [Front-end](/react/README.md)
+   2. [Front-end](/front/README.md)
    3. [Back-end](/back/README.md)
 1. [About Docker](#about-docker)
 1. [Development Database Seed](#development-database-seed)
@@ -164,7 +164,7 @@ More labels can be found [here](./docs/qr/not-in-database).
 
 ## CircleCI
 
-We are use CircleCI for automated testing of PRs and deployment to Google Cloud. To develop the CircleCI scripts you can run a CircleCI client locally. Please check out [the documentation](https://circleci.com/docs/2.0/local-cli/).
+We use CircleCI for automated testing of PRs and deployment to Google Cloud. To develop the CircleCI scripts you can run a CircleCI client locally. Please check out [the documentation](https://circleci.com/docs/2.0/local-cli/).
 
 The most important commands are
 
@@ -200,7 +200,7 @@ All our architecture decisions are logged in ADRs which you can find [here](docs
 
 ### System landscape
 
-The follow diagram gives the system context for the boxtribute software acc. to the [C4 model](https://c4model.com/diagrams) architecture visualization method.
+The following diagram gives the system context for the boxtribute software acc. to the [C4 model](https://c4model.com/diagrams) architecture visualization method.
 
 ![C4 system landscape](docs/c4-system-landscape.png)
 

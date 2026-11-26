@@ -18,6 +18,7 @@ from .box import (
     another_not_delivered_box,
     base1_instock_boxes,
     box_without_qr_code,
+    created_in_donated_location_box,
     default_box,
     default_boxes,
     default_location_boxes,
@@ -29,13 +30,6 @@ from .box import (
     not_delivered_box,
 )
 from .box_state import default_box_state
-from .distribution_event import (
-    default_distribution_event,
-    distro_spot5_distribution_events,
-    distro_spot5_distribution_events_before_return_state,
-    distro_spot5_distribution_events_in_return_state,
-)
-from .distribution_event_tracking_group import default_tracking_group
 from .history import default_history
 from .location import (
     another_location,
@@ -55,7 +49,6 @@ from .organisation import (
     inactive_organisation,
     organisations,
 )
-from .packing_list_entry import packing_list_entry
 from .product import (
     another_product,
     base1_products,
@@ -100,7 +93,7 @@ from .shipment_detail import (
     prepared_shipment_detail,
     removed_shipment_detail,
 )
-from .size import another_size, default_size, mixed_size
+from .size import another_size, default_size, mixed_size, sizes
 from .size_range import another_size_range, default_size_range, size_ranges
 from .standard_product import (
     another_standard_product,
@@ -154,6 +147,7 @@ __all__ = [
     "box_without_qr_code",
     "canceled_shipment",
     "completed_shipment",
+    "created_in_donated_location_box",
     "default_beneficiary",
     "default_beneficiaries",
     "default_base",
@@ -161,7 +155,6 @@ __all__ = [
     "default_box",
     "default_boxes",
     "default_box_state",
-    "default_distribution_event",
     "default_history",
     "default_location",
     "default_location_boxes",
@@ -170,12 +163,12 @@ __all__ = [
     "default_product_category",
     "default_product_gender",
     "default_qr_code",
+    "default_service_relation",
     "default_shipment",
     "default_shipment_detail",
     "default_size",
     "default_size_range",
     "default_standard_product",
-    "default_tracking_group",
     "default_transaction",
     "default_transfer_agreement",
     "default_user",
@@ -184,9 +177,6 @@ __all__ = [
     "deleted_location",
     "disabled_standard_product",
     "distribution_spot",
-    "distro_spot5_distribution_events",
-    "distro_spot5_distribution_events_before_return_state",
-    "distro_spot5_distribution_events_in_return_state",
     "donated_box",
     "english_lesson_service",
     "expired_link",
@@ -210,7 +200,6 @@ __all__ = [
     "not_delivered_box",
     "null_box_state_location",
     "organisations",
-    "packing_list_entry",
     "pound_unit",
     "prepared_shipment_detail",
     "product_categories",
@@ -225,10 +214,10 @@ __all__ = [
     "removed_shipment_detail",
     "reviewed_transfer_agreement",
     "sent_shipment",
-    "default_service_relation",
     "shareable_link",
     "shipments",
     "size_ranges",
+    "sizes",
     "standard_products",
     "stock_overview_link",
     "superceding_measure_standard_product",
@@ -251,6 +240,7 @@ _NAMES = [
     "language",
     "qr_code",
     # Models that have dependencies, and are dependency of others
+    "usergroup",
     "user",
     "organisation",
     "base",
@@ -266,8 +256,6 @@ _NAMES = [
     "shipment",
     "tag",
     "shareable_link",
-    "distribution_event_tracking_group",
-    "distribution_event",
     "service",
 ]
 

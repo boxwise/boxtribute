@@ -6,7 +6,6 @@ import {
 import {
   PRODUCT_FIELDS_FRAGMENT,
   TAG_OPTIONS_FRAGMENT,
-  DISTRO_EVENT_FIELDS_FRAGMENT,
   BASE_ORG_FIELDS_FRAGMENT,
   LOCATION_BASIC_FIELDS_FRAGMENT,
   BOX_FIELDS_FRAGMENT,
@@ -142,9 +141,6 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
     query BoxByLabelIdentifier($labelIdentifier: String!) {
       box(labelIdentifier: $labelIdentifier) {
         ...BoxFields
-        distributionEvent {
-          ...DistroEventFields
-        }
         location {
           __typename
           id
@@ -160,16 +156,6 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
               ... on ClassicLocation {
                 defaultBoxState
               }
-            }
-            distributionEventsBeforeReturnedFromDistributionState {
-              id
-              state
-              distributionSpot {
-                name
-              }
-              name
-              plannedStartDateTime
-              plannedEndDateTime
             }
           }
         }
@@ -190,7 +176,7 @@ export const BOX_BY_LABEL_IDENTIFIER_AND_ALL_SHIPMENTS_QUERY = graphql(
       }
     }
   `,
-  [BOX_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT],
+  [BOX_FIELDS_FRAGMENT],
 );
 
 export const BOX_BY_LABEL_IDENTIFIER_QUERY = graphql(
@@ -198,9 +184,6 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = graphql(
     query BoxByLabelIdentifierWithoutShipments($labelIdentifier: String!) {
       box(labelIdentifier: $labelIdentifier) {
         ...BoxFields
-        distributionEvent {
-          ...DistroEventFields
-        }
         location {
           __typename
           id
@@ -217,22 +200,12 @@ export const BOX_BY_LABEL_IDENTIFIER_QUERY = graphql(
                 defaultBoxState
               }
             }
-            distributionEventsBeforeReturnedFromDistributionState {
-              id
-              state
-              distributionSpot {
-                name
-              }
-              name
-              plannedStartDateTime
-              plannedEndDateTime
-            }
           }
         }
       }
     }
   `,
-  [BOX_FIELDS_FRAGMENT, DISTRO_EVENT_FIELDS_FRAGMENT],
+  [BOX_FIELDS_FRAGMENT],
 );
 
 export const SHIPMENT_BY_ID_WITH_PRODUCTS_AND_LOCATIONS_QUERY = graphql(

@@ -4,11 +4,11 @@ from collections import defaultdict
 from dataclasses import dataclass
 from decimal import Decimal
 
-import peewee
+from peewee import JOIN, IntegrityError, fn
 
 from ....authz import authorize
 from ....db import db
-from ....enums import BoxState, TaggableObjectType, TagType
+from ....enums import BoxSortField, BoxState, ProductGender, TaggableObjectType, TagType
 from ....errors import (
     DeletedBase,
     DeletedBox,
@@ -37,16 +37,22 @@ from ....exceptions import (
 )
 from ....exceptions import ProductLocationBaseMismatch as ProductLocationBaseMismatchExc
 from ....exceptions import QrCodeAlreadyAssignedToBox, TagBaseMismatch
+from ....graph_ql.filtering import derive_box_filter
+from ....graph_ql.sorting import derive_box_sorting
 from ....models.definitions.base import Base
 from ....models.definitions.box import Box
 from ....models.definitions.history import DbChangeHistory
 from ....models.definitions.location import Location
 from ....models.definitions.product import Product
+from ....models.definitions.product_category import ProductCategory
 from ....models.definitions.qr_code import QrCode
+from ....models.definitions.shipment_detail import ShipmentDetail
 from ....models.definitions.size import Size
 from ....models.definitions.size_range_size import SizeRangeSize
+from ....models.definitions.tag import Tag
 from ....models.definitions.tags_relation import TagsRelation
 from ....models.definitions.unit import Unit
+from ....models.definitions.user import User
 from ....models.utils import (
     BATCH_SIZE,
     HISTORY_CREATION_MESSAGE,
@@ -57,6 +63,7 @@ from ....models.utils import (
     save_update_to_history,
     utcnow,
 )
+from ...export import rows_to_csv_base64
 from ...tag.crud import create_tag
 
 WAREHOUSE_BOX_STATES = {
@@ -213,7 +220,7 @@ def create_box(
                     TagsRelation.insert_many(tags_relations).execute()
                 return new_box
 
-        except peewee.IntegrityError as e:
+        except IntegrityError as e:
             # peewee throws the same exception for different constraint violations.
             # E.g. failing "NOT NULL" constraint shall be directly reported
             prefix = "Duplicate entry"
@@ -645,32 +652,6 @@ def assign_missing_tags_to_boxes(*, user_id, boxes):
     return list(Box.select().where(Box.id << box_ids))
 
 
-def unassign_tags_from_boxes(*, user_id, boxes, tag_ids):
-    """Soft-delete TagsRelation rows containing the given boxes and tag IDs. Already
-    deleted TagsRelations are ignored.
-
-    Update last_modified_* fields of the affected boxes.
-    Return the list of updated boxes.
-    """
-    if not boxes:
-        return []
-
-    box_ids = {box.id for box in boxes}
-    now = utcnow()
-    with db.database.atomic():
-        Box.update(last_modified_on=now, last_modified_by=user_id).where(
-            Box.id << box_ids
-        ).execute()
-        TagsRelation.update(deleted_on=now, deleted_by=user_id).where(
-            TagsRelation.tag << tag_ids,
-            TagsRelation.object_id << box_ids,
-            TagsRelation.object_type == TaggableObjectType.Box,
-            TagsRelation.deleted_on.is_null(),
-        ).execute()
-
-    return list(Box.select().where(Box.id << box_ids))
-
-
 def sanitize_input(data, new_tag_ids):
     sanitized_data = []
     all_tag_ids = []
@@ -720,7 +701,7 @@ def create_boxes(*, user_id, data):
     # Authorization guards
     base_id = list(base_ids)[0]
     authorize(permission="stock:write", base_id=base_id)
-    authorize(permission="tag_relation:assign")
+    authorize(permission="tags_relation:write")
 
     # Validation: base must not be deleted
     base = Base.select(Base.deleted_on, Base.name).where(Base.id == base_id).get()
@@ -858,7 +839,8 @@ def create_boxes(*, user_id, data):
             if size_id is None:
                 # If it's a product with discrete size, and the specified size is
                 # not available in the product's sizerange, then fallback to "Mixed".
-                size_id = sizes.get("mixed")
+                # The "One size" size range has no "mixed" size, so use "One size" size
+                size_id = sizes.get("mixed", list(sizes.values())[0])
                 size_comment = f"""original size: '{row["size_name"]}'"""
                 comment = f"{comment}; {size_comment}" if comment else size_comment
         complete_data.append(
@@ -967,3 +949,180 @@ def create_boxes(*, user_id, data):
         updated_boxes=result_boxes,
         invalid_box_label_identifiers=invalid_box_label_identifiers,
     )
+
+
+def get_boxes_page(base_id, *, page=None, page_size=None, **options):
+    page = page or 1
+    page_size = max(min(50 if page_size is None else page_size, 100), 1)
+    return _get_boxes_page(base_id, page=page, page_size=page_size, **options)
+
+
+def _get_boxes_page(
+    base_id, *, page, page_size, filters=None, sort_by=None, descending=None
+):
+    """Internal function to enable setting unlimited page size."""
+    box_selection = Box.select(Box.id).join(Location)
+    conditions, selection = derive_box_filter(filters, box_selection)
+    selection = selection.where(
+        (Box.deleted_on.is_null() | (Box.deleted_on == 0)),
+        Location.base == base_id,
+        *conditions,
+    )
+
+    # Totals are computed for all boxes matching the filters, independent of the page
+    totals = (
+        Box.select(
+            fn.COUNT(Box.id).alias("total_number_of_boxes"),
+            fn.COALESCE(fn.SUM(Box.number_of_items), 0).alias("total_number_of_items"),
+            fn.COALESCE(fn.SUM(Box.weight), 0).alias("total_weight"),
+            fn.COALESCE(fn.SUM(Box.monetary_value), 0).alias("total_monetary_value"),
+        )
+        .where(Box.id << selection)
+        .dicts()
+        .get()
+    )
+
+    def order(field):
+        if sort_by == BoxSortField.Age:
+            # largest (most recent) creation date means smallest age
+            return field.asc() if descending is not False else field.desc()
+        return field.desc() if descending is not False else field.asc()
+
+    # Inner query: sort and page on IDs only. The sort key is selected as well in order
+    # to sort the page rows of the outer query (and to be compatible with DISTINCT)
+    selection, sort_field = derive_box_sorting(selection, sort_by)
+    page_ids = (
+        selection.columns(Box.id, sort_field.alias("sort_key"))
+        .order_by(order(sort_field), Box.id.asc())
+        .paginate(page, page_size)
+        .alias("s")
+    )
+
+    # Correlated subquery for tag IDs (evaluated for the 50 rows only)
+    tag_ids = (
+        TagsRelation.select(fn.GROUP_CONCAT(TagsRelation.tag))
+        .where(
+            TagsRelation.object_id == page_ids.c.id,
+            TagsRelation.object_type == TaggableObjectType.Box,
+            TagsRelation.deleted_on.is_null(),
+        )
+        .alias("tag_ids")
+    )
+
+    # Aliases for the outer query
+    B = Box.alias("b")
+    L = Location.alias("l")
+    P = Product.alias("p")
+    Sz = Size.alias("sz")
+    Creator = User.alias("u")
+    Modifier = User.alias("um")
+
+    rows = (
+        B.select(
+            B.id,
+            B.label_identifier.alias("label_identifier"),
+            B.number_of_items.alias("number_of_items"),
+            B.comment.alias("comment"),
+            B.weight,
+            B.monetary_value,
+            Unit.symbol.alias("weight_unit_symbol"),
+            B.created_on,
+            B.last_modified_on,
+            Creator.id.alias("created_by_id"),
+            Creator.name.alias("created_by_name"),
+            Modifier.id.alias("last_modified_by_id"),
+            Modifier.name.alias("last_modified_by_name"),
+            B.state.alias("state"),
+            P.id.alias("product_id"),
+            P.name.alias("product_name"),
+            P.gender.alias("product_gender"),
+            P.standard_product.is_null(False).alias("contains_standard_product"),
+            ProductCategory.id.alias("product_category_id"),
+            ProductCategory.name.alias("product_category_name"),
+            Sz.id.alias("size_id"),
+            Sz.label.alias("size_name"),
+            L.id.alias("location_id"),
+            L.name.alias("location_name"),
+            ShipmentDetail.shipment.alias("shipment_id"),
+            B.qr_code.is_null(False).alias("has_qr_code"),
+            tag_ids,
+            fn.DATEDIFF(fn.NOW(), B.created_on).alias("age"),
+        )
+        .from_(page_ids)
+        .join(B, on=(B.id == page_ids.c.id))
+        .join(L, on=(L.id == B.location))
+        .join(P, on=(P.id == B.product))
+        .join(Sz, JOIN.LEFT_OUTER, on=(Sz.id == B.size))
+        .join(ProductCategory, on=(ProductCategory.id == P.category))
+        .join(Creator, JOIN.LEFT_OUTER, on=(Creator.id == B.created_by))
+        .join(Modifier, JOIN.LEFT_OUTER, on=(Modifier.id == B.last_modified_by))
+        .join(
+            ShipmentDetail,
+            JOIN.LEFT_OUTER,
+            on=(
+                (ShipmentDetail.box == B.id)
+                & ShipmentDetail.removed_on.is_null()
+                & ShipmentDetail.lost_on.is_null()
+                & ShipmentDetail.received_on.is_null()
+            ),
+        )
+        .join(Unit, JOIN.LEFT_OUTER, on=(Unit.id == B.weight_display_unit))
+        .order_by(order(page_ids.c.sort_key), B.id.asc())
+        .dicts()
+        .execute()
+    )
+    return {"page": rows, **totals}
+
+
+def export_box_rows_to_csv(base_id, filters=None):
+    """Serialize data of all boxes in the given base as CSV, taking filters into
+    account. The field names are the same as in the ExportToCsvButton component.
+    """
+    raw_boxes = _get_boxes_page(base_id, page=1, page_size=100_000, filters=filters)
+    tags = {
+        tag.id: tag.name
+        for tag in Tag.select(Tag.id, Tag.name).where(Tag.base == base_id)
+    }
+
+    fieldnames = [
+        "Box Number",
+        "Product",
+        "Product Category",
+        "Gender",
+        "Size",
+        "Number of items",
+        "State",
+        "Location",
+        "Tags",
+        "Shipment",
+        "Comment",
+        "Age at Export",
+        "Last Modified (UTC time)",
+        "Last Modified By",
+        "Created By",
+    ]
+    rows = (
+        {
+            "Box Number": box["label_identifier"],
+            "Product": box["product_name"],
+            "Product Category": box["product_category_name"],
+            "Gender": ProductGender(box["product_gender"]).name,
+            "Size": box["size_name"],
+            "Number of items": box["number_of_items"],
+            "State": BoxState(box["state"]).name,
+            "Location": box["location_name"],
+            "Tags": ",".join(
+                [tags[int(i)] for i in box["tag_ids"].split(",")]
+                if box["tag_ids"]
+                else []
+            ),
+            "Shipment": box["shipment_id"],
+            "Comment": box["comment"],
+            "Age at Export": box["age"],
+            "Last Modified (UTC time)": box["last_modified_on"],
+            "Last Modified By": box["last_modified_by_name"],
+            "Created By": box["created_by_name"],
+        }
+        for box in raw_boxes["page"]
+    )
+    return rows_to_csv_base64(fieldnames, rows)

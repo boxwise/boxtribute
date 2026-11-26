@@ -220,9 +220,9 @@ Here we would have to follow some kind of polymorphic association pattern (or si
 
 ## Decision
 
-We are going for Option 2. The Sizes use case is more of a typical plain-old-data case: there is no strong reason for making the concept a first class citizen in GraphQL, besides a bit more user friendliness regarding auto-completion when using the GraphQL console. In fact, there is also a shortcoming with the enum approach: there are naming constraints of GraphQL which don't allow enums to start wit numbers (which woudl affect a lot of Size values).
+We are going for Option 2. The Sizes use case is more of a typical plain-old-data case: there is no strong reason for making the concept a first class citizen in GraphQL, besides a bit more user friendliness regarding auto-completion when using the GraphQL console. In fact, there is also a shortcoming with the enum approach: there are naming constraints of GraphQL which don't allow enums to start with numbers (which would affect a lot of Size values).
 
-Also, there seem to be only a low risk of lock-in which couldn't be extended/overcome in the future if we wan’t to also add e.g. size units/dimensions.
+Also, there seem to be only a low risk of lock-in which couldn't be extended/overcome in the future if we want to also add e.g. size units/dimensions.
 
 Regarding the raised concern of a worse query performance of Option 2 because of the additional reference table: we don’t see high performance risks here since this is still in a normal query complexity level, we have an indexed foreign key and that this kind of operations is exactly what relational databases are made for.
 
