@@ -14,7 +14,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { filter, groupBy, innerJoin, leftJoin, map, sum, summarize, tidy } from "@tidyjs/tidy";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowForwardIcon, ArrowLeftIcon } from "@chakra-ui/icons";
 import { StockOverview, StockOverviewResult } from "../../../../../graphql/types";
 import { BoxesOrItemsCount } from "../../../utils/dashboardFilters";
@@ -81,19 +81,45 @@ export default function StockOverviewRing({
   width,
   height,
 }: StockOverviewRingProps) {
-  const [drilldownPath, setDrilldownPath] = useState<PreparedStockAttributes[]>([
-    defaultRingGrouping.value as PreparedStockAttributes,
-  ]);
-  const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
-  const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
-
-  const heading = boxesOrItems === "boxesCount" ? "Instock Boxes" : "Instock Items";
-
   const { onFilterChange, filterValue } = useValueFilter(
     ringGroupingOptions,
     defaultRingGrouping,
     ringGroupingUrlId,
   );
+
+  return (
+    <StockOverviewRingContent
+      key={filterValue.urlId}
+      data={data}
+      boxesOrItems={boxesOrItems}
+      width={width}
+      height={height}
+      filterValue={filterValue}
+      onFilterChange={onFilterChange}
+    />
+  );
+}
+
+interface StockOverviewRingContentProps extends StockOverviewRingProps {
+  filterValue: IFilterValue;
+  onFilterChange: (event: IFilterValue) => void;
+}
+
+function StockOverviewRingContent({
+  data,
+  boxesOrItems,
+  width,
+  height,
+  filterValue,
+  onFilterChange,
+}: StockOverviewRingContentProps) {
+  const [drilldownPath, setDrilldownPath] = useState<PreparedStockAttributes[]>([
+    filterValue.value as PreparedStockAttributes,
+  ]);
+  const [drilldownValues, setDrilldownValues] = useState<string[]>([]);
+  const [selectedDrilldownValue, setSelectedDrilldownValue] = useState<string>("");
+
+  const heading = boxesOrItems === "boxesCount" ? "Instock Boxes" : "Instock Items";
 
   const onExport = getOnExport(PieChart);
 
@@ -122,10 +148,6 @@ export default function StockOverviewRing({
     setDrilldownPath([base]);
     setDrilldownValues(newDrilldownValues);
   };
-
-  useEffect(() => {
-    setNewDrilldownPath(filterValue.value as PreparedStockAttributes, []);
-  }, [filterValue]);
 
   const onNextDrilldownChoice = (event) => {
     setDrilldownPath([...drilldownPath, event.target.value]);

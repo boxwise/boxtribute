@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback, useRef, useState } from "react";
+import { useEffect, useMemo, useCallback, useState } from "react";
 import {
   Skeleton,
   Table,
@@ -72,6 +72,22 @@ interface IBoxesTableProps {
 function BoxesTable({
   baseId,
   urlState,
+  ...props
+}: IBoxesTableProps) {
+  const viewKey = JSON.stringify([
+    baseId,
+    urlState.filters,
+    urlState.search,
+    urlState.sortBy,
+    urlState.descending,
+  ]);
+
+  return <BoxesTableContent key={viewKey} baseId={baseId} urlState={urlState} {...props} />;
+}
+
+function BoxesTableContent({
+  baseId,
+  urlState,
   tableConfig,
   actionOptionsData,
   columns,
@@ -131,8 +147,6 @@ function BoxesTable({
   // Select-all: all boxes matching the filters of the view are selected, including the ones that
   // are not loaded. The selection checkboxes are disabled while it is active.
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const isSelectAllRef = useRef(isSelectAll);
-  isSelectAllRef.current = isSelectAll;
 
   const {
     headerGroups,
@@ -173,13 +187,13 @@ function BoxesTable({
           Header: ({ getToggleAllPageRowsSelectedProps }: CellProps<any, any>) => (
             <IndeterminateCheckbox
               {...getToggleAllPageRowsSelectedProps()}
-              disabled={isSelectAllRef.current}
+              disabled={isSelectAll}
             />
           ),
           Cell: ({ row }: CellProps<any, any>) => (
             <IndeterminateCheckbox
               {...row.getToggleRowSelectedProps()}
-              disabled={isSelectAllRef.current}
+              disabled={isSelectAll}
             />
           ),
         },
@@ -233,19 +247,13 @@ function BoxesTable({
     actionsAreLoading,
   } = useBoxesActions(selectedFlatRows, refetch, selectAll);
 
-  // Select-all and the row selection are reset when the boxes of the view change
-  const viewKey = JSON.stringify([baseId, filters, search, sortBy, descending]);
-  useEffect(() => {
-    resetSelection();
-  }, [viewKey, resetSelection]);
-
   // The row selection is limited to the current page, unless select-all is active. In that case,
   // the rows of the new page are selected once they are loaded.
   useEffect(() => {
-    if (!isSelectAllRef.current) {
+    if (!isSelectAll) {
       resetSelectedRows();
     }
-  }, [currentPage, resetSelectedRows]);
+  }, [currentPage, isSelectAll, resetSelectedRows]);
   useEffect(() => {
     if (isSelectAll) {
       toggleAllRowsSelected(true);
