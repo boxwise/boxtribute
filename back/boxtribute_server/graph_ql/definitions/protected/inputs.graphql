@@ -198,6 +198,22 @@ input BeneficiaryBulkCreationInput {
   tagIds: [Int!]
 }
 
+input BeneficiariesAdjustCreditInput {
+  baseId: Int!
+  " Adjust credit for the families of the given heads in the given base. Passing null means adjusting credit for all active members of families in the base. "
+  familyHeadIds: [Int!]
+  " Non-negative credit for each adult (age greater or equal than ``Base.adultAge``) "
+  creditPerAdult: Int!
+  " Non-negative credit for each child (age smaller than ``Base.adultAge``) "
+  creditPerChild: Int!
+  " Optional, additional non-negative credit for each family "
+  creditPerFamily: Int
+  " If true, beneficiaries without date of birth count as adults. Otherwise they're ignored "
+  treatBeneficiaryWithoutDobAsAdult: Boolean
+  " Additional notes about why credit was adjusted "
+  description: String
+}
+
 input TransferAgreementCreationInput {
   initiatingOrganisationId: Int!
   partnerOrganisationId: Int!

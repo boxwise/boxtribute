@@ -41,6 +41,8 @@ type Mutation {
   mergeBeneficiariesIntoFamily(ids: [Int!]!): MergeBeneficiariesResult
   " Detach one or more family members (in the same base) from their resp. families. No credit balance is transferred. Any beneficiaries that are non-existing, deactivated, already individuals or family heads, and/or in base that the user must not access are returned in the `BeneficiariesResult.invalidBeneficiaryIds` list. "
   detachBeneficiariesFromFamily(ids: [Int!]!): DetachBeneficiariesResult
+  " Adjust credits for beneficiaries in a base. If family heads are specified, raise their balances acc. to the adult and child family constellation. If no family heads specified, the action can only be performed by users with coordinator role or higher. Then balances of all active families are raised (after reset to zero, if configured in the base settings), and base settings for beneficiary per-capita credits and the cycle start are updated. In general, credits are capped. "
+  adjustCreditForBeneficiaries(updateInput: BeneficiariesAdjustCreditInput!): AdjustBeneficiariesCreditResult
 
   " Create a new tag for a base, described by name, color and type. "
   createTag(creationInput: TagCreationInput): CreateTagResult

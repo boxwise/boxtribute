@@ -10,6 +10,7 @@ from ...enums import TagType
 from ...errors import (
     BeneficiaryAlreadySigned,
     DeactivatedFamilyHead,
+    DeletedBase,
     DeletedService,
     DeletedTag,
     EmptyName,
@@ -208,3 +209,16 @@ def validate_services(service_ids):
         )
     base_id = base_ids.pop() if base_ids else None
     return [service.id for service in valid_services], service_errors, base_id
+
+
+def validate_adjust_credit_input(
+    *, base, credit_per_adult, credit_per_child, credit_per_family=0, **_
+):
+    if base.deleted_on is not None:
+        return DeletedBase(name=base.name)
+    if credit_per_adult < 0:
+        return InvalidInitialCredit(initial_credit=credit_per_adult)
+    if credit_per_child < 0:
+        return InvalidInitialCredit(initial_credit=credit_per_child)
+    if credit_per_family < 0:
+        return InvalidInitialCredit(initial_credit=credit_per_family)

@@ -411,6 +411,7 @@ MUTATIONS_FOR_BETA_LEVEL[98] = MUTATIONS_FOR_BETA_LEVEL[7] + (
     "registerServicesForBeneficiaries",
     "mergeBeneficiariesIntoFamily",
     "detachBeneficiariesFromFamily",
+    "adjustCreditForBeneficiaries",
 )
 
 # ### BETA-LEVEL 99 ###

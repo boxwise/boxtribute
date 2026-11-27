@@ -111,8 +111,8 @@ def test_base_query(
         "daysToKeepInactiveBeneficiaries": default_base[
             "days_to_keep_inactive_beneficiaries"
         ],
-        "tokensPerAdult": default_base["tokens_per_adult"],
-        "tokensPerChild": default_base["tokens_per_child"],
+        "creditPerAdult": default_base["credit_per_adult"],
+        "creditPerChild": default_base["credit_per_child"],
         "trackingRegisteredBeneficiariesEnabled": default_base[
             "tracking_registered_beneficiaries_enabled"
         ],

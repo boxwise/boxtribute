@@ -639,6 +639,12 @@ def test_invalid_permission_for_user_read(client, default_product, default_user)
             "...on InsufficientPermissionError { name }",
             {"name": "beneficiary:edit"},
         ],
+        [
+            "adjustCreditForBeneficiaries",
+            """updateInput: { baseId: 1, creditPerAdult: 1, creditPerChild: 1 }""",
+            "...on InsufficientPermissionError { name }",
+            {"name": "transaction:create"},
+        ],
         # Test case 8.2.112
         [
             "createBoxes",
@@ -825,6 +831,12 @@ def test_mutate_insufficient_permission(
             "ids: [4]",
             "...on BeneficiariesResult { invalidBeneficiaryIds }",
             {"invalidBeneficiaryIds": [4]},
+        ],
+        [
+            "adjustCreditForBeneficiaries",
+            """updateInput: { baseId: 2, creditPerAdult: 1, creditPerChild: 1 }""",
+            "...on UnauthorizedForBaseError { id }",
+            {"id": "2"},
         ],
         # Test case 8.2.111
         [

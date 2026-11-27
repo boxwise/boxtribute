@@ -371,6 +371,28 @@ def test_mutate_resource_does_not_exist(
 
 
 @pytest.mark.parametrize(
+    "operation,mutation_input,field,response",
+    [
+        [
+            "adjustCreditForBeneficiaries",
+            """updateInput:
+            { baseId: 0, creditPerAdult: 1, creditPerChild: 1}""",
+            "...on ResourceDoesNotExistError { id name }",
+            {"id": "0", "name": "Base"},
+        ],
+    ],
+)
+def test_mutate_resource_does_not_exist_for_god_users(
+    client, mocker, operation, mutation_input, field, response
+):
+    # Non-god users would not be authorized to access resource ID 0
+    mock_user_for_request(mocker, is_god=True)
+    mutation = f"mutation {{ {operation}({mutation_input}) {{ {field} }} }}"
+    actual_response = assert_successful_request(client, mutation)
+    assert actual_response == response
+
+
+@pytest.mark.parametrize(
     "operation,query_input,field,response",
     [
         # Test case 8.1.31
