@@ -69,7 +69,7 @@ def compute_age(date_of_birth):
 
     if isinstance(date_of_birth, DateField):
         # https://dev.mysql.com/doc/refman/8.0/en/date-calculations.html
-        return fn.TIMESTAMPDIFF(SQL("YEAR"), date_of_birth, today.strftime("%Y-%m-%d"))
+        return fn.TIMESTAMPDIFF(SQL("YEAR"), date_of_birth, fn.CURDATE())
 
     # `date_of_birth` is a datetime.date instance.
     # Subtract 1 if current day is before birthday in current year

@@ -1,10 +1,13 @@
+from datetime import datetime
+
 from peewee import SQL, CharField, DateTimeField, IntegerField, SmallIntegerField
 
 from ..fields import IntAsCharField, UIntForeignKeyField
-from ..utils import utcnow
 from . import Model
 from .organisation import Organisation
 from .user import User
+
+DEFAULT_CYCLE_START = datetime(2019, 1, 1)
 
 
 class Base(Model):
@@ -25,21 +28,23 @@ class Base(Model):
         on_delete="SET NULL",
         on_update="CASCADE",
     )
-    cycle_start = DateTimeField(column_name="cyclestart", default=utcnow, null=True)
+    cycle_start = DateTimeField(
+        column_name="cyclestart", default=DEFAULT_CYCLE_START, null=True
+    )
     days_to_keep_inactive_beneficiaries = IntegerField(
         column_name="delete_inactive_users", constraints=[SQL("DEFAULT 30")], default=30
     )
     deleted_on = DateTimeField(null=True, column_name="deleted", default=None)
-    token_cap_for_adult = IntegerField(
+    balance_cap_for_adult = IntegerField(
         column_name="dropcapadult", constraints=[SQL("DEFAULT 99999")]
     )
-    token_cap_for_child = IntegerField(
+    balance_cap_for_child = IntegerField(
         column_name="dropcapchild", constraints=[SQL("DEFAULT 99999")]
     )
-    tokens_per_adult = IntAsCharField(
+    credit_per_adult = IntAsCharField(
         column_name="dropsperadult", constraints=[SQL("DEFAULT '100'")], default="100"
     )
-    tokens_per_child = IntAsCharField(
+    credit_per_child = IntAsCharField(
         column_name="dropsperchild", constraints=[SQL("DEFAULT '100'")], default="100"
     )
     group_identifier = CharField(
@@ -47,8 +52,8 @@ class Base(Model):
         constraints=[SQL("DEFAULT 'Container'")],
         default="Container",
     )
-    modified = DateTimeField(null=True)
-    modified_by = UIntForeignKeyField(
+    last_modified_on = DateTimeField(null=True, column_name="modified")
+    last_modified_by = UIntForeignKeyField(
         column_name="modified_by",
         field="id",
         model=User,

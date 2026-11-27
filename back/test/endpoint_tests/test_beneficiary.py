@@ -9,6 +9,7 @@ import pytest
 from auth import mock_user_for_request
 from boxtribute_server.business_logic.beneficiary.crud import transfer_balances
 from boxtribute_server.enums import HumanGender, Language, TaggableObjectType
+from boxtribute_server.models.definitions.base import Base
 from boxtribute_server.models.definitions.beneficiary import Beneficiary
 from boxtribute_server.models.definitions.history import DbChangeHistory
 from boxtribute_server.models.definitions.services_relation import ServicesRelation
@@ -23,6 +24,8 @@ from boxtribute_server.models.utils import (
 )
 from peewee import OperationalError
 from utils import assert_internal_server_error, assert_successful_request
+
+today = date.today().isoformat()
 
 
 def _generate_beneficiary_query(id):
@@ -245,7 +248,6 @@ def test_beneficiary_mutations(
     assert created_beneficiary["createdBy"] == created_beneficiary["lastModifiedBy"]
 
     # Test case 9.2.9
-    today = date.today().isoformat()
     new_last_name = "Body"
     new_dos = today
     language = "nl"
@@ -1049,7 +1051,7 @@ def test_create_beneficiary_with_all_fields(client):
     assert response["registered"] is True
     assert response["isVolunteer"] is False
     assert response["signed"] is True
-    assert response["dateOfSignature"] == date.today().isoformat()
+    assert response["dateOfSignature"] == today
     assert response["familyHead"] == {"id": "3"}
     assert response["tags"] == [{"id": "1"}, {"id": "3"}]
     # Credit is attributed to the family head
@@ -1612,3 +1614,76 @@ def test_transfer_balances_waits_for_beneficiary_lock(client, setup_testing_data
         )
         other_connection.rollback()
         other_connection.close()
+
+
+def test_adjust_credit_for_beneficiaries(client, default_beneficiary):
+    base_id = 1
+    beneficiary_id = str(default_beneficiary["id"])
+    # Beneficiary 1 is adult and has one non-deactivated family member without DoB
+    # Beneficiary 3 has no-dob and no members
+    # Beneficiary 6 is adult and has no members
+    # Existing balances: 149 for beneficiary 1, 30 for beneficiary 3
+    mutation = f"""mutation {{ adjustCreditForBeneficiaries(
+                updateInput:
+                {{ baseId: {base_id}, familyHeadIds: [{beneficiary_id}],
+                   creditPerAdult: 10, creditPerChild: 1, creditPerFamily: 20
+                    }} ) {{
+                    ...on BeneficiariesResult {{
+                        updatedBeneficiaries {{ id tokens }}
+                        invalidBeneficiaryIds
+                    }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBeneficiaries": [{"id": beneficiary_id, "tokens": 149 + 20 + 10}],
+        "invalidBeneficiaryIds": [],
+    }
+
+    mutation = f"""mutation {{ adjustCreditForBeneficiaries(
+                updateInput:
+                {{ baseId: {base_id},
+                   creditPerAdult: 10, creditPerChild: 1, creditPerFamily: 20
+                    }} ) {{
+                    ...on BeneficiariesResult {{
+                        updatedBeneficiaries {{ id tokens }}
+                        invalidBeneficiaryIds
+                    }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    assert response == {
+        "updatedBeneficiaries": [
+            {"id": beneficiary_id, "tokens": 179 + 20 + 10},
+            {"id": "3", "tokens": 30 + 20 + 0},
+            {"id": "6", "tokens": 0 + 20 + 10},
+        ],
+        "invalidBeneficiaryIds": [],
+    }
+
+    Base.update(reset_tokens=1).where(Base.id == base_id).execute()
+    mutation = f"""mutation {{ adjustCreditForBeneficiaries(
+                updateInput:
+                {{ baseId: {base_id}, treatBeneficiaryWithoutDobAsAdult: true,
+                   creditPerAdult: 10, creditPerChild: 1, creditPerFamily: 20
+                    }} ) {{
+                    ...on BeneficiariesResult {{
+                        updatedBeneficiaries {{ id tokens }}
+                        invalidBeneficiaryIds
+                    }} }} }}"""
+    response = assert_successful_request(client, mutation)
+    # assert response == {
+    #     "updatedBeneficiaries": [
+    #         {"id": beneficiary_id, "tokens": 0 + 20 + 10 + 10},
+    #         {"id": "3", "tokens": 0 + 20 + 10},
+    #         {"id": "6", "tokens": 0 + 20 + 10},
+    #     ],
+    #     "invalidBeneficiaryIds": [],
+    # }
+    query = "query { base(id: 1) { creditPerAdult creditPerChild lastModifiedOn } }"
+    response = assert_successful_request(client, query)
+    assert response.pop("lastModifiedOn").startswith(today)
+    assert response == {"creditPerAdult": 10, "creditPerChild": 1}
+
+    # run with familyHeadIds=[2] (family member)
+
+
+def test_adjust_credit_for_beneficiaries_errors(client):
+    # validation. rename InvalidInitialCreditError
+    pass

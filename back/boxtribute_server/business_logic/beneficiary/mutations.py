@@ -8,6 +8,7 @@ from ...errors import (
     ResourceDoesNotExist,
     SingleBeneficiaryForMerge,
 )
+from ...models.definitions.base import Base
 from ...models.definitions.beneficiary import Beneficiary
 from ...models.utils import utcnow
 from ..tag.crud import unassign_tags_from_resources
@@ -18,6 +19,7 @@ from .crud import (
     BeneficiariesResult,
     BeneficiariesServicesOperationResult,
     BeneficiariesTagsOperationResult,
+    adjust_credit_for_beneficiaries,
     assign_tags_to_beneficiaries,
     assigned_tag_ids,
     create_beneficiaries,
@@ -34,6 +36,7 @@ from .crud import (
 from .validation import (
     fetch_family_head_and_tags,
     strip_text_fields,
+    validate_adjust_credit_input,
     validate_beneficiary_input,
     validate_services,
 )
@@ -368,5 +371,35 @@ def resolve_detach_beneficiaries_from_family(*_, ids):
         ),
         invalid_beneficiary_ids=sorted(
             set(ids).difference(b.id for b in beneficiaries)
+        ),
+    )
+
+
+@mutation.field("adjustCreditForBeneficiaries")
+@handle_unauthorized
+def resolve_adjust_credit_for_beneficiaries(*_, update_input):
+    base_id = int(update_input.pop("base_id"))
+    family_head_ids = update_input.get("family_head_ids")
+    for_all = family_head_ids is None
+    authorize(permission="transaction:create")
+    authorize(permission="beneficiary:read", base_id=base_id)
+    if for_all:
+        authorize(permission="base:edit", base_id=base_id)
+
+    base = Base.get_or_none(base_id)
+    if base is None:
+        return ResourceDoesNotExist(name="Base", id=base_id)
+    if error := validate_adjust_credit_input(base=base, **update_input):
+        return error
+
+    beneficiaries = adjust_credit_for_beneficiaries(
+        **update_input, base=base, user_id=g.user.id
+    )
+    return BeneficiariesResult(
+        updated_beneficiaries=beneficiaries,
+        invalid_beneficiary_ids=(
+            []
+            if for_all
+            else sorted(set(family_head_ids).difference(b.id for b in beneficiaries))
         ),
     )

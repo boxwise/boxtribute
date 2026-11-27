@@ -28,11 +28,13 @@ from ...models.utils import (
     HISTORY_CREATION_MESSAGE,
     HISTORY_DELETION_MESSAGE,
     HISTORY_RECOVER_MESSAGE,
+    compute_age,
     compute_age_in_days,
     save_creation_to_history,
     save_update_to_history,
     utcnow,
 )
+from ..core.base.crud import update_base
 from ..export import rows_to_csv_base64
 from ..tag.crud import unassign_tags_from_resources
 
@@ -1023,3 +1025,122 @@ def create_beneficiaries(
         TagsRelation.insert_many(tags_relations).execute()
 
         return BeneficiariesResults({"results": beneficiaries})
+
+
+def adjust_credit_for_beneficiaries(
+    *,
+    user_id,
+    base,
+    credit_per_adult,
+    credit_per_child,
+    family_head_ids=None,
+    treat_beneficiary_without_dob_as_adult=False,
+    description="",
+    credit_per_family=0,
+):
+    for_all = family_head_ids is None
+    FamilyHead = Beneficiary.alias()
+    FamilyMember = Beneficiary.alias()
+
+    conditions = [
+        (FamilyHead.deleted_on.is_null() | ~FamilyHead.deleted_on),
+        (FamilyMember.deleted_on.is_null() | ~FamilyMember.deleted_on),
+        FamilyHead.base == base.id,
+        FamilyHead.family_head.is_null(),
+    ]
+    if not for_all:
+        # If family_head_ids empty, the function won't update anything
+        conditions.append(FamilyHead.id << family_head_ids)
+
+    # Get family heads incl. number of adults, number of children, current tokens
+    age = compute_age(FamilyMember.date_of_birth)
+    balance = (
+        Transaction.select(fn.COALESCE(fn.SUM(Transaction.tokens), 0)).where(
+            Transaction.beneficiary == FamilyHead.id
+        )
+    ).alias("balance")
+    # To do: lock beneficiaries
+    # To do: count family heads themselves as adult/child/no-dob
+    beneficiaries = list(
+        FamilyHead.select(
+            FamilyHead.id,
+            fn.SUM(fn.IF(age < base.adult_age, 1, 0)).alias("nr_children"),
+            fn.SUM(fn.IF(age >= base.adult_age, 1, 0)).alias("nr_adults"),
+            fn.COUNT(FamilyMember.date_of_birth.is_null()).alias("nr_nodobs"),
+            balance,
+        )
+        .left_outer_join(
+            FamilyMember,
+            on=(
+                (FamilyMember.family_head == FamilyHead.id)
+                | (FamilyMember.id == FamilyHead.id)
+            ),
+        )
+        .where(*conditions)
+        .group_by(FamilyHead.id)
+        .objects()
+        .execute()
+        .iterator()
+    )
+
+    now = utcnow()
+    if for_all and base.reset_tokens:
+        balance_resets = [
+            {
+                "beneficiary": family_head.id,
+                "count": 0,
+                "description": f"Reset of remaining tokens ({description})",
+                "tokens": -family_head.balance,
+                "product": None,
+                "created_on": now,
+                "created_by": user_id,
+            }
+            for family_head in beneficiaries
+        ]
+        for chunk in chunked(balance_resets, BATCH_SIZE):
+            Transaction.insert_many(chunk).execute()
+
+    # To do: cap credits; append (capped to maximum) to description
+    # caps = {
+    #     family_head.id: family_head.nr_adults * base.balance_cap_for_adult
+    #     + family_head.nr_children * base.balance_cap_for_child
+    #     + (
+    #         family_head.nr_nodobs * base.balance_cap_for_adult
+    #         if treat_beneficiary_without_dob_as_adult
+    #         else 0
+    #     )
+    #     for family_head in beneficiaries
+    # }
+    credit_charges = [
+        {
+            "beneficiary": family_head.id,
+            "count": 0,
+            "description": description,
+            "tokens": family_head.nr_adults * credit_per_adult
+            + family_head.nr_children * credit_per_child
+            + credit_per_family
+            + (
+                family_head.nr_nodobs * credit_per_adult
+                if treat_beneficiary_without_dob_as_adult
+                else 0
+            ),
+            "product": None,
+            "created_on": now,
+            "created_by": user_id,
+        }
+        for family_head in beneficiaries
+    ]
+    for chunk in chunked(credit_charges, BATCH_SIZE):
+        Transaction.insert_many(chunk).execute()
+
+    if for_all:
+        update_base(
+            id=base.id,
+            base=base,
+            credit_per_adult=credit_per_adult,
+            credit_per_child=credit_per_child,
+            user_id=user_id,
+            now=now,
+        )
+
+    return beneficiaries

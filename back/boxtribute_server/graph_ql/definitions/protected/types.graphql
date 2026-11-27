@@ -356,6 +356,7 @@ type Base {
   id: ID!
   name: String!
   organisation: Organisation!
+  lastModifiedOn: Datetime
   deletedOn: Datetime
   " List of all [`Beneficiaries`]({{Types.Beneficiary}}) registered in this base. Optionally pass filters "
   beneficiaries(paginationInput: PaginationInput, filterInput: FilterBeneficiaryInput): BeneficiaryPage
@@ -381,10 +382,10 @@ type Base {
   adultAge: Int!
   " Beneficiaries without activity (modification, transaction) will be automatically deactivated after this time span. "
   daysToKeepInactiveBeneficiaries: Int!
-  " Number of tokens assigned per adult beneficiary "
-  tokensPerAdult: Int!
-  " Number of tokens assigned per child beneficiary "
-  tokensPerChild: Int!
+  " Default credit assigned per adult beneficiary per cycle "
+  creditPerAdult: Int!
+  " Default credit assigned per child beneficiary per cycle "
+  creditPerChild: Int!
   trackingRegisteredBeneficiariesEnabled: Boolean!
   beneficiariesAsVolunteersEnabled: Boolean!
   beneficiaryEmailEnabled: Boolean!
@@ -949,6 +950,7 @@ union ReactivateBeneficiariesResult = BeneficiariesResult | InsufficientPermissi
 union RegisterBeneficiariesForServicesResult = BeneficiariesServicesOperationResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
 union MergeBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError | SingleBeneficiaryForMergeError
 union DetachBeneficiariesResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | BeneficiaryBaseMismatchError
+union AdjustBeneficiariesCreditResult = BeneficiariesResult | InsufficientPermissionError | UnauthorizedForBaseError | InvalidInitialCreditError | DeletedBaseError | ResourceDoesNotExistError
 union BeneficiaryIdsResult = BeneficiaryIds | InsufficientPermissionError | UnauthorizedForBaseError
 union CreateBoxesResult = BoxesResult | InsufficientPermissionError | UnauthorizedForBaseError | DeletedBaseError | ProductLocationBaseMismatchError | InvalidBaseError
 

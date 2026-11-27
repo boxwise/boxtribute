@@ -111,6 +111,7 @@ def _create_jwt_payload(
         base_prefix = f"base_{'-'.join(str(b) for b in base_ids)}"
         payload[f"{JWT_CLAIM_PREFIX}/permissions"] = [
             f"{base_prefix}/base:read",
+            f"{base_prefix}/base:edit",
             f"{base_prefix}/beneficiary:create",
             f"{base_prefix}/beneficiary:delete",
             f"{base_prefix}/beneficiary:edit",

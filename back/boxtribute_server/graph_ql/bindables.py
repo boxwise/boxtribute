@@ -179,6 +179,7 @@ union_types = (
     UnionType("RegisterBeneficiariesForServicesResult", resolve_type_by_class_name),
     UnionType("MergeBeneficiariesResult", resolve_type_by_class_name),
     UnionType("DetachBeneficiariesResult", resolve_type_by_class_name),
+    UnionType("AdjustBeneficiariesCreditResult", resolve_type_by_class_name),
     UnionType("BeneficiaryIdsResult", resolve_type_by_class_name),
     UnionType("ServiceError", resolve_type_by_class_name),
 )
